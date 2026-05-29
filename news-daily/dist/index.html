@@ -53,7 +53,7 @@
   <p class="hero-kicker">民国报刊式每日简报</p>
   <h1>牛秘书新闻社</h1>
   <p class="subtitle" id="hero-date"></p>
-  <p class="hero-deck">仿旧报纸版面编排，头条先行，栏目分明，重要新闻一目了然。</p>
+  <p class="hero-deck">头条先行，栏目分明，要事一目了然。</p>
 </div>
 
 <!-- ============ ANNOUNCE ============ -->
@@ -213,7 +213,46 @@
   });
 
   // Init
-  document.addEventListener('DOMContentLoaded', loadSections);
+  document.addEventListener('DOMContentLoaded', () => {
+    loadSections();
+    setupScrollReveal();
+  });
+
+  // Scroll reveal animation
+  function setupScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    // Observe section slots
+    document.querySelectorAll('.section-slot').forEach(slot => observer.observe(slot));
+
+    // Observe stats bar and announce bar
+    document.querySelectorAll('.stats-bar, .announce-bar').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(16px)';
+      el.style.transition = 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+      observer.observe(el);
+    });
+
+    // After reveal, reset styles for stats/announce
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.stats-bar, .announce-bar').forEach(el => revealObserver.observe(el));
+  }
 })();
 </script>
 

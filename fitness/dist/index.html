@@ -8,6 +8,9 @@
   <title>牛秘书塑形馆</title>
   <link rel="icon" href="logo.png">
   <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="theme.css">
 </head>
@@ -39,20 +42,23 @@
 
   <main class="shell workbench-shell">
     <section class="hero-panel" aria-labelledby="page-title">
-      <div>
-        <p class="eyebrow" id="page-kicker">Health Workbench</p>
-        <h1 id="page-title">今天的身体账本：练了多少，吃了多少，还差多少。</h1>
-      </div>
-      <div class="hero-metrics" aria-label="今日概览">
-        <div class="hero-metric"><span id="hero-weight">--</span><small>体重趋势 kg</small></div>
-        <div class="hero-metric"><span id="hero-calories">--</span><small>热量平衡</small></div>
-        <div class="hero-metric"><span>稳态</span><small>恢复信号</small></div>
-        <div class="hero-metric"><span id="hero-sync">0</span><small>待同步</small></div>
+      <div class="hero-panel-inner">
+        <div>
+          <p class="eyebrow" id="page-kicker">Health Workbench</p>
+          <h1 id="page-title">身体账本</h1>
+          <p style="color: var(--subtle); font-size: 16px; margin-top: 16px; max-width: 540px;">练了多少，吃了多少，还差多少。</p>
+        </div>
+        <div class="hero-metrics" aria-label="今日概览">
+          <div class="hero-metric"><div class="hero-metric-inner"><span id="hero-weight">--</span><small>体重趋势 kg</small></div></div>
+          <div class="hero-metric"><div class="hero-metric-inner"><span id="hero-calories">--</span><small>热量平衡</small></div></div>
+          <div class="hero-metric"><div class="hero-metric-inner"><span>稳态</span><small>恢复信号</small></div></div>
+          <div class="hero-metric"><div class="hero-metric-inner"><span id="hero-sync">0</span><small>待同步</small></div></div>
+        </div>
       </div>
     </section>
 
     <div class="section-host" id="section-host" aria-live="polite">
-      <div class="loading-card">正在加载模块，牛秘书在热身...</div>
+      <div class="loading-card"><div class="loading-card-inner">正在加载模块，牛秘书在热身...</div></div>
     </div>
   </main>
 

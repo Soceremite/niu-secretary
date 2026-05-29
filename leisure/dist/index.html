@@ -9,7 +9,7 @@
   <link rel="icon" href="logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --page: #f1eee7;
@@ -19,27 +19,35 @@
       --muted: #676157;
       --faint: #8a8174;
       --tea: #c9975f;
+      --tea-dark: #a87a4a;
       --blue: #66848e;
       --navy: #243746;
       --olive: #7f8a6a;
       --line: #d7d0c1;
       --line-soft: #e3dbce;
-      --shadow: 0 24px 80px rgba(48, 42, 32, .13);
-      --radius: 18px;
-      --ease: cubic-bezier(.2, .8, .2, 1);
+      --shadow-tinted: 0 24px 80px rgba(45, 42, 37, .12);
+      --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, .6);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { background: var(--page); scroll-behavior: smooth; }
     body {
-      margin: 0;
       min-height: 100vh;
       color: var(--ink);
-      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-family: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
       line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
       background:
-        radial-gradient(circle at 16% 8%, rgba(201, 151, 95, .20), transparent 32rem),
-        radial-gradient(circle at 84% 16%, rgba(102, 132, 142, .20), transparent 30rem),
+        radial-gradient(circle at 16% 8%, rgba(201, 151, 95, .18), transparent 32rem),
+        radial-gradient(circle at 84% 16%, rgba(102, 132, 142, .18), transparent 30rem),
         linear-gradient(135deg, rgba(255,255,255,.50), rgba(255,255,255,.10)),
         var(--page);
     }
@@ -125,49 +133,91 @@
     .leisure-hero {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 260px;
-      gap: 24px;
+      gap: 32px;
       align-items: end;
-      padding: 28px;
-      border: 1px solid #cfc8b8;
-      border-radius: 24px;
+      padding: 40px;
+      border: 1px solid rgba(207, 200, 184, .6);
+      border-radius: var(--radius-lg);
       background: rgba(255, 253, 247, .58);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-tinted), var(--shadow-inner);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .leisure-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201, 151, 95, .05), transparent 50%);
+      pointer-events: none;
     }
 
     .kicker {
-      margin: 0 0 10px;
+      margin: 0 0 12px;
       color: var(--tea);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .18em;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .2em;
       text-transform: uppercase;
+      opacity: 0.8;
     }
 
-    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 {
+      font-family: "Noto Sans SC", sans-serif;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      max-width: 65ch;
+      line-height: 1.7;
+    }
 
     h1 {
-      margin-bottom: 12px;
       color: var(--ink);
-      font-family: "Noto Serif SC", serif;
-      font-size: clamp(44px, 7vw, 76px);
+      font-size: clamp(48px, 8vw, 96px);
       font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: .02em;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: clamp(24px, 4vw, 32px);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: clamp(18px, 3vw, 22px);
+      font-weight: 600;
     }
 
     .lead {
-      max-width: 720px;
+      max-width: 540px;
       margin-bottom: 0;
       color: var(--muted);
-      font-size: clamp(16px, 2vw, 19px);
+      font-size: clamp(16px, 2vw, 18px);
+      font-weight: 500;
+      line-height: 1.6;
     }
 
+    /* Double-bezel architecture */
     .taste-card, .panel {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,253,247,.84);
-      padding: 18px;
+      position: relative;
       min-width: 0;
+      padding: 3px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(255, 253, 247, .9), rgba(231, 225, 213, .6));
+      box-shadow: var(--shadow-tinted);
+    }
+
+    .taste-card-inner, .panel-inner {
+      border-radius: calc(var(--radius-lg) - 3px);
+      background: rgba(255, 253, 247, .95);
+      padding: 24px;
+      box-shadow: var(--shadow-inner);
     }
 
     .taste-card h2, .panel h2 {
@@ -455,13 +505,31 @@
     }
     .sec-card {
       cursor: pointer;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(255,253,247,.84);
-      padding: 16px;
-      transition: box-shadow .2s;
+      position: relative;
+      padding: 3px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(255, 253, 247, .9), rgba(231, 225, 213, .6));
+      box-shadow: var(--shadow-tinted);
+      transition: transform .4s var(--ease-spring), box-shadow .4s var(--ease-out);
     }
-    .sec-card:active { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+    .sec-card-inner {
+      border-radius: calc(var(--radius-md) - 3px);
+      background: rgba(255, 253, 247, .95);
+      padding: 20px;
+      box-shadow: var(--shadow-inner);
+      height: 100%;
+    }
+
+    .sec-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 32px 96px rgba(45, 42, 37, .16), var(--shadow-inner);
+    }
+
+    .sec-card:active {
+      transform: translateY(-2px) scale(1.01);
+      transition-duration: .15s;
+    }
     .sec-card h4 {
       margin: 0 0 6px;
       font-size: 15px;
@@ -541,14 +609,56 @@
 
     .note-actions button {
       min-height: 36px;
-      padding: 0 12px;
-      border: 1px solid #d6c9b5;
+      padding: 0 16px;
+      border: 1px solid rgba(214, 201, 181, .8);
       border-radius: 999px;
-      background: var(--paper-soft);
+      background: linear-gradient(135deg, var(--paper-soft), rgba(247, 242, 233, .8));
       color: #7b5b34;
       cursor: pointer;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
+      transition: all .3s var(--ease-spring);
+      box-shadow: 0 2px 8px rgba(45, 42, 37, .08);
+    }
+
+    .note-actions button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(45, 42, 37, .12);
+    }
+
+    .note-actions button:active {
+      transform: translateY(0);
+      transition-duration: .1s;
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(231, 225, 213, .5) 25%, rgba(247, 242, 233, .8) 50%, rgba(231, 225, 213, .5) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-title {
+      height: 32px;
+      width: 60%;
+      margin-bottom: 12px;
+    }
+
+    .skeleton-text {
+      height: 16px;
+      width: 80%;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-card {
+      height: 200px;
+      border-radius: var(--radius-md);
     }
 
     .footer {
@@ -680,26 +790,31 @@
   <main class="leisure-shell">
     <section class="leisure-hero">
       <div>
-        <p class="kicker">Niu Secretary Leisure Collection</p>
-        <h1>牛秘书闲趣集</h1>
-        <p class="lead">按时间、心情和口味给少量精选。今晚看什么、听什么、读什么，不用刷长榜。</p>
+        <h1>闲趣集</h1>
+        <p class="lead">按时间和心情精选，今晚看什么、听什么、读什么。</p>
       </div>
       <aside class="taste-card">
-        <h2>口味档案</h2>
-        <div class="taste-meter"><span></span></div>
-        <div class="taste-tags" id="taste-tags"></div>
+        <div class="taste-card-inner">
+          <h2>口味档案</h2>
+          <div class="taste-meter"><span></span></div>
+          <div class="taste-tags" id="taste-tags"></div>
+        </div>
       </aside>
     </section>
 
     <section class="recommend-workbench">
       <section class="panel featured-panel">
-        <h2>今晚首推</h2>
-        <div class="featured-choice" id="featured-choice"></div>
+        <div class="panel-inner">
+          <h2>今晚首推</h2>
+          <div class="featured-choice" id="featured-choice"></div>
+        </div>
       </section>
 
       <aside class="panel">
-        <h2>今日候选</h2>
-        <div class="candidate-list" id="candidate-list"></div>
+        <div class="panel-inner">
+          <h2>今日候选</h2>
+          <div class="candidate-list" id="candidate-list"></div>
+        </div>
       </aside>
     </section>
 
@@ -730,6 +845,32 @@
   </footer>
 
   <script>
+    // ====== Scroll reveal animation ======
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Apply scroll reveal to sections
+    function applyScrollReveal() {
+      document.querySelectorAll('.panel, .sections-area .panel').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(24px)';
+        el.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        observer.observe(el);
+      });
+    }
+
     // ====== 全局状态 ======
     const COLOR_MAP = { '影视': '#66848e', '音乐': '#c9975f', '播客': '#243746', '小说': '#7f8a6a', '阅读': '#7f8a6a' };
     const ICON_MAP = { '影视': '影', '音乐': '乐', '播客': '播', '小说': '书', '小说': '书' };
@@ -977,20 +1118,23 @@
       sections.forEach(sec => {
         const data = sectionData[sec.key];
         if (!data || data.length === 0) return;
-        sectionsHtml += `<div class="panel"><div class="sec-title">${sec.title}</div><div class="sec-grid">`;
+        sectionsHtml += `<div class="panel"><div class="panel-inner"><div class="sec-title">${sec.title}</div><div class="sec-grid">`;
         data.forEach(item => {
           const norm = normalize(item, sec.type, '#', '30分钟', 0);
           sectionsHtml += `<div class="sec-card" onclick="showDetail(${JSON.stringify(norm).replace(/"/g, '&quot;')}, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
-            ${item.posterUrl ? `<div style="width:100%;height:140px;border-radius:10px;background:url(${item.posterUrl}) center/cover no-repeat;margin-bottom:10px"></div>` : ''}
-            <h4>${item.title || item.name}</h4>
-            <div class="card-tags">${(item.genres || []).slice(0, 3).map(g => `<span>${g}</span>`).join('')}</div>
-            <div class="card-reason">${item.reason || ''}</div>
-            <div class="card-score">匹配度 ${item.matchScore || 80}%</div>
+            <div class="sec-card-inner">
+              ${item.posterUrl ? `<div style="width:100%;height:140px;border-radius:10px;background:url(${item.posterUrl}) center/cover no-repeat;margin-bottom:10px"></div>` : ''}
+              <h4>${item.title || item.name}</h4>
+              <div class="card-tags">${(item.genres || []).slice(0, 3).map(g => `<span>${g}</span>`).join('')}</div>
+              <div class="card-reason">${item.reason || ''}</div>
+              <div class="card-score">匹配度 ${item.matchScore || 80}%</div>
+            </div>
           </div>`;
         });
-        sectionsHtml += '</div></div>';
+        sectionsHtml += '</div></div></div>';
       });
       document.getElementById('sections-area').innerHTML = sectionsHtml;
+      applyScrollReveal();
     })();
   </script>
 </body>

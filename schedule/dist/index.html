@@ -9,7 +9,7 @@
   <link rel="icon" href="logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Noto+Serif+SC:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --page: #e8ece6;
@@ -21,11 +21,17 @@
       --sage: #6f857a;
       --navy: #243746;
       --copper: #d0b37c;
+      --copper-dark: #b09760;
       --line: #ccd5ce;
       --line-soft: #e0e4dd;
-      --shadow: 0 24px 80px rgba(34, 48, 54, .13);
-      --radius: 18px;
-      --ease: cubic-bezier(.2, .8, .2, 1);
+      --shadow-tinted: 0 24px 80px rgba(34, 48, 54, .12);
+      --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, .6);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
     }
 
     * { box-sizing: border-box; }
@@ -34,11 +40,14 @@
       margin: 0;
       min-height: 100vh;
       color: var(--ink);
-      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-family: "Plus Jakarta Sans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
       line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
       background:
-        radial-gradient(circle at 12% 8%, rgba(208, 179, 124, .22), transparent 32rem),
-        radial-gradient(circle at 88% 12%, rgba(111, 133, 122, .20), transparent 30rem),
+        radial-gradient(circle at 12% 8%, rgba(208, 179, 124, .20), transparent 32rem),
+        radial-gradient(circle at 88% 12%, rgba(111, 133, 122, .18), transparent 30rem),
         linear-gradient(135deg, rgba(255,255,255,.46), rgba(255,255,255,.08)),
         var(--page);
     }
@@ -106,59 +115,100 @@
       display: inline-flex;
       align-items: center;
       min-height: 36px;
-      padding: 0 12px;
+      padding: 0 14px;
       border: 1px solid var(--line);
       border-radius: 999px;
       color: var(--muted);
       background: rgba(255,255,250,.45);
       font-size: 13px;
+      font-weight: 600;
       white-space: nowrap;
+      transition: all 0.3s var(--ease-spring);
+    }
+    .back-link:hover {
+      color: var(--ink);
+      border-color: var(--copper);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(34, 48, 54, .08);
     }
 
     .schedule-shell {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 38px 24px 52px;
+      padding: 48px 24px 72px;
     }
 
     .bureau-hero {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 148px;
-      gap: 24px;
+      gap: 32px;
       align-items: end;
-      padding: 28px;
-      border: 1px solid #bec8bd;
-      border-radius: 24px;
+      padding: 3px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(255, 255, 250, .9), rgba(224, 228, 221, .6));
+      box-shadow: var(--shadow-tinted);
+    }
+
+    .bureau-hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 148px;
+      gap: 32px;
+      align-items: end;
+      padding: 36px;
+      border-radius: calc(var(--radius-lg) - 3px);
       background: rgba(255, 255, 250, .54);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-inner);
     }
 
     .kicker {
-      margin: 0 0 10px;
+      margin: 0 0 14px;
       color: var(--sage);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .18em;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .2em;
       text-transform: uppercase;
+      opacity: 0.8;
     }
 
-    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      max-width: 65ch;
+      line-height: 1.7;
+    }
 
     h1 {
-      margin-bottom: 12px;
       color: #1e2b34;
-      font-family: "Noto Serif SC", serif;
-      font-size: clamp(44px, 7vw, 76px);
+      font-size: clamp(48px, 8vw, 96px);
       font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: .02em;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: clamp(20px, 3vw, 24px);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: clamp(16px, 2.5vw, 18px);
+      font-weight: 600;
     }
 
     .lead {
-      max-width: 710px;
+      max-width: 540px;
       margin-bottom: 0;
       color: var(--muted);
-      font-size: clamp(16px, 2vw, 19px);
+      font-size: clamp(16px, 2vw, 18px);
+      font-weight: 500;
+      line-height: 1.6;
     }
 
     .date-card {
@@ -196,12 +246,22 @@
       margin-top: 18px;
     }
 
+    /* Double-bezel for panels */
     .panel {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255, 255, 250, .82);
-      padding: 18px;
+      position: relative;
       min-width: 0;
+      padding: 3px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(255, 255, 250, .9), rgba(224, 228, 221, .6));
+      box-shadow: var(--shadow-tinted);
+    }
+
+    .panel-inner {
+      border-radius: calc(var(--radius-lg) - 3px);
+      background: rgba(255, 255, 250, .82);
+      padding: 24px;
+      box-shadow: var(--shadow-inner);
+      height: 100%;
     }
 
     .panel-title {
@@ -209,15 +269,14 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--line-soft);
     }
 
     .panel h2, .panel-title h2 {
       margin: 0;
       color: #1e2b34;
-      font-family: "Noto Serif SC", serif;
       font-size: 22px;
       line-height: 1.2;
     }
@@ -225,7 +284,7 @@
     .panel-title span {
       color: var(--sage);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       white-space: nowrap;
     }
 
@@ -241,6 +300,13 @@
       align-items: center;
       padding: 14px 0;
       border-bottom: 1px solid var(--line-soft);
+      transition: all 0.3s var(--ease-out);
+    }
+
+    .task:hover {
+      background: rgba(245, 247, 242, .4);
+      padding-left: 8px;
+      padding-right: 8px;
     }
 
     .task:last-child { border-bottom: 0; }
@@ -395,14 +461,50 @@
 
     .note-actions button {
       min-height: 36px;
-      padding: 0 12px;
+      padding: 0 14px;
       border: 1px solid #c8d1cc;
       border-radius: 999px;
-      background: #f5f7f2;
+      background: linear-gradient(135deg, #f5f7f2, rgba(245, 247, 242, .8));
       color: #526d62;
       cursor: pointer;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
+      transition: all 0.3s var(--ease-spring);
+      box-shadow: 0 2px 8px rgba(34, 48, 54, .06);
+    }
+
+    .note-actions button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(34, 48, 54, .1);
+      border-color: var(--copper);
+    }
+
+    .note-actions button:active {
+      transform: translateY(0);
+      transition-duration: 0.1s;
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+    }
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Skeleton loading */
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(224, 228, 221, .4) 25%, rgba(245, 247, 242, .6) 50%, rgba(224, 228, 221, .4) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+      border-radius: 8px;
     }
 
     .footer {
@@ -431,7 +533,7 @@
     @media (max-width: 540px) {
       .brand-caption { display: none; }
       .back-link { padding: 0 10px; font-size: 12px; }
-      .bureau-hero, .panel, .briefing-note { padding: 16px; border-radius: 16px; }
+      .bureau-hero-inner, .panel-inner, .briefing-note { padding: 20px; border-radius: 20px; }
       h1 { font-size: 38px; }
       .lead { font-size: 15px; }
       .task { grid-template-columns: 1fr; gap: 5px; }
@@ -460,43 +562,51 @@
 
   <main class="schedule-shell">
     <section class="bureau-hero">
-      <div>
-        <p class="kicker">Niu Secretary Schedule Bureau</p>
-        <h1>牛秘书时务局</h1>
-        <p class="lead">排班、提醒、代办和目标收进同一个事务夹。先看轻重缓急，再看时间。</p>
-      </div>
-      <div class="date-card" aria-label="今日日期">
+      <div class="bureau-hero-inner">
         <div>
-          <span id="today-month">今日</span>
-          <strong id="today-day">--</strong>
-          <span id="today-weekday">星期--</span>
+          <p class="kicker">Schedule Bureau</p>
+          <h1>时务局</h1>
+          <p class="lead">排班、提醒、代办和目标，一夹搞定。</p>
+        </div>
+        <div class="date-card" aria-label="今日日期">
+          <div>
+            <span id="today-month">今日</span>
+            <strong id="today-day">--</strong>
+            <span id="today-weekday">星期--</span>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="workbench">
-      <section class="panel schedule-panel">
-        <div class="panel-title">
-          <h2>今日排班</h2>
-          <span id="today-count">0 项</span>
+      <section class="panel schedule-panel reveal">
+        <div class="panel-inner">
+          <div class="panel-title">
+            <h2>今日排班</h2>
+            <span id="today-count">0 项</span>
+          </div>
+          <div class="timeline" id="timeline"></div>
         </div>
-        <div class="timeline" id="timeline"></div>
       </section>
 
       <aside class="side-stack">
-        <section class="panel">
-          <h2>秘书提醒</h2>
-          <div class="priority-list" id="priority-list"></div>
+        <section class="panel reveal">
+          <div class="panel-inner">
+            <h2>秘书提醒</h2>
+            <div class="priority-list" id="priority-list"></div>
+          </div>
         </section>
 
-        <section class="panel">
-          <h2>事务抽屉</h2>
-          <nav class="drawer-grid" aria-label="时务局模块" id="drawer-grid"></nav>
+        <section class="panel reveal">
+          <div class="panel-inner">
+            <h2>事务抽屉</h2>
+            <nav class="drawer-grid" aria-label="时务局模块" id="drawer-grid"></nav>
+          </div>
         </section>
       </aside>
     </section>
 
-    <section class="briefing-note">
+    <section class="briefing-note reveal">
       <div>
         <p class="note-label">今日批注</p>
         <p><strong>上午处理要务，下午清杂事，晚上收档。</strong> 日程不需要排满，需要排准；今天完成三件关键事即可。</p>
@@ -514,6 +624,25 @@
 
   <script>
     (function() {
+      // Scroll reveal animation
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+      });
+
       const now = new Date();
       const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
       const todayStr = now.toISOString().slice(0, 10);

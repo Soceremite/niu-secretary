@@ -1,6 +1,7 @@
 <!-- fitness/src/sections/training.html -->
 <section class="module-grid workbench-section" id="training">
   <article class="glass-card priority-card">
+    <div class="glass-card-inner">
     <div class="card-head">
       <div>
         <h2>训练记录</h2>
@@ -24,20 +25,26 @@
       </div>
       <div class="toast" id="training-toast"></div>
     </form>
+    </div>
   </article>
 
   <aside class="stack">
     <article class="glass-card status-card">
+      <div class="glass-card-inner">
       <div class="card-head"><div><h3>今日建议</h3><p>综合恢复状态、评估限制和今日训练记录。</p></div></div>
       <div id="training-suggestion"></div>
+      </div>
     </article>
 
     <article class="glass-card">
+      <div class="glass-card-inner">
       <div class="card-head"><div><h3>训练计划</h3><p>根据目标和恢复状态生成今天的训练边界。</p></div></div>
       <div id="training-plan"></div>
+      </div>
     </article>
 
     <article class="glass-card">
+      <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h3>训练容量</h3>
@@ -50,10 +57,12 @@
         <div class="metric info"><b id="training-count">0</b><span>记录数</span></div>
       </div>
       <div class="pattern-list" id="pattern-list"></div>
+      </div>
     </article>
   </aside>
 
   <article class="glass-card full-row history-card">
+    <div class="glass-card-inner">
     <div class="card-head">
       <div>
         <h3>最近训练</h3>
@@ -61,5 +70,6 @@
       </div>
     </div>
     <div class="log-list" id="training-list"></div>
+    </div>
   </article>
 </section>

@@ -1,6 +1,7 @@
 <!-- fitness/src/sections/assessment.html -->
 <section class="module-grid workbench-section" id="assessment">
   <article class="glass-card priority-card">
+    <div class="glass-card-inner">
     <div class="card-head">
       <div>
         <h2>身体评估</h2>
@@ -54,15 +55,19 @@
       </div>
       <div class="toast" id="assessment-toast"></div>
     </form>
+    </div>
   </article>
 
   <aside class="stack">
     <article class="glass-card result-panel status-card" id="assessment-result">
+      <div class="glass-card-inner">
       <div class="empty">保存一次评估后，这里会显示 BMI、TDEE、FMS 风险和训练限制。</div>
+      </div>
     </article>
   </aside>
 
   <article class="glass-card full-row history-card">
+    <div class="glass-card-inner">
     <div class="card-head">
       <div>
         <h3>评估历史</h3>
@@ -70,5 +75,6 @@
       </div>
     </div>
     <div class="log-list" id="assessment-list"></div>
+    </div>
   </article>
 </section>

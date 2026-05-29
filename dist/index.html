@@ -27,8 +27,11 @@
       --blue: #476d94;
       --line: rgba(200, 164, 92, 0.18);
       --line-soft: rgba(255, 255, 255, 0.08);
-      --shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
-      --ease: cubic-bezier(.2, .8, .2, 1);
+      --shadow: 0 28px 90px rgba(9, 8, 6, 0.5);
+      --shadow-tinted: 0 32px 100px rgba(9, 8, 6, 0.55);
+      --shadow-inner: inset 0 1px 0 rgba(240, 213, 135, 0.08);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * { box-sizing: border-box; }
@@ -38,10 +41,13 @@
       min-height: 100vh;
       color: var(--ink);
       font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
       line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
       background:
-        radial-gradient(circle at 20% 10%, rgba(240, 213, 135, .12), transparent 34rem),
-        radial-gradient(circle at 86% 18%, rgba(142, 45, 36, .11), transparent 30rem),
+        radial-gradient(circle at 20% 10%, rgba(240, 213, 135, .10), transparent 34rem),
+        radial-gradient(circle at 86% 18%, rgba(142, 45, 36, .09), transparent 30rem),
         linear-gradient(135deg, rgba(255,255,255,.035) 0 1px, transparent 1px 12px),
         var(--bg);
       overflow-x: hidden;
@@ -126,15 +132,18 @@
       padding: 8px 12px;
       color: var(--muted);
       font-size: 13px;
+      font-weight: 600;
       text-decoration: none;
       border: 1px solid transparent;
-      transition: color .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
+      border-radius: 6px;
+      transition: color .3s var(--ease-out), border-color .3s var(--ease-out), background .3s var(--ease-out), transform .3s var(--ease-spring);
     }
 
     .nav a:hover {
       color: var(--gold-2);
       border-color: rgba(200,164,92,.2);
       background: rgba(200,164,92,.06);
+      transform: translateY(-2px);
     }
 
     .hero {
@@ -212,16 +221,25 @@
     }
 
     .btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
-    .btn:hover { transform: translateY(-2px); border-color: rgba(240,213,135,.52); background: rgba(200,164,92,.09); }
+    .btn:hover { transform: translateY(-3px) scale(1.02); border-color: rgba(240,213,135,.52); background: rgba(200,164,92,.09); box-shadow: 0 12px 32px rgba(200,164,92,.12); transition: transform .4s var(--ease-spring), border-color .3s var(--ease-out), background .3s var(--ease-out), box-shadow .3s var(--ease-out); }
+    .btn:active { transform: translateY(-1px) scale(1.01); transition-duration: .1s; }
     .btn.primary { background: linear-gradient(135deg, var(--gold-2), var(--gold)); color: #21180b; border-color: transparent; font-weight: 800; }
 
 
     .assistant-panel {
       max-width: 670px;
       margin: 0 0 28px;
-      border: 1px solid rgba(200,164,92,.26);
-      background: rgba(18,16,13,.72);
-      box-shadow: 0 22px 64px rgba(0,0,0,.28);
+      position: relative;
+      padding: 3px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(240,213,135,.15), rgba(200,164,92,.05));
+      box-shadow: var(--shadow-tinted);
+    }
+    .assistant-panel-inner {
+      border-radius: 17px;
+      background: rgba(18,16,13,.82);
+      box-shadow: var(--shadow-inner);
+      overflow: hidden;
     }
 
     .assistant-head {
@@ -356,6 +374,10 @@
     .promise {
       padding: 18px;
       background: rgba(18, 16, 13, .82);
+      transition: background .3s var(--ease-out);
+    }
+    .promise:hover {
+      background: rgba(18, 16, 13, .6);
     }
 
     .promise b {
@@ -373,10 +395,19 @@
 
     .portrait-board {
       position: relative;
-      border: 1px solid var(--line);
+      padding: 3px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(240,213,135,.18), rgba(200,164,92,.06));
+      box-shadow: var(--shadow-tinted);
+    }
+
+    .portrait-board-inner {
+      position: relative;
+      border-radius: 17px;
       background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-inner);
       padding: 18px;
+      overflow: hidden;
     }
 
     .portrait-board::before {
@@ -501,20 +532,32 @@
       min-height: 360px;
       display: grid;
       align-content: space-between;
-      padding: 28px;
+      padding: 3px;
       color: inherit;
       text-decoration: none;
-      border: 1px solid var(--line);
-      background:
-        radial-gradient(circle at var(--mx, 20%) var(--my, 10%), rgba(240,213,135,.12), transparent 16rem),
-        rgba(18,16,13,.86);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(240,213,135,.12), rgba(200,164,92,.04));
       overflow: hidden;
-      transition: transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease);
+      transition: transform .4s var(--ease-spring), box-shadow .4s var(--ease-out);
+    }
+
+    .service-inner {
+      position: relative;
+      border-radius: 17px;
+      padding: 28px;
+      display: grid;
+      align-content: space-between;
+      background:
+        radial-gradient(circle at var(--mx, 20%) var(--my, 10%), rgba(240,213,135,.10), transparent 16rem),
+        rgba(18,16,13,.92);
+      box-shadow: var(--shadow-inner);
+      height: 100%;
+      overflow: hidden;
     }
 
     .service:hover {
-      transform: translateY(-4px);
-      border-color: rgba(240,213,135,.48);
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 40px 120px rgba(9, 8, 6, 0.6);
     }
 
     .service::after {
@@ -595,10 +638,7 @@
       font-weight: 700;
     }
 
-    .service.news { border-top: 4px solid var(--red); }
-    .service.fitness { border-top: 4px solid var(--green); }
-    .service.schedule { border-top: 4px solid var(--gold); }
-    .service.leisure { border-top: 4px solid #7c6dab; }
+    .service.news, .service.fitness, .service.schedule, .service.leisure { /* border-top moved to .service-inner */ }
 
     .matrix {
       display: grid;
@@ -608,9 +648,17 @@
     }
 
     .manifesto {
+      position: relative;
+      padding: 3px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(240,213,135,.12), rgba(200,164,92,.04));
+      box-shadow: var(--shadow-tinted);
+    }
+    .manifesto-inner {
+      border-radius: 17px;
       padding: 34px;
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(240,213,135,.08), rgba(255,255,255,.025));
+      background: linear-gradient(180deg, rgba(240,213,135,.06), rgba(255,255,255,.02));
+      box-shadow: var(--shadow-inner);
     }
 
     .manifesto blockquote {
@@ -629,7 +677,17 @@
     .roadmap {
       display: grid;
       gap: 1px;
-      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(240,213,135,.12), rgba(200,164,92,.04));
+      box-shadow: var(--shadow-tinted);
+      padding: 3px;
+    }
+    .roadmap-inner {
+      border-radius: 17px;
+      overflow: hidden;
+      display: grid;
+      gap: 1px;
       background: var(--line);
     }
 
@@ -639,6 +697,10 @@
       gap: 18px;
       padding: 20px;
       background: rgba(18,16,13,.9);
+      transition: background .3s var(--ease-out);
+    }
+    .road-item:hover {
+      background: rgba(18,16,13,.7);
     }
 
     .road-item b {
@@ -715,10 +777,12 @@
       .assistant-composer { grid-template-columns: 1fr; }
       .assistant-action button,
       .assistant-composer button { width: 100%; }
-      .portrait-board { padding: 12px; }
+      .portrait-board { padding: 3px; }
       .portrait-frame img { inset: 24px 24px auto; width: calc(100% - 48px); }
+      .portrait-board-inner { padding: 12px; }
       .section { padding: 62px 0; }
-      .service { min-height: 320px; padding: 22px; }
+      .service { min-height: 320px; padding: 3px; }
+      .service-inner { padding: 22px; }
       .service-meta { align-items: flex-start; flex-direction: column; }
       .road-item { grid-template-columns: 1fr; }
       .footer-inner { flex-direction: column; align-items: flex-start; }
@@ -749,7 +813,7 @@
         <p class="eyebrow reveal">Your Personal AI Steward</p>
         <h1 class="reveal"><span>牛秘书</span>你的私人 AI 管家</h1>
         <p class="lead reveal">
-          把新闻、健康、日程和生活决策收进一个可靠入口。牛秘书不是再给你一个工具，而是替你筛选、整理、提醒、执行。
+          新闻、健康、日程、生活决策，收进一个可靠入口。替你筛选、整理、提醒、执行。
         </p>
         <div class="hero-actions reveal">
           <a class="btn" href="/niu-secretary/news/">
@@ -771,19 +835,21 @@
         </div>
 
         <section class="assistant-panel reveal" aria-label="牛秘书 AI 助手">
-          <div class="assistant-head">
-            <strong>牛秘书 AI</strong>
-            <span>Action Protocol v2.0</span>
+          <div class="assistant-panel-inner">
+            <div class="assistant-head">
+              <strong>牛秘书 AI</strong>
+              <span>Action Protocol v2.0</span>
+            </div>
+            <div class="assistant-messages" data-assistant-messages>
+              <div class="assistant-message">你说一句话，我会整理成可确认的动作。</div>
+            </div>
+            <div class="assistant-actions" data-assistant-actions hidden></div>
+            <form class="assistant-composer" data-assistant-form>
+              <input data-assistant-input type="text" autocomplete="off" placeholder="例如：我今天吃了牛肉面" aria-label="给牛秘书 AI 发送消息">
+              <button type="submit">发送</button>
+            </form>
+            <div class="assistant-status" data-assistant-status></div>
           </div>
-          <div class="assistant-messages" data-assistant-messages>
-            <div class="assistant-message">你说一句话，我会整理成可确认的动作。</div>
-          </div>
-          <div class="assistant-actions" data-assistant-actions hidden></div>
-          <form class="assistant-composer" data-assistant-form>
-            <input data-assistant-input type="text" autocomplete="off" placeholder="例如：我今天吃了牛肉面" aria-label="给牛秘书 AI 发送消息">
-            <button type="submit">发送</button>
-          </form>
-          <div class="assistant-status" data-assistant-status></div>
         </section>
 
         <div class="promise-grid reveal" aria-label="牛秘书服务承诺">
@@ -794,17 +860,19 @@
       </div>
 
       <aside class="portrait-board reveal" aria-label="牛秘书品牌形象">
-        <div class="portrait-frame">
-          <img src="logo.png" alt="牛秘书品牌头像">
-          <div class="portrait-copy">
-            <div class="status-row">
-              <span class="status"><span class="dot"></span>新闻社在线</span>
-              <span class="status"><span class="dot"></span>塑形馆在线</span>
-              <span class="status"><span class="dot"></span>时务局在线</span>
-              <span class="status"><span class="dot"></span>闲趣集在线</span>
+        <div class="portrait-board-inner">
+          <div class="portrait-frame">
+            <img src="logo.png" alt="牛秘书品牌头像">
+            <div class="portrait-copy">
+              <div class="status-row">
+                <span class="status"><span class="dot"></span>新闻社在线</span>
+                <span class="status"><span class="dot"></span>塑形馆在线</span>
+                <span class="status"><span class="dot"></span>时务局在线</span>
+                <span class="status"><span class="dot"></span>闲趣集在线</span>
+              </div>
+              <h2>清冷、专业、但替你操心。</h2>
+              <p>统一入口正在搭建，后续会逐步接入对话管家、日程和个人记忆。</p>
             </div>
-            <h2>清冷、专业、但替你操心。</h2>
-            <p>统一入口正在搭建，后续会逐步接入对话管家、日程和个人记忆。</p>
           </div>
         </div>
       </aside>
@@ -822,63 +890,71 @@
 
         <div class="service-grid">
           <a class="service news reveal" href="/niu-secretary/news/" data-index="01">
-            <div>
-              <div class="service-meta">
-                <span class="tag">Live / Daily Briefing</span>
-                <span class="tag">五维分类</span>
+            <div class="service-inner" style="border-top: 4px solid var(--red);">
+              <div>
+                <div class="service-meta">
+                  <span class="tag">Live / Daily Briefing</span>
+                  <span class="tag">五维分类</span>
+                </div>
+                <h3>牛秘书新闻社</h3>
+                <p>每天把国内、国际、财经、科技、AI 新闻按等级和类别重新排好，让你先读重要的，再看相关背景。</p>
+                <div class="feature-list">
+                  <span>头条优先</span><span>分类色</span><span>阅读效率</span><span>报刊风格</span>
+                </div>
               </div>
-              <h3>牛秘书新闻社</h3>
-              <p>每天把国内、国际、财经、科技、AI 新闻按等级和类别重新排好，让你先读重要的，再看相关背景。</p>
-              <div class="feature-list">
-                <span>头条优先</span><span>分类色</span><span>阅读效率</span><span>报刊风格</span>
-              </div>
+              <span class="service-link">打开新闻社 →</span>
             </div>
-            <span class="service-link">打开新闻社 →</span>
           </a>
 
           <a class="service fitness reveal" href="/niu-secretary/fitness/" data-index="02">
-            <div>
-              <div class="service-meta">
-                <span class="tag">Live / Health Workbench</span>
-                <span class="tag">训练管理</span>
+            <div class="service-inner" style="border-top: 4px solid var(--green);">
+              <div>
+                <div class="service-meta">
+                  <span class="tag">Live / Health Workbench</span>
+                  <span class="tag">训练管理</span>
+                </div>
+                <h3>牛秘书塑形馆</h3>
+                <p>把训练、营养、恢复、评估集中在一个工作台里。记录清楚，反馈及时，计划更容易坚持。</p>
+                <div class="feature-list">
+                  <span>训练计划</span><span>营养追踪</span><span>恢复建议</span><span>身体评估</span>
+                </div>
               </div>
-              <h3>牛秘书塑形馆</h3>
-              <p>把训练、营养、恢复、评估集中在一个工作台里。记录清楚，反馈及时，计划更容易坚持。</p>
-              <div class="feature-list">
-                <span>训练计划</span><span>营养追踪</span><span>恢复建议</span><span>身体评估</span>
-              </div>
+              <span class="service-link">打开塑形馆 →</span>
             </div>
-            <span class="service-link">打开塑形馆 →</span>
           </a>
 
           <a class="service schedule reveal" href="/niu-secretary/schedule/" data-index="03">
-            <div>
-              <div class="service-meta">
-                <span class="tag">New / Time Management</span>
-                <span class="tag">六大板块</span>
+            <div class="service-inner" style="border-top: 4px solid var(--gold);">
+              <div>
+                <div class="service-meta">
+                  <span class="tag">New / Time Management</span>
+                  <span class="tag">六大板块</span>
+                </div>
+                <h3>牛秘书时务局</h3>
+                <p>日程、重要日期、代办、目标、阅读、出行——时间线上的一切事务，由我来管。</p>
+                <div class="feature-list">
+                  <span>日程核心</span><span>重要日期</span><span>目标追踪</span><span>生活代办</span>
+                </div>
               </div>
-              <h3>牛秘书时务局</h3>
-              <p>日程、重要日期、代办、目标、阅读、出行——时间线上的一切事务，由我来管。</p>
-              <div class="feature-list">
-                <span>日程核心</span><span>重要日期</span><span>目标追踪</span><span>生活代办</span>
-              </div>
+              <span class="service-link">打开时务局 →</span>
             </div>
-            <span class="service-link">打开时务局 →</span>
           </a>
 
           <a class="service leisure reveal" href="/niu-secretary/leisure/" data-index="04">
-            <div>
-              <div class="service-meta">
-                <span class="tag">New / Leisure Picks</span>
-                <span class="tag">口味推荐</span>
+            <div class="service-inner" style="border-top: 4px solid #7c6dab;">
+              <div>
+                <div class="service-meta">
+                  <span class="tag">New / Leisure Picks</span>
+                  <span class="tag">口味推荐</span>
+                </div>
+                <h3>牛秘书闲趣集</h3>
+                <p>不靠算法投喂，由 AI 精心筛选——像一位了解你品味的朋友，推荐值得花时间的好内容。</p>
+                <div class="feature-list">
+                  <span>影视推荐</span><span>音乐推荐</span><span>播客推荐</span><span>口味档案</span>
+                </div>
               </div>
-              <h3>牛秘书闲趣集</h3>
-              <p>不靠算法投喂，由 AI 精心筛选——像一位了解你品味的朋友，推荐值得花时间的好内容。</p>
-              <div class="feature-list">
-                <span>影视推荐</span><span>音乐推荐</span><span>播客推荐</span><span>口味档案</span>
-              </div>
+              <span class="service-link">打开闲趣集 →</span>
             </div>
-            <span class="service-link">打开闲趣集 →</span>
           </a>
         </div>
       </div>
@@ -887,25 +963,29 @@
     <section class="section" id="method">
       <div class="shell matrix">
         <div class="manifesto reveal">
-          <p class="section-label">Brand Manifesto</p>
-          <blockquote>
-            在这个信息过载的时代，<br>
-            你不需要另一个 App，<br>
-            你需要的是一位 <mark>真正了解你</mark> 的管家。
-          </blockquote>
+          <div class="manifesto-inner">
+            <p class="section-label">Brand Manifesto</p>
+            <blockquote>
+              在这个信息过载的时代，<br>
+              你不需要另一个 App，<br>
+              你需要的是一位 <mark>真正了解你</mark> 的管家。
+            </blockquote>
+          </div>
         </div>
         <div class="roadmap reveal" id="roadmap">
-          <div class="road-item">
-            <b>Now</b>
-            <div><h3>Web 服务矩阵</h3><p>新闻社和塑形馆先成为可访问、可持续迭代的在线服务。</p></div>
-          </div>
-          <div class="road-item">
-            <b>Next</b>
-            <div><h3>统一个人中心</h3><p>把服务入口、偏好、历史记录和提醒能力收敛到一个主界面。</p></div>
-          </div>
-          <div class="road-item">
-            <b>Future</b>
-            <div><h3>牛秘书 App</h3><p>形成真正的私人 AI 管家平台，支持多端同步、主动服务和个性化配置。</p></div>
+          <div class="roadmap-inner">
+            <div class="road-item">
+              <b>Now</b>
+              <div><h3>Web 服务矩阵</h3><p>新闻社和塑形馆先成为可访问、可持续迭代的在线服务。</p></div>
+            </div>
+            <div class="road-item">
+              <b>Next</b>
+              <div><h3>统一个人中心</h3><p>把服务入口、偏好、历史记录和提醒能力收敛到一个主界面。</p></div>
+            </div>
+            <div class="road-item">
+              <b>Future</b>
+              <div><h3>牛秘书 App</h3><p>形成真正的私人 AI 管家平台，支持多端同步、主动服务和个性化配置。</p></div>
+            </div>
           </div>
         </div>
       </div>
@@ -939,10 +1019,12 @@
       document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
       document.querySelectorAll(".service").forEach((card) => {
+        const inner = card.querySelector('.service-inner');
+        if (!inner) return;
         card.addEventListener("mousemove", (event) => {
-          const rect = card.getBoundingClientRect();
-          card.style.setProperty("--mx", `${((event.clientX - rect.left) / rect.width) * 100}%`);
-          card.style.setProperty("--my", `${((event.clientY - rect.top) / rect.height) * 100}%`);
+          const rect = inner.getBoundingClientRect();
+          inner.style.setProperty("--mx", `${((event.clientX - rect.left) / rect.width) * 100}%`);
+          inner.style.setProperty("--my", `${((event.clientY - rect.top) / rect.height) * 100}%`);
         });
       });
     })();

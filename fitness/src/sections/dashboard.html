@@ -2,6 +2,7 @@
 <section class="dashboard-grid workbench-section" id="dashboard">
   <div class="stack">
     <article class="glass-card priority-card">
+      <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h2>趋势总览</h2>
@@ -17,9 +18,11 @@
       <div class="chart-wrap" aria-label="体重趋势图">
         <canvas id="weight-chart" width="900" height="360"></canvas>
       </div>
+      </div>
     </article>
 
     <article class="glass-card">
+      <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h3>今日营养</h3>
@@ -35,11 +38,13 @@
           <div class="target-row"><span>脂肪</span><div class="bar"><span id="bar-fat"></span></div><b id="text-fat">0</b></div>
         </div>
       </div>
+      </div>
     </article>
   </div>
 
   <aside class="stack">
     <article class="glass-card">
+      <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h3>录入体重</h3>
@@ -60,9 +65,11 @@
         </div>
         <div class="toast" id="form-toast"></div>
       </form>
+      </div>
     </article>
 
     <article class="glass-card">
+      <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h3>目标设置</h3>
@@ -86,10 +93,12 @@
           <label class="ghost-btn file-btn" for="import-json">导入 JSON<input id="import-json" type="file" accept="application/json"></label>
         </div>
       </form>
+      </div>
     </article>
   </aside>
 
   <article class="glass-card full-row history-card">
+    <div class="glass-card-inner">
     <div class="card-head">
       <div>
         <h3>最近记录</h3>
@@ -97,5 +106,6 @@
       </div>
     </div>
     <div class="log-list" id="log-list"></div>
+    </div>
   </article>
 </section>
