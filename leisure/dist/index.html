@@ -213,23 +213,39 @@
     }
 
     .recommend-workbench {
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(310px, .85fr);
+      display: flex;
       gap: 18px;
       margin-top: 18px;
+      align-items: stretch;
+    }
+
+    .recommend-workbench > * {
+      min-width: 0;
+    }
+
+    .recommend-workbench > .featured-panel {
+      flex: 1.15;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recommend-workbench > aside {
+      flex: 0.85;
+      min-width: 310px;
     }
 
     .featured-choice {
-      display: grid;
-      grid-template-columns: 154px minmax(0, 1fr);
+      display: flex;
       gap: 18px;
-      align-items: start;
+      align-items: stretch;
+      flex: 1;
     }
 
     .feature-copy {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      flex: 1;
+      min-width: 0;
     }
 
     .poster {
@@ -260,6 +276,64 @@
       font-size: 25px;
       line-height: 1.25;
       flex-shrink: 0;
+    }
+
+    .feature-meta {
+      margin: 8px 0;
+      color: var(--faint);
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    .feature-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+
+    .feature-tags span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--line-soft);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .feature-credit {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .feature-reason {
+      margin: 12px 0;
+      color: var(--ink);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--tea);
+      color: var(--paper);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .feature-link:hover {
+      opacity: 0.85;
     }
 
     .feature-copy p {
@@ -493,7 +567,10 @@
     @media (max-width: 900px) {
       .topbar-inner { padding: 0 18px; }
       .leisure-shell { padding: 24px 18px 40px; }
-      .leisure-hero, .recommend-workbench, .featured-choice, .leisure-note { grid-template-columns: 1fr; }
+      .leisure-hero, .leisure-note { grid-template-columns: 1fr; }
+      .recommend-workbench { flex-direction: column; }
+      .recommend-workbench > aside { min-width: 0; }
+      .featured-choice { flex-direction: column; }
       .poster { min-height: 185px; }
       .note-actions { flex-wrap: wrap; white-space: normal; }
     }
@@ -831,21 +908,48 @@
         if (g.length + m.length > 0) preferenceNote = '偏好：' + [...g.slice(0, 2), ...m.slice(0, 1)].join('、');
       }
 
-      const posterUrl = featuredRaw && featuredRaw.posterUrl ? featuredRaw.posterUrl : '';
-      const posterStyle = posterUrl
-        ? `background: url(${posterUrl}) center/cover no-repeat;`
+      // 海报图片：兼容 coverUrl / posterUrl，同时检查本地 poster-mov_*.jpg
+      const posterUrl = (featuredRaw && (featuredRaw.posterUrl || featuredRaw.coverUrl)) || '';
+      const fallbackPoster = featuredRaw && featuredRaw.id ? `data/poster-${featuredRaw.id}.jpg` : '';
+      const finalPoster = posterUrl || fallbackPoster;
+      const posterStyle = finalPoster
+        ? `background: url(${finalPoster}) center/cover no-repeat;`
         : `background: linear-gradient(145deg, rgba(36,55,70,.18), transparent), linear-gradient(160deg, #243746, #66848e 48%, #d5ae76);`;
+
+      // 构建丰富的元数据展示
+      let metaHtml = '';
+      if (featuredRaw) {
+        const metaParts = [];
+        if (featuredRaw.type) metaParts.push(featuredRaw.type);
+        if (featuredRaw.year) metaParts.push(featuredRaw.year + '年');
+        if (featuredRaw.region) metaParts.push(featuredRaw.region);
+        if (featuredRaw.duration) {
+          const dur = typeof featuredRaw.duration === 'number' ? featuredRaw.duration + '分钟' : featuredRaw.duration;
+          metaParts.push(dur);
+        }
+        if (featuredRaw.doubanRating) metaParts.push('⭐ ' + featuredRaw.doubanRating);
+        if (metaParts.length) metaHtml = `<div class="feature-meta">${metaParts.join(' · ')}</div>`;
+
+        if (featuredRaw.genres && featuredRaw.genres.length) {
+          metaHtml += `<div class="feature-tags">${featuredRaw.genres.map(g => `<span>${g}</span>`).join('')}</div>`;
+        }
+
+        if (featuredRaw.director) {
+          metaHtml += `<div class="feature-credit">导演：${featuredRaw.director}</div>`;
+        }
+        if (featuredRaw.actors) {
+          metaHtml += `<div class="feature-credit">主演：${featuredRaw.actors}</div>`;
+        }
+      }
+
       document.getElementById('featured-choice').innerHTML = `
         <div class="poster" style="${posterStyle}" aria-hidden="true"></div>
         <div class="feature-copy">
           <h3>${featured.title}</h3>
-          <p>${featured.reason}</p>
-          <div class="reason-list">
-            <div>适合晚间的${featured.type}内容，不把休息时间继续变成任务。</div>
-            <div>${preferenceNote}</div>
-            <div>点击下方候选卡片查看详情，不想看这个可以换。</div>
-          </div>
+          ${metaHtml}
+          <p class="feature-reason">${featured.reason}</p>
           <span class="score">匹配度 ${featured.score}%</span>
+          ${featuredRaw && featuredRaw.doubanUrl ? `<a class="feature-link" href="${featuredRaw.doubanUrl}" target="_blank" rel="noopener">🔗 查看豆瓣详情</a>` : ''}
         </div>
       `;
 
