@@ -1,19 +1,18 @@
 ---
 name: niu-secretary
-description: "牛秘书品牌体系——品牌定位、视觉规范、功能矩阵与未来 App 愿景。用于统一品牌调性，指导各子产品（新闻社、塑形馆等）的设计与开发。"
+description: "牛秘书品牌体系——品牌定位、视觉规范、技术架构与功能矩阵。用于统一品牌调性，指导各子产品（新闻社、塑形馆、时务局、闲趣集）的设计与开发。"
 risk: safe
 date_added: "2026-05-28"
+last_updated: "2026-05-29"
 ---
 
 # 牛秘书品牌体系
 
+> **核心理念**：不只是一个助手，而是一位懂你节奏、替你操心的虚拟私人管家。
+
 ## 品牌定位
 
 **牛秘书** — 你的私人 AI 管家
-
-不只是一个助手，而是一位懂你节奏、替你操心的虚拟私人管家。从新闻简报、健康管理到生活琐事，牛秘书让 AI 从「回答问题」进化到「主动服务」。
-
-### 品牌人设
 
 - **人格**：御姐型 AI 管家
 - **气质**：清冷中带着温柔，干练且体贴
@@ -38,14 +37,16 @@ date_added: "2026-05-28"
 - **中期目标**：整合为统一入口的「牛秘书」个人管理中心
 - **终极形态**：「牛秘书 App」— 面向所有人的私人 AI 管家平台，支持个性化配置、多模态交互、主动服务
 
+---
+
 ## 视觉规范
 
 ### Logo
 
-- 文件：`/home/ubuntu/Pictures/image-2.png`（2048x2048）
-- 风格：黑金配色、御姐动漫头像
-- 展示形式：圆形裁剪，可带金色渐变边框
-- 用于所有牛秘书子品牌站点
+- **文件**：`/home/ubuntu/Pictures/image-2.png`（2048×2048）
+- **风格**：黑金配色、御姐动漫头像
+- **展示形式**：**圆形裁剪**，可带金色渐变边框
+- **使用范围**：所有牛秘书子品牌站点
 
 ### 配色方案
 
@@ -74,17 +75,32 @@ date_added: "2026-05-28"
 - **氛围**：噪声纹理叠加，径向渐变光晕，杂志排版感
 - **动效**：滚动渐现（reveal）、卡片悬浮光效、Logo 浮动动画
 
+---
+
+## 技术栈
+
+| 层 | 选型 |
+|----|------|
+| 前端 | 纯 HTML/CSS/JS（无框架依赖），响应式设计 |
+| 后端 | Python HTTP API + SQLite（Action Protocol） |
+| 部署 | nginx `/niu-secretary/` → `/var/www/html/niu-secretary/` |
+| 部署权限 | 目标目录属于 root，需 sudo cp |
+| AI 驱动 | OpenClaw + DeepSeek V4 Pro / Claude Opus 4.6 |
+| Logo 托管 | `logo.png` 放在各子目录下 |
+
+---
+
 ## 功能矩阵
 
 ### 已上线
 
 | 功能 | 地址 | 说明 |
 |------|------|------|
-| 📰 牛秘书新闻社 | `/niu-secretary/news/` | 每日新闻简报，五维分类（国内/国际/财经/科技/AI），AI 精选 |
-| 🏋️ 牛秘书塑形馆 | `/niu-secretary/fitness/` | 科学健身管理，训练/营养/恢复/评估/咨询六大模块 |
-| 📅 牛秘书时务局 | `/niu-secretary/schedule/` | 日程管理：今日排班、秘书提醒、事务抽屉、目标追踪 |
-| 🎬 牛秘书闲趣集 | `/niu-secretary/leisure/` | 休闲推荐：今晚首推、今日候选、口味档案 |
-| 🏠 牛秘书品牌主页 | `/niu-secretary/` | 品牌入口，功能导航，品牌宣言与愿景 |
+| 🏠 品牌主页 | `/niu-secretary/` | 品牌入口，功能导航，品牌宣言与愿景 |
+| 📰 新闻社 | `/niu-secretary/news/` | 每日新闻简报，五维分类（国内/国际/财经/科技/AI），AI 精选 |
+| 🏋️ 塑形馆 | `/niu-secretary/fitness/` | 科学健身管理，训练/营养/恢复/评估/咨询六大模块 |
+| 📅 时务局 | `/niu-secretary/schedule/` | 日程管理：今日排班、秘书提醒、事务抽屉、目标追踪 |
+| 🎬 闲趣集 | `/niu-secretary/leisure/` | 休闲推荐：今晚首推、今日候选、口味档案 |
 
 ### 规划中
 
@@ -93,18 +109,11 @@ date_added: "2026-05-28"
 | 🤖 AI 对话管家 | — | 7×24h 私人 AI 对话，个性化记忆，主动提醒 |
 | 📱 牛秘书 App | — | 统一入口，多端同步，开放平台 |
 
-## 技术栈
+---
 
-- **前端**：纯 HTML/CSS/JS（无框架依赖），响应式设计
-- **部署**：nginx `/niu-secretary/` → `/var/www/html/niu-secretary/`
-- **部署权限**：目标目录属于 root，需 sudo cp
-- **AI 驱动**：OpenClaw + DeepSeek V4 Pro / Claude Opus 4.6
-- **Logo 托管**：`logo.png` 放在各子目录下
+## v2.0 AI 助手与 Action Protocol
 
-
-## 牛秘书 2.0 AI 助手与 Action Protocol
-
-v2.0 的核心理念是：牛秘书主页 AI、语音助手、四个子网页和未来 App 不再各写一套业务逻辑，而是统一调用同一组 Action Protocol。
+v2.0 的核心理念：牛秘书主页 AI、语音助手、四个子网页和未来 App 不再各写一套业务逻辑，而是统一调用同一组 Action Protocol。
 
 ### AI 助手设计理念
 
@@ -117,7 +126,7 @@ v2.0 的核心理念是：牛秘书主页 AI、语音助手、四个子网页和
 5. **统一落库**：确认后调用 `/niu-secretary/api/actions/execute` 写入服务端 SQLite。
 6. **多端同步**：子网页从统一 API 读取服务端记录，并与本地 IndexedDB 合并展示。
 
-这个内部 Action Protocol 不是 MCP，但按 MCP 思路设计：能力可发现、输入可校验、执行可审计，未来可以再包一层 MCP Server。
+> 这个内部 Action Protocol 不是 MCP，但按 MCP 思路设计：能力可发现、输入可校验、执行可审计，未来可以再包一层 MCP Server。
 
 ### 本地启动
 
@@ -152,7 +161,7 @@ sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
 | `NIU_ASSISTANT_API_BASE` / `NIU_ASSISTANT_MODEL` | 首页 AI 文本理解、意图分流、动作生成 |
 | `FITNESS_VISION_API_BASE` / `FITNESS_VISION_MODEL` | 塑形馆图片识别、餐食营养估算 |
 
-两者可以指向同一个模型，例如 `qwen3.6-plus`；也可以以后拆成“文本强模型 + 视觉强模型”。
+两者可以指向同一个模型，例如 `qwen3.6-plus`；也可以以后拆成"文本强模型 + 视觉强模型"。
 
 ### 核心接口
 
@@ -171,6 +180,8 @@ sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
 - `schedule.todo.create`：创建待办。
 - `schedule.today_summary`：读取日程与待办。
 
+---
+
 ## 部署流程
 
 ```bash
@@ -181,7 +192,14 @@ sudo cp /var/www/html/index.html /var/www/html/index.html.bak.YYYYMMDD
 sudo mkdir -p /var/www/html/niu-secretary
 sudo cp /home/ubuntu/.openclaw/workspace/niu-secretary/dist/index.html /var/www/html/niu-secretary/index.html
 sudo cp /home/ubuntu/.openclaw/workspace/niu-secretary/dist/logo.png /var/www/html/niu-secretary/logo.png
+
+# 部署子模块（示例：塑形馆）
+cd /home/ubuntu/.openclaw/workspace/niu-secretary/fitness
+npm run build
+sudo cp -r dist/* /var/www/html/niu-secretary/fitness/
 ```
+
+---
 
 ## 品牌资产清单
 
@@ -191,6 +209,19 @@ sudo cp /home/ubuntu/.openclaw/workspace/niu-secretary/dist/logo.png /var/www/ht
 | 品牌主页源码 | `/home/ubuntu/.openclaw/workspace/niu-secretary/dist/index.html` |
 | Logo 原始文件 | `/home/ubuntu/Pictures/image-2.png` |
 | 品牌主页 Logo | `/home/ubuntu/.openclaw/workspace/niu-secretary/dist/logo.png` |
+
+---
+
+## 子模块文档
+
+各子模块的详细技术文档请参考对应目录下的 SKILL.md：
+
+- 📰 [新闻社 SKILL.md](news-daily/SKILL.md)
+- 🏋️ [塑形馆 SKILL.md](fitness/SKILL.md)
+- 📅 [时务局 SKILL.md](schedule/SKILL.md)
+- 🎬 [闲趣集 SKILL.md](leisure/SKILL.md)
+
+---
 
 ## 出品信息
 

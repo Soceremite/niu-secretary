@@ -223,7 +223,13 @@
       display: grid;
       grid-template-columns: 154px minmax(0, 1fr);
       gap: 18px;
-      align-items: stretch;
+      align-items: start;
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .poster {
@@ -253,18 +259,21 @@
       color: var(--navy);
       font-size: 25px;
       line-height: 1.25;
+      flex-shrink: 0;
     }
 
     .feature-copy p {
       margin: 0;
       color: var(--muted);
       line-height: 1.75;
+      flex-shrink: 0;
     }
 
     .reason-list {
       display: grid;
       gap: 8px;
       margin-top: 14px;
+      flex: 1;
     }
 
     .reason-list div {
@@ -287,6 +296,7 @@
       color: #7b5b34;
       font-size: 12px;
       font-weight: 900;
+      flex-shrink: 0;
     }
 
     .candidate-list {

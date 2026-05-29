@@ -3,20 +3,23 @@ name: schedule
 description: "牛秘书时务局——私人日程管理中心：日程核心、重要日期、生活代办、目标追踪、阅读学习、出行助手六大板块，纯静态 HTML 数据看板。"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send
 user-invocable: true
+last_updated: "2026-05-29"
 ---
 
 # 牛秘书时务局
+
+> **品牌规范与视觉体系请参考 [主 SKILL.md](../SKILL.md)**
 
 时间线上的一切事务管理中心。不是冷冰冰的日历，而是一位帮你记住所有重要事情、替你操心的秘书。
 
 ## 品牌命名
 
-**时务局** — 时=时间，务=事务，局=管理机关。与新闻「社」、塑形「馆」、放映「厅」后缀各异，辨识度高。
+**时务局** — 时=时间，务=事务，局=管理机关。与新闻「社」、塑形「馆」、闲趣「集」后缀各异，辨识度高。
 
 ## 团队分工
 
 - **🐋 DeepSeek V4 Pro** — 日常开发：页面搭建、数据层实现、交互逻辑
-- **🧪 Claude Opus 4.6** — UI 优化：视觉打磨、动效设计、架构调优
+- **🧪 Claude Opus 4.6** — UI 优化：视觉打磨、动效设计
 - **🐄 牛秘书** — 产品总监：功能设计、用户体验把关
 
 ## 架构概览
@@ -34,12 +37,13 @@ user-invocable: true
 
 ## 核心约束
 
-- **静态 HTML + 多页面架构**：无 SPA 框架、无前端路由、无独立后端进程
-- **Local-first**：localStorage 为主存储，无外部依赖
-- **纯静态部署**：`dist/` 直接 cp 到 Nginx 静态目录
-- **视觉体系**：现代私人秘书事务夹，雾灰绿背景、象牙白卡片、墨蓝要务、铜金点缀
-- **不运行独立 Web 服务进程**：不用 Express、不用 pm2 管理 Web 服务
-- **每个子板块一个独立 HTML 文件**
+| 约束 | 说明 |
+|------|------|
+| 静态 HTML + 多页面 | 无 SPA 框架、无前端路由、无独立后端进程 |
+| Local-first | localStorage 为主存储，无外部依赖 |
+| 纯静态部署 | `dist/` 直接 cp 到 Nginx 静态目录 |
+| 视觉体系 | 现代私人秘书事务夹，雾灰绿背景、象牙白卡片、墨蓝要务、铜金点缀 |
+| 页面结构 | 每个子板块一个独立 HTML 文件 |
 
 ## 文件路径
 
@@ -57,8 +61,6 @@ sudo mkdir -p /var/www/html/niu-secretary/schedule
 sudo cp -r /home/ubuntu/.openclaw/workspace/niu-secretary/schedule/dist/* /var/www/html/niu-secretary/schedule/
 ```
 
-> 不在 `/home/ubuntu/.openclaw/workspace/` 下单独建目录，统一归入 `niu-secretary/` 品牌目录。
-
 ## 目录结构
 
 ```
@@ -72,11 +74,13 @@ niu-secretary/schedule/
     ├── goals.html        # 目标追踪：习惯打卡 + OKR
     ├── reading.html      # 阅读学习：书单 + 进度 + 笔记
     ├── travel.html       # 出行助手：天气 + 穿搭 + 旅行
-    ├── logo.png
+    ├── logo.png          # 品牌 Logo（圆形展示）
     └── js/
         ├── store.js      # 统一 localStorage 数据层
         └── calendar.js   # 日历组件逻辑
 ```
+
+---
 
 ## 六大功能模块
 
@@ -90,7 +94,7 @@ niu-secretary/schedule/
 - 今日概览摘要
 - 提醒时间设置（事件前 N 分钟）
 
-标签色系：
+**标签色系**：
 - `#8e2d24`（红）— 会议
 - `#476d94`（蓝）— 个人
 - `#c8a45c`（金）— 约会
@@ -108,7 +112,7 @@ niu-secretary/schedule/
 - 提前提醒天数设置
 - 按时间排序 + 颜色编码（即将到来/近期/远期）
 
-倒计时状态：
+**倒计时状态**：
 - 🔴 7 天内 — 紧急
 - 🟡 30 天内 — 临近
 - 🟢 30 天以上 — 正常
@@ -152,6 +156,8 @@ niu-secretary/schedule/
 - 通勤路况（未来集成）
 - 旅行规划看板：目的地/行程/清单/预算
 - 行李打包清单模板
+
+---
 
 ## 数据模型
 
@@ -207,6 +213,8 @@ niu-secretary/schedule/
 }
 ```
 
+---
+
 ## 视觉体系
 
 采用现代私人秘书事务夹风格：
@@ -220,26 +228,17 @@ niu-secretary/schedule/
 - 尊重 `prefers-reduced-motion`
 - 日历组件适配移动端滑动手势
 
-## 技术选型
-
-| 层 | 选型 |
-|----|------|
-| 页面载体 | 静态 HTML（多文件独立页面） |
-| 交互增强 | 原生 ES Module / 内联 JS |
-| 本地存储 | localStorage（通过 store.js 封装） |
-| 日历组件 | 自研（无第三方依赖） |
-| 图表 | 可选：Chart.js（目标追踪可视化） |
-| 部署 | Nginx 静态服务 |
-
 ## 入口页设计要点
 
 `index.html` — 今日排班 + 秘书提醒 + 事务抽屉：
 
-- 顶部：品牌名「牛秘书时务局」+ Logo + 今日日期牌
+- 顶部：品牌名「牛秘书时务局」+ Logo（圆形）+ 今日日期牌
 - 主区：今日排班时间轴，优先展示当天事项
 - 侧栏：秘书提醒 + 事务抽屉模块入口
 - 底部：今日批注，使用浅色签批便笺样式
 - 底部：返回品牌主页链接
+
+---
 
 ## 开发工作流
 
@@ -247,4 +246,4 @@ niu-secretary/schedule/
 2. `sudo cp -r dist/* /var/www/html/niu-secretary/schedule/` 部署
 3. 验证 `http://124.222.22.171/niu-secretary/schedule/`
 
-所有资源引用使用相对路径。单个 HTML > 500 行时考虑拆分 JS/CSS。JS 使用 ES Module 组织。
+> 所有资源引用使用相对路径。单个 HTML > 500 行时考虑拆分 JS/CSS。JS 使用 ES Module 组织。

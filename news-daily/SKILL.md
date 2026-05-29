@@ -3,9 +3,12 @@ name: news-daily
 description: "每日新闻头条生成与推送——搜新闻、更新 HTML 页面、部署到 nginx、推送链接"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send
 user-invocable: true
+last_updated: "2026-05-29"
 ---
 
 # 牛秘书新闻社 · 每日新闻推送
+
+> **品牌规范与视觉体系请参考 [主 SKILL.md](../SKILL.md)**
 
 生成每日新闻头条 HTML 页面，部署到 nginx，推送到 QQ。
 
@@ -19,7 +22,7 @@ user-invocable: true
 
 ---
 
-## 架构设计（v3.0 模块化）
+## 架构设计（v3.1 模块化）
 
 ### 设计理念
 
@@ -37,6 +40,7 @@ user-invocable: true
 ├── dist/                       # 构建产物（部署到 nginx）
 │   ├── index.html              # 主框架页（壳子 + JS loader）
 │   ├── style.css               # 全局样式
+│   ├── logo.png                # 品牌 Logo（圆形展示）
 │   ├── assets/
 │   │   └── images/             # 本地新闻配图（news_img_N.jpg）
 │   └── sections/               # 各板块 HTML 片段
@@ -56,6 +60,7 @@ user-invocable: true
 /var/www/html/niu-secretary/news/
 ├── index.html
 ├── style.css
+├── logo.png
 ├── assets/
 │   └── images/
 │       └── news_img_N.jpg
@@ -389,16 +394,3 @@ document.addEventListener('DOMContentLoaded', loadSections);
 
 👉 完整图文页面：http://124.222.22.171/niu-secretary/news/
 ```
-
----
-
-## 迁移计划（v2 → v3）
-
-1. 创建 `dist/` 目录结构
-2. 从现有 `news.html` 拆分 CSS → `style.css`
-3. 拆分主框架 → `index.html`
-4. 拆分各 section 内容 → `sections/*.html`
-5. 配置 nginx `/niu-secretary/news/` location
-6. 旧路径已废弃（原 `/home/news/` 仍可访问但不再更新）
-7. 验证所有功能正常
-8. 更新 cron job 的部署命令

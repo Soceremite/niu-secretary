@@ -3,9 +3,12 @@ name: leisure
 description: "牛秘书闲趣集——三维上下文感知休闲推荐中心：影视、音乐、播客、小说，结合用户偏好+日程状态+运动数据，每日 AI 生成个性化推荐。"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send
 user-invocable: true
+last_updated: "2026-05-29"
 ---
 
 # 牛秘书闲趣集 · 三维上下文感知推荐引擎
+
+> **品牌规范与视觉体系请参考 [主 SKILL.md](../SKILL.md)**
 
 **核心理念**：不靠算法投喂，不刷无尽榜单。AI 每天读取你的**口味偏好 + 日程密度 + 运动状态**，三个维度交叉匹配，给你精心筛选的少量精选内容——像一位了解你的私人策展人。
 
@@ -63,7 +66,7 @@ niu-secretary/leisure/
 ├── SKILL.md                  # 本文件
 └── dist/
     ├── index.html            # 主入口：今晚首推 + 今日候选(4项)
-    ├── logo.png              # 品牌 logo (256x256)
+    ├── logo.png              # 品牌 logo (圆形展示)
     └── data/
         ├── context.json      # 每日上下文快照（日程/运动/mood）
         ├── preferences.json  # 用户口味偏好

@@ -3,9 +3,12 @@ name: fitness
 description: "牛秘书塑形馆——AI驱动的身体重组私教系统：Web数据看板 + QQ教练对话，覆盖评估、训练、饮食、恢复、咨询、报告全闭环。"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send,image
 user-invocable: true
+last_updated: "2026-05-29"
 ---
 
 # 牛秘书塑形馆
+
+> **品牌规范与视觉体系请参考 [主 SKILL.md](../SKILL.md)**
 
 AI 驱动的身体重组私教系统。Web 端做数据看板和结构化录入，QQ 教练做日常对话、计划调整和行为陪伴。围绕评估→训练→饮食→恢复→咨询→复测形成长期闭环。
 
@@ -13,7 +16,7 @@ AI 驱动的身体重组私教系统。Web 端做数据看板和结构化录入�
 
 - **🐋 DeepSeek V4 Pro** — 日常教练对话、饮食识别、周报生成
 - **🧪 Claude Opus 4.6** — UI 开发、架构优化、复杂计算逻辑
-- **🐄 牛爷爷考斯普雷女仆装勾引壮壮妈** — 产品总监
+- **🐄 牛秘书** — 产品总监
 
 ## 架构概览
 
@@ -29,13 +32,14 @@ AI 驱动的身体重组私教系统。Web 端做数据看板和结构化录入�
 
 ## 核心约束
 
-- **静态 HTML + Islands 架构**：无 SPA 框架、无前端路由、无独立后端进程
-- **Local-first**：IndexedDB 为主存储，Service Worker 离线缓存，JSON 文件定期同步
-- **纯静态部署**：`npm run build` → `dist/` → Nginx 静态服务
-- **AI 走 Agent**：饮食识别、教练对话、周报生成全部通过 OpenClaw Agent，Web 端只做展示和录入
-- **视觉继承主页**：暗红黑体系 + 健康管理工作台风格（深色底、玻璃面板、业务状态色点缀）
-- **不运行独立 Web 服务进程**：不用 Express、不用 pm2 管理 Web 服务
-- **Feature-first 代码组织**：按业务模块聚合
+| 约束 | 说明 |
+|------|------|
+| 静态 HTML + Islands | 无 SPA 框架、无前端路由、无独立后端进程 |
+| Local-first | IndexedDB 为主存储，Service Worker 离线缓存，JSON 文件定期同步 |
+| 纯静态部署 | `npm run build` → `dist/` → Nginx 静态服务 |
+| AI 走 Agent | 饮食识别、教练对话、周报生成全部通过 OpenClaw Agent |
+| 视觉继承主页 | 暗红黑体系 + 健康管理工作台风格 |
+| Feature-first | 按业务模块聚合代码 |
 
 ## 文件路径
 
@@ -71,7 +75,7 @@ fitness/
 │   ├── theme.css         # 主题变量
 │   ├── sw.js             # Service Worker
 │   ├── manifest.json     # PWA manifest
-│   ├── logo.svg / logo.png
+│   ├── logo.png          # 品牌 Logo（圆形展示）
 │   ├── sections/         # 各模块 HTML 片段
 │   │   ├── dashboard.html
 │   │   ├── assessment.html
@@ -82,30 +86,8 @@ fitness/
 │   └── js/
 │       ├── app.js        # 导航切换 + section 懒加载
 │       ├── lib/          # 同构工具库（纯函数）
-│       │   ├── calculator.js   # BMR/TDEE/BMI/体脂/体型
-│       │   ├── nutrition.js    # 营养素计算/周期化
-│       │   ├── training.js     # 训练量/RPE/周期化
-│       │   ├── recovery.js     # 疲劳评分算法
-│       │   ├── consult.js      # 红线判断/体态知识
-│       │   ├── agentClient.js  # Agent 通信
-│       │   └── db.js           # IndexedDB 封装
 │       └── features/     # 各模块交互逻辑
-│           ├── dashboard.js
-│           ├── assessment.js
-│           ├── training.js
-│           ├── nutrition.js
-│           ├── recovery.js
-│           ├── consult.js
-│           └── exercise-db.js  # 动作库
 ├── data/                 # 持久化 JSON（Agent 可直写）
-│   ├── user.json
-│   ├── assessments/
-│   ├── training-logs/
-│   ├── nutrition-logs/
-│   ├── recovery-logs/
-│   ├── consult-logs/
-│   ├── coach-memory.json
-│   └── reports/
 └── dist/                 # 构建产物（部署用）
 ```
 
@@ -122,7 +104,7 @@ fitness/
 - 体态检测：圆肩、头前引、骨盆前倾等 11 种问题
 - 阶段复测：每 2-4 周对比，决定是否调整计划
 
-评估结果必须影响后续模块（FMS 低分限制大重量、体态问题增加矫正动作）。
+> **评估结果必须影响后续模块**（FMS 低分限制大重量、体态问题增加矫正动作）。
 
 ### Module 2: 运动训练 `training`
 
@@ -135,7 +117,7 @@ fitness/
 - 有氧方案：HIIT/LISS/MICT 混合策略
 - 训练记录：组×次×重量×RPE
 
-关键原则：接近力竭即可（RPE 7-9），不需绝对力竭；每周 ≥10 组/肌群；全幅度动作。
+**关键原则**：接近力竭即可（RPE 7-9），不需绝对力竭；每周 ≥10 组/肌群；全幅度动作。
 
 ### Module 3: 智能营养 `nutrition`
 
@@ -147,7 +129,7 @@ fitness/
 - 营养周期化：训练日高碳，休息日低碳
 - 地域饮食适配：亚洲 8 区（川渝/湖南/广东/江浙沪/东北/西北/华北/日韩）+ 国际模型
 
-蛋白质恒定不变，只调整碳水和脂肪。
+> **蛋白质恒定不变，只调整碳水和脂肪。**
 
 ### Module 4: 恢复管理 `recovery`
 
@@ -159,7 +141,7 @@ fitness/
 - 疲劳监控：训练量 40% + RPE 30% + 睡眠 15% + 压力 15% → 绿/黄/红
 - Deload 建议：连续高强度 → 自动建议减载周
 
-疲劳状态直接影响训练：绿色按计划；黄色降 10-30%；红色 deload 或主动恢复。
+**疲劳状态直接影响训练**：绿色按计划；黄色降 10-30%；红色 deload 或主动恢复。
 
 ### Module 5: 身体咨询 `consult`
 
@@ -171,7 +153,7 @@ fitness/
 - 特殊人群：三高、腰椎/膝关节问题、孕产、术后
 - **红线提示**：胸闷、晕厥、急性疼痛、肿胀、麻木放射痛 → 停止训练并就医
 
-红线规则：出现严重信号时不生成训练方案，只给停止训练和就医建议。
+> **红线规则**：出现严重信号时不生成训练方案，只给停止训练和就医建议。
 
 ### Module 6: 数据仪表盘 `dashboard`
 
@@ -183,7 +165,7 @@ fitness/
 - 训练容量趋势：肌群、动作、周训练量
 - 目标达成率：预计完成时间
 
-核心判断：体重不变但围度下降、力量提升 → 判定为"身体重组有效"。
+**核心判断**：体重不变但围度下降、力量提升 → 判定为"身体重组有效"。
 
 ### Module 7: 智能教练 `coach`（QQ Agent）
 
@@ -195,7 +177,9 @@ fitness/
 - 知识科普：健身谣言识别，证据分级回答
 - 工具调用路由：判断应调用哪个模块
 
-对话流程：意图识别 → 红线检查 → 读取档案和近期数据 → 调用模块 → 写入数据 → 回复用户。
+**对话流程**：意图识别 → 红线检查 → 读取档案和近期数据 → 调用模块 → 写入数据 → 回复用户。
+
+---
 
 ## 人种差异引擎
 
@@ -209,42 +193,7 @@ fitness/
 | 非裔 | 25 | 骨骼肌量最高，骨密度高 | 高血压高发，DASH 优先，关注维生素 D |
 | 拉美 | 介于两者之间 | 传统饮食碳水偏高 | 保留豆谷组合，减油炸和含糖饮料 |
 
-## 视觉体系
-
-健康管理工作台风格，继承主页暗红黑基调：
-
-- 深色底（near-black）+ 暗红品牌色作为识别 accent
-- 玻璃面板（restrained glass panels）、薄边框、紧凑数据面
-- 业务状态色：绿色（达标/恢复良好）、橙色（接近阈值）、红色（超标/风险）、蓝色（信息/AI 提示）
-- 雾白文字，高对比度
-- 尊重 `prefers-reduced-motion`
-- 响应式：桌面 1440px / 平板 768px / 手机 375px
-
-## 技术选型
-
-| 层 | 选型 |
-|----|------|
-| 页面载体 | 静态 HTML（多文件 sections） |
-| 交互增强 | 原生 ES Module，按需加载 |
-| 本地存储 | IndexedDB（通过 db.js 封装） |
-| 离线 | Service Worker |
-| 图表 | Chart.js / ApexCharts（按需） |
-| 计算 | 纯 JS 同构工具库 |
-| 构建 | Node build script（`build.js`） |
-| 部署 | Nginx 静态服务 |
-
-## 数据实体
-
-| 实体 | 文件路径 | 用途 |
-|------|----------|------|
-| userProfile | `data/user.json` | 年龄、性别、地区、人种、目标、限制 |
-| assessment | `data/assessments/*.json` | 体测、FMS、体态、复测 |
-| trainingLog | `data/training-logs/*.json` | 每次训练记录 |
-| nutritionLog | `data/nutrition-logs/*.json` | 每餐记录和 AI 估算 |
-| recoveryLog | `data/recovery-logs/*.json` | 睡眠、压力、酸痛、疲劳 |
-| consultLog | `data/consult-logs/*.json` | 咨询记录、红线触发 |
-| coachMemory | `data/coach-memory.json` | 用户习惯、偏好、提醒节奏 |
-| report | `data/reports/*.json` | 周报、月报 |
+---
 
 ## AI 饮食识别 Prompt 模板
 
@@ -273,11 +222,15 @@ fitness/
 }
 ```
 
+---
+
 ## 安全边界
 
 - 系统只提供运动、营养和生活方式建议，不替代医生/营养师/康复治疗师的诊断
-- 红线信号（胸闷、晕厥、急性剧痛、关节肿胀、神经放射痛、术后未获医生许可、血压/血糖未控制）→ 不生成训练方案，只建议就医
-- 参考依据：WHO 身体活动建议、ACSM 2026 抗阻训练指南、ISSN 蛋白与运动立场声明、WHO 亚洲 BMI 专家咨询
+- **红线信号**（胸闷、晕厥、急性剧痛、关节肿胀、神经放射痛、术后未获医生许可、血压/血糖未控制）→ 不生成训练方案，只建议就医
+- **参考依据**：WHO 身体活动建议、ACSM 2026 抗阻训练指南、ISSN 蛋白与运动立场声明、WHO 亚洲 BMI 专家咨询
+
+---
 
 ## 开发工作流
 
@@ -286,4 +239,4 @@ fitness/
 3. `sudo cp -r dist/* /var/www/html/niu-secretary/fitness/` 部署
 4. 验证 `http://124.222.22.171/niu-secretary/fitness/`
 
-所有资源引用使用相对路径。单个文件不超过 300 行，超过则拆分子模块。JS 使用 ES Module。
+> 所有资源引用使用相对路径。单个文件不超过 300 行，超过则拆分子模块。JS 使用 ES Module。
