@@ -215,6 +215,119 @@
     .btn:hover { transform: translateY(-2px); border-color: rgba(240,213,135,.52); background: rgba(200,164,92,.09); }
     .btn.primary { background: linear-gradient(135deg, var(--gold-2), var(--gold)); color: #21180b; border-color: transparent; font-weight: 800; }
 
+
+    .assistant-panel {
+      max-width: 670px;
+      margin: 0 0 28px;
+      border: 1px solid rgba(200,164,92,.26);
+      background: rgba(18,16,13,.72);
+      box-shadow: 0 22px 64px rgba(0,0,0,.28);
+    }
+
+    .assistant-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(200,164,92,.14);
+    }
+
+    .assistant-head strong {
+      color: var(--gold-2);
+      font-family: "Noto Serif SC", serif;
+      font-size: 18px;
+    }
+
+    .assistant-head span,
+    .assistant-status {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .assistant-messages {
+      display: grid;
+      gap: 10px;
+      max-height: 230px;
+      overflow: auto;
+      padding: 16px 18px;
+    }
+
+    .assistant-message {
+      max-width: 92%;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.035);
+      color: #ded4c2;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .assistant-message.user {
+      justify-self: end;
+      border-color: rgba(240,213,135,.2);
+      color: var(--gold-2);
+      background: rgba(200,164,92,.08);
+    }
+
+    .assistant-actions {
+      display: grid;
+      gap: 10px;
+      padding: 0 18px 14px;
+    }
+
+    .assistant-action {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid rgba(130,212,159,.24);
+      background: rgba(60,122,98,.1);
+    }
+
+    .assistant-action b {
+      color: #a5e0b7;
+      font-size: 14px;
+    }
+
+    .assistant-action pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #d7cebc;
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .assistant-action button,
+    .assistant-composer button {
+      min-height: 40px;
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, var(--gold-2), var(--gold));
+      color: #21180b;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .assistant-composer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 14px 18px 18px;
+      border-top: 1px solid rgba(200,164,92,.14);
+    }
+
+    .assistant-composer input {
+      min-width: 0;
+      min-height: 42px;
+      border: 1px solid rgba(200,164,92,.2);
+      background: rgba(9,8,6,.58);
+      color: var(--ink);
+      padding: 0 12px;
+      font: inherit;
+    }
+
+    .assistant-composer input::placeholder { color: var(--faint); }
+    .assistant-status { padding: 0 18px 14px; min-height: 18px; }
+
     .promise-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -583,6 +696,9 @@
       .hero h1 { font-size: 52px; }
       .hero-actions { display: grid; }
       .btn { width: 100%; }
+      .assistant-composer { grid-template-columns: 1fr; }
+      .assistant-action button,
+      .assistant-composer button { width: 100%; }
       .portrait-board { padding: 12px; }
       .portrait-frame img { inset: 24px 24px auto; width: calc(100% - 48px); }
       .section { padding: 62px 0; }
@@ -637,6 +753,23 @@
             进入闲趣集
           </a>
         </div>
+
+        <section class="assistant-panel reveal" aria-label="牛秘书 AI 助手">
+          <div class="assistant-head">
+            <strong>牛秘书 AI</strong>
+            <span>Action Protocol v2.0</span>
+          </div>
+          <div class="assistant-messages" data-assistant-messages>
+            <div class="assistant-message">你说一句话，我会整理成可确认的动作。</div>
+          </div>
+          <div class="assistant-actions" data-assistant-actions hidden></div>
+          <form class="assistant-composer" data-assistant-form>
+            <input data-assistant-input type="text" autocomplete="off" placeholder="例如：我今天吃了牛肉面" aria-label="给牛秘书 AI 发送消息">
+            <button type="submit">发送</button>
+          </form>
+          <div class="assistant-status" data-assistant-status></div>
+        </section>
+
         <div class="promise-grid reveal" aria-label="牛秘书服务承诺">
           <div class="promise"><b>少打扰</b><span>只把重要内容推到你面前</span></div>
           <div class="promise"><b>会整理</b><span>把信息变成可读、可执行的摘要</span></div>
@@ -776,6 +909,7 @@
     </div>
   </footer>
 
+  <script type="module" src="assistant.js"></script>
   <script>
     (function() {
       "use strict";

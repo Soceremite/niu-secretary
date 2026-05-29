@@ -101,6 +101,34 @@ date_added: "2026-05-28"
 - **AI 驱动**：OpenClaw + DeepSeek V4 Pro / Claude Opus 4.6
 - **Logo 托管**：`logo.png` 放在各子目录下
 
+
+## 牛秘书 2.0 Action Protocol
+
+v2.0 起新增统一 Python API，主页 AI 助手、语音助手、子网页和未来 App 都应逐步调用同一组 action。
+
+### 本地启动
+
+```bash
+NIU_SECRETARY_API_PORT=5188 python3 server/niu_secretary_api.py
+```
+
+### 核心接口
+
+| 接口 | 说明 |
+|------|------|
+| `GET /niu-secretary/api/health` | 服务健康检查 |
+| `GET /niu-secretary/api/capabilities` | 当前可调用能力注册表 |
+| `POST /niu-secretary/api/assistant/message` | 自然语言解析为候选动作 |
+| `POST /niu-secretary/api/actions/execute` | 执行统一动作 |
+
+### 第一阶段动作
+
+- `fitness.nutrition.create`：记录一餐。
+- `fitness.nutrition.today_summary`：读取营养汇总。
+- `schedule.event.create`：创建日程。
+- `schedule.todo.create`：创建待办。
+- `schedule.today_summary`：读取日程与待办。
+
 ## 部署流程
 
 ```bash
