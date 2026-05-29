@@ -102,15 +102,57 @@ date_added: "2026-05-28"
 - **Logo 托管**：`logo.png` 放在各子目录下
 
 
-## 牛秘书 2.0 Action Protocol
+## 牛秘书 2.0 AI 助手与 Action Protocol
 
-v2.0 起新增统一 Python API，主页 AI 助手、语音助手、子网页和未来 App 都应逐步调用同一组 action。
+v2.0 的核心理念是：牛秘书主页 AI、语音助手、四个子网页和未来 App 不再各写一套业务逻辑，而是统一调用同一组 Action Protocol。
+
+### AI 助手设计理念
+
+牛秘书 AI 是总入口，不直接把一句话硬塞进某个页面，而是先理解意图，再调用能力：
+
+1. **意图分流**：先调用模型判断用户属于 `fitness`、`schedule`、`news`、`leisure`、`chat` 或 `unknown`。
+2. **模块 Prompt**：根据板块选择专用 prompt。塑形馆负责营养、训练、恢复、评估；时务局负责日程、提醒、待办；新闻社和闲趣集保留后续技能接入。
+3. **动作生成**：模型只生成允许的 action 和参数，不直接写库。
+4. **用户确认**：主页先展示可编辑 JSON，用户确认后才执行。
+5. **统一落库**：确认后调用 `/niu-secretary/api/actions/execute` 写入服务端 SQLite。
+6. **多端同步**：子网页从统一 API 读取服务端记录，并与本地 IndexedDB 合并展示。
+
+这个内部 Action Protocol 不是 MCP，但按 MCP 思路设计：能力可发现、输入可校验、执行可审计，未来可以再包一层 MCP Server。
 
 ### 本地启动
 
 ```bash
 NIU_SECRETARY_API_PORT=5188 python3 server/niu_secretary_api.py
 ```
+
+### 本地配置
+
+真实 API Key 只保存在服务器本地 `/etc`，不进入 Git 仓库。仓库只保存模板：
+
+| 模板 | 本地真实配置 | 用途 |
+|------|------|------|
+| `config/niu-secretary-api.env.example` | `/etc/niu-secretary-api.env` | 主页 AI 助手、Action Protocol、SQLite 路径 |
+| `config/niu-fitness-api.env.example` | `/etc/niu-fitness-api.env` | 塑形馆图片识别、多模态模型 |
+
+恢复或迁移到新机器时：
+
+```bash
+sudo cp config/niu-secretary-api.env.example /etc/niu-secretary-api.env
+sudo cp config/niu-fitness-api.env.example /etc/niu-fitness-api.env
+sudo chmod 600 /etc/niu-secretary-api.env /etc/niu-fitness-api.env
+sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
+```
+
+然后编辑两个 `/etc/*.env` 文件，把 `*_API_KEY` 改成本机真实密钥。
+
+### 模型配置分工
+
+| 配置 | 当前用途 |
+|------|------|
+| `NIU_ASSISTANT_API_BASE` / `NIU_ASSISTANT_MODEL` | 首页 AI 文本理解、意图分流、动作生成 |
+| `FITNESS_VISION_API_BASE` / `FITNESS_VISION_MODEL` | 塑形馆图片识别、餐食营养估算 |
+
+两者可以指向同一个模型，例如 `qwen3.6-plus`；也可以以后拆成“文本强模型 + 视觉强模型”。
 
 ### 核心接口
 
