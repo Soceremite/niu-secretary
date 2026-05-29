@@ -289,12 +289,28 @@
       font-size: 14px;
     }
 
-    .assistant-action pre {
+    .assistant-action pre,
+    .assistant-action-editor {
       margin: 0;
       white-space: pre-wrap;
       word-break: break-word;
       color: #d7cebc;
       font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .assistant-action-editor {
+      width: 100%;
+      min-height: 132px;
+      resize: vertical;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      padding: 10px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .assistant-action-editor:focus {
+      border-color: rgba(200,164,92,.55);
     }
 
     .assistant-action button,

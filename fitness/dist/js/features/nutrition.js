@@ -4,6 +4,7 @@ import { addNutritionLog, clearNutritionLogs, getProfile, listAssessmentLogs, li
 import { summarizeNutrition } from '../lib/nutrition.js';
 import { calculateTdee, progressPercent } from '../lib/calculator.js';
 import { estimateMealLocally, recognizeMealWithAgent } from '../lib/agentClient.js';
+import { createUnifiedNutritionLog, fetchUnifiedNutritionLogs } from '../lib/actionApi.js';
 
 let selectedPhoto = null;
 let pendingMeal = null;
@@ -102,7 +103,17 @@ function fillManualFromPhoto() {
 }
 
 async function addMeal(meal) {
-  await addNutritionLog(meal);
+  const localMeal = { ...meal };
+  try {
+    const unified = await createUnifiedNutritionLog(meal);
+    localMeal.serverId = unified.id;
+    localMeal.syncStatus = 'synced';
+    document.getElementById('nutrition-toast').textContent = '已写入统一动作接口，并同步到本地。';
+  } catch (error) {
+    localMeal.syncStatus = 'pending';
+    document.getElementById('nutrition-toast').textContent = error.message || '统一动作接口暂不可用，已先保存到本地。';
+  }
+  await addNutritionLog(localMeal);
   await render();
 }
 
@@ -122,7 +133,8 @@ function previewPhoto(event) {
 }
 
 async function render() {
-  const logs = (await listNutritionLogs()).sort((a, b) => b.date.localeCompare(a.date));
+  const localLogs = await listNutritionLogs();
+  const logs = mergeNutritionLogs(localLogs, await loadUnifiedNutritionLogs()).sort(compareNutritionLogs);
   const today = summarizeNutrition(logs);
   currentTargets = await calculateNutritionTargets();
   const energy = await calculateEnergy(today.calories);
@@ -208,8 +220,37 @@ function setRecognitionState(state, message) {
 
 function renderList(logs) {
   document.getElementById('nutrition-list').innerHTML = logs.length ? logs.slice(0, 8).map((log) => `
-    <div class="log-item"><span><strong>${escapeHtml(log.mealType)}</strong><br>${escapeHtml(log.date)} · ${escapeHtml(log.food)}${log.imageName ? `<br>图片：${escapeHtml(log.imageName)}` : ''}</span><span>${log.calories}kcal<br>${formatSource(log.source)}</span></div>
+    <div class="log-item"><span><strong>${escapeHtml(log.mealType || 'AI记录')}</strong><br>${escapeHtml(log.date)} · ${escapeHtml(log.food)}${log.imageName ? `<br>图片：${escapeHtml(log.imageName)}` : ''}</span><span>${log.calories}kcal<br>${formatSource(log.source)}</span></div>
   `).join('') : '<div class="empty">暂无饮食记录。先拍一餐或手动补录。</div>';
+}
+
+async function loadUnifiedNutritionLogs() {
+  try {
+    return await fetchUnifiedNutritionLogs();
+  } catch (error) {
+    document.getElementById('nutrition-toast').textContent = error.message || '统一动作接口读取失败，仅显示本地记录。';
+    return [];
+  }
+}
+
+function mergeNutritionLogs(localLogs, unifiedLogs) {
+  const rows = [];
+  const seenServerIds = new Set();
+  for (const log of localLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('nut_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
+}
+
+function compareNutritionLogs(a, b) {
+  const dateOrder = String(b.date || '').localeCompare(String(a.date || ''));
+  if (dateOrder) return dateOrder;
+  return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
 }
 
 function rows() {
@@ -227,6 +268,9 @@ function inferMealType() {
 function formatSource(source) {
   if (source === 'agent') return 'Agent';
   if (source === 'local-estimate') return '本地估算';
+  if (source === 'home-assistant-ai') return '首页AI';
+  if (source === 'home-assistant') return '首页';
+  if (source === 'fitness-page') return '塑形馆';
   return '手动';
 }
 

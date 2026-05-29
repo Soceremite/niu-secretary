@@ -53,6 +53,13 @@ class NiuSecretaryApiTest(unittest.TestCase):
         self.assertEqual(response["proposedActions"][0]["action"], "fitness.nutrition.create")
         self.assertEqual(response["proposedActions"][0]["input"]["food"], "牛肉面")
 
+    def test_assistant_large_meat_meal_uses_description_fallback(self):
+        response = handle_message("我今天晚上吃了东北菜，有七八个菜，大部分是肉类", {"client": "test"})
+        action_input = response["proposedActions"][0]["input"]
+        self.assertEqual(response["module"], "fitness")
+        self.assertGreaterEqual(action_input["calories"], 1000)
+        self.assertGreaterEqual(action_input["proteinG"], 70)
+
     def test_assistant_reminder_message_proposes_event_action(self):
         response = handle_message("明天下午三点提醒我开会", {"client": "test"})
         action = response["proposedActions"][0]

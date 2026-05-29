@@ -3,6 +3,7 @@
 import { addWeightLog, clearWeightLogs, countPendingSync, exportAllData, getProfile, importAllData, listNutritionLogs, listWeightLogs, putProfile } from '../lib/db.js';
 import { calculateBmi, calculateTdee, classifyAsianBmi, progressPercent, summarizeWeight } from '../lib/calculator.js';
 import { summarizeNutrition } from '../lib/nutrition.js';
+import { fetchUnifiedNutritionLogs } from '../lib/actionApi.js';
 
 const defaultProfile = {
   heightCm: 175,
@@ -74,7 +75,13 @@ function bindForms() {
 }
 
 async function render() {
-  const [logs, nutritionLogs, pending] = await Promise.all([listWeightLogs(), listNutritionLogs(), countPendingSync()]);
+  const [logs, localNutritionLogs, unifiedNutritionLogs, pending] = await Promise.all([
+    listWeightLogs(),
+    listNutritionLogs(),
+    fetchUnifiedNutritionLogs().catch(() => []),
+    countPendingSync()
+  ]);
+  const nutritionLogs = mergeNutritionLogs(localNutritionLogs, unifiedNutritionLogs);
   const summary = summarizeWeight(logs);
   const latestWeight = summary.latest?.weightKg || profile.weightKg || 80;
   const bmi = calculateBmi(latestWeight, profile.heightCm);
@@ -95,6 +102,20 @@ async function render() {
   updateTargets(todayNutrition, calorieTarget);
   renderLogList(summary.sorted);
   drawWeightChart(summary.sorted);
+}
+
+function mergeNutritionLogs(localLogs, unifiedLogs) {
+  const rows = [];
+  const seenServerIds = new Set();
+  for (const log of localLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('nut_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
 }
 
 function updateTargets(todayNutrition, calorieTarget) {
