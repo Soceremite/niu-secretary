@@ -1,0 +1,67 @@
+[
+  {
+    "id": "mus_001",
+    "title": "穿过城市的黄昏——治愈民谣集",
+    "type": "歌单",
+    "genre": "民谣",
+    "language": "中文",
+    "trackCount": 28,
+    "matchScore": 93,
+    "reason": "你偏好的中文民谣，城市黄昏的温暖质感。没有日程压力的周五傍晚，窝着听几首慢歌，是最好的人生停顿",
+    "mood": "治愈",
+    "scene": "放松",
+    "platformUrl": "https://music.163.com/"
+  },
+  {
+    "id": "mus_002",
+    "title": "深海频率——氛围电子/后摇",
+    "type": "歌单",
+    "genre": "电子",
+    "language": "纯音乐",
+    "trackCount": 22,
+    "matchScore": 90,
+    "reason": "电子氛围加上纯音乐，专注和放松两不误。你偏好轻音乐和电子，这个组合让你在工作/阅读时找到心流——不喧宾夺主，恰到好处的陪伴",
+    "mood": "平静",
+    "scene": "专注",
+    "platformUrl": "https://music.163.com/"
+  },
+  {
+    "id": "mus_003",
+    "title": "坂本龙一：终曲与回响",
+    "type": "专辑",
+    "genre": "轻音乐",
+    "language": "纯音乐",
+    "trackCount": 15,
+    "matchScore": 91,
+    "reason": "教授的经典钢琴与氛围作品集。你爱轻音乐，坂本龙一的旋律既治愈又有深度——平衡舒缓的周五，需要这样的声音来洗涤一周的疲惫",
+    "mood": "治愈",
+    "scene": "放松",
+    "platformUrl": "https://music.163.com/"
+  },
+  {
+    "id": "mus_004",
+    "title": "日落大道——英文独立流行",
+    "type": "歌单",
+    "genre": "流行",
+    "language": "英文",
+    "trackCount": 32,
+    "matchScore": 85,
+    "reason": "轻松英文流行，不算闹也不算闷。你的偏好里有英文流行，周五晚上配一杯喝的，让旋律把一周的紧绷融化",
+    "mood": "活力",
+    "scene": "放松",
+    "platformUrl": "https://music.163.com/"
+  },
+  {
+    "id": "mus_005",
+    "title": "月下茶话——古风/新民乐",
+    "type": "歌单",
+    "genre": "民谣",
+    "language": "中文",
+    "trackCount": 24,
+    "matchScore": 83,
+    "reason": "中式美学的新民乐，古筝琵琶加电子氛围。你偏好中文民谣，这个拓展边界——在传统和现代之间找到一个舒服的平衡点",
+    "mood": "平静",
+    "scene": "放松",
+    "platformUrl": "https://music.163.com/"
+  }
+]

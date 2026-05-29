@@ -1,0 +1,130 @@
+---
+name: niu-secretary
+description: "牛秘书品牌体系——品牌定位、视觉规范、功能矩阵与未来 App 愿景。用于统一品牌调性，指导各子产品（新闻社、塑形馆等）的设计与开发。"
+risk: safe
+date_added: "2026-05-28"
+---
+
+# 牛秘书品牌体系
+
+## 品牌定位
+
+**牛秘书** — 你的私人 AI 管家
+
+不只是一个助手，而是一位懂你节奏、替你操心的虚拟私人管家。从新闻简报、健康管理到生活琐事，牛秘书让 AI 从「回答问题」进化到「主动服务」。
+
+### 品牌人设
+
+- **人格**：御姐型 AI 管家
+- **气质**：清冷中带着温柔，干练且体贴
+- **口吻**：专业、可靠、有温度，偶尔调皮但不失分寸
+- **对标**：不是冰冷的工具，也不是撒娇的宠物，而是一位值得信赖的秘书
+
+### 品牌关键词
+
+专业 · 干练 · 可靠 · 有温度 · 主动服务 · 私人定制
+
+### 品牌宣言
+
+> 在这个信息过载的时代，
+> 你不需要另一个 App，
+> 你需要的是一位真正了解你的管家。
+
+### 品牌愿景
+
+让每个人都能拥有自己的 AI 私人管家。
+
+- **现阶段**：以 Web 服务矩阵形式提供新闻简报、健身管理等核心功能
+- **中期目标**：整合为统一入口的「牛秘书」个人管理中心
+- **终极形态**：「牛秘书 App」— 面向所有人的私人 AI 管家平台，支持个性化配置、多模态交互、主动服务
+
+## 视觉规范
+
+### Logo
+
+- 文件：`/home/ubuntu/Pictures/image-2.png`（2048x2048）
+- 风格：黑金配色、御姐动漫头像
+- 展示形式：圆形裁剪，可带金色渐变边框
+- 用于所有牛秘书子品牌站点
+
+### 配色方案
+
+品牌主页采用 **dark luxury** 风格：
+
+| 色彩 | 色值 | 用途 |
+|------|------|------|
+| 深底 | `#0a0a0a` | 页面背景 |
+| 卡片底 | `#1a1a1a` | 卡片、面板 |
+| 主金色 | `#c8a45c` | 强调色、标题、边框 |
+| 亮金 | `#e4c97c` | 渐变高光 |
+| 暗金 | `#8b6914` | 渐变阴影 |
+| 主文字 | `#e8e4dc` | 正文标题 |
+| 副文字 | `#a8a49c` | 描述文字 |
+| 弱文字 | `#6a6660` | 提示、标注 |
+
+### 字体
+
+- **标题/品牌名**：Noto Serif SC（思源宋体）— 优雅、有分量
+- **正文**：Noto Sans SC（思源黑体）— 清晰、现代
+- **装饰/英文**：Playfair Display — 杂志感、高端
+
+### 设计语言
+
+- **基调**：暗色底 + 金色点缀，营造高端管家服务的质感
+- **氛围**：噪声纹理叠加，径向渐变光晕，杂志排版感
+- **动效**：滚动渐现（reveal）、卡片悬浮光效、Logo 浮动动画
+
+## 功能矩阵
+
+### 已上线
+
+| 功能 | 地址 | 说明 |
+|------|------|------|
+| 📰 牛秘书新闻社 | `/niu-secretary/news/` | 每日新闻简报，五维分类（国内/国际/财经/科技/AI），AI 精选 |
+| 🏋️ 牛秘书塑形馆 | `/niu-secretary/fitness/` | 科学健身管理，训练/营养/恢复/评估/咨询六大模块 |
+| 📅 牛秘书时务局 | `/niu-secretary/schedule/` | 日程管理：今日排班、秘书提醒、事务抽屉、目标追踪 |
+| 🎬 牛秘书闲趣集 | `/niu-secretary/leisure/` | 休闲推荐：今晚首推、今日候选、口味档案 |
+| 🏠 牛秘书品牌主页 | `/niu-secretary/` | 品牌入口，功能导航，品牌宣言与愿景 |
+
+### 规划中
+
+| 功能 | 地址 | 说明 |
+|------|------|------|
+| 🤖 AI 对话管家 | — | 7×24h 私人 AI 对话，个性化记忆，主动提醒 |
+| 📱 牛秘书 App | — | 统一入口，多端同步，开放平台 |
+
+## 技术栈
+
+- **前端**：纯 HTML/CSS/JS（无框架依赖），响应式设计
+- **部署**：nginx `/niu-secretary/` → `/var/www/html/niu-secretary/`
+- **部署权限**：目标目录属于 root，需 sudo cp
+- **AI 驱动**：OpenClaw + DeepSeek V4 Pro / Claude Opus 4.6
+- **Logo 托管**：`logo.png` 放在各子目录下
+
+## 部署流程
+
+```bash
+# 备份
+sudo cp /var/www/html/index.html /var/www/html/index.html.bak.YYYYMMDD
+
+# 部署品牌主页
+sudo mkdir -p /var/www/html/niu-secretary
+sudo cp /home/ubuntu/.openclaw/workspace/niu-secretary/dist/index.html /var/www/html/niu-secretary/index.html
+sudo cp /home/ubuntu/.openclaw/workspace/niu-secretary/dist/logo.png /var/www/html/niu-secretary/logo.png
+```
+
+## 品牌资产清单
+
+| 资产 | 路径 |
+|------|------|
+| 品牌 SKILL | `/home/ubuntu/.openclaw/workspace/niu-secretary/SKILL.md` |
+| 品牌主页源码 | `/home/ubuntu/.openclaw/workspace/niu-secretary/dist/index.html` |
+| Logo 原始文件 | `/home/ubuntu/Pictures/image-2.png` |
+| 品牌主页 Logo | `/home/ubuntu/.openclaw/workspace/niu-secretary/dist/logo.png` |
+
+## 出品信息
+
+- **出品人**：帅锅（三更力争）
+- **品牌设计**：牛秘书团队
+- **技术协作**：DeepSeek V4 Pro / Claude Opus 4.6
+- **基础设施**：OpenClaw

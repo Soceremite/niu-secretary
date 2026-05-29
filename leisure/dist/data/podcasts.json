@@ -1,0 +1,57 @@
+[
+  {
+    "id": "pod_001",
+    "title": "AI 的元年之后：我们到底走到了哪一步？",
+    "podcast": "硅谷101",
+    "episode": "E238",
+    "genres": ["科技", "AI"],
+    "duration": 68,
+    "matchScore": 94,
+    "reason": "你偏好的科技/AI方向，2026年回顾AI发展路线。今天没有密集日程，68分钟的深度对谈刚好填满通勤或散步时光——既有信息量又不会太累",
+    "platformUrl": "https://www.ximalaya.com/"
+  },
+  {
+    "id": "pod_002",
+    "title": "敦煌的千年：从藏经洞到数字重生",
+    "podcast": "文化有限",
+    "episode": "Vol.186",
+    "genres": ["人文", "历史"],
+    "duration": 52,
+    "matchScore": 90,
+    "reason": "人文类播客正中你偏好，52分钟不长不短。敦煌的故事本身就治愈——大漠风沙里的文明，比996的焦虑辽阔太多",
+    "platformUrl": "https://www.ximalaya.com/"
+  },
+  {
+    "id": "pod_003",
+    "title": "马斯克的脑机接口：2026年进展到哪里了？",
+    "podcast": "科技乱炖",
+    "episode": "E412",
+    "genres": ["科技", "商业"],
+    "duration": 75,
+    "matchScore": 88,
+    "reason": "科技+商业双料满足你的偏好。Neuralink在2026年的最新进展，不算太硬核，偏科普向——周五下午摸鱼听听刚好",
+    "platformUrl": "https://www.ximalaya.com/"
+  },
+  {
+    "id": "pod_004",
+    "title": "村上春树新作解读：当我们谈论跑步时我们在谈论什么",
+    "podcast": "跳岛FM",
+    "episode": "E178",
+    "genres": ["人文", "文学"],
+    "duration": 48,
+    "matchScore": 85,
+    "reason": "人文+文学，短小精悍的48分钟。村上春树的跑步哲学——关于独处、自律和创作，适合在周五晚上给自己一段安静的精神按摩",
+    "platformUrl": "https://www.ximalaya.com/"
+  },
+  {
+    "id": "pod_005",
+    "title": "2026上半年商业复盘：AI Agent 爆发与开源浪潮",
+    "podcast": "商业就是这样",
+    "episode": "E195",
+    "genres": ["商业", "科技"],
+    "duration": 42,
+    "matchScore": 87,
+    "reason": "商业+科技交叉点，42分钟精悍不累。2026年上半年AI Agent赛道总结——你刚好对这个领域有兴趣，信息密度高但不冗长",
+    "platformUrl": "https://www.ximalaya.com/"
+  }
+]

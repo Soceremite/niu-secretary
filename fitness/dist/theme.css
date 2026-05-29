@@ -1,0 +1,135 @@
+/* fitness/src/theme.css */
+/* Health workbench theme: keep this file for deployment compatibility and small product-specific refinements. */
+.workbench-section {
+  animation: section-in 260ms var(--ease);
+}
+
+@keyframes section-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(224, 232, 221, 0.08);
+}
+
+.form-section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.form-section-title {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.danger-btn {
+  border-color: rgba(239, 106, 111, 0.42);
+  color: #ffe6e8;
+}
+
+.danger-btn:hover {
+  border-color: rgba(239, 106, 111, 0.68);
+  background: rgba(239, 106, 111, 0.11);
+}
+
+.photo-card .card-head h2::after,
+.deficit-card .card-head h3::after,
+.status-card .card-head h3::after {
+  content: "";
+  display: block;
+  width: 38px;
+  height: 3px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: var(--good);
+}
+
+.deficit-card .card-head h3::after {
+  background: var(--warn);
+}
+
+.clinical-card .card-head h2::after,
+.clinical-card .card-head h3::after {
+  content: "";
+  display: block;
+  width: 38px;
+  height: 3px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: var(--bad);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workbench-section { animation: none; }
+}
+
+.recognition-state {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  background: rgba(3, 7, 6, 0.22);
+  font-size: 13px;
+}
+
+.recognition-state[data-state="loading"] { color: var(--info); border-color: rgba(159, 197, 255, 0.42); }
+.recognition-state[data-state="success"] { color: var(--good); border-color: rgba(116, 217, 159, 0.42); }
+.recognition-state[data-state="failed"] { color: var(--bad); border-color: rgba(239, 106, 111, 0.42); }
+.recognition-state[data-state="estimate"] { color: var(--warn); border-color: rgba(255, 209, 102, 0.42); }
+
+.recognized-meal {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(224, 232, 221, 0.1);
+}
+
+.compact-head { margin-bottom: 12px; }
+
+.mini-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.mini-columns > div {
+  border: 1px solid rgba(224, 232, 221, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  color: var(--muted);
+  background: rgba(3, 7, 6, 0.2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.mini-columns strong { color: var(--text); }
+.mini-columns ul { margin: 8px 0 0; padding-left: 18px; }
+.mini-columns p { margin: 8px 0 0; }
+
+.file-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.file-btn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .mini-columns { grid-template-columns: 1fr; }
+}

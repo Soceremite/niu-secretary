@@ -1,0 +1,101 @@
+<!-- fitness/src/sections/dashboard.html -->
+<section class="dashboard-grid workbench-section" id="dashboard">
+  <div class="stack">
+    <article class="glass-card priority-card">
+      <div class="card-head">
+        <div>
+          <h2>趋势总览</h2>
+          <p>体重以 7 日均线判断方向，避免被单日水分波动误导。</p>
+        </div>
+        <button class="ghost-btn" type="button" id="seed-demo">填充示例</button>
+      </div>
+      <div class="metric-row">
+        <div class="metric good"><b id="stat-weight">--</b><span>最新体重 kg</span></div>
+        <div class="metric warn"><b id="stat-delta">--</b><span>7 日变化 kg</span></div>
+        <div class="metric info"><b id="stat-bmi">--</b><span>BMI</span></div>
+      </div>
+      <div class="chart-wrap" aria-label="体重趋势图">
+        <canvas id="weight-chart" width="900" height="360"></canvas>
+      </div>
+    </article>
+
+    <article class="glass-card">
+      <div class="card-head">
+        <div>
+          <h3>今日营养</h3>
+          <p>读取今日真实饮食记录，拍照、估算和手动补录都会汇总到这里。</p>
+        </div>
+      </div>
+      <div class="rings">
+        <div class="ring" id="calorie-ring" style="--progress: 0deg"><strong id="calorie-percent">0%</strong></div>
+        <div class="target-list">
+          <div class="target-row"><span>热量</span><div class="bar"><span id="bar-calories"></span></div><b id="text-calories">0</b></div>
+          <div class="target-row"><span>蛋白</span><div class="bar"><span id="bar-protein"></span></div><b id="text-protein">0</b></div>
+          <div class="target-row"><span>碳水</span><div class="bar"><span id="bar-carbs"></span></div><b id="text-carbs">0</b></div>
+          <div class="target-row"><span>脂肪</span><div class="bar"><span id="bar-fat"></span></div><b id="text-fat">0</b></div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <aside class="stack">
+    <article class="glass-card">
+      <div class="card-head">
+        <div>
+          <h3>录入体重</h3>
+          <p>数据先写 IndexedDB，刷新和离线都可用。</p>
+        </div>
+      </div>
+      <form id="weight-form">
+        <div class="form-grid">
+          <label class="field">日期<input name="date" type="date" required></label>
+          <label class="field">体重 kg<input name="weightKg" type="number" step="0.1" min="20" max="300" required></label>
+          <label class="field">体脂 %<input name="bodyFatPercent" type="number" step="0.1" min="3" max="70"></label>
+          <label class="field">腰围 cm<input name="waistCm" type="number" step="0.1" min="40" max="220"></label>
+          <label class="field field-wide">备注<input name="note" maxlength="80" placeholder="训练日、外食、水肿等"></label>
+        </div>
+        <div class="actions">
+          <button class="primary-btn" type="submit">保存记录</button>
+          <button class="ghost-btn danger-btn" type="button" id="clear-logs">清空本地记录</button>
+        </div>
+        <div class="toast" id="form-toast"></div>
+      </form>
+    </article>
+
+    <article class="glass-card">
+      <div class="card-head">
+        <div>
+          <h3>目标设置</h3>
+          <p>BMI/TDEE 用于首轮本地计算。</p>
+        </div>
+      </div>
+      <form id="profile-form">
+        <div class="form-grid">
+          <label class="field">身高 cm<input name="heightCm" type="number" step="1" min="120" max="230" value="175"></label>
+          <label class="field">年龄<input name="age" type="number" step="1" min="12" max="90" value="32"></label>
+          <label class="field">性别<input name="sex" value="male" placeholder="male/female"></label>
+          <label class="field">活动系数<input name="activity" type="number" step="0.05" min="1.2" max="2.2" value="1.45"></label>
+          <label class="field">目标热量<input name="calorieTarget" type="number" step="10" min="800" max="6000" value="2100"></label>
+          <label class="field">蛋白目标 g<input name="proteinTarget" type="number" step="1" min="40" max="300" value="150"></label>
+          <label class="field">碳水目标 g<input name="carbsTarget" type="number" step="1" min="40" max="600" value="240"></label>
+          <label class="field">脂肪目标 g<input name="fatTarget" type="number" step="1" min="20" max="300" value="70"></label>
+        </div>
+        <div class="actions">
+          <button class="primary-btn" type="submit">更新目标</button>
+          <button class="ghost-btn" type="button" id="export-json">导出 JSON</button>
+          <label class="ghost-btn file-btn" for="import-json">导入 JSON<input id="import-json" type="file" accept="application/json"></label>
+        </div>
+      </form>
+    </article>
+  </aside>
+
+  <article class="glass-card full-row history-card">
+    <div class="card-head">
+      <div>
+        <h3>最近记录</h3>
+        <p>保存在浏览器本地。</p>
+      </div>
+    </div>
+    <div class="log-list" id="log-list"></div>
+  </article>
+</section>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="logo.png"><meta name="theme-color" content="#ead8aa"><title>牛秘书新闻社</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ TOP NAVBAR ============ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-brand-row">
+      <a class="topbar-brand" href="/niu-secretary/">
+        <img class="brand-logo-img" src="logo.png" alt="牛秘书">
+        <span>牛秘书新闻社</span>
+        <span class="topbar-version">日报</span>
+        <span class="brand-dot" aria-hidden="true"></span>
+      </a>
+      <span class="topbar-time" id="topbar-time"></span>
+      <a class="topbar-back" href="/niu-secretary/">← 返回主页</a>
+    </div>
+    <div class="topbar-nav-row">
+      <nav class="topbar-nav" id="topbar-nav">
+        <a href="#section-domestic" data-section="domestic" class="active">
+          <span class="nav-icon">壹</span> 国内要闻
+          <span class="nav-badge" id="badge-domestic">-</span>
+        </a>
+        <a href="#section-international" data-section="international">
+          <span class="nav-icon">贰</span> 国际焦点
+          <span class="nav-badge" id="badge-international">-</span>
+        </a>
+        <a href="#section-finance" data-section="finance">
+          <span class="nav-icon">叁</span> 财经快讯
+          <span class="nav-badge" id="badge-finance">-</span>
+        </a>
+        <a href="#section-tech" data-section="tech">
+          <span class="nav-icon">肆</span> 科技动态
+          <span class="nav-badge" id="badge-tech">-</span>
+        </a>
+        <a href="#section-ai" data-section="ai">
+          <span class="nav-icon">伍</span> 人工智能
+          <span class="nav-badge" id="badge-ai">-</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <p class="hero-kicker">民国报刊式每日简报</p>
+  <h1>牛秘书新闻社</h1>
+  <p class="subtitle" id="hero-date"></p>
+  <p class="hero-deck">仿旧报纸版面编排，头条先行，栏目分明，重要新闻一目了然。</p>
+</div>
+
+<!-- ============ ANNOUNCE ============ -->
+<div class="announce-bar">
+  <div class="ab-title">编务启事</div>
+  <div class="ab-team">
+    <span>主编：牛秘书</span>
+    <span>出品：帅锅</span>
+    <span>采编协作：DeepSeek V4 Pro / Claude Opus 4.6</span>
+  </div>
+  <div class="ab-slogan">要闻置顶，分栏阅览。</div>
+</div>
+
+<!-- ============ STATS BAR ============ -->
+<div style="padding:0 24px;position:relative;z-index:1;">
+<div class="stats-bar">
+  <div class="stat-item"><div class="num" id="stat-domestic">-</div><div class="label">第一版 · 国内</div></div>
+  <div class="stat-item"><div class="num" id="stat-international">-</div><div class="label">第二版 · 国际</div></div>
+  <div class="stat-item"><div class="num" id="stat-finance">-</div><div class="label">第三版 · 财经</div></div>
+  <div class="stat-item"><div class="num" id="stat-tech">-</div><div class="label">第四版 · 科技</div></div>
+  <div class="stat-item"><div class="num" id="stat-ai">-</div><div class="label">第五版 · AI</div></div>
+</div>
+</div>
+
+<!-- ============ MAIN CONTENT (dynamic slots) ============ -->
+<div class="container">
+  <div class="section-slot" id="slot-domestic"></div>
+  <div class="section-slot" id="slot-international"></div>
+  <div class="section-slot" id="slot-finance"></div>
+  <div class="section-slot" id="slot-tech"></div>
+  <div class="section-slot" id="slot-ai"></div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<div class="footer">
+  <p>数据来源：新华社、人民网、央视新闻、东方财富、环球网等权威媒体</p>
+  <p style="margin-top:6px;">免责声明：本页面仅供信息参考，不构成任何投资建议</p>
+  <p style="margin-top:10px;">
+    出品人：帅锅 &nbsp;|&nbsp;
+    主编：牛秘书 &nbsp;|&nbsp;
+    记者：DeepSeek V4 Pro &nbsp;|&nbsp;
+    工程：Claude Opus 4.6
+  </p>
+  <p style="margin-top:8px;color:#d1d5db;">© 2026 牛秘书新闻社 · Powered by <a href="#">OpenClaw</a></p>
+</div>
+
+<!-- ============ DETAIL OVERLAY ============ -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel" onclick="event.stopPropagation()">
+    <div class="detail-close">
+      <button class="back-btn" onclick="closeDetail()">← 返回列表</button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script>
+(function() {
+  'use strict';
+
+  const SECTIONS = ['domestic', 'international', 'finance', 'tech', 'ai'];
+  const detailMap = {};
+
+  // Date display
+  const now = new Date();
+  const days = ['日','一','二','三','四','五','六'];
+  const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 · 星期${days[now.getDay()]} · 牛秘书日报`;
+  document.getElementById('hero-date').textContent = dateStr;
+
+  // Time display
+  function updateTime() {
+    const t = new Date();
+    document.getElementById('topbar-time').textContent =
+      `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')} 更新`;
+  }
+  updateTime();
+  setInterval(updateTime, 60000);
+
+  // Load sections
+  async function loadSections() {
+    const promises = SECTIONS.map(async (name) => {
+      try {
+        const res = await fetch(`sections/${name}.html?t=${Date.now()}`);
+        if (!res.ok) return;
+        const html = await res.text();
+        const slot = document.getElementById(`slot-${name}`);
+        slot.innerHTML = html;
+        registerDetails(slot);
+      } catch(e) {
+        console.warn(`Failed to load section: ${name}`, e);
+      }
+    });
+    await Promise.all(promises);
+    updateStats();
+    setupNavHighlight();
+  }
+
+  // Register detail templates
+  function registerDetails(container) {
+    container.querySelectorAll('template.detail-tpl').forEach(tpl => {
+      detailMap[tpl.dataset.id] = tpl.innerHTML;
+    });
+  }
+
+  // Update stats badges
+  function updateStats() {
+    let total = 0;
+    SECTIONS.forEach(name => {
+      const count = document.querySelectorAll(`#section-${name} .news-card`).length;
+      const statEl = document.getElementById(`stat-${name}`);
+      const badgeEl = document.getElementById(`badge-${name}`);
+      if (statEl) statEl.textContent = count;
+      if (badgeEl) badgeEl.textContent = count;
+      total += count;
+    });
+  }
+
+  // Nav highlight on scroll
+  function setupNavHighlight() {
+    const navLinks = document.querySelectorAll('.topbar-nav a[data-section]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(a => {
+            a.classList.toggle('active', `section-${a.dataset.section}` === id);
+          });
+        }
+      });
+    }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+
+    SECTIONS.forEach(name => {
+      const el = document.getElementById(`section-${name}`);
+      if (el) observer.observe(el);
+    });
+  }
+
+  // Detail open/close
+  window.openDetail = function(id) {
+    const content = detailMap[id];
+    if (!content) return;
+    document.getElementById('detail-body').innerHTML = content;
+    document.getElementById('detail-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeDetail = function(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('detail-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  // ESC to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDetail();
+  });
+
+  // Init
+  document.addEventListener('DOMContentLoaded', loadSections);
+})();
+</script>
+
+</body>
+</html>

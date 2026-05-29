@@ -1,0 +1,98 @@
+
+<!-- fitness/src/sections/nutrition.html -->
+<section class="nutrition-layout workbench-section" id="nutrition">
+  <article class="glass-card photo-card priority-card">
+    <div class="card-head">
+      <div>
+        <h2>拍照记一餐</h2>
+        <p>上传餐食图片后先识别、再确认。Agent 不可用时会明确降级为本地估算。</p>
+      </div>
+    </div>
+    <form id="photo-form">
+      <label class="drop-zone" for="meal-photo">
+        <input id="meal-photo" name="photo" type="file" accept="image/*">
+        <span class="drop-icon">+</span>
+        <strong>上传这一餐</strong>
+        <small>支持手机拍照。尽量拍到整盘食物和份量参照。</small>
+      </label>
+      <div class="preview-frame" id="photo-preview">
+        <span>照片预览区</span>
+      </div>
+      <label class="field field-wide">补充描述<input name="description" placeholder="例：红烧肉半份、米饭一碗、奶茶三分糖"></label>
+      <div class="recognition-state" id="recognition-state" data-state="idle"></div>
+      <div class="actions">
+        <button class="primary-btn" type="submit">Agent 识别</button>
+        <button class="ghost-btn" type="button" id="local-estimate">本地估算</button>
+        <button class="ghost-btn" type="button" id="manual-from-photo">转手动补录</button>
+        <button class="ghost-btn danger-btn" type="button" id="clear-nutrition">清空饮食</button>
+      </div>
+      <div class="toast" id="nutrition-toast"></div>
+    </form>
+
+    <article class="recognized-meal" id="recognized-meal" hidden>
+      <div class="card-head compact-head"><div><h3>待确认结果</h3><p id="recognized-meta">--</p></div></div>
+      <form id="recognized-meal-form">
+        <div class="form-grid">
+          <label class="field field-wide">餐食<input name="food" required></label>
+          <label class="field">热量 kcal<input name="calories" type="number" min="0" max="5000"></label>
+          <label class="field">蛋白 g<input name="proteinG" type="number" min="0" max="300"></label>
+          <label class="field">碳水 g<input name="carbsG" type="number" min="0" max="600"></label>
+          <label class="field">脂肪 g<input name="fatG" type="number" min="0" max="300"></label>
+        </div>
+      </form>
+      <div class="mini-columns">
+        <div><strong>食物拆分</strong><ul id="recognized-items"></ul></div>
+        <div><strong>提醒</strong><ul id="recognized-warnings"></ul></div>
+      </div>
+      <div class="actions"><button class="primary-btn" type="button" id="confirm-meal">确认写入日志</button></div>
+    </article>
+  </article>
+
+  <article class="glass-card">
+    <div class="card-head">
+      <div>
+        <h2>手动补录</h2>
+        <p>无法识别或份量不准时，手动数据优先。</p>
+      </div>
+    </div>
+    <form id="nutrition-form">
+      <div class="form-grid">
+        <label class="field">日期<input name="date" type="date" required></label>
+        <label class="field">餐次<select name="mealType"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label>
+        <label class="field field-wide">食物描述<input name="food" required placeholder="红烧肉、米饭、奶茶"></label>
+        <label class="field">热量 kcal<input name="calories" type="number" min="0" max="5000" value="650"></label>
+        <label class="field">蛋白 g<input name="proteinG" type="number" min="0" max="300" value="35"></label>
+        <label class="field">碳水 g<input name="carbsG" type="number" min="0" max="600" value="80"></label>
+        <label class="field">脂肪 g<input name="fatG" type="number" min="0" max="300" value="22"></label>
+      </div>
+      <div class="actions"><button class="primary-btn" type="submit">保存饮食</button></div>
+    </form>
+  </article>
+
+  <aside class="stack nutrition-side">
+    <article class="glass-card deficit-card status-card">
+      <div class="card-head">
+        <div>
+          <h3>今日热量缺口</h3>
+          <p>日常代谢 + 今日运动 - 今日摄入。</p>
+        </div>
+      </div>
+      <div class="deficit-number" id="deficit-number">--</div>
+      <div class="deficit-subtitle" id="deficit-subtitle">等待记录中</div>
+      <div class="target-list" id="energy-breakdown"></div>
+    </article>
+
+    <article class="glass-card">
+      <div class="card-head"><div><h3>宏量营养</h3><p>目标来自最近一次评估和当前目标。</p></div></div>
+      <div class="rings">
+        <div class="ring" id="nutrition-ring" style="--progress:0deg"><strong id="nutrition-percent">0%</strong></div>
+        <div class="target-list" id="nutrition-targets"></div>
+      </div>
+    </article>
+  </aside>
+
+  <article class="glass-card full-row history-card">
+    <div class="card-head"><div><h3>最近饮食</h3><p>Agent、估算和手动记录都会进 IndexedDB 与同步队列。</p></div></div>
+    <div class="log-list" id="nutrition-list"></div>
+  </article>
+</section>

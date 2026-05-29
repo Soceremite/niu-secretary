@@ -1,0 +1,9 @@
+{
+  "name": "牛秘书塑形馆",
+  "short_name": "塑形馆",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1a0810",
+  "theme_color": "#1a0810",
+  "description": "Local-first body recomposition dashboard"
+}

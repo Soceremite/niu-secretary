@@ -1,0 +1,65 @@
+<!-- fitness/src/sections/training.html -->
+<section class="module-grid workbench-section" id="training">
+  <article class="glass-card priority-card">
+    <div class="card-head">
+      <div>
+        <h2>训练记录</h2>
+        <p>记录组数、次数、重量和 RPE，自动计算训练容量与估算 1RM。</p>
+      </div>
+      <button class="ghost-btn" type="button" id="seed-training">填充训练示例</button>
+    </div>
+    <form id="training-form">
+      <div class="form-grid">
+        <label class="field">日期<input name="date" type="date" required></label>
+        <label class="field">动作<select name="exerciseId" id="exercise-select"></select></label>
+        <label class="field">重量 kg<input name="weightKg" type="number" min="0" max="400" step="0.5" required></label>
+        <label class="field">次数<input name="reps" type="number" min="1" max="100" value="8" required></label>
+        <label class="field">组数<input name="sets" type="number" min="1" max="20" value="4" required></label>
+        <label class="field">RPE<input name="rpe" type="number" min="1" max="10" step="0.5" value="8"></label>
+        <label class="field field-wide">备注<input name="note" maxlength="80" placeholder="动作感觉、疼痛、替代动作等"></label>
+      </div>
+      <div class="actions">
+        <button class="primary-btn" type="submit">保存训练</button>
+        <button class="ghost-btn danger-btn" type="button" id="clear-training">清空训练记录</button>
+      </div>
+      <div class="toast" id="training-toast"></div>
+    </form>
+  </article>
+
+  <aside class="stack">
+    <article class="glass-card status-card">
+      <div class="card-head"><div><h3>今日建议</h3><p>综合恢复状态、评估限制和今日训练记录。</p></div></div>
+      <div id="training-suggestion"></div>
+    </article>
+
+    <article class="glass-card">
+      <div class="card-head"><div><h3>训练计划</h3><p>根据目标和恢复状态生成今天的训练边界。</p></div></div>
+      <div id="training-plan"></div>
+    </article>
+
+    <article class="glass-card">
+      <div class="card-head">
+        <div>
+          <h3>训练容量</h3>
+          <p>按动作模式聚合，用来观察是否渐进超负荷。</p>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric good"><b id="training-volume">0</b><span>总容量 kg</span></div>
+        <div class="metric warn"><b id="training-sets">0</b><span>总组数</span></div>
+        <div class="metric info"><b id="training-count">0</b><span>记录数</span></div>
+      </div>
+      <div class="pattern-list" id="pattern-list"></div>
+    </article>
+  </aside>
+
+  <article class="glass-card full-row history-card">
+    <div class="card-head">
+      <div>
+        <h3>最近训练</h3>
+        <p>每条记录都进入同步队列，后续可与 JSON 文件打通。</p>
+      </div>
+    </div>
+    <div class="log-list" id="training-list"></div>
+  </article>
+</section>

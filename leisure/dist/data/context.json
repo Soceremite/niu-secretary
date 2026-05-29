@@ -1,0 +1,24 @@
+{
+  "generated": "2026-05-29T12:00:00+08:00",
+  "schedule": {
+    "taskCount": 0,
+    "busyLevel": "轻松",
+    "note": "时务局暂无日程数据，判定为轻松日"
+  },
+  "fitness": {
+    "hasWorkout": false,
+    "intensity": "无",
+    "note": "塑形馆近期无训练记录，判定为休息日"
+  },
+  "moodProfile": {
+    "primary": "平衡舒缓",
+    "secondary": "沉浸治愈",
+    "label": "文艺放松型"
+  },
+  "dailyNote": "今天适合文艺剧情片+治愈音乐+人文播客——周五没有日程压力，给自己一段有深度的放松时光",
+  "recommendationStrategy": {
+    "movies": ["剧情", "文艺", "动画", "科幻", "悬疑"],
+    "music": ["民谣", "轻音乐", "电子", "流行"],
+    "podcasts": ["科技", "人文", "商业", "文学"]
+  }
+}

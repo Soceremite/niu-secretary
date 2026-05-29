@@ -1,0 +1,11 @@
+{
+  "name": "niuyeye-fitness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "serve": "python3 -m http.server 4173 --directory dist",
+    "api": "python3 server/nutrition_api.py"
+  }
+}

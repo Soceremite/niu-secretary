@@ -1,0 +1,21 @@
+<!-- fitness/src/sections/consult.html -->
+<section class="module-grid workbench-section" id="consult">
+  <article class="glass-card priority-card clinical-card">
+    <div class="card-head"><div><h2>身体问题咨询</h2><p>只做健身范围内建议；胸闷、晕厥、急性剧痛等红线直接提示就医。</p></div></div>
+    <form id="consult-form">
+      <div class="form-grid">
+        <label class="field">日期<input name="date" type="date" required></label>
+        <label class="field">部位<input name="area" placeholder="膝 / 腰 / 肩 / 体态"></label>
+        <label class="field field-wide">描述<input name="text" required placeholder="例如：深蹲时膝盖前侧疼，未肿胀"></label>
+      </div>
+      <div class="actions"><button class="primary-btn" type="submit">生成建议</button></div>
+      <div class="toast" id="consult-toast"></div>
+    </form>
+  </article>
+
+  <aside class="stack">
+    <article class="glass-card result-panel clinical-card" id="consult-result"><div class="empty">输入问题后会先做红线识别。</div></article>
+  </aside>
+
+  <article class="glass-card full-row history-card"><div class="card-head"><div><h3>咨询历史</h3><p>记录风险级别和处理建议。</p></div></div><div class="log-list" id="consult-list"></div></article>
+</section>
