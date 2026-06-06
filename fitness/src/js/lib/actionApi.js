@@ -1,9 +1,12 @@
 // fitness/src/js/lib/actionApi.js
 const ACTION_API = '/niu-secretary/api/actions/execute';
 
-export async function fetchUnifiedNutritionLogs(date = todayString()) {
-  const result = await executeAction('fitness.nutrition.today_summary', { date });
-  return (result.summary?.items || []).map((item) => ({
+// 默认拉取最近 180 天的营养记录，后端为唯一数据源
+export async function fetchUnifiedNutritionLogs(options = {}) {
+  const to = options.to || todayString();
+  const from = options.from || daysAgoString(180);
+  const result = await executeAction('fitness.nutrition.list', { from, to, limit: options.limit || 1000 });
+  return (result.items || []).map((item) => ({
     id: item.id,
     date: item.date,
     mealType: item.mealType || 'AI记录',
@@ -16,6 +19,11 @@ export async function fetchUnifiedNutritionLogs(date = todayString()) {
     createdAt: item.createdAt,
     syncStatus: 'synced'
   }));
+}
+
+export async function deleteUnifiedNutritionLog(id) {
+  await executeAction('fitness.nutrition.delete', { id });
+  return true;
 }
 
 export async function createUnifiedNutritionLog(meal) {
@@ -50,4 +58,8 @@ async function executeAction(action, input) {
 
 function todayString() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function daysAgoString(days) {
+  return new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
 }

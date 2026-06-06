@@ -38,6 +38,30 @@ async function render() {
   document.getElementById('recovery-list').innerHTML = logs.length ? logs.slice(0, 8).map((log) => `
     <div class="log-item"><span><strong>${escapeHtml(log.date)}</strong><br>${escapeHtml(log.status.label)} · 睡眠 ${log.sleepHours}h</span><span>${log.score}/100</span></div>
   `).join('') : '<div class="empty">暂无恢复记录。</div>';
+  renderTrend(logs);
+}
+
+function renderTrend(logs) {
+  const container = document.getElementById('recovery-trend-chart');
+  if (!container) return;
+  
+  const recent = logs.slice(0, 7).reverse();
+  if (!recent.length) {
+    container.innerHTML = '<div class="empty">暂无趋势数据。</div>';
+    return;
+  }
+  
+  container.innerHTML = recent.map((log) => {
+    const height = log.score;
+    const date = new Date(log.date);
+    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+    return `
+      <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+        <div class="trend-bar" style="height: ${height}%; width: 100%;" data-score="${log.score}"></div>
+        <div class="trend-date">${dateStr}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderResult(log) {

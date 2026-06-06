@@ -3,7 +3,7 @@ name: news-daily
 description: "每日新闻头条生成与推送——搜新闻、更新 HTML 页面、部署到 nginx、推送链接"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send
 user-invocable: true
-last_updated: "2026-05-29"
+last_updated: "2026-06-04"
 ---
 
 # 牛秘书新闻社 · 每日新闻推送
@@ -394,3 +394,58 @@ document.addEventListener('DOMContentLoaded', loadSections);
 
 👉 完整图文页面：http://124.222.22.171/niu-secretary/news/
 ```
+
+---
+
+## 用户画像 · 个性化精选（v1.1，2026-05-30）
+
+新闻社接入牛秘书 AI 画像链路：首页「我的关注 · 今日精选」面板根据 `news` 画像从当天新闻里筛选/排序。
+
+- 画像编辑入口：**只走主页牛秘书 AI 对话**（如「我关注 AI 和科技，别给我推娱乐」→ AI 识别 preference → 生成 `profile.update` 动作卡 → 确认落库）。本页面板只读展示。
+- 推荐动作：`news.recommend`（confirmByDefault=false）
+  - 后端 `server/action_handlers.py` 只读解析 `dist/sections/*.html`（标签/标题/摘要/板块），按画像 `topics`/`excludeTopics`/`regions` 关键词打分排序。
+  - `topics` 命中标签 +3 / 标题 +2 / 摘要 +1；`excludeTopics` 命中则剔除；有匹配项时 `personalized=true`。
+  - 画像为空时回落「今日要闻」（按板块顺序），不报错。
+- `news` 画像字段：`topics[] / excludeTopics[] / depth(headline|brief|deep) / regions[] / notes`，定义在 `server/store.py:DEFAULT_PROFILES`。
+- 前端面板：`dist/index.html` 内联脚本 `loadFocus()`，调 `/niu-secretary/api/actions/execute`，精选条目能点开复用现有 `openDetail` 详情。
+- ⚠️ 新闻内容无独立 JSON，recommend 直接解析 section HTML（方案 A，零侵入）。若日后给 cron 加导出 `news.json`，可切到读 JSON（v1.2 备选）。
+
+---
+
+## 运维问题记录
+
+### 2026-06-04：手动推送中遇到的三个问题及解决方案
+
+#### 问题 1：web_search provider 不稳定
+
+**现象：** 同一会话中多次调用 `web_search`，provider 在 duckduckgo → kimi → searxng 之间随机切换。kimi 不支持 `freshness` 参数，searxng 未配置直接报错。
+
+**根因：** OpenClaw 的搜索 provider 会动态切换，不同 provider 能力差异大。
+
+**解决方案：**
+- 首轮搜索不加 `freshness` 参数，避免非 duckduckgo provider 报错
+- 用 `web_fetch` 抓取新闻汇总页面替代多次独立搜索，效率更高
+- 关键补充搜索用 `web_fetch` 直接抓具体页面
+
+#### 问题 2：image 视觉模型认证失败
+
+**现象：** AI 配图审核环节，`image` 工具报 `Your authentication token has been invalidated`。`review_images.py` 脚本依赖本地 localhost:9900 视觉 API，也可能不可用。
+
+**解决方案：** 手动审核备选方案——
+- 根据爬取来源判断：`court.gov.cn`/`fmprc.gov.cn` 等官网通常返回 logo/icon/qrcode
+- 根据文件大小判断：<10KB 大概率是图标/logo/banner，>100KB 通常是大图新闻配图
+- 根据爬取日志中的 URL 路径名判断：含 `qrcode`/`logo`/`icon` 关键词的 → FAIL
+- 审核标准：相关人物/场景/事件/数据图表 → 通过；通用图库照/logo/二维码/订阅广告 → 不通过
+
+**⚠️ 手动审核不如视觉模型精确，优先级：视觉模型 > 手动推断。**
+
+#### 问题 3：cron 上次执行报错 "Request was aborted"
+
+**现象：** 每日 cron（Job ID `7567c2d1`）上次运行耗时 427 秒后 abort，可能超时。
+
+**根因：** 搜索+写 section+爬图+AI审核全流程耗时较长，900 秒超时可能不够，或者中间某步卡住。
+
+**建议修复（可选）：**
+- 增大 `timeoutSeconds` 至 1200
+- 或者拆分流程：搜索+写 section 一个 cron，爬图+审核+部署 另一个 cron
+- 当前手动推送全流程约 3-4 分钟即可完成

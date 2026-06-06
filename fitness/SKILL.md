@@ -3,7 +3,7 @@ name: fitness
 description: "牛秘书塑形馆——AI驱动的身体重组私教系统：Web数据看板 + QQ教练对话，覆盖评估、训练、饮食、恢复、咨询、报告全闭环。"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send,image
 user-invocable: true
-last_updated: "2026-05-29"
+last_updated: "2026-05-30"
 ---
 
 # 牛秘书塑形馆
@@ -26,8 +26,9 @@ AI 驱动的身体重组私教系统。Web 端做数据看板和结构化录入�
 └── 🖥️ Web页面 → 纯静态 HTML + JS Islands（看板/录入/趋势）
 
 数据流
-├── Browser → IndexedDB（即时响应）⇄ JSON 文件（长期存储）
-└── Agent → 直写 JSON 文件 → Web 读取展示
+├── 营养日志 → 后端 Action API（fitness.nutrition.list/create/delete）为唯一数据源
+├── 后端 SQLite ← 牛秘书 AI / QQ 教练 / 图片识别 写入 → 看板直接读到
+└── IndexedDB/localStorage → 离线缓存兜底；未建模的训练/评估数据仍留本地
 ```
 
 ## 核心约束
@@ -35,7 +36,7 @@ AI 驱动的身体重组私教系统。Web 端做数据看板和结构化录入�
 | 约束 | 说明 |
 |------|------|
 | 静态 HTML + Islands | 无 SPA 框架、无前端路由、无独立后端进程 |
-| Local-first | IndexedDB 为主存储，Service Worker 离线缓存，JSON 文件定期同步 |
+| 营养后端为数据源 | 营养日志后端 SQLite 为主（默认拉 180 天 list），IndexedDB/localStorage 退为离线缓存 |
 | 纯静态部署 | `npm run build` → `dist/` → Nginx 静态服务 |
 | AI 走 Agent | 饮食识别、教练对话、周报生成全部通过 OpenClaw Agent |
 | 视觉继承主页 | 暗红黑体系 + 健康管理工作台风格 |

@@ -3,7 +3,7 @@ name: schedule
 description: "牛秘书时务局——私人日程管理中心：日程核心、重要日期、生活代办、目标追踪、阅读学习、出行助手六大板块，纯静态 HTML 数据看板。"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send
 user-invocable: true
-last_updated: "2026-05-29"
+last_updated: "2026-05-30"
 ---
 
 # 牛秘书时务局
@@ -31,16 +31,18 @@ last_updated: "2026-05-29"
 └── 🔮 未来 → QQ Agent 语音创建日程
 
 数据流
-├── Browser → localStorage（即时读写）
-└── 可选：JSON 文件同步（Agent 可写 → Web 可读）
+├── 板块页面 → 后端 Action API（schedule.event.list / schedule.todo.list）为主数据源
+├── 后端 SQLite ← 牛秘书 AI 写入（event.create / todo.create）→ 板块直接读到
+└── localStorage → 离线缓存/兜底（后端不可达时回落）；dates/goals 后端暂未建模，维持本地
 ```
 
 ## 核心约束
 
 | 约束 | 说明 |
 |------|------|
-| 静态 HTML + 多页面 | 无 SPA 框架、无前端路由、无独立后端进程 |
-| Local-first | localStorage 为主存储，无外部依赖 |
+| 静态 HTML + 多页面 | 无 SPA 框架、无前端路由 |
+| 后端为数据源 | events/todos 后端 SQLite 为主，localStorage 退为离线缓存兜底 |
+| AI 打通 | 牛秘书 AI 写入的日程/待办经后端直达板块，跨设备一致 |
 | 纯静态部署 | `dist/` 直接 cp 到 Nginx 静态目录 |
 | 视觉体系 | 现代私人秘书事务夹，雾灰绿背景、象牙白卡片、墨蓝要务、铜金点缀 |
 | 页面结构 | 每个子板块一个独立 HTML 文件 |
@@ -193,12 +195,14 @@ niu-secretary/schedule/
 {
   "id": "todo_001",
   "title": "买牛奶",
-  "list": "shopping",
+  "date": "2026-05-30",
   "done": false,
   "priority": "high",
-  "due": "2026-05-30"
+  "source": "home-assistant-ai"
 }
 ```
+
+> 后端 `schedule_todos` 表字段：`id / title / date / priority / done / source / created_at`。无日期待办 `date=""`，list 范围查询时始终纳入。`list / shopping / due` 等为前端扩展字段，后端暂未建模。
 
 ### 目标
 ```json

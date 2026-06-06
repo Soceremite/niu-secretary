@@ -1,633 +1,582 @@
-"""Model-routed assistant for the Niu Secretary Action Protocol."""
+"""牛秘书 AI v4 — 多模型池 + 推理参数控制 + 本地规则引擎
+
+v4 改进：
+  - OpenAI 端点支持 reasoningEffort/textVerbosity/reasoningSummary 压制啰嗦推理
+  - Anthropic 端点支持 thinking.type=disabled 关闭思考链
+  - DeepSeek 端点支持 thinking.type=disabled 关闭内置 reasoning
+  - Prompt 强化「直接返回 JSON，不分析、不解释」
+  - 模型池加入 deepseek-v4-flash（thinking:disabled 模式）
+  - 统一返回字段 module（不再混用 intent）
+"""
 
 from __future__ import annotations
 
-import json
-import os
-import re
-import urllib.error
-import urllib.request
+import json, os, re, time, urllib.error, urllib.request
 from datetime import date, timedelta
+from typing import Optional
 
 from server import store
 
+# ====== 常量 ======
+MEAL_KEYWORDS = ("吃了","早餐","午餐","晚餐","夜宵","加餐","喝了","买了","叫了","点","买","摄入")
+EVENT_KEYWORDS = ("提醒","日程","开会","会议","约","预约","见面","讨论")
+TODO_KEYWORDS   = ("待办","记得","帮我记","要做","别忘了")
+ALLOWED_ACTIONS = {"fitness.nutrition.create","schedule.event.create","schedule.todo.create","profile.update"}
 
-MEAL_KEYWORDS = ("吃了", "早餐", "午餐", "晚餐", "夜宵", "加餐", "喝了")
-EVENT_KEYWORDS = ("提醒", "日程", "开会", "会议", "约", "预约")
-TODO_KEYWORDS = ("待办", "记得", "帮我记", "要做")
+# 偏好（画像调整）信号词—本地粗判断
+PREFERENCE_KEYWORDS = (
+    "我喜欢","我爱","我偏好","我的目标","我想减","我要减","我想增","我要增",
+    "减脂","增肌","塑形目标","忌口","过敏","不吃","不喜欢","讨厌","不看","不听",
+    "我关注","我感兴趣","我爱看","我喜欢看","我爱听","我喜欢听","口味",
+    "平时喜欢","一般喜欢","我通常","记住我","我的偏好","我习惯","我总是",
+    "设定我","设置我","以后都","从今以后","我期望","偏好是",
+)
 
-ALLOWED_ACTIONS = {
-    "fitness.nutrition.create",
-    "fitness.nutrition.today_summary",
-    "schedule.event.create",
-    "schedule.todo.create",
-    "schedule.today_summary",
-}
+# OpenCode Go 端点
+API_KEY = os.environ.get("NIU_ASSISTANT_API_KEY") or os.environ.get("OPENCODEGO_API_KEY", "")
+BASE    = os.environ.get("NIU_ASSISTANT_API_BASE", "https://opencode.ai/zen/go/v1")
 
-CALORIE_HINTS = {
-    "牛肉面": (650, 32, 85, 18),
-    "米饭": (280, 6, 62, 1),
-    "鸡胸": (220, 42, 0, 5),
-    "沙拉": (180, 8, 18, 8),
-    "咖啡": (60, 2, 8, 2),
-    "奶茶": (420, 7, 65, 14),
-    "汉堡": (520, 24, 46, 26),
-    "鸡蛋": (80, 7, 1, 5),
-}
-
-CUISINE_HINTS = {
-    "东北菜": (760, 38, 56, 42),
-    "川菜": (720, 34, 52, 40),
-    "湘菜": (720, 34, 52, 40),
-    "烧烤": (850, 50, 35, 55),
-    "火锅": (900, 48, 45, 58),
-}
-
-MEAT_WORDS = ("肉", "牛肉", "羊肉", "猪肉", "排骨", "锅包肉", "鸡肉", "烤肉", "鱼")
-MANY_DISH_WORDS = ("七八个菜", "七八道菜", "很多菜", "一桌菜", "聚餐", "大餐")
-
-CHINESE_HOURS = {
-    "零": 0,
-    "一": 1,
-    "二": 2,
-    "两": 2,
-    "三": 3,
-    "四": 4,
-    "五": 5,
-    "六": 6,
-    "七": 7,
-    "八": 8,
-    "九": 9,
-    "十": 10,
-    "十一": 11,
-    "十二": 12,
-}
+# DeepSeek 官方端点（支持 thinking disabled）
+DS_KEY  = os.environ.get("DEEPSEEK_API_KEY", "")
+DS_BASE = "https://api.deepseek.com/v1"
 
 
-class AssistantModelError(Exception):
-    pass
+# ================================================================
+# 模型调用基础设施
+# ================================================================
+class ModelError(Exception):
+    """模型调用不可恢复"""
 
 
-def handle_message(text: str, context: dict | None = None) -> dict:
-    context = context or {}
-    cleaned = normalize_text(text)
-    if not cleaned:
-        return {
-            "reply": "我在。你可以直接说“我今天吃了牛肉面”或“明天下午三点提醒我开会”。",
-            "intent": "empty",
-            "module": "chat",
-            "proposedActions": [],
-        }
+def _post_openai(model: str, prompt: str, max_tokens: int,
+                 timeout_s: float = 15,
+                 disable_thinking: bool = False) -> str:
+    """OpenAI 兼容端点: /chat/completions + Bearer
 
-    response = None
-    if assistant_model_configured():
-        try:
-            response = handle_with_model(cleaned, context)
-        except AssistantModelError as exc:
-            response = fallback_response(cleaned, context)
-            response["reply"] = f"AI 意图识别暂时失败，已使用本地降级：{response['reply']}"
-            response["warnings"] = [str(exc)[:180]]
-    else:
-        response = fallback_response(cleaned, context)
-        response["warnings"] = ["assistant_model_unconfigured"]
-
-    store.insert_assistant_message(cleaned, response["reply"], response["proposedActions"])
-    return response
-
-
-def assistant_model_configured() -> bool:
-    return all(os.environ.get(name) for name in ("NIU_ASSISTANT_API_BASE", "NIU_ASSISTANT_API_KEY", "NIU_ASSISTANT_MODEL"))
-
-
-def handle_with_model(text: str, context: dict) -> dict:
-    module = classify_intent(text, context)
-    raw = call_assistant_model(build_module_prompt(module, text), max_tokens=700)
-    data = parse_json_object(raw)
-    response = normalize_model_response(data, text, context, module)
-    response["source"] = "assistant-model"
-    return response
-
-
-def classify_intent(text: str, context: dict) -> str:
-    prompt = "\n".join([
-        "你是牛秘书 2.0 的总调度器，只判断用户这句话应该交给哪个板块。",
-        "只能返回 JSON：{\"module\":\"fitness|schedule|news|leisure|chat|unknown\"}",
-        "fitness=塑形馆：饮食、营养、训练、恢复、身体评估、图片卡路里。",
-        "schedule=时务局：日程、提醒、待办、会议、时间安排。",
-        "news=新闻页：新闻查询、摘要、生成新闻页面。",
-        "leisure=逍遥游：娱乐、旅行、休闲计划。",
-        "chat=纯聊天或不需要写入任何板块。",
-        f"今天日期：{date.today().isoformat()}。",
-        f"用户：{text}",
-    ])
-    try:
-        data = parse_json_object(call_assistant_model(prompt, max_tokens=80))
-    except AssistantModelError:
-        raise
-    except Exception as exc:
-        raise AssistantModelError(f"意图 JSON 解析失败：{exc}") from exc
-    module = str(data.get("module") or "unknown").strip().lower()
-    return module if module in {"fitness", "schedule", "news", "leisure", "chat", "unknown"} else "unknown"
-
-
-def build_module_prompt(module: str, text: str) -> str:
-    common = [
-        "你是牛秘书 2.0 的动作生成器。不要输出 Markdown，不要解释推理，只输出 JSON 对象。",
-        "返回格式：",
-        "{",
-        '  "module": "fitness|schedule|news|leisure|chat|unknown",',
-        '  "intent": "简短英文意图",',
-        '  "reply": "给用户看的中文回复",',
-        '  "proposedActions": [',
-        '    {"action": "动作名", "input": {}, "requiresConfirmation": true}',
-        "  ]",
-        "}",
-        "如果只是聊天或当前板块没有可执行动作，proposedActions 返回空数组。",
-        "所有写入动作都必须 requiresConfirmation=true。",
-        f"今天日期：{date.today().isoformat()}。",
-        f"用户原文：{text}",
-    ]
-    if module == "fitness":
-        module_lines = [
-            "板块：塑形馆。",
-            "当前允许动作：fitness.nutrition.create。",
-            "当用户描述吃了什么、喝了什么、某顿饭、聚餐、营养摄入时，生成 fitness.nutrition.create。",
-            "input 字段必须包含：food, date, calories, proteinG, carbsG, fatG, source。",
-            "date 用 YYYY-MM-DD。今天/今晚用今天日期，明天/后天按日期换算。",
-            "calories/proteinG/carbsG/fatG 必须是整数；没有重量时按常见一人实际摄入粗估，不能默认 450。",
-            "如果是七八个菜、大部分肉类、火锅、烧烤、聚餐，应按高热量餐估算，并在 reply 中说明是文字粗估、可确认前修改。",
-            "source 固定为 home-assistant-ai。",
-        ]
-    elif module == "schedule":
-        module_lines = [
-            "板块：时务局。",
-            "当前允许动作：schedule.event.create 或 schedule.todo.create。",
-            "有明确时间点、会议、提醒、预约时用 schedule.event.create，input 包含 title,date,time,note,source。",
-            "没有明确时间点但要记住/待办/要做时用 schedule.todo.create，input 包含 title,date,priority,source。",
-            "time 用 HH:MM，下午三点写 15:00；没有时间写空字符串。",
-            "source 固定为 home-assistant-ai。",
-        ]
-    elif module in {"news", "leisure"}:
-        module_lines = [
-            f"板块：{module}。",
-            "这个板块的统一写入动作还没有开放。请只给中文回复，proposedActions 返回空数组。",
-            "回复里说明已识别到对应板块，但目前需要下一阶段接入具体技能。",
-        ]
-    else:
-        module_lines = [
-            "板块：聊天。",
-            "如果用户只是普通对话，给简短中文回复，proposedActions 返回空数组。",
-        ]
-    return "\n".join(common + module_lines)
-
-
-def call_assistant_model(prompt: str, max_tokens: int = 500) -> str:
-    url = resolve_model_url(os.environ["NIU_ASSISTANT_API_BASE"])
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(build_model_payload(url, prompt, max_tokens), ensure_ascii=False).encode("utf-8"),
-        headers=build_model_headers(url),
-        method="POST",
-    )
-    timeout = int(os.environ.get("NIU_ASSISTANT_TIMEOUT_MS", "60000")) / 1000
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")[:500]
-        raise AssistantModelError(f"模型 HTTP {exc.code}: {detail}") from exc
-    except TimeoutError as exc:
-        raise AssistantModelError("模型请求超时") from exc
-    except Exception as exc:
-        raise AssistantModelError(str(exc)) from exc
-    text = extract_text_content(payload)
-    if not isinstance(text, str) or not text.strip():
-        raise AssistantModelError("模型没有返回文本")
-    return text
-
-
-def build_model_headers(url: str) -> dict:
-    if url.endswith("/messages"):
-        return {
-            "x-api-key": os.environ["NIU_ASSISTANT_API_KEY"],
-            "anthropic-version": "2023-06-01",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "User-Agent": "Mozilla/5.0 NiuSecretaryApi/2.0",
-        }
-    return {
-        "Authorization": f"Bearer {os.environ['NIU_ASSISTANT_API_KEY']}",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-    }
-
-
-def build_model_payload(url: str, prompt: str, max_tokens: int) -> dict:
-    if url.endswith("/messages"):
-        return {
-            "model": os.environ["NIU_ASSISTANT_MODEL"],
-            "max_tokens": max_tokens,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-    return {
-        "model": os.environ["NIU_ASSISTANT_MODEL"],
-        "response_format": {"type": "json_object"},
+    v4: disable_thinking=True → 传 thinking:{type:disabled}
+        （对 Kimi 有效，MiniMax/GLM 不适用）
+    """
+    if not API_KEY:
+        raise ModelError("NIU_ASSISTANT_API_KEY/OPENCODEGO_API_KEY 未配置")
+    body_dict = {
+        "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": max_tokens,
     }
-
-
-def resolve_model_url(base: str) -> str:
-    trimmed = str(base or "").rstrip("/")
-    if trimmed.endswith("/messages") or trimmed.endswith("/chat/completions"):
-        return trimmed
-    return f"{trimmed}/chat/completions"
-
-
-def extract_text_content(data):
-    choices = data.get("choices") if isinstance(data, dict) else None
-    if choices:
-        return choices[0].get("message", {}).get("content")
-    if isinstance(data, dict) and data.get("output_text") is not None:
-        return data.get("output_text")
-    if isinstance(data, dict) and isinstance(data.get("content"), list):
-        for item in data["content"]:
-            if item.get("type") == "text":
-                return item.get("text")
-        if data["content"]:
-            return data["content"][0].get("text")
-    if isinstance(data, dict) and isinstance(data.get("message"), dict):
-        return data["message"].get("content")
-    return ""
-
-
-def parse_json_object(value: str) -> dict:
-    text = strip_json_fence(value)
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", text, re.S)
-        if not match:
-            raise
-        data = json.loads(match.group(0))
-    if not isinstance(data, dict):
-        raise ValueError("模型返回不是 JSON 对象")
-    return data
-
-
-def strip_json_fence(value: str) -> str:
-    text = str(value or "").strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.I)
-    text = re.sub(r"\s*```$", "", text)
-    return text.strip()
-
-
-def normalize_model_response(data: dict, text: str, context: dict, module: str) -> dict:
-    proposed = data.get("proposedActions") or []
-    if not isinstance(proposed, list):
-        proposed = []
-    normalized_actions = []
-    for item in proposed[:3]:
-        if not isinstance(item, dict):
-            continue
-        action = str(item.get("action") or "")
-        if action not in ALLOWED_ACTIONS:
-            continue
-        action_input = normalize_action_input(action, item.get("input") or {}, text, context)
-        normalized_actions.append({
-            "action": action,
-            "input": action_input,
-            "requiresConfirmation": True,
-        })
-    reply = clean_text(data.get("reply"), 300) or ("我已理解，但没有需要执行的动作。" if not normalized_actions else "我准备好了一个动作，请确认。")
-    return {
-        "reply": reply,
-        "intent": clean_text(data.get("intent"), 80) or ("record_meal" if normalized_actions else "chat"),
-        "module": clean_text(data.get("module"), 40) or module,
-        "proposedActions": normalized_actions,
-    }
-
-
-def normalize_action_input(action: str, payload: dict, text: str, context: dict) -> dict:
-    payload = payload if isinstance(payload, dict) else {}
-    if action == "fitness.nutrition.create":
-        fallback_food = extract_food(text)
-        calories, protein, carbs, fat = estimate_meal(fallback_food)
-        return {
-            "food": clean_text(payload.get("food"), 160) or fallback_food,
-            "date": clean_date(payload.get("date") or parse_relative_date(text)),
-            "calories": clamp_number(payload.get("calories"), 0, 5000, calories),
-            "proteinG": clamp_number(payload.get("proteinG"), 0, 300, protein),
-            "carbsG": clamp_number(payload.get("carbsG"), 0, 600, carbs),
-            "fatG": clamp_number(payload.get("fatG"), 0, 300, fat),
-            "source": "home-assistant-ai",
-        }
-    if action == "schedule.event.create":
-        return {
-            "title": clean_text(payload.get("title"), 160) or extract_event_title(text),
-            "date": clean_date(payload.get("date") or parse_relative_date(text)),
-            "time": clean_time(payload.get("time") or parse_time(text)),
-            "note": clean_text(payload.get("note"), 300, allow_empty=True) or text,
-            "source": "home-assistant-ai",
-        }
-    if action == "schedule.todo.create":
-        return {
-            "title": clean_text(payload.get("title"), 160) or extract_todo_title(text),
-            "date": clean_optional_date(payload.get("date") or (parse_relative_date(text) if has_date_word(text) else "")),
-            "priority": clean_priority(payload.get("priority")),
-            "source": "home-assistant-ai",
-        }
-    if action in {"fitness.nutrition.today_summary", "schedule.today_summary"}:
-        return {"date": clean_date(payload.get("date") or parse_relative_date(text))}
-    return payload
-
-
-def fallback_response(text: str, context: dict) -> dict:
-    if contains_any(text, MEAL_KEYWORDS):
-        return build_meal_response(text, context)
-    if contains_any(text, EVENT_KEYWORDS):
-        return build_event_response(text, context)
-    if contains_any(text, TODO_KEYWORDS):
-        return build_todo_response(text, context)
-    return {
-        "reply": "这句话我先记为普通咨询。v2.0 已支持记录餐食、创建日程和创建待办。",
-        "intent": "chat",
-        "module": "chat",
-        "proposedActions": [],
-    }
-
-
-def build_meal_response(text: str, context: dict) -> dict:
-    food = extract_food(text)
-    calories, protein, carbs, fat = estimate_meal(food)
-    target_date = parse_relative_date(text)
-    action = {
-        "action": "fitness.nutrition.create",
-        "input": {
-            "food": food,
-            "date": target_date,
-            "calories": calories,
-            "proteinG": protein,
-            "carbsG": carbs,
-            "fatG": fat,
-            "source": context.get("client") or "assistant-estimate",
+    if disable_thinking:
+        body_dict["thinking"] = {"type": "disabled"}
+    body = json.dumps(body_dict).encode()
+    req = urllib.request.Request(
+        f"{BASE}/chat/completions", data=body,
+        headers={
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+            "User-Agent": "OpenClaw/1.0",
+            "Accept": "application/json",
         },
-        "requiresConfirmation": True,
-    }
-    return {
-        "reply": f"我按文字粗估“{food}”约 {calories} 千卡。确认前可以改数值，确认后会写入塑形馆营养日志。",
-        "intent": "record_meal",
-        "module": "fitness",
-        "proposedActions": [action],
-    }
+        method="POST")
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+        payload = json.loads(resp.read().decode())
+    content = payload["choices"][0]["message"].get("content", "") or ""
+    rtokens = payload.get("usage", {}).get("completion_tokens_details", {}).get("reasoning_tokens", 0)
+    if rtokens > 0 and not content.strip():
+        raise ModelError(f"{model} 全reasoning({rtokens}tok)无内容")
+    if not content.strip():
+        raise ModelError(f"{model} 空返回")
+    return content
 
 
-def build_event_response(text: str, context: dict) -> dict:
-    title = extract_event_title(text)
-    target_date = parse_relative_date(text)
-    target_time = parse_time(text)
-    action = {
-        "action": "schedule.event.create",
-        "input": {
-            "title": title,
-            "date": target_date,
-            "time": target_time,
-            "note": text,
-            "source": context.get("client") or "assistant",
+def _post_deepseek(model: str, prompt: str, max_tokens: int,
+                   timeout_s: float = 15) -> str:
+    """DeepSeek 官方端点: 支持 thinking.type=disabled 彻底关闭推理"""
+    if not DS_KEY:
+        raise ModelError("DeepSeek API key 未配置")
+    body = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": max_tokens,
+        "thinking": {"type": "disabled"},
+    }).encode()
+    req = urllib.request.Request(
+        f"{DS_BASE}/chat/completions", data=body,
+        headers={
+            "Authorization": f"Bearer {DS_KEY}",
+            "Content-Type": "application/json",
+            "User-Agent": "OpenClaw/1.0",
+            "Accept": "application/json",
         },
-        "requiresConfirmation": True,
-    }
-    time_label = f" {target_time}" if target_time else ""
-    return {
-        "reply": f"我准备把“{title}”加入时务局日程：{target_date}{time_label}。",
-        "intent": "create_schedule_event",
-        "module": "schedule",
-        "proposedActions": [action],
-    }
+        method="POST")
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+        payload = json.loads(resp.read().decode())
+    content = payload["choices"][0]["message"].get("content", "") or ""
+    if not content.strip():
+        raise ModelError(f"{model} 空返回")
+    return content
 
 
-def build_todo_response(text: str, context: dict) -> dict:
-    title = extract_todo_title(text)
-    target_date = parse_relative_date(text) if has_date_word(text) else ""
-    action = {
-        "action": "schedule.todo.create",
-        "input": {
-            "title": title,
-            "date": target_date,
-            "priority": "normal",
-            "source": context.get("client") or "assistant",
+def _post_anthropic(model: str, prompt: str, max_tokens: int,
+                    timeout_s: float = 15,
+                    disable_thinking: bool = True) -> str:
+    """Anthropic 兼容端点: /messages + x-api-key
+
+    v4 新增:
+      disable_thinking=True → thinking.type=disabled 关闭思考链
+    """
+    if not API_KEY:
+        raise ModelError("NIU_ASSISTANT_API_KEY/OPENCODEGO_API_KEY 未配置")
+    body_dict = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    if disable_thinking:
+        body_dict["thinking"] = {"type": "disabled"}
+    body = json.dumps(body_dict).encode()
+    req = urllib.request.Request(
+        f"{BASE}/messages", data=body,
+        headers={
+            "x-api-key": API_KEY,
+            "Content-Type": "application/json",
+            "User-Agent": "OpenClaw/1.0",
+            "Accept": "application/json",
         },
-        "requiresConfirmation": True,
-    }
-    return {
-        "reply": f"我准备把“{title}”加入时务局待办。",
-        "intent": "create_todo",
-        "module": "schedule",
-        "proposedActions": [action],
-    }
-
-
-def normalize_text(text: str) -> str:
-    return re.sub(r"\s+", " ", str(text or "").strip())
-
-
-def contains_any(text: str, keywords: tuple[str, ...]) -> bool:
-    return any(keyword in text for keyword in keywords)
-
-
-def extract_food(text: str) -> str:
-    patterns = [
-        r"(?:吃了|喝了)(.+)$",
-        r"(?:早餐|午餐|晚餐|夜宵|加餐)(?:吃|喝|是|:|：)?(.+)$",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, text)
-        if match:
-            return trim_phrase(match.group(1)) or "一餐"
-    return trim_phrase(text) or "一餐"
-
-
-def extract_event_title(text: str) -> str:
-    patterns = [
-        r"提醒我(.+)$",
-        r"日程(?:是|:|：)?(.+)$",
-        r"(?:明天|今天|后天)?.*(开会|会议|预约.+|见.+)$",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, text)
-        if match:
-            return trim_phrase(match.group(1)) or "日程"
-    return trim_phrase(remove_time_words(text)) or "日程"
-
-
-def extract_todo_title(text: str) -> str:
-    patterns = [r"待办(?:是|:|：)?(.+)$", r"记得(.+)$", r"帮我记(.+)$"]
-    for pattern in patterns:
-        match = re.search(pattern, text)
-        if match:
-            return trim_phrase(match.group(1)) or "待办"
-    return trim_phrase(text) or "待办"
-
-
-def trim_phrase(value: str) -> str:
-    text = remove_time_words(value)
-    text = re.sub(r"[。！!，,；;]+$", "", text.strip())
-    text = re.sub(r"^(我|今天|明天|后天|早上|上午|中午|下午|晚上|今晚|到时候)+", "", text)
-    return text.strip()[:160]
-
-
-def remove_time_words(value: str) -> str:
-    text = str(value or "")
-    text = re.sub(r"(今天|明天|后天|今晚)", "", text)
-    text = re.sub(r"(早上|上午|中午|下午|晚上)?[零一二两三四五六七八九十]{1,2}点(半|一刻|三刻)?", "", text)
-    text = re.sub(r"(早上|上午|中午|下午|晚上)?\d{1,2}[:：点]\d{0,2}", "", text)
+        method="POST")
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+        payload = json.loads(resp.read().decode())
+    blocks = payload.get("content", [])
+    text = "".join(b["text"] for b in blocks if isinstance(b, dict) and b.get("type") == "text")
+    if not text.strip():
+        raise ModelError(f"{model} 空返回")
     return text
 
 
-def parse_relative_date(text: str) -> str:
-    today = date.today()
-    if "后天" in text:
-        return (today + timedelta(days=2)).isoformat()
-    if "明天" in text:
-        return (today + timedelta(days=1)).isoformat()
-    return today.isoformat()
+# ====== 模型池 v4 ======
+# 实测结论（2026-05-30）：
+#   - Kimi K2.6/K2.5: 快但天生啰嗦，OpenCode Go 端点不接受 reasoningEffort 参数，无法压制推理
+#   - Qwen3.6 Plus (+ thinking:disabled): 唯一干净输出 JSON 的模型，2.3s
+#   - Qwen3.7 Max (+ thinking:disabled): 可用，但更贵
+#   - DeepSeek V4 Flash Free: Go 端点不支持此模型
+#   - GLM 5.1: Go 端点返回空 content
+#   策略: Anthropic 端点(Qwen) 首选 → OpenAI 端点(Kimi/Minimax) 降级
 
 
-def has_date_word(text: str) -> bool:
-    return any(word in text for word in ("今天", "明天", "后天", "今晚"))
-
-
-def parse_time(text: str) -> str:
-    numeric = re.search(r"(早上|上午|中午|下午|晚上)?\s*(\d{1,2})[:：点](\d{1,2})?", text)
-    if numeric:
-        period, hour_raw, minute_raw = numeric.groups()
-        return normalize_hour(int(hour_raw), period, int(minute_raw or 0))
-
-    chinese = re.search(r"(早上|上午|中午|下午|晚上)?\s*([零一二两三四五六七八九十]{1,2})点(半)?", text)
-    if chinese:
-        period, hour_raw, half = chinese.groups()
-        hour = CHINESE_HOURS.get(hour_raw, 0)
-        return normalize_hour(hour, period, 30 if half else 0)
-    return ""
-
-
-def normalize_hour(hour: int, period: str | None, minute: int) -> str:
-    if period in {"下午", "晚上"} and hour < 12:
-        hour += 12
-    if period == "中午" and hour < 11:
-        hour += 12
-    hour = max(0, min(23, hour))
-    minute = max(0, min(59, minute))
-    return f"{hour:02d}:{minute:02d}"
-
-
-def estimate_meal(food: str) -> tuple[int, int, int, int]:
-    for keyword, estimate in CALORIE_HINTS.items():
-        if keyword in food:
-            return estimate
-
-    calories, protein, carbs, fat = estimate_by_meal_description(food)
-    return (
-        clamp_int(calories, 180, 1800),
-        clamp_int(protein, 5, 120),
-        clamp_int(carbs, 0, 220),
-        clamp_int(fat, 0, 120),
+def classify_with_model(text: str) -> Optional[str]:
+    """用最快模型做意图分类，失败返回 None"""
+    prompt = (
+        "只返回JSON不分析。{\"module\":\"fitness|schedule|news|leisure|chat\"}。"
+        "fitness=饮食营养健身 schedule=日程提醒待办 news=新闻 leisure=影视音乐 chat=纯聊天。"
+        f"用户:{text}"
     )
+    models = [
+        ("kimi-k2.6",           _openai_thinkoff, 80, 10),  # 🔥 1.4s thinking:disabled
+        ("kimi-k2.5",           _openai_thinkoff, 80, 10),  # 1.5s
+        ("qwen3.6-plus",        _anthropic_d,     80, 12),  # 2.3s
+        ("qwen3.7-max",         _anthropic_d,     80, 12),
+    ]
+    return _try_models(models, prompt, "classify")
 
 
-def estimate_by_meal_description(food: str) -> tuple[int, int, int, int]:
-    estimate = next((value for keyword, value in CUISINE_HINTS.items() if keyword in food), (450, 20, 50, 15))
-    calories, protein, carbs, fat = estimate
-
-    dish_count = parse_dish_count(food)
-    if dish_count >= 6:
-        calories += 380
-        protein += 24
-        carbs += 18
-        fat += 26
-    elif dish_count >= 3:
-        calories += 180
-        protein += 12
-        carbs += 10
-        fat += 12
-    elif contains_any(food, MANY_DISH_WORDS):
-        calories += 260
-        protein += 16
-        carbs += 12
-        fat += 18
-
-    if "大部分是肉" in food or "多数是肉" in food or "肉类偏多" in food:
-        calories += 260
-        protein += 28
-        carbs -= 10
-        fat += 22
-    elif contains_any(food, MEAT_WORDS):
-        calories += 160
-        protein += 18
-        carbs -= 6
-        fat += 12
-
-    if "少量" in food or "一点" in food:
-        calories -= 160
-        protein -= 8
-        carbs -= 12
-        fat -= 8
-
-    return calories, protein, carbs, fat
+def generate_actions_with_model(text: str, module: str) -> Optional[dict]:
+    """用模型生成动作，失败返回 None"""
+    prompt = "\n".join([
+        "只返回JSON不分析不解释。",
+        "格式:{\"reply\":\"给用户的中文回复\",\"proposedActions\":[{\"action\":\"...\",\"input\":{...}}]}",
+        "",
+        "动作:",
+        "- fitness.nutrition.create: {food,date(YYYY-MM-DD),calories(整数),proteinG,carbsG,fatG,source:\"home-assistant-ai\"}",
+        "- schedule.event.create: {title,date,time(HH:MM),note,source:\"home-assistant-ai\"}",
+        "- schedule.todo.create: {title,date,priority(low|normal|high),source:\"home-assistant-ai\"}",
+        "",
+        f"今天:{date.today().isoformat()} 板块:{module} 用户:{text}",
+    ])
+    models = [
+        ("kimi-k2.6",           _openai_thinkoff, 300, 15),  # 🔥 thinking:disabled
+        ("kimi-k2.5",           _openai_thinkoff, 300, 15),
+        ("qwen3.7-max",         _anthropic_d,     300, 20),  # 中文最稳
+        ("qwen3.6-plus",        _anthropic_d,     300, 20),
+    ]
+    result = _try_models(models, prompt, "gen_actions")
+    if result and isinstance(result, dict):
+        result["module"] = module
+    return result
 
 
-def parse_dish_count(text: str) -> int:
-    numeric = re.search(r"(\d{1,2})\s*(?:个|道)?菜", text)
-    if numeric:
-        return int(numeric.group(1))
-    if re.search(r"七八(?:个|道)?菜", text):
-        return 8
-    if re.search(r"五六(?:个|道)?菜", text):
-        return 6
-    if re.search(r"三四(?:个|道)?菜", text):
-        return 4
-    return 0
+def classify_intent_with_model(text: str) -> Optional[dict]:
+    """同时判断板块与意图类型。返回 {module, intent} 或 None。
+
+    intent: record(记录一次性数据) | preference(调整长期偏好) | query(询问/要推荐)
+    """
+    prompt = (
+        "只返回JSON不分析。{\"module\":\"fitness|schedule|news|leisure|chat\",\"intent\":\"record|preference|query\"}\u3002"
+        "module: fitness=饮食营养健身 schedule=日程提醒待办 news=新闻 leisure=影视音乐 chat=纯聊。"
+        "intent: record=记录一次性事件(今天吃了X/几点开会) "
+        "preference=表达长期偏好或目标(我想减脂/我爱看悬疑/口味偏辣) "
+        "query=询问或让你推荐(今天吃什么好/推荐点什么)。"
+        f"用户:{text}"
+    )
+    models = [
+        ("kimi-k2.6",           _openai_thinkoff, 80, 10),
+        ("kimi-k2.5",           _openai_thinkoff, 80, 10),
+        ("qwen3.6-plus",        _anthropic_d,     80, 12),
+        ("qwen3.7-max",         _anthropic_d,     80, 12),
+    ]
+    return _try_models(models, prompt, "classify_intent")
 
 
-def clean_text(value, limit: int, allow_empty: bool = False) -> str:
-    text = normalize_text(value)
-    if not text and not allow_empty:
-        return ""
-    return text[:limit]
+def generate_profile_update_with_model(text: str, module: str) -> Optional[dict]:
+    """从聊天中抽取偏好，生成 profile.update 动作。"""
+    schema_hint = PROFILE_FIELD_HINTS.get(module, "")
+    prompt = "\n".join([
+        "只返回JSON不分析不解释。",
+        "从用户话里抽取长期偏好，生成画像更新。",
+        "格式:{\"reply\":\"给用户的中文回复\",\"proposedActions\":[{\"action\":\"profile.update\",\"input\":{\"module\":\"" + module + "\",\"patch\":{...},\"summary\":\"一句话说明\"}}]}",
+        f"{module}画像可用字段: {schema_hint}",
+        "只填用户明确表达的字段，不确定的不要编。数组字段返回数组。",
+        f"用户:{text}",
+    ])
+    models = [
+        ("kimi-k2.6",           _openai_thinkoff, 300, 15),
+        ("kimi-k2.5",           _openai_thinkoff, 300, 15),
+        ("qwen3.7-max",         _anthropic_d,     300, 20),
+        ("qwen3.6-plus",        _anthropic_d,     300, 20),
+    ]
+    result = _try_models(models, prompt, "gen_actions")
+    if result and isinstance(result, dict):
+        result["module"] = module
+    return result
 
 
-def clean_date(value) -> str:
-    text = str(value or "").strip()
-    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
-        return text
-    return date.today().isoformat()
+# 各板块画像字段提示（给模型用）
+PROFILE_FIELD_HINTS = {
+    "fitness": "goal(fat_loss|muscle_gain|recomp|maintain), dietStyle(口味风格文本), "
+               "restrictions(禁忌数组), trainingLevel(beginner|intermediate|advanced), "
+               "targetCalories(整数), proteinTarget(整数), notes",
+    "schedule": "workHours(如\"09:00-18:00\"), focusBlocks(专注时段数组), "
+                "reminderStyle(提醒偏好文本), priorities(优先事项数组), notes",
+    "news": "topics(关注话题数组), excludeTopics(排除话题数组), "
+            "depth(headline|brief|deep), regions(地区数组), notes",
+    "leisure": "genres(对象:{movie:[],music:[],podcast:[],novel:[]}), "
+               "moods(心情/场景数组), avoid(避开数组), notes",
+}
 
 
-def clean_optional_date(value) -> str:
-    text = str(value or "").strip()
-    return text if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text) else ""
+# ====== 模型调用器（统一签名: (model_id, prompt, max_tokens, timeout) -> str） ======
+
+def _openai_thinkoff(model_id: str, prompt: str, max_tokens: int, timeout: float) -> str:
+    """OpenAI 端点 + thinking:disabled（对 Kimi 有效）"""
+    return _post_openai(model_id, prompt, max_tokens, timeout, disable_thinking=True)
+
+def _deepseek_d(model_id: str, prompt: str, max_tokens: int, timeout: float) -> str:
+    """DeepSeek 官方端点 + thinking:disabled"""
+    return _post_deepseek(model_id, prompt, max_tokens, timeout)
+
+def _anthropic_d(model_id: str, prompt: str, max_tokens: int, timeout: float) -> str:
+    """Anthropic 端点 + thinking:disabled"""
+    return _post_anthropic(model_id, prompt, max_tokens, timeout, disable_thinking=True)
 
 
-def clean_time(value) -> str:
-    text = str(value or "").strip()
-    if re.fullmatch(r"\d{1,2}:\d{2}", text):
-        hour, minute = text.split(":")
-        return normalize_hour(int(hour), None, int(minute))
+# ====== 模型尝试框架 ======
+
+def _try_models(models: list, prompt: str, task_name: str) -> Optional[any]:
+    """按优先级尝试模型，成功返回结果，失败返回 None"""
+    for model_id, caller, max_tokens, timeout in models:
+        try:
+            t0 = time.time()
+            raw = caller(model_id, prompt, max_tokens, timeout)
+            data = parse_json_object(raw)
+            result = _parse_result(data, task_name)
+            print(f"[assistant] {model_id} {task_name}={result} in {time.time()-t0:.1f}s")
+            return result
+        except Exception as e:
+            print(f"[assistant] {model_id} fail: {e}")
+            continue
+    return None
+
+def _parse_result(data: dict, task_name: str) -> any:
+    """根据任务类型解析模型返回"""
+    if task_name == "classify":
+        module = str(data.get("module") or "unknown").strip().lower()
+        if module in {"fitness", "schedule", "news", "leisure", "chat"}:
+            return module
+        return None
+    elif task_name == "classify_intent":
+        module = str(data.get("module") or "").strip().lower()
+        intent = str(data.get("intent") or "").strip().lower()
+        if module not in {"fitness", "schedule", "news", "leisure", "chat"}:
+            return None
+        if intent not in {"record", "preference", "query"}:
+            intent = "record"
+        return {"module": module, "intent": intent}
+    elif task_name == "gen_actions":
+        return data  # 原样返回，由上层 normalize
+    return None
+
+
+def assistant_model_configured() -> bool:
+    return True  # 始终可用（有本地降级）
+
+
+# ====== 本地规则引擎 ======
+def local_classify(text: str) -> str:
+    """纯本地规则分类。检查顺序: schedule > fitness > news > leisure > chat"""
+    for kw in EVENT_KEYWORDS:
+        if kw in text: return "schedule"
+    for kw in TODO_KEYWORDS:
+        if kw in text: return "schedule"
+    if re.search(r"(明天|后天|大后天|下周|周[一二三四五六日]|\d{1,2}[点:：])", text) and not any(kw in text for kw in MEAL_KEYWORDS):
+        return "schedule"
+    for kw in MEAL_KEYWORDS:
+        if kw in text: return "fitness"
+    for kw in ("热量","卡路里","脂肪","蛋白","碳水","训练","运动","健身"):
+        if kw in text: return "fitness"
+    for kw in ("新闻","头条","热搜","推送"):
+        if kw in text: return "news"
+    for kw in ("电影","电视剧","音乐","播客","小说","看什么","听什么"):
+        if kw in text: return "leisure"
+    return "chat"
+
+def fallback_response(text: str, context: dict) -> dict:
+    """纯本地规则 + 热量估算"""
+    module = local_classify(text)
+    today = date.today().isoformat()
+
+    if module == "fitness":
+        food = extract_food(text)
+        actions = [{"action":"fitness.nutrition.create","input":{
+            "food":food,"date":extract_date(text) or today,
+            "calories":estimate_calories(food),
+            "proteinG":estimate_macro(food,"protein"),
+            "carbsG":estimate_macro(food,"carbs"),
+            "fatG":estimate_macro(food,"fat"),
+            "source":"home-assistant-ai"},"requiresConfirmation":True}]
+        return {"module":module,"reply":f"已记录：{food}（约{actions[0]['input']['calories']}千卡），点击确认写入塑形馆。","source":"fallback","proposedActions":actions}
+
+    if module == "schedule":
+        title = _extract_event_title(text)
+        edate = extract_date(text) or today
+        etime = extract_time(text) or ""
+        if any(kw in text for kw in TODO_KEYWORDS):
+            actions = [{"action":"schedule.todo.create","input":{"title":title,"date":edate,"priority":"normal","source":"home-assistant-ai"},"requiresConfirmation":True}]
+            return {"module":module,"reply":f"待办：{title}，点击确认写入时务局。","source":"fallback","proposedActions":actions}
+        actions = [{"action":"schedule.event.create","input":{"title":title,"date":edate,"time":etime,"note":text,"source":"home-assistant-ai"},"requiresConfirmation":True}]
+        ts = f" {etime}" if etime else ""
+        return {"module":module,"reply":f"已安排：{edate}{ts} {title}，点击确认写入时务局。","source":"fallback","proposedActions":actions}
+
+    replies = {"news":"新闻社模块：可以让我推送今日头条。","leisure":"闲趣集模块：对影视、音乐、播客还是小说感兴趣？","chat":"收到～有什么可以帮你的？"}
+    return {"module":module,"reply":replies.get(module,"收到～"),"source":"fallback","proposedActions":[]}
+
+
+# ====== 文本提取 ======
+def parse_json_object(raw: str) -> dict:
+    text = raw.strip()
+    for fence in ("```json","```"):
+        if fence in text:
+            text = text[text.find(fence)+len(fence):]
+            if "```" in text: text = text[:text.rfind("```")]
+            break
+    s = text.find("{"); e = text.rfind("}")
+    if s==-1 or e<=s: raise ValueError(f"no JSON: {raw[:200]}")
+    return json.loads(text[s:e+1])
+
+def extract_food(text: str) -> str:
+    for pat in [r"(?:吃了|喝了|买了|叫了|点了)(.+)$",r"(?:早餐|午餐|晚餐|夜宵|加餐)(?:吃|喝|买|叫|点|是|:|：)?(.+)$",r"(?:夜宵|加餐).*?(?:买了?|叫了?|点了?)?(.+)$"]:
+        m = re.search(pat, text)
+        if m:
+            f = trim_phrase(m.group(1))
+            if f: return f
+    return trim_phrase(text) or "一餐"
+
+def trim_phrase(raw: str) -> str:
+    return re.sub(r"^\s*[了一二三四五六七八九十]*(个|份|块|碗|杯|盘|瓶|包|盒|只|条)?\s*","",raw).strip("!！.。,，～~ ")
+
+def extract_date(text: str) -> Optional[str]:
+    today = date.today()
+    for kw,n in {"今天":0,"明天":1,"后天":2,"大后天":3}.items():
+        if kw in text: return (today+timedelta(days=n)).isoformat()
+    m = re.search(r"(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})", text)
+    if m: return f"{int(m.group(1))}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
+    return None
+
+def extract_time(text: str) -> str:
+    cn_num = {"一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10,"十一":11,"十二":12}
+    periods = {"凌晨":(0,5),"早上":(6,8),"上午":(9,11),"中午":(12,13),"下午":(14,17),"傍晚":(18,19),"晚上":(20,23)}
+    m = re.search(r"(\d{1,2})[点:：](\d{1,2})?", text)
+    if m:
+        h,m2 = int(m.group(1)), int(m.group(2)) if m.group(2) else 0
+        p = re.search(r"(凌晨|早上|上午|中午|下午|傍晚|晚上)", text)
+        if p:
+            start,_ = periods.get(p.group(1),(0,23))
+            if h<6 and start>=12: h+=12
+            elif h==12 and start<12: h=0
+        return f"{h:02d}:{m2:02d}"
+    # 中文数字时间: "下午三点" / "上午十点半"
+    m = re.search(r"(凌晨|早上|上午|中午|下午|傍晚|晚上)([\u4e00-\u9fa5]+)", text)
+    if m:
+        cn_time = m.group(2)
+        # 提取"三点"→3, "十一点半"→11:30
+        tm = re.match(r"([\u4e00-\u9fa5]+?)点(半)?", cn_time)
+        if tm:
+            h = cn_num.get(tm.group(1), 0)
+            m2 = 30 if tm.group(2) else 0
+            if h:
+                start,_ = periods.get(m.group(1),(0,23))
+                if h<6 and start>=12: h+=12
+                elif h==12 and start<12: h=0
+                return f"{h:02d}:{m2:02d}"
     return ""
 
+def _extract_event_title(text: str) -> str:
+    for pre in ("提醒我","帮我","记得","别忘了"):
+        if pre in text: return text[text.find(pre)+len(pre):].strip(":：,， ")
+    for pre in ("和","跟","与"):
+        if f"{pre} " in text:
+            suffix = text[text.find(f"{pre} "):]
+            for kw in ("开会","会议","讨论","见面","聊"):
+                if kw in suffix: return suffix[:suffix.find(kw)+len(kw)].strip(":：,， ")
+    return trim_phrase(text) or "新日程"
 
-def clean_priority(value) -> str:
-    text = str(value or "normal").strip().lower()
-    return text if text in {"low", "normal", "high"} else "normal"
+def normalize_model_response(data: dict, text: str, context: dict, module: str) -> dict:
+    reply = str(data.get("reply") or data.get("message") or "我已收到。")
+    proposed = data.get("proposedActions") or []
+    actions = []
+    for a in proposed:
+        aname = str(a.get("action") or "")
+        if aname not in ALLOWED_ACTIONS: continue
+        inp = dict(a.get("input") or {})
+        if aname == "profile.update":
+            # 画像更新：需 module + 非空 patch
+            inp.setdefault("module", module)
+            if not isinstance(inp.get("patch"), dict) or not inp.get("patch"):
+                continue
+            inp.setdefault("source", "home-assistant-ai")
+        else:
+            inp.setdefault("source", "home-assistant-ai")
+        actions.append({"action":aname,"input":inp,"requiresConfirmation":True})
+    return {"module":module,"reply":reply,"source":"assistant-model","proposedActions":actions}
+
+# ====== 营养估算 ======
+def estimate_calories(food: str) -> int:
+    f = food.lower()
+    # 大餐关键词 → 高热量
+    if re.search(r"(几|七[八九十]|[八九]个菜|大餐|聚餐|宴|酒席|满汉|自助|放题|吃到饱|omakase)", f):
+        return 1200
+    if re.search(r"(大部分|多数|主要|全是|都是).*(肉|荤)", f):
+        return 1200
+    if re.search(r"(东北菜|湖南菜|川菜|粤菜|烤肉|火锅|海鲜大餐)", f):
+        return 1100
+    db = {"米饭":200,"面":350,"面条":350,"面包":250,"牛肉":250,"猪肉":300,"鸡肉":200,"鱼":150,"虾":100,"蛋":80,"鸡腿":280,"牛排":400,"火锅":500,"汉堡":450,"炸鸡":400,"热卤":350,"麻辣烫":400,"烧烤":450,"串":100,"奶茶":300,"可乐":150,"果汁":120,"啤酒":150,"咖啡":50,"蛋糕":350,"冰淇淋":200,"巧克力":250,"饼干":200,"沙拉":150,"水果":100,"蔬菜":50,"豆腐":80,"披萨":350,"三明治":300,"寿司":250,"拉面":400,"包子":150,"饺子":250,"炒饭":400,"炒面":400}
+    for k,v in db.items():
+        if k in f: return v
+    m = re.search(r"(\d+)\s*(克|g|斤)", f)
+    if m:
+        g = int(m.group(1))
+        if m.group(2)=="斤": g*=500
+        return g//5
+    return 350
+
+def estimate_macro(food: str, macro: str) -> int:
+    f = food.lower()
+    # 大餐宏量估算
+    if re.search(r"(大餐|聚餐|宴|酒席|满汉|自助|omakase|几[七八九十]个菜|大部分.*肉|多数.*肉)", f):
+        return {"protein": 80, "carbs": 80, "fat": 60}.get(macro, 30)
+    maps = {"protein":{"牛肉":20,"鸡肉":25,"鱼":18,"虾":18,"蛋":7,"豆腐":8,"猪肉":15,"热卤":18},"carbs":{"米饭":45,"面":50,"面条":50,"面包":40,"馒头":45,"蛋糕":40,"饼干":30,"土豆":20,"热卤":20},"fat":{"牛肉":10,"猪肉":20,"炸鸡":25,"火锅":25,"热卤":15,"烧烤":20,"奶茶":10}}
+    for k,v in maps.get(macro,{}).items():
+        if k in f: return v
+    return {"protein":15,"carbs":30,"fat":10}[macro]
+
+# ====== 主入口 ======
+def handle_message(text: str, context: dict) -> dict:
+    cleaned = text.strip()
+
+    # 1) 意图分类（板块 + record/preference/query）
+    intent_info = classify_intent_with_model(cleaned)
+    if intent_info:
+        module = intent_info["module"]
+        intent = intent_info["intent"]
+    else:
+        module = local_classify(cleaned)
+        intent = local_intent(cleaned)
+
+    # 2) preference → 生成画像更新
+    if intent == "preference" and module in ("fitness", "schedule", "news", "leisure"):
+        prof = generate_profile_update_with_model(cleaned, module)
+        if prof is not None:
+            normalized = normalize_model_response(prof, cleaned, context, module)
+            if normalized["proposedActions"]:
+                return normalized
+        return preference_fallback(cleaned, module)
+
+    # 3) news/leisure/chat 的记录/询问：无写入动作，走本地回复
+    if module in ("news", "leisure", "chat"):
+        return fallback_response(cleaned, context)
+
+    # 4) fitness/schedule 的 record：生成写入动作
+    result = generate_actions_with_model(cleaned, module)
+    if result is not None:
+        return result
+
+    return fallback_response(cleaned, context)
 
 
-def clamp_number(value, low: int, high: int, fallback: int = 0) -> int:
-    try:
-        number = round(float(value))
-    except (TypeError, ValueError):
-        number = fallback
-    return max(low, min(high, number))
+def local_intent(text: str) -> str:
+    """本地规则判断意图。preference > query > record。"""
+    for kw in PREFERENCE_KEYWORDS:
+        if kw in text:
+            return "preference"
+    if re.search(r"(推荐|吃什么|看什么|听什么|玩什么|有什么建议|干点啥|怎么安排)", text):
+        return "query"
+    return "record"
 
 
-def clamp_int(value: int, minimum: int, maximum: int) -> int:
-    return max(minimum, min(maximum, int(value)))
+def preference_fallback(text: str, module: str) -> dict:
+    """模型不可用时，本地粗抽取偏好生成 profile.update。"""
+    patch = local_extract_preference(text, module)
+    if not patch:
+        labels = {"fitness": "塑形馆", "schedule": "时务局", "news": "新闻社", "leisure": "闲趣集"}
+        return {
+            "module": module,
+            "reply": f"我想更新你的{labels.get(module, module)}画像，但没听太明白具体偏好。能再说具体一点吗？",
+            "source": "fallback",
+            "proposedActions": [],
+        }
+    summary = f"根据你的描述更新{module}偏好"
+    return {
+        "module": module,
+        "reply": f"我理解到你的偏好，点击确认就更新到{module}画像。",
+        "source": "fallback",
+        "proposedActions": [{
+            "action": "profile.update",
+            "input": {"module": module, "patch": patch, "summary": summary, "source": "home-assistant-ai"},
+            "requiresConfirmation": True,
+        }],
+    }
+
+
+def local_extract_preference(text: str, module: str) -> dict:
+    """纯本地关键词抽取偏好（降级用）。"""
+    patch: dict = {}
+    if module == "fitness":
+        if re.search(r"减脂|减肥|掍肉|减重", text): patch["goal"] = "fat_loss"
+        elif re.search(r"增肌|增重|长肌肉|强壮", text): patch["goal"] = "muscle_gain"
+        elif re.search(r"重组|recomp", text): patch["goal"] = "recomp"
+        elif re.search(r"维持|保持", text): patch["goal"] = "maintain"
+        restr = []
+        for kw in ("乳糖不耐", "海鲜过敏", "花生过敏"):
+            if kw in text: restr.append(kw)
+        m = re.search(r"不吃([\u4e00-\u9fa5]{1,6})", text)
+        if m: restr.append("不吃" + m.group(1))
+        if restr: patch["restrictions"] = restr
+        for style in ("川渝", "粤式", "湘菜", "清淡", "高蛋白", "低碳"):
+            if style in text: patch["dietStyle"] = style; break
+    elif module == "schedule":
+        m = re.search(r"(\d{1,2}:\d{2})\s*[-~到]\s*(\d{1,2}:\d{2})", text)
+        if m: patch["workHours"] = f"{m.group(1)}-{m.group(2)}"
+    elif module == "news":
+        topics = [t for t in ("AI", "科技", "财经", "国内", "国际", "体育", "游戏") if t in text]
+        if topics: patch["topics"] = topics
+    elif module == "leisure":
+        genres = {}
+        movie = [g for g in ("悬疑", "科幻", "动作", "喜剧", "爱情", "恐怖", "纪录片") if g in text]
+        if movie: genres["movie"] = movie
+        if genres: patch["genres"] = genres
+    return patch

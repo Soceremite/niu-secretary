@@ -74,6 +74,16 @@ export async function countPendingSync() {
   return all.filter((item) => item.status === 'pending').length;
 }
 
+export async function countRealPending() {
+  const db = await getDb();
+  let count = 0;
+  for (const storeName of SYNCED_STORES) {
+    const rows = await tx(db, storeName, 'readonly', (store) => store.getAll());
+    count += rows.filter((row) => row.syncStatus === 'pending').length;
+  }
+  return count;
+}
+
 export async function exportAllData() {
   const db = await getDb();
   const data = { exportedAt: nowIso(), version: DB_VERSION, stores: {} };

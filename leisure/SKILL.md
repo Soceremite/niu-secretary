@@ -1,302 +1,235 @@
 ---
 name: leisure
-description: "牛秘书闲趣集——三维上下文感知休闲推荐中心：影视、音乐、播客、小说，结合用户偏好+日程状态+运动数据，每日 AI 生成个性化推荐。"
+description: "牛秘书闲趣集 · 休闲推荐策展"
 allowed-tools: read,write,edit,exec,web_search,web_fetch,cron,sessions_send
 user-invocable: true
-last_updated: "2026-05-29"
 ---
 
-# 牛秘书闲趣集 · 三维上下文感知推荐引擎
+# 牛秘书闲趣集 🎬
 
-> **品牌规范与视觉体系请参考 [主 SKILL.md](../SKILL.md)**
+根据日程密度和运动状态，自动生成个性化影视/音乐/播客/小说推荐。
 
-**核心理念**：不靠算法投喂，不刷无尽榜单。AI 每天读取你的**口味偏好 + 日程密度 + 运动状态**，三个维度交叉匹配，给你精心筛选的少量精选内容——像一位了解你的私人策展人。
-
-## 团队分工
-
-- **🐋 DeepSeek V4 Pro** — 日常推荐生成：搜索热点、分析上下文、写入 JSON
-- **🧪 Claude Opus 4.6** — UI 打磨：视觉优化、动效设计
-- **🐄 牛秘书** — 产品总监 + 策展人
-
-## 三维推荐引擎（v2.2）
-
-```
-AI cron (每天 12:00)
-  ├── 维度一：口味偏好
-  │   └── 读取 data/preferences.json（类型/心情/场景/语种等）
-  ├── 维度二：日程密度
-  │   └── 读取 时务局数据 → 今日任务数量、忙碌程度
-  ├── 维度三：运动状态
-  │   └── 读取 塑形馆数据 → 训练强度、恢复状态
-  ├── 三维交叉匹配
-  │   ├── 影视推荐 → 偏好类型 ∩ 日程适配 ∩ 运动调性
-  │   ├── 音乐推荐 → 偏好场景 ∩ 运动适配 ∩ 心情匹配
-  │   ├── 播客推荐 → 偏好类型 ∩ 日程时长适配
-  │   └── 小说推荐 → 偏好类型 ∩ 日程阅读时长适配
-  ├── 搜索最新热门内容（豆瓣/网易云/喜马拉雅/起点）
-  ├── 生成个性化推荐理由（必须提到为什么适合"今天的你"）
-  ├── 写入 data/*.json + context.json + preferences.json
-  └── 部署到 nginx
-```
-
-### 推荐策略矩阵
-
-| 日程密度 | 运动状态 | 推荐调性 | 影视偏好 | 音乐偏好 |
-|----------|----------|----------|----------|----------|
-| 🟢 轻松(≤2) | 无运动 | 烧脑沉浸 | 悬疑/科幻长片 | 专注音乐 + 深度播客 |
-| 🟢 轻松(≤2) | 有运动 | 活力放松 | 动作/热血片 | 运动歌单 + 轻喜剧 |
-| 🟡 适中(3-4) | 无运动 | 平衡舒缓 | 文艺/剧情片 | 治愈音乐 + 人文播客 |
-| 🟡 适中(3-4) | 有运动 | 节奏切换 | 动画/喜剧 | 多元歌单 + 科技播客 |
-| 🔴 繁忙(≥5) | 无运动 | 轻量放松 | 短片/轻喜剧 | 纯音乐 + 短播客 |
-| 🔴 繁忙(≥5) | 有运动 | 解压治愈 | 治愈系 | 自然白噪音 + 搞笑播客 |
-
-## 文件路径
-
-| 文件 | 路径 |
-|------|------|
-| 项目根 | `/home/ubuntu/.openclaw/workspace/niu-secretary/leisure/` |
-| 构建产物 | `dist/` |
-| 部署目标 | `/var/www/html/niu-secretary/leisure/` |
-| 访问地址 | `http://124.222.22.171/niu-secretary/leisure/` |
+> 品牌规范请参考 [主 SKILL.md](../SKILL.md)
 
 ## 目录结构
 
 ```
-niu-secretary/leisure/
-├── SKILL.md                  # 本文件
-└── dist/
-    ├── index.html            # 主入口：今晚首推 + 今日候选(4项)
-    ├── logo.png              # 品牌 logo (圆形展示)
-    └── data/
-        ├── context.json      # 每日上下文快照（日程/运动/mood）
-        ├── preferences.json  # 用户口味偏好
-        ├── movies.json       # 影视推荐
-        ├── music.json        # 音乐推荐
-        ├── podcasts.json     # 播客推荐
-        └── novels.json       # 小说推荐
+/home/ubuntu/.openclaw/workspace/niu-secretary/leisure/
+├── SKILL.md                        # 本文件
+├── dist/                           # 构建产物（部署到 nginx）
+│   ├── index.html                  # 主页：Hero + 今晚首推 + 今日候选 + 闲趣批注
+│   ├── movies.html                 # 🎬 影视推荐子页面
+│   ├── music.html                  # 🎵 音乐推荐子页面
+│   ├── podcasts.html               # 🎙️ 播客推荐子页面
+│   ├── novels.html                 # 📖 小说推荐子页面
+│   ├── style.css                   # 共享样式（所有页面共用）
+│   ├── logo.png                    # 品牌 Logo
+│   ├── data/                       # JSON 数据文件
+│   │   ├── movies.json             # 影视推荐数据（数组或 {items:[]}）
+│   │   ├── music.json              # 音乐推荐数据
+│   │   ├── podcasts.json           # 播客推荐数据
+│   │   ├── novels.json             # 小说推荐数据（可选）
+│   │   ├── context.json            # 上下文（日程/运动/策略）
+│   │   └── preferences.json        # 偏好（可选）
+│   └── js/
+│       └── nav.js                  # 导航栏 + 公共逻辑（detail弹窗、数据加载、卡片渲染）
+└── plans/                          # (预留) 实施方案文档
 ```
 
-## 入口页设计
+## 部署目标
 
-`index.html` — 单文件包含完整功能：
+```
+/var/www/html/niu-secretary/leisure/
+├── index.html
+├── movies.html
+├── music.html
+├── podcasts.html
+├── novels.html
+├── style.css
+├── logo.png
+├── data/
+│   ├── movies.json
+│   ├── music.json
+│   ├── podcasts.json
+│   ├── novels.json
+│   ├── context.json
+│   └── preferences.json
+└── js/
+    └── nav.js
+```
 
-- **顶部**：品牌名 + 返回主页链接
-- **闲趣批注区**：动态显示今日上下文（日程状态/运动状态/mood）和推荐策略说明
-- **口味档案区**：从 `preferences.json` 动态加载偏好标签展示
-- **今晚首推区**：展示第一条推荐 + 海报图片 + 匹配度 + 个性化理由
-- **今日候选区**：4 个可点击卡片（影视/音乐/播客/小说），点击弹出详情弹窗
+**访问地址：**
+- 主页：`http://124.222.22.171/niu-secretary/leisure/`
+- 影视：`http://124.222.22.171/niu-secretary/leisure/movies.html`
+- 音乐：`http://124.222.22.171/niu-secretary/leisure/music.html`
+- 播客：`http://124.222.22.171/niu-secretary/leisure/podcasts.html`
+- 小说：`http://124.222.22.171/niu-secretary/leisure/novels.html`
 
-## 详情弹窗
+## 页面架构（v2.0 多页面）
 
-点击候选卡片弹出底部弹窗（detail-overlay），非跳转页面：
+### 主页 (`index.html`)
 
-| 板块 | 展示内容 | 主跳转平台 | APP Scheme（移动端） |
-|------|---------|-----------|---------------------|
-| 🎬 影视 | 海报/导演/主演/类型/年份/地区/时长/豆瓣评分/简介 | 豆瓣 | `douban://douban.com/movie/{id}` |
-| 🎵 音乐 | 歌曲列表(5-10首)/类型/语言/场景 | 网易云音乐 | `orpheus://playlist?id={id}` |
-| 🎧 播客 | 播客名/单集/类型/时长/简介 | 喜马拉雅 | `xmly://album/{id}` |
-| 📖 小说 | 作者/类型/字数/简介 | 起点读书 | 网页版 |
-| 🌐 备用 | 所有板块 | 网页版链接（fallback） | — |
+包含：
+- **Hero**：品牌标语 + 口味档案
+- **导航菜单**：🏠首页 / 🎬影视 / 🎵音乐 / 🎙️播客 / 📖小说（菜单栏切换子页面）
+- **今晚首推**：最高匹配度的推荐（卡片样式，含海报/导演/主演/标签）
+- **今日候选**：四类各取1-2条的紧凑列表
+- **闲趣批注**：显示日程状态、运动状态、推荐策略
 
-**跳转逻辑**：前端判断 `navigator.userAgent` 是否为移动端 → 优先使用 APP scheme → 失败则 fallback 网页版。
+### 子页面（movies/music/podcasts/novels.html）
+
+每个子页面结构一致：
+- Topbar + 导航菜单（当前页高亮）
+- 区标题
+- 卡片网格（显示该分类所有推荐）
+- 点击卡片弹出 detail 弹窗
+
+### 共享资源
+
+- **style.css**：所有页面共用的完整样式
+- **nav.js**：导航高亮 + `showDetail()` 弹窗 + `renderCardGrid()` 渲染 + `loadSectionData()` 数据加载 + scroll reveal
 
 ## 数据格式
 
-### preferences.json — 用户口味偏好
+### movies.json
 ```json
-{
-  "movies": {
-    "genres": ["科幻", "动画", "悬疑"],
-    "moods": ["沉浸", "治愈", "热血"],
-    "regions": ["欧美", "日韩", "大陆"],
-    "avoidGenres": ["恐怖"],
-    "maxDuration": 180
-  },
-  "music": {
-    "genres": ["流行", "民谣", "轻音乐"],
-    "scenes": ["放松", "通勤", "运动", "专注"],
-    "moods": ["治愈", "活力", "平静"],
-    "languages": ["中文", "英文", "纯音乐"]
-  },
-  "podcasts": {
-    "genres": ["科技", "AI", "商业", "人文"],
-    "minDuration": 15,
-    "maxDuration": 90
-  },
-  "novels": {
-    "genres": ["科幻", "悬疑", "历史"],
-    "preferChinese": true,
-    "minWordCount": "5万字"
-  }
-}
-```
-
-### context.json — 每日上下文快照
-```json
-{
-  "generated": "ISO-8601",
-  "schedule": {"taskCount": 3, "busyLevel": "适中", "note": "..."},
-  "fitness": {"hasWorkout": true, "intensity": "中等", "note": "..."},
-  "moodProfile": {"primary": "平衡", "secondary": "放松", "label": "节奏切换日"},
-  "dailyNote": "今天日程适中、有运动安排，适合节奏切换型内容",
-  "recommendationStrategy": {
-    "movies": ["动画", "喜剧"],
-    "music": ["多元歌单", "运动歌单"],
-    "podcasts": ["科技", "人文"]
-  }
-}
-```
-
-### movies.json — 影视推荐
-```json
-{
-  "generated": "ISO-8601",
-  "items": [{
+[
+  {
     "id": "mov_001",
-    "title": "沙丘3",
-    "titleOriginal": "Dune: Part Three",
+    "title": "沙丘第二部",
+    "titleOriginal": "Dune: Part Two",
     "type": "电影",
-    "year": 2026,
+    "year": 2024,
     "genres": ["科幻", "史诗"],
     "region": "美国",
-    "duration": 165,
-    "doubanRating": 8.6,
-    "matchScore": 94,
-    "reason": "结合偏好+上下文的推荐理由",
-    "director": "丹尼斯·维伦纽瓦",
-    "actors": "提莫西·查拉梅、赞达亚",
-    "description": "剧情简介",
-    "posterUrl": "data/poster-dune.jpg",
-    "doubanUrl": "https://movie.douban.com/subject/{id}/",
-    "appScheme": "douban://douban.com/movie/{id}"
-  }]
-}
-```
-
-### music.json — 音乐推荐
-```json
-{
-  "items": [{
-    "id": "mus_001",
-    "title": "歌单名称",
-    "genre": ["流行", "民谣"],
-    "trackCount": 8,
+    "duration": "166分钟",
+    "doubanRating": 8.2,
     "matchScore": 88,
-    "reason": "结合上下文的推荐理由",
-    "description": "歌单描述",
-    "tracks": [
-      {"name": "歌曲名", "artist": "艺术家", "duration": "4:24"}
-    ],
-    "platformUrl": "https://music.163.com/",
-    "appScheme": "orpheus://playlist?id={id}"
-  }]
-}
+    "reason": "与你的科幻偏好匹配",
+    "mood": "沉浸",
+    "coverUrl": "海报URL",
+    "doubanUrl": "豆瓣链接",
+    "director": "导演",
+    "actors": "主演"
+  }
+]
 ```
 
-### podcasts.json — 播客推荐
+### music.json
 ```json
-{
-  "items": [{
+[
+  {
+    "id": "mus_001",
+    "title": "歌单/专辑名",
+    "type": "歌单",
+    "genre": "治愈民谣",
+    "language": "国语",
+    "trackCount": 30,
+    "matchScore": 85,
+    "reason": "适合晚间放松",
+    "mood": "安静",
+    "scene": "睡前",
+    "platformUrl": "平台链接"
+  }
+]
+```
+
+### podcasts.json
+```json
+[
+  {
     "id": "pod_001",
     "title": "单集标题",
-    "podcast": "播客频道名",
-    "episode": "EP.158",
-    "genres": ["科技", "AI"],
-    "duration": 45,
-    "matchScore": 90,
-    "reason": "结合上下文的推荐理由",
-    "description": "单集简介",
-    "platformUrl": "https://www.ximalaya.com/album/{id}",
-    "appScheme": "xmly://album/{id}"
-  }]
-}
+    "podcast": "播客节目名",
+    "episode": "集数",
+    "genres": ["科技"],
+    "duration": "45分钟",
+    "matchScore": 82,
+    "reason": "轻松了解前沿科技",
+    "platformUrl": "喜马拉雅链接"
+  }
+]
 ```
 
-### novels.json — 小说推荐
+### context.json
 ```json
 {
-  "items": [{
-    "id": "novel_001",
-    "title": "小说名",
-    "author": "作者",
-    "genres": ["科幻", "悬疑"],
-    "wordCount": "约12万字",
-    "matchScore": 90,
-    "reason": "结合上下文的推荐理由",
-    "description": "简介",
-    "platformUrl": "https://www.qidian.com/search?kw={书名}"
-  }]
+  "generated": "2026-05-30T00:00:00+08:00",
+  "schedule": { "taskCount": 2, "busyLevel": "轻松", "note": "..." },
+  "fitness": { "hasWorkout": false, "intensity": "低", "note": "..." },
+  "moodProfile": { "primary": "文艺", "secondary": "放松", "label": "文艺放松型" },
+  "dailyNote": "今天适合文艺放松型内容...",
+  "recommendationStrategy": {
+    "movies": ["文艺", "剧情"],
+    "music": ["治愈", "民谣"],
+    "podcasts": ["人文", "科技"]
+  }
 }
 ```
 
-## 图片爬取策略
+## 推荐策略矩阵
 
-海报图片来源优先级：
+| 日程密度 | 运动状态 | 推荐调性 | 内容偏好 |
+|----------|----------|----------|----------|
+| 🟢 轻松(≤2项) | 无运动 | 烧脑沉浸 | 悬疑/科幻长片 + 深度播客 + 专注音乐 |
+| 🟢 轻松(≤2项) | 有运动 | 活力放松 | 动作/热血片 + 运动歌单 + 轻喜剧 |
+| 🟡 适中(3-4项) | 无运动 | 平衡舒缓 | 文艺/剧情片 + 治愈音乐 + 人文播客 |
+| 🟡 适中(3-4项) | 有运动 | 节奏切换 | 动画/喜剧 + 多元歌单 + 科技播客 |
+| 🔴 繁忙(≥5项) | 无运动 | 轻量放松 | 短喜剧/短片 + 纯音乐 + 短播客 |
+| 🔴 繁忙(≥5项) | 有运动 | 解压治愈 | 治愈系 + 自然白噪音 + 搞笑播客 |
 
-1. **百度图片搜索** → 搜电影名+海报 → 提取大图 URL → `curl` 下载到 `data/` 目录
-2. **豆瓣图片 CDN** (`img9.doubanio.com`) → 已知的豆瓣图片 ID 直接拼接 URL 下载
-3. **AI 生成** → 使用 `image_generate` 生成风格匹配的图片（最后手段）
-4. **无图 fallback** → 不显示海报，使用 CSS 渐变背景
+无法读取塑形馆/时务局数据时，默认使用「平衡舒缓」策略。
 
-**下载后处理**：`convert` 压缩到 300×450px，转为 JPG，存为 `data/poster-{name}.jpg`
+## 部署流程
 
-**爬取流程（cron 任务中执行）**：
-```bash
-# 1. web_search 搜"电影名 海报"获取海报 URL
-# 2. curl 下载图片
-curl -sL -o poster-mov_001.jpg "海报URL"
-# 3. 压缩（分辨率 300×450）
-convert poster-mov_001.jpg -resize 300x450 poster-mov_001.jpg
-# 4. 更新 movies.json 中 posterUrl 为相对路径
-#    "posterUrl": "data/poster-mov_001.jpg"
-```
-
-> 注意：服务器在国内，外网图片源（unsplash/tmdb/wikimedia）基本不可用。仅使用国内可访问的图源。
-> movie poster 文件名格式：`data/poster-{movie_id}.jpg`
-
-## Cron 运行完整流程
-
-```
-1. 读取 preferences.json → 获取口味偏好
-2. 读取 时务局/塑形馆 数据 → 获取日程+运动上下文
-3. web_search × 4 → 影视/音乐/播客/小说各搜一次（freshness="month"）
-4. 三维交叉匹配 → 从搜索结果筛选最匹配的内容
-5. 写个性化推荐理由 → 必须提到为什么适合"今天的你"
-6. 搜海报图 → 下载到 data/poster-*.jpg
-7. 写入 5 个 JSON 文件
-8. sudo cp -r dist/* → 部署到 nginx
-```
-
-## 页面数据加载逻辑
-
-前端 JS 加载顺序：
-
-1. `fetch('data/preferences.json')` → 渲染口味标签
-2. `fetch('data/context.json')` → 渲染闲趣批注（日程/运动/mood）
-3. `Promise.allSettled([movies, music, podcasts, novels])` → 渲染候选列表
-4. 第一条数据 → 渲染今晚首推（含海报）
-5. 点击候选 → 详情弹窗（含 APP scheme 跳转）
-
-## 部署
+### 日常更新（只更新 JSON 数据）
 
 ```bash
-sudo cp -r /home/ubuntu/.openclaw/workspace/niu-secretary/leisure/dist/* /var/www/html/niu-secretary/leisure/
+# 1. 更新 JSON 数据文件
+#    dist/data/movies.json / music.json / podcasts.json / novels.json / context.json
+
+# 2. 部署到 nginx
+sudo rsync -av --delete /home/ubuntu/.openclaw/workspace/niu-secretary/leisure/dist/ /var/www/html/niu-secretary/leisure/
+
+# 3. 验证
+curl -s http://124.222.22.171/niu-secretary/leisure/data/context.json | head -5
 ```
 
-## Cron 任务
+### 改版（修改 HTML/CSS/JS）
 
-| 任务 | 频率 | 时间 | 内容 |
-|------|------|------|------|
-| 智能推荐更新 | 每天 | 12:00 CST | 三维上下文匹配 + 搜索热点 + 生成 JSON + 部署 |
+修改完 `dist/` 下的相关文件后，同样执行 rsync 部署即可。CSS 改一次所有页面生效。
 
-> 当前 Job ID: `0fc99702`，`sessionTarget: "isolated"`，`payload.kind: "agentTurn"`
+## Nginx 配置
 
-## 视觉规范
+已在 `/etc/nginx/sites-enabled/control-center` 中配置：
 
-- 品牌色：温暖象牙底 `#f1eee7`，茶金 `#c9975f`，灰蓝 `#66848e`
-- 卡片：`#fffdf7`，柔光阴影
-- 弹窗：底部 sheet，24px 圆角
-- 图标：emoji + 纯色圆底
-- 海报：100px 缩略图，12px 圆角
-- 时长格式：统一使用"分钟"（非 m/min）
-- 响应式三档：桌面 1440 / 平板 768 / 手机 375
+```nginx
+location /niu-secretary/leisure/ {
+    alias /var/www/html/niu-secretary/leisure/;
+    index index.html;
+    try_files $uri $uri/ =404;
+}
+```
+
+## 负责模型
+
+- 内容生成：`qwen3.7-max`（搜索、推荐、生成 JSON）
+- UI 改版：`Claude Opus 4.6`（HTML/CSS/JS 重构）
+
+## 用户画像 · 个性化精选（v1.1，2026-05-30）
+
+闲趣集接入牛秘书 AI 画像链路：首页「口味档案」标签 + 「今日候选」都由后端 `leisure` 画像驱动。
+
+- **两套画像的关系（重要）**：
+  - 后端 `user_profiles.leisure`（你跟 AI 聊出来的长期偏好）= **权威画像**。
+  - `dist/data/preferences.json`（cron 每日生成）= 内容库自带的**兑底标签**，画像空字段才回落它。
+  - `profile.update` 不回写 preferences.json，避免 cron 覆盖冲突。
+- 推荐动作：`leisure.recommend`（confirmByDefault=false）
+  - 后端读 `dist/data/{movies,music,podcasts,novels}.json`（movies/music/podcasts 是数组，novels 是 `{items:[]}`），按画像 `genres.{movie,music,podcast,novel}` / `moods` / `avoid` 打分。
+  - 类型命中 +3 / mood 命中 +2 / 内容自带 matchScore 做微调；`avoid` 命中则剔除；返回按类目分组。
+  - 读文件失败/空画像都有兑底，不阻塞页面。
+- 画像编辑入口：**只走主页牛秘书 AI 对话**（如「我爱看科幻、别推恐怖片」），本页面板只读展示。
+- `leisure` 画像字段：`genres{movie,music,podcast,novel} / moods[] / avoid[] / notes`，定义在 `server/store.py:DEFAULT_PROFILES`。
+- 前端：`dist/index.html` 内联脚本 `loadTasteProfile()` + `leisure.recommend` 融合候选（按 id 回原数据复用 `showDetail`）；本模块无 build，`dist/` 即唯一源。
+
+last_updated: 2026-05-30

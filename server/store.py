@@ -102,6 +102,26 @@ def initialize(connection: sqlite3.Connection) -> None:
             proposed_actions_json TEXT NOT NULL,
             created_at TEXT NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS user_profiles (
+            module TEXT PRIMARY KEY,
+            profile_json TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS profile_changes (
+            id TEXT PRIMARY KEY,
+            module TEXT NOT NULL,
+            field TEXT NOT NULL,
+            old_value TEXT NOT NULL DEFAULT '',
+            new_value TEXT NOT NULL,
+            summary TEXT NOT NULL DEFAULT '',
+            source TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_profile_changes_module
+        ON profile_changes(module);
         """
     )
     connection.commit()
@@ -181,6 +201,53 @@ def nutrition_summary(date: str) -> dict:
     }
 
 
+def list_nutrition_logs(date_from: str = "", date_to: str = "", limit: int = 500) -> list[dict]:
+    """List nutrition logs, optionally filtered by an inclusive date range."""
+    clauses = []
+    params: list = []
+    if date_from:
+        clauses.append("date >= ?")
+        params.append(date_from)
+    if date_to:
+        clauses.append("date <= ?")
+        params.append(date_to)
+    where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+    params.append(int(limit))
+    with connect() as connection:
+        rows = connection.execute(
+            f"""
+            SELECT id, food, date, calories, protein_g, carbs_g, fat_g, source, created_at
+            FROM fitness_nutrition_logs
+            {where}
+            ORDER BY date DESC, created_at DESC
+            LIMIT ?
+            """,
+            tuple(params),
+        ).fetchall()
+    return [
+        {
+            "id": row["id"],
+            "food": row["food"],
+            "date": row["date"],
+            "calories": row["calories"],
+            "proteinG": row["protein_g"],
+            "carbsG": row["carbs_g"],
+            "fatG": row["fat_g"],
+            "source": row["source"],
+            "createdAt": row["created_at"],
+        }
+        for row in rows
+    ]
+
+
+def delete_nutrition_log(record_id: str) -> bool:
+    with connect() as connection:
+        cursor = connection.execute(
+            "DELETE FROM fitness_nutrition_logs WHERE id = ?", (record_id,)
+        )
+        return cursor.rowcount > 0
+
+
 def insert_schedule_event(row: dict) -> dict:
     created_at = now_iso()
     record = {
@@ -215,6 +282,52 @@ def insert_schedule_event(row: dict) -> dict:
     return record
 
 
+def list_schedule_events(date_from: str = "", date_to: str = "", limit: int = 500) -> list[dict]:
+    """List schedule events, optionally filtered by an inclusive date range."""
+    clauses = []
+    params: list = []
+    if date_from:
+        clauses.append("date >= ?")
+        params.append(date_from)
+    if date_to:
+        clauses.append("date <= ?")
+        params.append(date_to)
+    where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+    params.append(int(limit))
+    with connect() as connection:
+        rows = connection.execute(
+            f"""
+            SELECT id, title, date, time, note, source, created_at
+            FROM schedule_events
+            {where}
+            ORDER BY date, time, created_at
+            LIMIT ?
+            """,
+            tuple(params),
+        ).fetchall()
+    return [_event_to_dict(row) for row in rows]
+
+
+def _event_to_dict(row) -> dict:
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "date": row["date"],
+        "time": row["time"],
+        "note": row["note"],
+        "source": row["source"],
+        "createdAt": row["created_at"],
+    }
+
+
+def delete_schedule_event(record_id: str) -> bool:
+    with connect() as connection:
+        cursor = connection.execute(
+            "DELETE FROM schedule_events WHERE id = ?", (record_id,)
+        )
+        return cursor.rowcount > 0
+
+
 def insert_schedule_todo(row: dict) -> dict:
     created_at = now_iso()
     record = {
@@ -247,6 +360,74 @@ def insert_schedule_todo(row: dict) -> dict:
             ),
         )
     return record
+
+
+def list_schedule_todos(date_from: str = "", date_to: str = "", include_done: bool = True, limit: int = 500) -> list[dict]:
+    """List todos. Undated todos (date='') are always included."""
+    clauses = []
+    params: list = []
+    if date_from or date_to:
+        range_clauses = ["date = ''"]
+        sub = []
+        if date_from:
+            sub.append("date >= ?")
+            params.append(date_from)
+        if date_to:
+            sub.append("date <= ?")
+            params.append(date_to)
+        range_clauses.append("(" + " AND ".join(sub) + ")")
+        clauses.append("(" + " OR ".join(range_clauses) + ")")
+    if not include_done:
+        clauses.append("done = 0")
+    where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+    params.append(int(limit))
+    with connect() as connection:
+        rows = connection.execute(
+            f"""
+            SELECT id, title, date, priority, done, source, created_at
+            FROM schedule_todos
+            {where}
+            ORDER BY done, priority DESC, created_at
+            LIMIT ?
+            """,
+            tuple(params),
+        ).fetchall()
+    return [_todo_to_dict(row) for row in rows]
+
+
+def _todo_to_dict(row) -> dict:
+    return {
+        "id": row["id"],
+        "title": row["title"],
+        "date": row["date"],
+        "priority": row["priority"],
+        "done": bool(row["done"]),
+        "source": row["source"],
+        "createdAt": row["created_at"],
+    }
+
+
+def set_schedule_todo_done(record_id: str, done: bool) -> dict | None:
+    with connect() as connection:
+        cursor = connection.execute(
+            "UPDATE schedule_todos SET done = ?, updated_at = ? WHERE id = ?",
+            (1 if done else 0, now_iso(), record_id),
+        )
+        if cursor.rowcount == 0:
+            return None
+        row = connection.execute(
+            "SELECT id, title, date, priority, done, source, created_at FROM schedule_todos WHERE id = ?",
+            (record_id,),
+        ).fetchone()
+    return _todo_to_dict(row) if row else None
+
+
+def delete_schedule_todo(record_id: str) -> bool:
+    with connect() as connection:
+        cursor = connection.execute(
+            "DELETE FROM schedule_todos WHERE id = ?", (record_id,)
+        )
+        return cursor.rowcount > 0
 
 
 def schedule_summary(date: str) -> dict:
@@ -318,3 +499,187 @@ def insert_assistant_message(text: str, reply: str, proposed_actions: list[dict]
             ),
         )
     return record
+
+
+# ================================================================
+# User profiles (用户画像)
+# ================================================================
+
+PROFILE_MODULES = ("fitness", "schedule", "news", "leisure")
+
+DEFAULT_PROFILES: dict[str, dict] = {
+    "fitness": {
+        "goal": "maintain",
+        "dietStyle": "",
+        "restrictions": [],
+        "trainingLevel": "beginner",
+        "targetCalories": 0,
+        "proteinTarget": 0,
+        "notes": "",
+    },
+    "schedule": {
+        "workHours": "",
+        "focusBlocks": [],
+        "reminderStyle": "",
+        "priorities": [],
+        "notes": "",
+    },
+    "news": {
+        "topics": [],
+        "excludeTopics": [],
+        "depth": "brief",
+        "regions": [],
+        "notes": "",
+    },
+    "leisure": {
+        "genres": {"movie": [], "music": [], "podcast": [], "novel": []},
+        "moods": [],
+        "avoid": [],
+        "notes": "",
+    },
+}
+
+
+def default_profile(module: str) -> dict:
+    """Return a deep copy of the default profile for a module."""
+    return json.loads(json.dumps(DEFAULT_PROFILES.get(module, {})))
+
+
+def get_profile(module: str) -> dict:
+    """Read a module profile, returning the default if none is stored yet."""
+    with connect() as connection:
+        row = connection.execute(
+            "SELECT module, profile_json, updated_at FROM user_profiles WHERE module = ?",
+            (module,),
+        ).fetchone()
+    if row is None:
+        return {"module": module, "profile": default_profile(module), "updatedAt": ""}
+    stored = json.loads(row["profile_json"])
+    # Merge over defaults so newly added fields always appear.
+    merged = default_profile(module)
+    merged.update(stored)
+    return {"module": module, "profile": merged, "updatedAt": row["updated_at"]}
+
+
+def get_all_profiles() -> dict:
+    """Return profiles for every known module."""
+    return {module: get_profile(module)["profile"] for module in PROFILE_MODULES}
+
+
+def _save_profile(connection, module: str, profile: dict, updated_at: str) -> None:
+    connection.execute(
+        """
+        INSERT INTO user_profiles (module, profile_json, updated_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(module) DO UPDATE SET
+            profile_json = excluded.profile_json,
+            updated_at = excluded.updated_at
+        """,
+        (module, json.dumps(profile, ensure_ascii=False), updated_at),
+    )
+
+
+def update_profile(module: str, patch: dict, summary: str = "", source: str = "action") -> dict:
+    """Shallow-merge patch into the module profile and record field-level changes."""
+    current = get_profile(module)["profile"]
+    updated_at = now_iso()
+    changed_fields = []
+    with connect() as connection:
+        for field, new_value in (patch or {}).items():
+            old_value = current.get(field)
+            if old_value == new_value:
+                continue
+            current[field] = new_value
+            changed_fields.append(field)
+            connection.execute(
+                """
+                INSERT INTO profile_changes
+                (id, module, field, old_value, new_value, summary, source, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    new_id("pch"),
+                    module,
+                    field,
+                    json.dumps(old_value, ensure_ascii=False),
+                    json.dumps(new_value, ensure_ascii=False),
+                    summary,
+                    source,
+                    updated_at,
+                ),
+            )
+        _save_profile(connection, module, current, updated_at)
+    return {
+        "module": module,
+        "profile": current,
+        "changedFields": changed_fields,
+        "updatedAt": updated_at,
+    }
+
+
+def reset_profile(module: str, source: str = "action") -> dict:
+    """Reset a module profile back to its default."""
+    updated_at = now_iso()
+    profile = default_profile(module)
+    with connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO profile_changes
+            (id, module, field, old_value, new_value, summary, source, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                new_id("pch"),
+                module,
+                "*",
+                "",
+                "reset",
+                "重置为默认画像",
+                source,
+                updated_at,
+            ),
+        )
+        _save_profile(connection, module, profile, updated_at)
+    return {"module": module, "profile": profile, "updatedAt": updated_at}
+
+
+def list_profile_changes(module: str = "", limit: int = 50) -> list[dict]:
+    """Return profile change history, newest first."""
+    clause = "WHERE module = ?" if module else ""
+    params: list = [module] if module else []
+    params.append(int(limit))
+    with connect() as connection:
+        rows = connection.execute(
+            f"""
+            SELECT id, module, field, old_value, new_value, summary, source, created_at
+            FROM profile_changes
+            {clause}
+            ORDER BY created_at DESC, id DESC
+            LIMIT ?
+            """,
+            tuple(params),
+        ).fetchall()
+    result = []
+    for row in rows:
+        result.append(
+            {
+                "id": row["id"],
+                "module": row["module"],
+                "field": row["field"],
+                "oldValue": _safe_json_load(row["old_value"]),
+                "newValue": _safe_json_load(row["new_value"]),
+                "summary": row["summary"],
+                "source": row["source"],
+                "createdAt": row["created_at"],
+            }
+        )
+    return result
+
+
+def _safe_json_load(raw: str):
+    if raw is None or raw == "":
+        return ""
+    try:
+        return json.loads(raw)
+    except (ValueError, TypeError):
+        return raw

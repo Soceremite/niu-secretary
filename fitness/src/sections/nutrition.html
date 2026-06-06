@@ -63,13 +63,20 @@
         <label class="field">日期<input name="date" type="date" required></label>
         <label class="field">餐次<select name="mealType"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select></label>
         <label class="field field-wide">食物描述<input name="food" required placeholder="红烧肉、米饭、奶茶"></label>
-        <label class="field">热量 kcal<input name="calories" type="number" min="0" max="5000" value="650"></label>
-        <label class="field">蛋白 g<input name="proteinG" type="number" min="0" max="300" value="35"></label>
-        <label class="field">碳水 g<input name="carbsG" type="number" min="0" max="600" value="80"></label>
-        <label class="field">脂肪 g<input name="fatG" type="number" min="0" max="300" value="22"></label>
+        <label class="field">热量 kcal<input name="calories" type="number" min="0" max="5000" placeholder="例：650"></label>
+        <label class="field">蛋白 g<input name="proteinG" type="number" min="0" max="300" placeholder="例：35"></label>
+        <label class="field">碳水 g<input name="carbsG" type="number" min="0" max="600" placeholder="例：80"></label>
+        <label class="field">脂肪 g<input name="fatG" type="number" min="0" max="300" placeholder="例：22"></label>
       </div>
       <div class="actions"><button class="primary-btn" type="submit">保存饮食</button></div>
     </form>
+    </div>
+  </article>
+
+  <article class="glass-card history-card">
+    <div class="glass-card-inner">
+    <div class="card-head"><div><h3>最近饮食</h3><p>Agent、估算和手动记录都会进 IndexedDB 与同步队列。</p></div></div>
+    <div class="log-list" id="nutrition-list"></div>
     </div>
   </article>
 
@@ -98,11 +105,4 @@
       </div>
     </article>
   </aside>
-
-  <article class="glass-card full-row history-card">
-    <div class="glass-card-inner">
-    <div class="card-head"><div><h3>最近饮食</h3><p>Agent、估算和手动记录都会进 IndexedDB 与同步队列。</p></div></div>
-    <div class="log-list" id="nutrition-list"></div>
-    </div>
-  </article>
 </section>

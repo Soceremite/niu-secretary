@@ -400,6 +400,78 @@
 
     .assistant-status { padding: 0 20px 16px; min-height: 20px; }
 
+    /* ====== AI 处理动画 ====== */
+    .ai-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px 8px;
+      animation: fadeInUp 0.3s var(--ease-out);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .ai-progress-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold-2);
+      animation: aiPulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      flex-shrink: 0;
+    }
+    @keyframes aiPulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+    .ai-progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .ai-progress-step {
+      font-size: 12px;
+      color: rgba(200,164,92,.5);
+      transition: color 0.3s, opacity 0.3s;
+    }
+    .ai-progress-step.done {
+      color: #82d49f;
+    }
+    .ai-progress-step.current {
+      color: var(--gold-2);
+      font-weight: 700;
+    }
+    .ai-progress-arrow {
+      color: rgba(200,164,92,.25);
+      font-size: 10px;
+    }
+    .ai-progress-step.done + .ai-progress-arrow {
+      color: rgba(130,212,159,.4);
+    }
+    .ai-progress .ai-spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(200,164,92,.18);
+      border-top-color: var(--gold-2);
+      border-radius: 50%;
+      animation: aiSpin 0.7s linear infinite;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    @keyframes aiSpin {
+      to { transform: rotate(360deg); }
+    }
+    .ai-progress .ai-done-check {
+      margin-left: auto;
+      color: #82d49f;
+      font-size: 16px;
+      flex-shrink: 0;
+      animation: popIn 0.3s var(--ease-spring);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     /* ========== PROMISE GRID ========== */
     .promise-grid {
       display: grid;
@@ -873,10 +945,10 @@
           <div class="assistant-panel-inner">
             <div class="assistant-head">
               <strong>牛秘书 AI</strong>
-              <span>Action Protocol v2.0</span>
+              <span>Kimi K2.6 · thinking:disabled · &lt;2s</span>
             </div>
             <div class="assistant-messages" data-assistant-messages>
-              <div class="assistant-message">你说一句话，我会整理成可确认动作。</div>
+              <div class="assistant-message">我已升级到 v4 智能调度引擎：Kimi K2.6 首选，Qwen 3.6 待命，本地规则兜底——你说的每句话都能秒级解析成动作。</div>
             </div>
             <div class="assistant-actions" data-assistant-actions hidden></div>
             <form class="assistant-composer" data-assistant-form>
@@ -884,6 +956,7 @@
               <button type="submit">发送</button>
             </form>
             <div class="assistant-status" data-assistant-status></div>
+            <div class="ai-progress" data-ai-progress hidden></div>
           </div>
         </section>
 

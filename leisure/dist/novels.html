@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f1eee7">
+  <meta name="description" content="牛秘书闲趣集 · 小说推荐">
+  <title>小说推荐 · 牛秘书闲趣集</title>
+  <link rel="icon" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="novels">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/niu-secretary/">
+        <img src="logo.png" alt="牛秘书">
+        <span>
+          <span class="brand-name">牛秘书闲趣集</span>
+          <span class="brand-caption">Leisure Collection</span>
+        </span>
+      </a>
+      <a class="back-link" href="/niu-secretary/">返回主页</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <nav class="nav-menu">
+      <a data-nav="index" href="index.html"><span class="nav-icon">🏠</span>首页</a>
+      <a data-nav="movies" href="movies.html"><span class="nav-icon">🎬</span>影视</a>
+      <a data-nav="music" href="music.html"><span class="nav-icon">🎵</span>音乐</a>
+      <a data-nav="podcasts" href="podcasts.html"><span class="nav-icon">🎙️</span>播客</a>
+      <a data-nav="novels" href="novels.html"><span class="nav-icon">📖</span>小说</a>
+    </nav>
+
+    <section class="section-header">
+      <h2>📖 小说推荐</h2>
+    </section>
+
+    <section class="panel" style="margin-top:18px">
+      <div class="panel-inner">
+        <div class="sec-grid" id="card-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">加载中…</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+    <div class="detail-sheet" id="detail-sheet" onclick="event.stopPropagation()">
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+      <div id="detail-content"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>牛秘书闲趣集 · <a href="index.html">返回闲趣集</a> · <a href="/niu-secretary/">牛秘书品牌主页</a></p>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script>
+    (async function() {
+      const data = await loadSectionData('novels', 'data/novels.json');
+      renderCardGrid(data, '小说', 'card-grid');
+    })();
+  </script>
+</body>
+</html>

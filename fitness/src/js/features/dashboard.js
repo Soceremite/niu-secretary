@@ -1,6 +1,6 @@
 
 // fitness/src/js/features/dashboard.js
-import { addWeightLog, clearWeightLogs, countPendingSync, exportAllData, getProfile, importAllData, listNutritionLogs, listWeightLogs, putProfile } from '../lib/db.js';
+import { addWeightLog, clearWeightLogs, countRealPending, exportAllData, getProfile, importAllData, listNutritionLogs, listRecoveryLogs, listWeightLogs, putProfile } from '../lib/db.js';
 import { calculateBmi, calculateTdee, classifyAsianBmi, progressPercent, summarizeWeight } from '../lib/calculator.js';
 import { summarizeNutrition } from '../lib/nutrition.js';
 import { fetchUnifiedNutritionLogs } from '../lib/actionApi.js';
@@ -22,7 +22,77 @@ export async function initDashboard() {
   profile = { ...defaultProfile, ...(await getProfile()) };
   bindForms();
   fillProfileForm();
+  loadFitnessProfileAndRecommend();
   await render();
+}
+
+async function loadFitnessProfileAndRecommend() {
+  const fieldsContainer = document.getElementById('fitness-profile-fields');
+  const listEl = document.getElementById('fitness-recommend-list');
+
+  // 启动两个请求，互不阻塞
+  const profilePromise = loadFitnessProfile(fieldsContainer);
+  const recommendPromise = loadFitnessRecommend(listEl);
+  await Promise.allSettled([profilePromise, recommendPromise]);
+}
+
+async function loadFitnessProfile(container) {
+  try {
+    const data = await executeAction('profile.get', { module: 'fitness' });
+    const p = data.profile;
+    const fields = [
+      ['目标', goalLabel(p?.goal)],
+      ['饮食风格', p?.dietStyle || '--'],
+      ['饮食限制', Array.isArray(p?.restrictions) && p.restrictions.length ? p.restrictions.join('、') : '无'],
+      ['训练水平', trainingLevelLabel(p?.trainingLevel)],
+      ['目标热量', p?.targetCalories ? `${p.targetCalories} kcal` : '--'],
+      ['蛋白目标', p?.proteinTarget ? `${p.proteinTarget} g` : '--'],
+      ['备注', p?.notes || '--']
+    ];
+    container.innerHTML = fields.map(([label, value]) =>
+      `<div class="profile-row" data-profile-${label}"><span class="profile-label">${label}</span><span class="profile-value">${escapeHtml(String(value))}</span></div>`
+    ).join('');
+  } catch {
+    container.innerHTML = '<p class="profile-placeholder">暂无画像，去首页和牛秘书 AI 聊聊就能生成</p>';
+  }
+}
+
+async function loadFitnessRecommend(container) {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const data = await executeAction('fitness.recommend', { date: today });
+    const recs = data.recommendations || [];
+    if (!recs.length) {
+      container.innerHTML = '<li class="recommend-placeholder">今日暂无推荐</li>';
+      return;
+    }
+    container.innerHTML = recs.map(r => `<li>${escapeHtml(r)}</li>`).join('');
+  } catch {
+    container.innerHTML = '<li class="recommend-placeholder">暂无推荐，去首页和牛秘书 AI 聊聊就能生成</li>';
+  }
+}
+
+function goalLabel(g) {
+  const map = { fat_loss: '减脂', muscle_gain: '增肌', recomp: '身体重组', maintain: '维持' };
+  return map[g] || g || '--';
+}
+
+function trainingLevelLabel(l) {
+  const map = { beginner: '新手', intermediate: '进阶', advanced: '高阶' };
+  return map[l] || l || '--';
+}
+
+async function executeAction(action, input) {
+  const response = await fetch('/niu-secretary/api/actions/execute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, input, context: { client: 'fitness-page' } })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || `动作接口失败：${response.status}`);
+  }
+  return data;
 }
 
 function bindForms() {
@@ -75,11 +145,12 @@ function bindForms() {
 }
 
 async function render() {
-  const [logs, localNutritionLogs, unifiedNutritionLogs, pending] = await Promise.all([
+  const [logs, localNutritionLogs, unifiedNutritionLogs, pending, recoveryLogs] = await Promise.all([
     listWeightLogs(),
     listNutritionLogs(),
     fetchUnifiedNutritionLogs().catch(() => []),
-    countPendingSync()
+    countRealPending(),
+    listRecoveryLogs()
   ]);
   const nutritionLogs = mergeNutritionLogs(localNutritionLogs, unifiedNutritionLogs);
   const summary = summarizeWeight(logs);
@@ -93,6 +164,14 @@ async function render() {
   setText('stat-bmi', bmi ? `${bmi} ${classifyAsianBmi(bmi)}` : '--');
   setText('hero-weight', summary.latest ? summary.latest.weightKg.toFixed(1) : '--');
   setText('hero-sync', String(pending));
+  
+  // 恢复信号：从真实的 recovery logs 读取
+  const latestRecovery = recoveryLogs.sort((a, b) => b.date.localeCompare(a.date))[0];
+  if (latestRecovery) {
+    setText('hero-recovery', `${latestRecovery.score}`);
+  } else {
+    setText('hero-recovery', '--');
+  }
 
   const calorieTarget = profile.calorieTarget || tdee;
   const caloriePct = progressPercent(todayNutrition.calories, calorieTarget);
@@ -127,8 +206,16 @@ function updateTargets(todayNutrition, calorieTarget) {
   ];
   for (const [key, value, target, unit] of rows) {
     const pct = Math.min(100, progressPercent(value, target));
-    document.getElementById(`bar-${key}`).style.width = `${pct}%`;
+    const barEl = document.getElementById(`bar-${key}`);
+    const textEl = document.getElementById(`text-${key}`);
+    
+    barEl.style.width = `${pct}%`;
     setText(`text-${key}`, `${Math.round(value)}/${target}${unit}`);
+    
+    // 超标警告：当实际值超过目标值时添加视觉提示
+    const isOverLimit = value > target && target > 0;
+    barEl.parentElement.classList.toggle('over-limit', isOverLimit);
+    textEl.classList.toggle('over-limit', isOverLimit);
   }
 }
 

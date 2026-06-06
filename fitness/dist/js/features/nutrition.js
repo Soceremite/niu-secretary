@@ -185,11 +185,17 @@ function renderDeficit({ baseline, exercise, intake, deficit }) {
 
 function renderMacros(today) {
   const pct = Math.min(100, progressPercent(today.calories, currentTargets.calories));
+  const isOverLimit = today.calories > currentTargets.calories && currentTargets.calories > 0;
+  
   document.getElementById('nutrition-percent').textContent = `${pct}%`;
+  document.getElementById('nutrition-percent').classList.toggle('over-limit', isOverLimit);
   document.getElementById('nutrition-ring').style.setProperty('--progress', `${pct * 3.6}deg`);
+  document.getElementById('nutrition-ring').classList.toggle('over-limit', isOverLimit);
+  
   document.getElementById('nutrition-targets').innerHTML = rows().map(([label, key, unit]) => {
     const percent = Math.min(100, progressPercent(today[key], currentTargets[key]));
-    return `<div class="target-row"><span>${label}</span><div class="bar"><span style="width:${percent}%"></span></div><b>${today[key]}/${currentTargets[key]}${unit}</b></div>`;
+    const isRowOverLimit = today[key] > currentTargets[key] && currentTargets[key] > 0;
+    return `<div class="target-row${isRowOverLimit ? ' over-limit' : ''}"><span>${label}</span><div class="bar${isRowOverLimit ? ' over-limit' : ''}"><span style="width:${percent}%"></span></div><b class="${isRowOverLimit ? 'over-limit' : ''}">${today[key]}/${currentTargets[key]}${unit}</b></div>`;
   }).join('');
 }
 

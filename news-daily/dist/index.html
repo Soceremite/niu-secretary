@@ -78,6 +78,22 @@
 </div>
 </div>
 
+<!-- ============ MY FOCUS · PERSONALIZED PICKS ============ -->
+<div style="padding:0 24px;position:relative;z-index:1;">
+  <section id="focus-panel" style="max-width:var(--max-width);margin:0 auto 8px;border:1px solid var(--line);background:var(--card);box-shadow:0 1px 0 var(--paper-deep);">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px double var(--line);">
+      <div style="display:flex;align-items:baseline;gap:10px;">
+        <span style="font-family:'Noto Serif SC',serif;font-weight:700;font-size:18px;color:var(--brand);letter-spacing:.04em;">我的关注</span>
+        <span style="font-size:12px;color:var(--muted);">据画像为你精选今日要闻</span>
+      </div>
+      <span id="focus-tags" style="font-size:12px;color:var(--ink-soft);text-align:right;">—</span>
+    </div>
+    <div id="focus-body" style="padding:8px 20px 16px;">
+      <p style="color:var(--muted);font-size:14px;margin:8px 0;">正在为你筛选…</p>
+    </div>
+  </section>
+</div>
+
 <!-- ============ MAIN CONTENT (dynamic slots) ============ -->
 <div class="container">
   <div class="section-slot" id="slot-domestic"></div>
@@ -214,9 +230,76 @@
 
   // Init
   document.addEventListener('DOMContentLoaded', () => {
-    loadSections();
+    loadSections().then(loadFocus);
     setupScrollReveal();
   });
+
+  // ---- 画像·今日精选 ----
+  const ACTION_API = '/niu-secretary/api/actions/execute';
+  async function callAction(action, input) {
+    const res = await fetch(ACTION_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, input, context: { client: 'news-page' } })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) throw new Error(data.message || ('动作接口失败：' + res.status));
+    return data;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // 将标题文本映射回已加载卡片的 detail id（点击可开详情）
+  function findDetailIdByTitle(title) {
+    const cards = document.querySelectorAll('.news-card');
+    for (const card of cards) {
+      const h = card.querySelector('h3');
+      if (h && h.textContent.trim() === String(title).trim()) {
+        const link = card.closest('.card-link');
+        const m = link && link.getAttribute('onclick') && link.getAttribute('onclick').match(/openDetail\('([^']+)'\)/);
+        if (m) return m[1];
+      }
+    }
+    return null;
+  }
+
+  async function loadFocus() {
+    const tagsEl = document.getElementById('focus-tags');
+    const bodyEl = document.getElementById('focus-body');
+    try {
+      const data = await callAction('news.recommend', { limit: 6 });
+      const profile = data.profile || {};
+      const topics = Array.isArray(profile.topics) ? profile.topics : [];
+      const exclude = Array.isArray(profile.excludeTopics) ? profile.excludeTopics : [];
+      tagsEl.innerHTML = topics.length
+        ? ('关注：' + topics.map(esc).join(' · ') + (exclude.length ? ('　屏蔽：' + exclude.map(esc).join(' · ')) : ''))
+        : '尚未设关注话题 — 去主页和牛秘书 AI 聊聊“我关注 AI 和财经”就能设定';
+      const items = data.items || [];
+      if (!items.length) {
+        bodyEl.innerHTML = '<p style="color:var(--muted);font-size:14px;margin:8px 0;">今日暂无匹配内容。</p>';
+        return;
+      }
+      const note = data.personalized
+        ? ''
+        : '<p style="color:var(--muted);font-size:12px;margin:0 0 8px;">暂未设个性化关注，先为你列出今日要闻。</p>';
+      bodyEl.innerHTML = note + '<div style="display:grid;gap:8px;">' + items.map(function(it) {
+        const did = findDetailIdByTitle(it.title);
+        const clickable = did ? (' onclick="openDetail(\'' + did + '\')" style="cursor:pointer;"') : '';
+        return '<div class="focus-item"' + clickable + ' style="display:flex;align-items:baseline;gap:10px;padding:8px 10px;border-left:3px solid var(--' + esc(it.section) + ');background:rgba(255,247,218,0.5);">' +
+          '<span style="flex-shrink:0;font-size:11px;color:var(--muted);min-width:52px;">' + esc(it.sectionLabel) + '</span>' +
+          '<span style="flex-shrink:0;font-size:11px;font-weight:700;color:var(--brand);">' + esc(it.tag) + '</span>' +
+          '<span style="font-size:14px;color:var(--ink);font-weight:600;line-height:1.45;">' + esc(it.title) + '</span>' +
+        '</div>';
+      }).join('') + '</div>';
+    } catch (e) {
+      tagsEl.textContent = '';
+      bodyEl.innerHTML = '<p style="color:var(--muted);font-size:14px;margin:8px 0;">个性化精选暂时不可用。</p>';
+    }
+  }
 
   // Scroll reveal animation
   function setupScrollReveal() {

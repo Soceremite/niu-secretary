@@ -524,6 +524,7 @@
       .topbar-inner { padding: 0 18px; }
       .schedule-shell { padding: 24px 18px 40px; }
       .bureau-hero, .workbench, .briefing-note { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: 1fr !important; gap: 18px !important; }
       .date-card { width: 128px; }
       .task { grid-template-columns: 64px minmax(0, 1fr); }
       .level { grid-column: 2; justify-self: start; }
@@ -578,6 +579,29 @@
       </div>
     </section>
 
+    <section class="panel reveal">
+      <div class="panel-inner">
+        <div class="panel-title">
+          <h2>我的画像 · 今日建议</h2>
+          <span id="schedule-profile-date">--</span>
+        </div>
+        <div class="profile-grid" style="display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 28px; margin-top: 14px;">
+          <div>
+            <h3 style="margin:0 0 10px; font-size:13px; font-weight:700; color:var(--sage); letter-spacing:.06em; text-transform:uppercase;">我的画像</h3>
+            <div id="schedule-profile-fields" style="display:grid; gap:6px;">
+              <p style="color:var(--muted); font-size:14px; padding:8px 0; margin:0;">加载中…</p>
+            </div>
+          </div>
+          <div>
+            <h3 style="margin:0 0 10px; font-size:13px; font-weight:700; color:var(--sage); letter-spacing:.06em; text-transform:uppercase;">今日建议</h3>
+            <ul id="schedule-recommend-list" style="list-style:none; padding:0; margin:0; display:grid; gap:8px;">
+              <li style="color:var(--muted); font-size:14px; padding:4px 0;">加载中…</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="workbench">
       <section class="panel schedule-panel reveal">
         <div class="panel-inner">
@@ -623,7 +647,7 @@
   </footer>
 
   <script>
-    (function() {
+    (async function() {
       // Scroll reveal animation
       const observerOptions = {
         threshold: 0.1,
@@ -660,9 +684,119 @@
         }
       }
 
+      function writeCache(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* quota */ }
+      }
+
+      // 后端统一动作接口；失败时回落到 localStorage 缓存
+      const ACTION_API = '/niu-secretary/api/actions/execute';
+      async function executeAction(action, input) {
+        const response = await fetch(ACTION_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, input, context: { client: 'schedule-page' } })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.ok === false) {
+          throw new Error(data.message || `动作接口失败：${response.status}`);
+        }
+        return data;
+      }
+
+      // 未来 30 天窗口（用于重要日期露出 + 今日时间线）
+      const rangeTo = new Date(now.getTime() + 30 * 86400000).toISOString().slice(0, 10);
+
+      async function loadEvents() {
+        try {
+          const res = await executeAction('schedule.event.list', { from: todayStr, to: rangeTo });
+          const items = res.items || [];
+          writeCache('niu_schedule_events', items);
+          return items;
+        } catch (error) {
+          console.warn('[时务局] 日程读取后端失败，使用本地缓存：', error.message);
+          return readJson('niu_schedule_events');
+        }
+      }
+
+      async function loadTodos() {
+        try {
+          const res = await executeAction('schedule.todo.list', { includeDone: true });
+          const items = res.items || [];
+          writeCache('niu_schedule_todos', items);
+          return items;
+        } catch (error) {
+          console.warn('[时务局] 待办读取后端失败，使用本地缓存：', error.message);
+          return readJson('niu_schedule_todos');
+        }
+      }
+
+      // ---- 画像 · 推荐 ----
+      const GOAL_MAP     = { fat_loss: '减脂', muscle_gain: '增肌', recomp: '身体重组', maintain: '维持' };
+      const LEVEL_MAP    = { beginner: '新手', intermediate: '进阶', advanced: '高阶' };
+
+      function goalLabel(g) { return GOAL_MAP[g] || g || '--'; }
+      function levelLabel(l) { return LEVEL_MAP[l] || l || '--'; }
+
+      function h(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      async function loadScheduleProfile() {
+        const container = document.getElementById('schedule-profile-fields');
+        try {
+          const data = await executeAction('profile.get', { module: 'schedule' });
+          const p = data.profile;
+          const fields = [
+            ['工作时间', p?.workHours || '--'],
+            ['专注时段', Array.isArray(p?.focusBlocks) && p.focusBlocks.length ? p.focusBlocks.join('、') : '--'],
+            ['提醒偏好', p?.reminderStyle || '--'],
+            ['优先事项', Array.isArray(p?.priorities) && p.priorities.length ? p.priorities.join('、') : '--'],
+            ['备注', p?.notes || '--']
+          ];
+          container.innerHTML = fields.map(([label, value]) => {
+            return '<div style="display:flex;align-items:baseline;gap:10px;padding:4px 0;border-bottom:1px solid var(--line-soft);">' +
+              '<span style="flex-shrink:0;min-width:68px;color:var(--faint);font-size:13px;font-weight:600;">' + h(label) + '</span>' +
+              '<span style="color:var(--ink);font-size:14px;font-weight:600;">' + h(String(value)) + '</span></div>';
+          }).join('');
+        } catch {
+          container.innerHTML = '<p style="color:var(--muted);font-size:14px;padding:8px 0;margin:0;">暂无画像，去首页和牛秘书 AI 聊聊就能生成</p>';
+        }
+      }
+
+      async function loadScheduleRecommend() {
+        const container = document.getElementById('schedule-recommend-list');
+        try {
+          const data = await executeAction('schedule.recommend', { date: todayStr });
+          const recs = data.recommendations || [];
+          if (!recs.length) {
+            container.innerHTML = '<li style="color:var(--muted);font-size:14px;padding:4px 0;">今日暂无建议</li>';
+            return;
+          }
+          container.innerHTML = recs.map(function(r) {
+            return '<li style="position:relative;padding:4px 0 4px 18px;color:var(--ink);font-size:14px;line-height:1.55;"><span style="position:absolute;left:0;top:0;color:var(--copper);font-size:13px;line-height:1.8;">▸</span>' + h(r) + '</li>';
+          }).join('');
+        } catch {
+          container.innerHTML = '<li style="color:var(--muted);font-size:14px;padding:4px 0;">暂无建议，去首页和牛秘书 AI 聊聊就能生成</li>';
+        }
+      }
+
+      // 在日期卡片旁显示日期
+      document.getElementById('schedule-profile-date').textContent = todayStr;
+
+      const [events, todos] = await Promise.all([loadEvents(), loadTodos()]);
+
+      // 加载画像与推荐（不阻塞主内容渲染）
+      Promise.allSettled([loadScheduleProfile(), loadScheduleRecommend()]);
+
       const store = {
-        events: readJson('niu_schedule_events'),
-        todos: readJson('niu_schedule_todos'),
+        events,
+        todos,
+        // dates / goals 后端暂未建模，维持本地存储
         dates: readJson('niu_schedule_dates'),
         goals: readJson('niu_schedule_goals')
       };

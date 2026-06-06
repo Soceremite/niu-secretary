@@ -3,7 +3,7 @@ name: niu-secretary
 description: "牛秘书品牌体系——品牌定位、视觉规范、技术架构与功能矩阵。用于统一品牌调性，指导各子产品（新闻社、塑形馆、时务局、闲趣集）的设计与开发。"
 risk: safe
 date_added: "2026-05-28"
-last_updated: "2026-05-29"
+last_updated: "2026-05-30"
 ---
 
 # 牛秘书品牌体系
@@ -124,9 +124,11 @@ v2.0 的核心理念：牛秘书主页 AI、语音助手、四个子网页和未
 3. **动作生成**：模型只生成允许的 action 和参数，不直接写库。
 4. **用户确认**：主页先展示可编辑 JSON，用户确认后才执行。
 5. **统一落库**：确认后调用 `/niu-secretary/api/actions/execute` 写入服务端 SQLite。
-6. **多端同步**：子网页从统一 API 读取服务端记录，并与本地 IndexedDB 合并展示。
+6. **多端同步**：子网页直接从统一 API 读取服务端记录（后端 SQLite 为唯一数据源），localStorage 退化为离线缓存/兜底。
 
 > 这个内部 Action Protocol 不是 MCP，但按 MCP 思路设计：能力可发现、输入可校验、执行可审计，未来可以再包一层 MCP Server。
+
+> **数据源原则（2026-05-30 起）**：后端 SQLite 是唯一权威数据源。各板块页面优先调用 `actions/execute` 的 list 类动作读取，请求失败时才回落到 localStorage 缓存。AI 写入的数据因此能被各板块直接读到，并跨设备一致。
 
 ### 本地启动
 
@@ -172,13 +174,46 @@ sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
 | `POST /niu-secretary/api/assistant/message` | 自然语言解析为候选动作 |
 | `POST /niu-secretary/api/actions/execute` | 执行统一动作 |
 
-### 第一阶段动作
+### 动作清单
 
+**写入类**
 - `fitness.nutrition.create`：记录一餐。
-- `fitness.nutrition.today_summary`：读取营养汇总。
 - `schedule.event.create`：创建日程。
 - `schedule.todo.create`：创建待办。
-- `schedule.today_summary`：读取日程与待办。
+
+**读取类**（板块页面从后端拉数据，支持 `from`/`to` 日期范围）
+- `fitness.nutrition.today_summary`：读取某日营养汇总。
+- `fitness.nutrition.list`：按范围读取营养日志。
+- `schedule.today_summary`：读取某日日程与待办。
+- `schedule.event.list`：按范围读取日程。
+- `schedule.todo.list`：读取待办，支持 `includeDone` 过滤；无日期待办始终纳入。
+
+**修改/删除类**
+- `schedule.todo.toggle`：切换待办完成状态（不传 `done` 则翻转当前值）。
+- `fitness.nutrition.delete` / `schedule.event.delete` / `schedule.todo.delete`：按 `id` 删除。
+
+**用户画像类（2026-05-30 新增）**
+- `profile.get`：读某板块画像；不传 module 返回全部。
+- `profile.update`：patch 语义合并画像字段，同时记录变更历史（需确认）。
+- `profile.reset`：重置某板块画像为默认。
+- `profile.changes`：读画像变更历史。
+
+**画像驱动推送类（2026-05-30 新增）**
+- `fitness.recommend`：按塑形馆画像生成今日饮食/训练建议。
+- `schedule.recommend`：按时务局画像生成今日时间安排与提醒建议。
+
+> 完整能力注册表以 `GET /api/capabilities` 为准。新增动作需同步更新 `store.py`、`capabilities.py`、`action_handlers.py` 三处，并补单测。
+
+### 用户画像系统（v1，2026-05-30）
+
+牛秘书 AI 不只记录数据，还能通过聊天**自适应调整四大板块的用户画像**，并用画像驱动个性化推送。
+
+- **两层结构**：`user_profiles`（每板块一份结构化 JSON 快照，驱动推送）+ `profile_changes`（每次增量变更记录，可追溯可审计）。
+- **意图分类加 intent 维度**：assistant 在分类时同时判断 `record`（记录一次性数据）/ `preference`（调整长期偏好）/ `query`（询问推荐）。
+- **preference → profile.update**：模型从聊天抽取偏好生成画像更新动作，同样走「待确认动作卡片」，不让 AI 偿偿改画像。
+- **本地降级**：模型不可用时用关键词粗抽取（减脂/增肌、川渝/清淡、悬疑/科幻 等）。
+- **v1 范围**：画像 CRUD + 聊天调整 + 塑形馆/时务局推送闭环；新闻社/闲趣集真实内容库对接列为 v1.1。
+- 详细方案见 `plans/user-profile-v1.md`。
 
 ---
 

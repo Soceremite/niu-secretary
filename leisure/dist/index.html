@@ -4,776 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f1eee7">
-  <meta name="description" content="牛秘书闲趣集 - 私人秘书的休闲推荐夹，按时间、心情和口味精选影视、音乐、播客与阅读。">
+  <meta name="description" content="牛秘书闲趣集 - 私人秘书的休闲推荐夹">
   <title>牛秘书闲趣集</title>
   <link rel="icon" href="logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --page: #f1eee7;
-      --paper: #fffdf7;
-      --paper-soft: #f7f2e9;
-      --ink: #2d2a25;
-      --muted: #676157;
-      --faint: #8a8174;
-      --tea: #c9975f;
-      --tea-dark: #a87a4a;
-      --blue: #66848e;
-      --navy: #243746;
-      --olive: #7f8a6a;
-      --line: #d7d0c1;
-      --line-soft: #e3dbce;
-      --shadow-tinted: 0 24px 80px rgba(45, 42, 37, .12);
-      --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, .6);
-      --radius-lg: 28px;
-      --radius-md: 18px;
-      --radius-sm: 12px;
-      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { background: var(--page); scroll-behavior: smooth; }
-    body {
-      min-height: 100vh;
-      color: var(--ink);
-      font-family: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-      background:
-        radial-gradient(circle at 16% 8%, rgba(201, 151, 95, .18), transparent 32rem),
-        radial-gradient(circle at 84% 16%, rgba(102, 132, 142, .18), transparent 30rem),
-        linear-gradient(135deg, rgba(255,255,255,.50), rgba(255,255,255,.10)),
-        var(--page);
-    }
-
-    a { color: inherit; text-decoration: none; }
-    button { font: inherit; }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      border-bottom: 1px solid rgba(207, 200, 184, .84);
-      background: rgba(241, 238, 231, .84);
-      backdrop-filter: blur(18px);
-    }
-
-    .topbar-inner {
-      max-width: 1180px;
-      margin: 0 auto;
-      min-height: 68px;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .brand img {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--tea);
-      box-shadow: 0 8px 22px rgba(82, 65, 42, .12);
-    }
-
-    .brand-name {
-      display: block;
-      color: var(--ink);
-      font-family: "Noto Serif SC", serif;
-      font-weight: 900;
-      font-size: 18px;
-      line-height: 1.1;
-      letter-spacing: .03em;
-    }
-
-    .brand-caption {
-      display: block;
-      margin-top: 3px;
-      color: var(--tea);
-      font-size: 11px;
-      letter-spacing: .14em;
-      line-height: 1.1;
-      text-transform: uppercase;
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      min-height: 36px;
-      padding: 0 12px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      color: var(--muted);
-      background: rgba(255,253,247,.50);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .leisure-shell {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 38px 24px 52px;
-    }
-
-    .leisure-hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 260px;
-      gap: 32px;
-      align-items: end;
-      padding: 40px;
-      border: 1px solid rgba(207, 200, 184, .6);
-      border-radius: var(--radius-lg);
-      background: rgba(255, 253, 247, .58);
-      box-shadow: var(--shadow-tinted), var(--shadow-inner);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .leisure-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(201, 151, 95, .05), transparent 50%);
-      pointer-events: none;
-    }
-
-    .kicker {
-      margin: 0 0 12px;
-      color: var(--tea);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      opacity: 0.8;
-    }
-
-    h1, h2, h3 {
-      font-family: "Noto Sans SC", sans-serif;
-      font-weight: 800;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-    }
-
-    p {
-      max-width: 65ch;
-      line-height: 1.7;
-    }
-
-    h1 {
-      color: var(--ink);
-      font-size: clamp(48px, 8vw, 96px);
-      font-weight: 900;
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
-    }
-
-    h2 {
-      font-size: clamp(24px, 4vw, 32px);
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    h3 {
-      font-size: clamp(18px, 3vw, 22px);
-      font-weight: 600;
-    }
-
-    .lead {
-      max-width: 540px;
-      margin-bottom: 0;
-      color: var(--muted);
-      font-size: clamp(16px, 2vw, 18px);
-      font-weight: 500;
-      line-height: 1.6;
-    }
-
-    /* Double-bezel architecture */
-    .taste-card, .panel {
-      position: relative;
-      min-width: 0;
-      padding: 3px;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(135deg, rgba(255, 253, 247, .9), rgba(231, 225, 213, .6));
-      box-shadow: var(--shadow-tinted);
-    }
-
-    .taste-card-inner, .panel-inner {
-      border-radius: calc(var(--radius-lg) - 3px);
-      background: rgba(255, 253, 247, .95);
-      padding: 24px;
-      box-shadow: var(--shadow-inner);
-    }
-
-    .taste-card h2, .panel h2 {
-      margin: 0 0 12px;
-      color: var(--ink);
-      font-family: "Noto Serif SC", serif;
-      font-size: 22px;
-      line-height: 1.2;
-    }
-
-    .taste-meter {
-      height: 9px;
-      margin: 10px 0 13px;
-      overflow: hidden;
-      border-radius: 999px;
-      background: #e8ded0;
-    }
-
-    .taste-meter span {
-      display: block;
-      width: 72%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--tea), var(--blue));
-    }
-
-    .taste-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-
-    .taste-tags span {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 0 9px;
-      border-radius: 999px;
-      background: #f0e6d8;
-      color: #7b5b34;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .recommend-workbench {
-      display: flex;
-      gap: 18px;
-      margin-top: 18px;
-      align-items: stretch;
-    }
-
-    .recommend-workbench > * {
-      min-width: 0;
-    }
-
-    .recommend-workbench > .featured-panel {
-      flex: 1.15;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .recommend-workbench > aside {
-      flex: 0.85;
-      min-width: 310px;
-    }
-
-    .featured-choice {
-      display: flex;
-      gap: 18px;
-      align-items: stretch;
-      flex: 1;
-    }
-
-    .feature-copy {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .poster {
-      min-height: 230px;
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-      background:
-        linear-gradient(145deg, rgba(36,55,70,.18), transparent),
-        linear-gradient(160deg, #243746, #66848e 48%, #d5ae76);
-    }
-
-    .poster::after {
-      content: "今夜";
-      position: absolute;
-      left: 16px;
-      bottom: 14px;
-      color: #fff7e9;
-      font-family: "Noto Serif SC", serif;
-      font-size: 34px;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .feature-copy h3 {
-      margin: 0 0 8px;
-      color: var(--navy);
-      font-size: 25px;
-      line-height: 1.25;
-      flex-shrink: 0;
-    }
-
-    .feature-meta {
-      margin: 8px 0;
-      color: var(--faint);
-      font-size: 13px;
-      letter-spacing: 0.02em;
-    }
-
-    .feature-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin: 8px 0;
-    }
-
-    .feature-tags span {
-      display: inline-flex;
-      align-items: center;
-      min-height: 22px;
-      padding: 0 8px;
-      border-radius: 999px;
-      background: var(--line-soft);
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .feature-credit {
-      margin: 4px 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .feature-reason {
-      margin: 12px 0;
-      color: var(--ink);
-      line-height: 1.75;
-      font-size: 14px;
-    }
-
-    .feature-link {
-      display: inline-flex;
-      align-items: center;
-      margin-top: 12px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: var(--tea);
-      color: var(--paper);
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity 0.2s;
-    }
-
-    .feature-link:hover {
-      opacity: 0.85;
-    }
-
-    .feature-copy p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.75;
-      flex-shrink: 0;
-    }
-
-    .reason-list {
-      display: grid;
-      gap: 8px;
-      margin-top: 14px;
-      flex: 1;
-    }
-
-    .reason-list div {
-      padding: 10px 12px;
-      border: 1px solid #e0d5c4;
-      border-radius: 12px;
-      background: #f4efe6;
-      color: #514a41;
-      line-height: 1.5;
-    }
-
-    .score {
-      display: inline-flex;
-      align-items: center;
-      min-height: 30px;
-      margin-top: 12px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: #efe4d5;
-      color: #7b5b34;
-      font-size: 12px;
-      font-weight: 900;
-      flex-shrink: 0;
-    }
-
-    .candidate-list {
-      display: grid;
-      gap: 2px;
-    }
-
-    .candidate {
-      display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--line-soft);
-    }
-
-    .candidate:last-child { border-bottom: 0; }
-    .candidate {
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .candidate-icon {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      background: var(--blue);
-      color: #fffaf0;
-      font-weight: 900;
-    }
-
-    .candidate b {
-      display: block;
-      overflow-wrap: anywhere;
-      color: var(--ink);
-      line-height: 1.35;
-    }
-
-    .candidate small {
-      display: block;
-      margin-top: 3px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .track-duration {
-      font-size: 12px; color: var(--muted); flex-shrink: 0;
-    }
-    .time-pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 0 9px;
-      border-radius: 999px;
-      background: #eee5d8;
-      color: #7b5b34;
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    /* ====== 四版块完整展示 ====== */
-    .sections-area {
-      margin-top: 18px;
-      display: grid;
-      gap: 18px;
-    }
-    .sec-title {
-      font-family: "Noto Serif SC", serif;
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--ink);
-      margin: 0 0 14px;
-    }
-    .sec-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
-      gap: 12px;
-    }
-    .sec-card {
-      cursor: pointer;
-      position: relative;
-      padding: 3px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, rgba(255, 253, 247, .9), rgba(231, 225, 213, .6));
-      box-shadow: var(--shadow-tinted);
-      transition: transform .4s var(--ease-spring), box-shadow .4s var(--ease-out);
-    }
-
-    .sec-card-inner {
-      border-radius: calc(var(--radius-md) - 3px);
-      background: rgba(255, 253, 247, .95);
-      padding: 20px;
-      box-shadow: var(--shadow-inner);
-      height: 100%;
-    }
-
-    .sec-card:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 32px 96px rgba(45, 42, 37, .16), var(--shadow-inner);
-    }
-
-    .sec-card:active {
-      transform: translateY(-2px) scale(1.01);
-      transition-duration: .15s;
-    }
-    .sec-card h4 {
-      margin: 0 0 6px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.3;
-    }
-    .sec-card .card-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-    .sec-card .card-tags span {
-      display: inline-flex;
-      align-items: center;
-      min-height: 22px;
-      padding: 0 7px;
-      border-radius: 999px;
-      background: #f0e6d8;
-      color: #7b5b34;
-      font-size: 11px;
-      font-weight: 800;
-    }
-    .sec-card .card-reason {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .sec-card .card-score {
-      margin-top: 8px;
-      font-size: 11px;
-      font-weight: 900;
-      color: var(--tea);
-    }
-
-    .leisure-note {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 16px;
-      align-items: center;
-      margin-top: 18px;
-      padding: 17px 20px;
-      border: 1px solid var(--line);
-      border-left: 5px solid var(--blue);
-      border-radius: var(--radius);
-      background: rgba(255,253,247,.78);
-    }
-
-    .note-label {
-      margin: 0 0 4px;
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-    }
-
-    .leisure-note p:last-child {
-      margin: 0;
-      color: #47433d;
-      font-size: 16px;
-      line-height: 1.65;
-    }
-
-    .leisure-note strong { color: var(--ink); }
-
-    .note-actions {
-      display: flex;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    .note-actions button {
-      min-height: 36px;
-      padding: 0 16px;
-      border: 1px solid rgba(214, 201, 181, .8);
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--paper-soft), rgba(247, 242, 233, .8));
-      color: #7b5b34;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      transition: all .3s var(--ease-spring);
-      box-shadow: 0 2px 8px rgba(45, 42, 37, .08);
-    }
-
-    .note-actions button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(45, 42, 37, .12);
-    }
-
-    .note-actions button:active {
-      transform: translateY(0);
-      transition-duration: .1s;
-    }
-
-    /* Loading skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, rgba(231, 225, 213, .5) 25%, rgba(247, 242, 233, .8) 50%, rgba(231, 225, 213, .5) 75%);
-      background-size: 200% 100%;
-      animation: skeleton-loading 1.5s ease-in-out infinite;
-      border-radius: 8px;
-    }
-
-    @keyframes skeleton-loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    .skeleton-title {
-      height: 32px;
-      width: 60%;
-      margin-bottom: 12px;
-    }
-
-    .skeleton-text {
-      height: 16px;
-      width: 80%;
-      margin-bottom: 8px;
-    }
-
-    .skeleton-card {
-      height: 200px;
-      border-radius: var(--radius-md);
-    }
-
-    .footer {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 24px 36px;
-      color: var(--faint);
-      font-size: 13px;
-    }
-
-    .footer a {
-      color: #8d673c;
-      font-weight: 800;
-    }
-
-    @media (max-width: 900px) {
-      .topbar-inner { padding: 0 18px; }
-      .leisure-shell { padding: 24px 18px 40px; }
-      .leisure-hero, .leisure-note { grid-template-columns: 1fr; }
-      .recommend-workbench { flex-direction: column; }
-      .recommend-workbench > aside { min-width: 0; }
-      .featured-choice { flex-direction: column; }
-      .poster { min-height: 185px; }
-      .note-actions { flex-wrap: wrap; white-space: normal; }
-    }
-
-    @media (max-width: 540px) {
-      .brand-caption { display: none; }
-      .back-link { padding: 0 10px; font-size: 12px; }
-      .leisure-hero, .panel, .taste-card, .leisure-note { padding: 16px; border-radius: 16px; }
-      h1 { font-size: 38px; }
-      .lead { font-size: 15px; }
-      .candidate { grid-template-columns: 40px minmax(0, 1fr); }
-      .track-duration {
-      font-size: 12px; color: var(--muted); flex-shrink: 0;
-    }
-    .time-pill { grid-column: 2; justify-self: start; }
-      .detail-sheet { border-radius: 20px 20px 0 0; max-height: 85vh; }
-      .detail-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ====== 详情弹窗 ====== */
-    .detail-overlay {
-      position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,0.5);
-      display: flex; align-items: flex-end;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.25s;
-    }
-    .detail-overlay.active { opacity: 1; pointer-events: auto; }
-    .detail-sheet {
-      width: 100%; max-height: 80vh;
-      background: var(--paper);
-      border-radius: 24px 24px 0 0;
-      overflow-y: auto;
-      padding: 28px 24px 40px;
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
-    }
-    .detail-sheet h3 {
-      font-size: 22px; font-weight: 900;
-      margin: 0 0 8px; color: var(--ink);
-    }
-    .detail-sheet .sub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
-    .detail-actions {
-      display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
-    }
-    .detail-actions a {
-      display: inline-flex; align-items: center; gap: 4px;
-      min-height: 38px; padding: 0 16px;
-      border-radius: 999px; border: 1px solid var(--line);
-      background: var(--page); color: var(--ink); text-decoration: none;
-      font-size: 14px; font-weight: 700;
-    }
-    .detail-actions a.primary-link {
-      background: var(--blue); border-color: var(--blue); color: #fffaf0;
-    }
-    .detail-close {
-      position: sticky; top: 0; float: right; z-index: 2;
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 1px solid var(--line); background: var(--page);
-      font-size: 18px; cursor: pointer; color: var(--muted);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .detail-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 12px 20px;
-      padding: 16px 0;
-      border-top: 1px solid var(--line-soft);
-      border-bottom: 1px solid var(--line-soft);
-      margin: 16px 0;
-    }
-    .detail-grid .dg-item { font-size: 14px; }
-    .detail-grid .dg-label { color: var(--muted); font-size: 12px; }
-    .detail-grid .dg-value { color: var(--ink); font-weight: 700; margin-top: 2px; }
-    .track-list { margin: 12px 0; }
-    .track-list li {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 0; border-bottom: 1px solid var(--line-soft);
-      font-size: 14px;
-    }
-    .track-list li:last-child { border-bottom: 0; }
-    .track-list .track-num {
-      width: 24px; height: 24px; border-radius: 50%;
-      background: var(--line-soft);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 900; color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="index">
+
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/niu-secretary/">
@@ -787,14 +27,15 @@
     </div>
   </header>
 
-  <main class="leisure-shell">
+  <main class="shell">
+    <!-- Hero -->
     <section class="leisure-hero">
       <div>
         <h1>闲趣集</h1>
         <p class="lead">按时间和心情精选，今晚看什么、听什么、读什么。</p>
       </div>
       <aside class="taste-card">
-        <div class="taste-card-inner">
+        <div class="panel-inner">
           <h2>口味档案</h2>
           <div class="taste-meter"><span></span></div>
           <div class="taste-tags" id="taste-tags"></div>
@@ -802,6 +43,16 @@
       </aside>
     </section>
 
+    <!-- 导航菜单 -->
+    <nav class="nav-menu">
+      <a data-nav="index" class="active" href="index.html"><span class="nav-icon">🏠</span>首页</a>
+      <a data-nav="movies" href="movies.html"><span class="nav-icon">🎬</span>影视</a>
+      <a data-nav="music" href="music.html"><span class="nav-icon">🎵</span>音乐</a>
+      <a data-nav="podcasts" href="podcasts.html"><span class="nav-icon">🎙️</span>播客</a>
+      <a data-nav="novels" href="novels.html"><span class="nav-icon">📖</span>小说</a>
+    </nav>
+
+    <!-- 今晚首推 + 候选 -->
     <section class="recommend-workbench">
       <section class="panel featured-panel">
         <div class="panel-inner">
@@ -818,8 +69,7 @@
       </aside>
     </section>
 
-    <section class="sections-area" id="sections-area"></section>
-
+    <!-- 闲趣批注 -->
     <section class="leisure-note">
       <div>
         <p class="note-label">闲趣批注</p>
@@ -832,7 +82,7 @@
     </section>
   </main>
 
-  <!-- ====== 详情弹窗 ====== -->
+  <!-- 详情弹窗 -->
   <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
     <div class="detail-sheet" id="detail-sheet" onclick="event.stopPropagation()">
       <button class="detail-close" onclick="closeDetail()">✕</button>
@@ -844,247 +94,190 @@
     <p>牛秘书闲趣集 · <a href="/niu-secretary/">牛秘书品牌主页</a></p>
   </footer>
 
+  <script src="js/nav.js"></script>
   <script>
-    // ====== Scroll reveal animation ======
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-          observer.unobserve(entry.target);
-        }
+    const LEISURE_ACTION_API = '/niu-secretary/api/actions/execute';
+    async function callLeisureAction(action, input) {
+      const res = await fetch(LEISURE_ACTION_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, input, context: { client: 'leisure-page' } })
       });
-    }, observerOptions);
-
-    // Apply scroll reveal to sections
-    function applyScrollReveal() {
-      document.querySelectorAll('.panel, .sections-area .panel').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(24px)';
-        el.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-        observer.observe(el);
-      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) throw new Error(data.message || ('动作接口失败：' + res.status));
+      return data;
     }
 
-    // ====== 全局状态 ======
-    const COLOR_MAP = { '影视': '#66848e', '音乐': '#c9975f', '播客': '#243746', '小说': '#7f8a6a', '阅读': '#7f8a6a' };
-    const ICON_MAP = { '影视': '影', '音乐': '乐', '播客': '播', '小说': '书', '小说': '书' };
-    let allData = {}; // 存放所有加载的原始数据
-    let currentFallback = false;
-
-    function closeDetail(e) {
-      if (!e || e.target === document.getElementById('detail-overlay')) {
-        document.getElementById('detail-overlay').classList.remove('active');
-        document.getElementById('detail-content').innerHTML = '';
+    // 画像驱动的口味档案（后端为权威，空则回落到静态标签）
+    async function loadTasteProfile() {
+      const tagsEl = document.getElementById('taste-tags');
+      try {
+        const data = await callLeisureAction('profile.get', { module: 'leisure' });
+        const p = data.profile || {};
+        const tags = [];
+        const g = p.genres || {};
+        ['movie', 'music', 'podcast', 'novel'].forEach(function(k) {
+          (Array.isArray(g[k]) ? g[k] : []).forEach(function(x) { if (x) tags.push(x); });
+        });
+        (Array.isArray(p.moods) ? p.moods : []).forEach(function(m) { if (m) tags.push(m); });
+        const unique = Array.from(new Set(tags));
+        if (unique.length) {
+          tagsEl.innerHTML = unique.slice(0, 8).map(function(t) { return '<span>' + t + '</span>'; }).join('');
+        } else {
+          tagsEl.innerHTML = ['去主页和牛秘书 AI 聊聊', '说说你爱看什么'].map(function(t) { return '<span>' + t + '</span>'; }).join('');
+        }
+      } catch (e) {
+        tagsEl.innerHTML = ['轻松', '不烧脑', '90 分钟内', '华语'].map(function(t) { return '<span>' + t + '</span>'; }).join('');
       }
     }
 
-    function showDetail(item, rawItem) {
-      const overlay = document.getElementById('detail-overlay');
-      const content = document.getElementById('detail-content');
-      let html = `<h3>${item.title}</h3>`;
-      html += `<div class="sub">${item.reason || ''}</div>`;
+    // 实时获取日程/运动数据（后端为唯一数据源）
+    async function loadRealtimeContext() {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const detailEl = document.getElementById('daily-context-detail');
+      const noteEl = document.getElementById('daily-context-note');
 
-      if (item.type === '影视' && rawItem) {
-        html += '<div class="detail-grid">';
-        html += `<div class="dg-item"><div class="dg-label">🎬 类型</div><div class="dg-value">${(rawItem.genres || []).join(', ') || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">📅 年份</div><div class="dg-value">${rawItem.year || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">🌍 地区</div><div class="dg-value">${rawItem.region || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">⏱️ 时长</div><div class="dg-value">${rawItem.duration || item.duration || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">⭐ 豆瓣评分</div><div class="dg-value">${rawItem.doubanRating || '暂无'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">📊 匹配度</div><div class="dg-value">${item.score || rawItem.matchScore || 80}%</div></div>`;
-        html += '</div>';
-        if (rawItem.description) html += `<p style="font-size:14px;line-height:1.7;color:var(--ink)">${rawItem.description}</p>`;
-        if (rawItem.actors) html += `<p style="font-size:13px;color:var(--muted);margin-top:8px"><strong>主演：</strong>${rawItem.actors}</p>`;
-        if (rawItem.director) html += `<p style="font-size:13px;color:var(--muted);"><strong>导演：</strong>${rawItem.director}</p>`;
-        html += '<div class="detail-actions">';
-        if (rawItem.doubanUrl) html += `<a class="primary-link" href="${rawItem.doubanUrl}" target="_blank">📺 豆瓣详情</a>`;
-        html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
-        html += '</div>';
-      } else if (item.type === '音乐' && rawItem) {
-        html += `<p style="font-size:14px;margin-bottom:12px;color:var(--muted)"><strong>类型：</strong>${rawItem.genre || '-'} · <strong>语言：</strong>${rawItem.language || '-'} · <strong>${rawItem.trackCount || 0}首</strong></p>`;
-        if (rawItem.tracks && rawItem.tracks.length) {
-          html += '<ul class="track-list">';
-          rawItem.tracks.forEach((t, i) => {
-            html += `<li><span class="track-num">${i+1}</span>${t.name || t}<span style="margin-left:auto;color:var(--muted);font-size:12px">${t.artist || t.duration || ''}</span></li>`;
-          });
-          html += '</ul>';
+      // 并行拉取日程和运动数据
+      let taskCount = 0, busyLevel = '适中', hasWorkout = false, intensity = '无';
+      let scheduleOk = false, fitnessOk = false;
+
+      try {
+        const schedRes = await callLeisureAction('schedule.event.list', { from: todayStr, to: todayStr });
+        taskCount = (schedRes.items || []).length;
+        busyLevel = taskCount >= 5 ? '繁忙' : taskCount >= 3 ? '适中' : '轻松';
+        scheduleOk = true;
+      } catch (e) { /* 后端不可用时保持默认 */ }
+
+      try {
+        const fitRes = await callLeisureAction('fitness.nutrition.list', { from: todayStr, to: todayStr });
+        const logs = fitRes.items || [];
+        hasWorkout = logs.length > 0;
+        if (hasWorkout) {
+          const totalCal = logs.reduce((s, l) => s + Number(l.calories || 0), 0);
+          intensity = totalCal > 1500 ? '高' : totalCal > 800 ? '中等' : '低';
         }
-        html += `<p style="font-size:14px;line-height:1.7;color:var(--ink)">${rawItem.description || rawItem.reason || ''}</p>`;
-        html += '<div class="detail-actions">';
-        if (rawItem.platformUrl) html += `<a class="primary-link" href="${rawItem.platformUrl}" target="_blank">🎵 网易云音乐</a>`;
-        html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
-        html += '</div>';
-      } else if (item.type === '播客' && rawItem) {
-        html += `<p style="font-size:14px;margin-bottom:12px;color:var(--muted)"><strong>播客：</strong>${rawItem.podcast || '-'} · <strong>单集：</strong>${rawItem.episode || rawItem.title || '-'}</p>`;
-        html += `<p style="font-size:14px;line-height:1.7;color:var(--ink)">${rawItem.description || rawItem.reason || ''}</p>`;
-        html += `<div class="detail-grid">`;
-        html += `<div class="dg-item"><div class="dg-label">🎙️ 类型</div><div class="dg-value">${(rawItem.genres || []).join(', ') || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">⏱️ 时长</div><div class="dg-value">${rawItem.duration || item.duration || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">📊 匹配度</div><div class="dg-value">${item.score || rawItem.matchScore || 80}%</div></div>`;
-        html += '</div>';
-        html += '<div class="detail-actions">';
-        if (rawItem.platformUrl) html += `<a class="primary-link" href="${rawItem.platformUrl}" target="_blank">🎧 喜马拉雅</a>`;
-        html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
-        html += '</div>';
-      } else if (item.type === '小说' && rawItem) {
-        html += '<div class="detail-grid">';
-        html += `<div class="dg-item"><div class="dg-label">📚 类型</div><div class="dg-value">${(rawItem.genres || []).join(', ') || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">✍️ 作者</div><div class="dg-value">${rawItem.author || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">📖 字数</div><div class="dg-value">${rawItem.wordCount || '-'}</div></div>`;
-        html += `<div class="dg-item"><div class="dg-label">📊 匹配度</div><div class="dg-value">${item.score || rawItem.matchScore || 80}%</div></div>`;
-        html += '</div>';
-        if (rawItem.description) html += `<p style="font-size:14px;line-height:1.7;color:var(--ink);margin-bottom:12px">${rawItem.description}</p>`;
-        html += '<div class="detail-actions">';
-        html += '<a class="primary-link" href="https://www.qidian.com" target="_blank">📖 起点读书</a>';
-        if (rawItem.platformUrl) html += `<a href="${rawItem.platformUrl}" target="_blank">🔗 在线阅读</a>`;
-        html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
-        html += '</div>';
-      } else {
-        html += `<p style="font-size:14px;line-height:1.7;color:var(--ink)">${item.reason || ''}</p>`;
-        html += '<div class="detail-actions"><a href="#" onclick="closeDetail();return false">关闭</a></div>';
-      }
+        fitnessOk = true;
+      } catch (e) { /* 后端不可用时保持默认 */ }
 
-      content.innerHTML = html;
-      overlay.classList.add('active');
-    }
-
-    (async function() {
-      const tasteTags = ['轻松', '不烧脑', '90 分钟内', '华语'];
-      document.getElementById('taste-tags').innerHTML = tasteTags.map(tag => `<span>${tag}</span>`).join('');
-
-      // 加载上下文
+      // 同时加载 cron 生成的 AI 批注（dailyNote 等）
+      let dailyNote = '', moodLabel = '平衡舒缓', cronTime = '';
       try {
         const ctxRes = await fetch('data/context.json');
         if (ctxRes.ok) {
           const ctx = await ctxRes.json();
-          document.getElementById('daily-context-note').innerHTML = `<strong>${ctx.dailyNote}</strong>`;
-          document.getElementById('daily-context-detail').textContent = `日程${ctx.schedule.busyLevel}(${ctx.schedule.taskCount}项) · 运动${ctx.fitness.hasWorkout ? ctx.fitness.intensity : '休息'} · ${ctx.moodProfile.label} · 更新于 ${ctx.generated.slice(11,16)}`;
+          dailyNote = ctx.dailyNote || '';
+          moodLabel = (ctx.moodProfile && ctx.moodProfile.label) || '平衡舒缓';
+          cronTime = ctx.generated ? ctx.generated.slice(11, 16) : '';
         }
-      } catch(e) {}
+      } catch (e) {}
 
-      function normalize(item, type, href, fallbackDuration, index) {
-        allData[`${type}:${index || 0}`] = item;
-        let dur = item.duration || fallbackDuration;
-        if (typeof dur === 'number') dur = dur + '分钟';
-        if (typeof dur === 'string' && /^\d+$/.test(dur)) dur = dur + '分钟';
-        return {
-          type,
-          href,
-          title: item.title || item.name || type,
-          reason: item.reason || '',
-          score: item.matchScore || 80,
-          duration: dur,
-          rawIndex: index || 0,
-        };
+      // 渲染：优先用实时数据，AI 批注用 cron 生成的
+      if (dailyNote) {
+        noteEl.innerHTML = `<strong>${dailyNote}</strong>`;
+      } else {
+        // cron 未生成或失败时，根据实时数据生成简单的批注
+        const mood = busyLevel === '繁忙' ? '轻量放松' : busyLevel === '轻松' ? '烧脑沉浸' : '平衡舒缓';
+        noteEl.innerHTML = `<strong>今天日程${busyLevel}（${taskCount}项），${hasWorkout ? '有运动记录' : '暂无运动'}——适合${mood}的内容。</strong>`;
       }
 
-      // 兼容 JSON 数组 [] 或 {items:[]} 格式
-      function getItems(data) {
-        if (Array.isArray(data)) return data;
-        if (data && Array.isArray(data.items)) return data.items;
-        return [];
-      }
+      const timeLabel = scheduleOk || fitnessOk ? '实时' : (cronTime ? `更新于 ${cronTime}` : '默认');
+      detailEl.textContent = `日程${busyLevel}(${taskCount}项) · 运动${hasWorkout ? intensity : '休息'} · ${moodLabel} · ${timeLabel}`;
+    }
 
-      // 加载数据（精选 + 版块）
+    (async function() {
+      // 画像不阻塞主内容渲染
+      loadTasteProfile();
+
+      // 实时上下文（后端 API 优先，cron 静态文件补充 AI 批注）
+      loadRealtimeContext();
+
+      // 加载所有数据
+      let allData = {};
+      const [moviesData, musicData, podcastsData, novelsData] = await Promise.all([
+        loadSectionData('movies', 'data/movies.json'),
+        loadSectionData('music', 'data/music.json'),
+        loadSectionData('podcasts', 'data/podcasts.json'),
+        loadSectionData('novels', 'data/novels.json'),
+      ]);
+
+      function reg(type, data) {
+        (data || []).forEach((item, i) => { allData[`${type}:${i}`] = item; });
+      }
+      reg('影视', moviesData); reg('音乐', musicData); reg('播客', podcastsData); reg('小说', novelsData);
+
+      // 构建精选列表：优先用画像驱动的 leisure.recommend，失败回落到默认顺序
       const items = [];
-      const sectionData = {};
+      const CAT_TYPE = { movie: '影视', music: '音乐', podcast: '播客', novel: '小说' };
+      const CAT_DATA = { movie: moviesData, music: musicData, podcast: podcastsData, novel: novelsData };
+      const CAT_DUR = { movie: '45分钟', music: '30分钟', podcast: '18分钟', novel: '60分钟' };
+
+      let usedRecommend = false;
       try {
-        const [moviesRes, musicRes, podcastsRes, novelsRes] = await Promise.allSettled([
-          fetch('data/movies.json'), fetch('data/music.json'),
-          fetch('data/podcasts.json'), fetch('data/novels.json'),
-        ]);
-        if (moviesRes.status === 'fulfilled' && moviesRes.value.ok) {
-          const data = await moviesRes.value.json();
-          sectionData.movies = getItems(data);
-          sectionData.movies.slice(0, 2).forEach((item, i) => items.push(normalize(item, '影视', '#', '45分钟', i)));
-        }
-        if (musicRes.status === 'fulfilled' && musicRes.value.ok) {
-          const data = await musicRes.value.json();
-          sectionData.music = getItems(data);
-          sectionData.music.slice(0, 1).forEach((item, i) => items.push(normalize(item, '音乐', '#', '30分钟', i)));
-        }
-        if (podcastsRes.status === 'fulfilled' && podcastsRes.value.ok) {
-          const data = await podcastsRes.value.json();
-          sectionData.podcasts = getItems(data);
-          sectionData.podcasts.slice(0, 1).forEach((item, i) => items.push(normalize(item, '播客', '#', '18分钟', i)));
-        }
-        if (novelsRes.status === 'fulfilled' && novelsRes.value.ok) {
-          const data = await novelsRes.value.json();
-          sectionData.novels = getItems(data);
-          sectionData.novels.slice(0, 1).forEach((item, i) => items.push(normalize(item, '小说', '#', '60分钟', i)));
-        }
-      } catch(e) { items.length = 0; }
+        const rec = await callLeisureAction('leisure.recommend', { limit: 2 });
+        const groups = rec.groups || [];
+        groups.forEach(function(group) {
+          const type = CAT_TYPE[group.category];
+          const dataArr = CAT_DATA[group.category] || [];
+          (group.items || []).forEach(function(recItem) {
+            // 用 id 在原始数据里找下标，以复用 allData / showDetail
+            const idx = dataArr.findIndex(function(d) { return d.id && d.id === recItem.id; });
+            if (idx >= 0) {
+              items.push(normalize(dataArr[idx], type, '#', CAT_DUR[group.category], idx));
+            }
+          });
+        });
+        usedRecommend = items.length > 0;
+      } catch (e) { /* 回落 */ }
+
+      if (!usedRecommend) {
+        moviesData.slice(0, 2).forEach((item, i) => items.push(normalize(item, '影视', '#', '45分钟', i)));
+        musicData.slice(0, 1).forEach((item, i) => items.push(normalize(item, '音乐', '#', '30分钟', i)));
+        podcastsData.slice(0, 1).forEach((item, i) => items.push(normalize(item, '播客', '#', '18分钟', i)));
+        novelsData.slice(0, 1).forEach((item, i) => items.push(normalize(item, '小说', '#', '60分钟', i)));
+      }
 
       if (items.length === 0) {
-        currentFallback = true;
         items.push(
-          { type: '影视', href: '#', title: '短片 / 剧集', reason: '睡前不沉重，适合晚间放松', score: 86, duration: '45分钟' },
-          { type: '音乐', href: '#', title: '音乐电台', reason: '通勤与整理房间时都能听', score: 82, duration: '30分钟' },
-          { type: '播客', href: '#', title: '播客片段', reason: '只听重点章节，不占用整晚', score: 80, duration: '18分钟' },
-          { type: '小说', href: '#', title: '睡前阅读', reason: '轻散文或人物访谈，适合收尾', score: 78, duration: '12分钟' },
+          { type: '影视', href: '#', title: '短片 / 剧集', reason: '睡前不沉重', score: 86, duration: '45分钟' },
+          { type: '音乐', href: '#', title: '音乐电台', reason: '通勤时也能听', score: 82, duration: '30分钟' },
+          { type: '播客', href: '#', title: '播客片段', reason: '只听重点', score: 80, duration: '18分钟' },
+          { type: '小说', href: '#', title: '睡前阅读', reason: '轻散文收尾', score: 78, duration: '12分钟' },
         );
       }
 
-      // 加载偏好用于个性化说明
-      let prefInfo = { movies: { genres: [], moods: [] }, music: { scenes: [] }, novels: { genres: [] } };
-      try {
-        const prefRes2 = await fetch('data/preferences.json');
-        if (prefRes2.ok) prefInfo = await prefRes2.json();
-      } catch(e) {}
-
-      // 今日推荐
+      // 首推
       const featured = items[0];
       const featuredRaw = items.length ? allData[`${featured.type}:${featured.rawIndex || 0}`] : null;
-      const typeLabel = featured.type === '影视' ? '电影口味' : featured.type === '音乐' ? '音乐品味' : featured.type === '播客' ? '播客偏好' : '阅读兴趣';
-      let preferenceNote = '与你的口味档案匹配';
-      if (prefInfo && prefInfo.movies && featured.type === '影视') {
-        const g = prefInfo.movies.genres || [];
-        const m = prefInfo.movies.moods || [];
-        if (g.length + m.length > 0) preferenceNote = '偏好：' + [...g.slice(0, 2), ...m.slice(0, 1)].join('、');
-      }
 
-      // 海报图片：兼容 coverUrl / posterUrl，同时检查本地 poster-mov_*.jpg
       const posterUrl = (featuredRaw && (featuredRaw.posterUrl || featuredRaw.coverUrl)) || '';
-      const fallbackPoster = featuredRaw && featuredRaw.id ? `data/poster-${featuredRaw.id}.jpg` : '';
-      const finalPoster = posterUrl || fallbackPoster;
-      const posterStyle = finalPoster
-        ? `background: url(${finalPoster}) center/cover no-repeat;`
-        : `background: linear-gradient(145deg, rgba(36,55,70,.18), transparent), linear-gradient(160deg, #243746, #66848e 48%, #d5ae76);`;
+      const finalPoster = posterUrl || (featuredRaw && featuredRaw.id ? `data/poster-${featuredRaw.id}.jpg` : '');
 
-      // 构建丰富的元数据展示
       let metaHtml = '';
       if (featuredRaw) {
-        const metaParts = [];
-        if (featuredRaw.type) metaParts.push(featuredRaw.type);
-        if (featuredRaw.year) metaParts.push(featuredRaw.year + '年');
-        if (featuredRaw.region) metaParts.push(featuredRaw.region);
+        const mp = [];
+        if (featuredRaw.type) mp.push(featuredRaw.type);
+        if (featuredRaw.year) mp.push(featuredRaw.year + '年');
+        if (featuredRaw.region) mp.push(featuredRaw.region);
         if (featuredRaw.duration) {
-          const dur = typeof featuredRaw.duration === 'number' ? featuredRaw.duration + '分钟' : featuredRaw.duration;
-          metaParts.push(dur);
+          const d = typeof featuredRaw.duration === 'number' ? featuredRaw.duration + '分钟' : featuredRaw.duration;
+          mp.push(d);
         }
-        if (featuredRaw.doubanRating) metaParts.push('⭐ ' + featuredRaw.doubanRating);
-        if (metaParts.length) metaHtml = `<div class="feature-meta">${metaParts.join(' · ')}</div>`;
-
+        if (featuredRaw.doubanRating) mp.push('⭐ ' + featuredRaw.doubanRating);
+        if (mp.length) metaHtml = `<div class="feature-meta">${mp.join(' · ')}</div>`;
         if (featuredRaw.genres && featuredRaw.genres.length) {
           metaHtml += `<div class="feature-tags">${featuredRaw.genres.map(g => `<span>${g}</span>`).join('')}</div>`;
         }
-
-        if (featuredRaw.director) {
-          metaHtml += `<div class="feature-credit">导演：${featuredRaw.director}</div>`;
-        }
-        if (featuredRaw.actors) {
-          metaHtml += `<div class="feature-credit">主演：${featuredRaw.actors}</div>`;
-        }
+        if (featuredRaw.director) metaHtml += `<div class="feature-credit">导演：${featuredRaw.director}</div>`;
+        if (featuredRaw.actors) metaHtml += `<div class="feature-credit">主演：${featuredRaw.actors}</div>`;
       }
 
       document.getElementById('featured-choice').innerHTML = `
-        <div class="poster" style="${posterStyle}" aria-hidden="true"></div>
+        <div class="poster" aria-hidden="true">
+          ${finalPoster
+            ? `<img class="poster-img" src="${finalPoster}" alt="${featured.title}" onerror="this.style.display='none'">`
+            : ''}
+          <span class="poster-label">今夜</span>
+        </div>
         <div class="feature-copy">
           <h3>${featured.title}</h3>
           ${metaHtml}
@@ -1094,47 +287,26 @@
         </div>
       `;
 
-      // 候选列表
-      document.getElementById('candidate-list').innerHTML = items.map((item, idx) => {
-        const rawItem = allData[`${item.type}:${item.rawIndex || 0}`];
-        return `<div class="candidate" onclick="showDetail(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${rawItem ? JSON.stringify(rawItem).replace(/"/g, '&quot;') : 'null'})">
-          <span class="candidate-icon" style="background:${COLOR_MAP[item.type] || '#66848e'}">${ICON_MAP[item.type] || '趣'}</span>
-          <span>
-            <b>${item.type} · ${item.title}</b>
-            <small>${item.reason}</small>
-          </span>
-          <span class="time-pill">${item.duration}</span>
-        </div>`;
+      // 候选列表 - 按类别汇总，只显示4个类别卡片
+      const categorySummary = [
+        { type: '影视', icon: '影', color: '#66848e', count: moviesData.length, desc: moviesData.slice(0, 2).map(m => m.title).join('、') || '暂无' },
+        { type: '音乐', icon: '音', color: '#8b5a3c', count: musicData.length, desc: musicData.slice(0, 2).map(m => m.title).join('、') || '暂无' },
+        { type: '播客', icon: '播', color: '#a67c52', count: podcastsData.length, desc: podcastsData.slice(0, 2).map(p => p.title || p.episode).join('、') || '暂无' },
+        { type: '小说', icon: '书', color: '#c4a57b', count: novelsData.length, desc: novelsData.slice(0, 2).map(n => n.title).join('、') || '暂无' }
+      ];
+
+      document.getElementById('candidate-list').innerHTML = categorySummary.map((cat) => {
+        return `<a href="${cat.type}.html" class="candidate category-card">
+          <span class="candidate-icon" style="background:${cat.color}">${cat.icon}</span>
+          <div class="candidate-content">
+            <b>${cat.type}</b>
+            <small>${cat.desc}</small>
+          </div>
+          <span class="count-badge">${cat.count}项</span>
+        </a>`;
       }).join('');
 
-      // ====== 四版块完整展示 ======
-      const sections = [
-        { key: 'movies', title: '🎬 影视推荐', type: '影视', icon: '🎬' },
-        { key: 'music', title: '🎵 音乐推荐', type: '音乐', icon: '🎵' },
-        { key: 'podcasts', title: '🎙️ 播客推荐', type: '播客', icon: '🎙️' },
-        { key: 'novels', title: '📖 小说推荐', type: '小说', icon: '📖' },
-      ];
-      let sectionsHtml = '';
-      sections.forEach(sec => {
-        const data = sectionData[sec.key];
-        if (!data || data.length === 0) return;
-        sectionsHtml += `<div class="panel"><div class="panel-inner"><div class="sec-title">${sec.title}</div><div class="sec-grid">`;
-        data.forEach(item => {
-          const norm = normalize(item, sec.type, '#', '30分钟', 0);
-          sectionsHtml += `<div class="sec-card" onclick="showDetail(${JSON.stringify(norm).replace(/"/g, '&quot;')}, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
-            <div class="sec-card-inner">
-              ${item.posterUrl ? `<div style="width:100%;height:140px;border-radius:10px;background:url(${item.posterUrl}) center/cover no-repeat;margin-bottom:10px"></div>` : ''}
-              <h4>${item.title || item.name}</h4>
-              <div class="card-tags">${(item.genres || []).slice(0, 3).map(g => `<span>${g}</span>`).join('')}</div>
-              <div class="card-reason">${item.reason || ''}</div>
-              <div class="card-score">匹配度 ${item.matchScore || 80}%</div>
-            </div>
-          </div>`;
-        });
-        sectionsHtml += '</div></div></div>';
-      });
-      document.getElementById('sections-area').innerHTML = sectionsHtml;
-      applyScrollReveal();
+      initScrollReveal();
     })();
   </script>
 </body>
