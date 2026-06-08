@@ -119,6 +119,34 @@ create table if not exists research_candidates (
     unique(profile_name, source, source_id)
 );
 
+create table if not exists candidate_papers (
+    canonical_key text primary key,
+    title text not null,
+    url text not null default '',
+    venue text not null default '',
+    published_date text not null default '',
+    year integer,
+    abstract text not null default '',
+    best_score real not null default 0,
+    profiles_json text not null default '[]',
+    sources_json text not null default '[]',
+    source_urls_json text not null default '[]',
+    candidate_ids_json text not null default '[]',
+    status text not null default 'candidate',
+    created_at text not null,
+    updated_at text not null
+);
+
+create table if not exists candidate_paper_links (
+    canonical_key text not null references candidate_papers(canonical_key) on delete cascade,
+    research_candidate_id integer not null references research_candidates(id) on delete cascade,
+    profile_name text not null,
+    source text not null,
+    score real not null default 0,
+    created_at text not null,
+    primary key(canonical_key, research_candidate_id)
+);
+
 create table if not exists provider_query_cache (
     id integer primary key autoincrement,
     provider text not null,
@@ -148,6 +176,10 @@ create index if not exists idx_sync_events_started_at on sync_events(started_at)
 create index if not exists idx_discovery_runs_profile_name on discovery_runs(profile_name);
 create index if not exists idx_research_candidates_profile_score on research_candidates(profile_name, score desc);
 create index if not exists idx_research_candidates_status on research_candidates(status);
+
+create index if not exists idx_candidate_papers_best_score on candidate_papers(best_score desc);
+create index if not exists idx_candidate_papers_status on candidate_papers(status);
+create index if not exists idx_candidate_paper_links_candidate_id on candidate_paper_links(research_candidate_id);
 
 create index if not exists idx_provider_query_cache_provider_key on provider_query_cache(provider, cache_key);
 create index if not exists idx_provider_query_cache_expires_at on provider_query_cache(expires_at);

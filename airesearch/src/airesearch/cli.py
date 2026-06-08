@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 import argparse
+import sqlite3
 from pathlib import Path
 
 from airesearch.batch import run_batch_ingest
 from airesearch.candidates import export_candidates, list_candidates
+from airesearch.canonical_candidates import (
+    export_canonical_candidates,
+    list_canonical_candidates,
+    materialize_candidate_papers,
+)
 from airesearch.config import Settings
 from airesearch.db import connect, init_db
 from airesearch.discovery import run_discovery
@@ -48,14 +54,23 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--profile", required=True)
     export.add_argument("--limit", type=int, default=100)
     export.add_argument("--out", type=Path, required=True)
+    subparsers.add_parser("dedupe-candidates")
+    canonical_listing = subparsers.add_parser("list-canonical-candidates")
+    canonical_listing.add_argument("--limit", type=int, default=20)
+    canonical_export = subparsers.add_parser("export-canonical-candidates")
+    canonical_export.add_argument("--limit", type=int, default=100)
+    canonical_export.add_argument("--out", type=Path, required=True)
     return parser
 
 
 def count_table(db_path: Path, table: str) -> int:
     if not db_path.exists():
         return 0
-    with connect(db_path) as conn:
-        row = conn.execute(f"select count(*) as count from {table}").fetchone()
+    try:
+        with connect(db_path) as conn:
+            row = conn.execute(f"select count(*) as count from {table}").fetchone()
+    except sqlite3.OperationalError:
+        return 0
     return int(row["count"])
 
 
@@ -75,6 +90,7 @@ def print_status(db_path: Path) -> None:
     print(f"artifacts: {count_table(db_path, 'paper_artifacts')}")
     print(f"profiles: {count_table(db_path, 'research_profiles')}")
     print(f"candidates: {count_table(db_path, 'research_candidates')}")
+    print(f"canonical_candidates: {count_table(db_path, 'candidate_papers')}")
     print(
         "latest_sync: "
         + latest_value(
@@ -199,6 +215,32 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export-candidates":
         count = export_candidates(args.db, args.profile, args.limit, args.out)
         print(f"candidates_exported={count} out={args.out}")
+        return 0
+
+    if args.command == "dedupe-candidates":
+        result = materialize_candidate_papers(args.db)
+        print(
+            "candidates_seen={seen} canonical={canonical} links={links} skipped={skipped}".format(
+                seen=result.candidates_seen,
+                canonical=result.canonical_count,
+                links=result.links_count,
+                skipped=result.skipped_count,
+            )
+        )
+        return 0
+
+    if args.command == "list-canonical-candidates":
+        rows = list_canonical_candidates(args.db, args.limit)
+        for row in rows:
+            print(
+                f"{row['best_score']:.4f} | {row['published_date']} | "
+                f"{row['sources_json']} | {row['profiles_json']} | {row['title']} | {row['url']}"
+            )
+        return 0
+
+    if args.command == "export-canonical-candidates":
+        count = export_canonical_candidates(args.db, args.limit, args.out)
+        print(f"canonical_candidates_exported={count} out={args.out}")
         return 0
 
     parser.error(f"unknown command: {args.command}")
