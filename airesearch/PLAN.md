@@ -20,7 +20,7 @@
 | L0 paperpipe smoke test | Done | `papi add/list/show/search/index/ask` pass on `1706.03762` using separated LLM and embedding API config. |
 | AIResearch SQLite ledger | Done | Stage 2A implemented: SQLite schema, paperpipe sync, batch ingest, CLI, tests, and local verification. |
 | L1 discovery | Done | Stage 2B profiles, scoring, candidate storage, discovery orchestration, CLI, OpenAlex/arXiv/Semantic Scholar providers, opt-in quota-safe Google Scholar provider, provider-level error handling, Top 100 manifest export, canonical candidate dedupe, canonical review workflow, and first approved canonical batch ingestion completed. |
-| L2 knowledge graph | In progress | Stage 2D.0 deterministic paper cards and Stage 2D.1 quota-safe research fact extraction substrate implemented; real cloud LLM provider not connected yet. |
+| L2 knowledge graph | In progress | Stage 2D.0 deterministic paper cards, Stage 2D.1 quota-safe research fact extraction substrate, and deterministic GitHub code-link extraction implemented; real cloud LLM provider not connected yet. |
 | L3 reports | Not started | Paper Card/Digest/Map/Gap Analysis not implemented. |
 
 ## Completed
@@ -74,6 +74,7 @@
 - [x] Approved top 10 canonical candidates with `score >= 0.70`, exported `manifests/approved-stage-2c.txt`, batch-ingested all 10 through paperpipe, and synced the ledger.
 - [x] Implemented Stage 2D.0 deterministic L2 paper cards, graph nodes/edges, provenance records, extraction audit runs, and paper card export.
 - [x] Implemented Stage 2D.1 fixture-backed research fact extraction substrate with fact/provenance tables, validation, CLI, and JSONL export.
+- [x] Implemented deterministic GitHub code-link extraction from paper metadata and `source_tex`, with CLI listing/export and project URL normalization.
 
 ## In Progress
 
@@ -82,7 +83,8 @@
 - [x] Stage 2C.2: review approved canonical candidates and run batch ingestion through Stage 2A.
 - [x] Stage 2D.0: generate deterministic paper cards and provenance graph from paperpipe metadata.
 - [x] Stage 2D.1: add LLM-shaped method/dataset/benchmark/claim extraction substrate with cited provenance and fixture provider.
-- [ ] Stage 2D.2: connect a real quota-controlled cloud LLM provider for selected papers.
+- [x] Stage 2D.2: extract GitHub project links from abstract-like metadata and TeX source artifacts.
+- [ ] Stage 2D.3: connect a real quota-controlled cloud LLM provider for selected papers.
 
 ## Stage 2B Completed Tasks
 

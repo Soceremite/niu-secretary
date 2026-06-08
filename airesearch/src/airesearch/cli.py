@@ -14,6 +14,7 @@ from airesearch.canonical_candidates import (
     select_top_canonical_candidates,
     set_canonical_status,
 )
+from airesearch.code_links import export_code_links, extract_code_links, list_code_links
 from airesearch.config import Settings
 from airesearch.db import connect, init_db
 from airesearch.fact_extraction import (
@@ -96,6 +97,14 @@ def build_parser() -> argparse.ArgumentParser:
     fact_listing.add_argument("--limit", type=int, default=20)
     fact_export = subparsers.add_parser("export-research-facts")
     fact_export.add_argument("--out", type=Path, required=True)
+    code_extract = subparsers.add_parser("extract-code-links")
+    code_extract.add_argument("--paper-key")
+    code_extract.add_argument("--limit", type=int)
+    code_listing = subparsers.add_parser("list-code-links")
+    code_listing.add_argument("--paper-key")
+    code_listing.add_argument("--limit", type=int, default=20)
+    code_export = subparsers.add_parser("export-code-links")
+    code_export.add_argument("--out", type=Path, required=True)
     return parser
 
 
@@ -131,6 +140,7 @@ def print_status(db_path: Path) -> None:
     print(f"kg_nodes: {count_table(db_path, 'kg_nodes')}")
     print(f"kg_edges: {count_table(db_path, 'kg_edges')}")
     print(f"research_facts: {count_table(db_path, 'research_facts')}")
+    print(f"code_links: {count_table(db_path, 'paper_code_links')}")
     print(
         "latest_sync: "
         + latest_value(
@@ -372,6 +382,23 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export-research-facts":
         count = export_research_facts(args.db, args.out)
         print(f"research_facts_exported={count} out={args.out}")
+        return 0
+
+
+    if args.command == "extract-code-links":
+        result = extract_code_links(args.db, paper_key=args.paper_key, limit=args.limit)
+        print(f"papers_seen={result.papers_seen} code_links={result.links_written}")
+        return 0
+
+    if args.command == "list-code-links":
+        rows = list_code_links(args.db, paper_key=args.paper_key, limit=args.limit)
+        for row in rows:
+            print(f"{row['paper_key']} | {row['source_type']} | {row['url']}")
+        return 0
+
+    if args.command == "export-code-links":
+        count = export_code_links(args.db, args.out)
+        print(f"code_links_exported={count} out={args.out}")
         return 0
 
     parser.error(f"unknown command: {args.command}")

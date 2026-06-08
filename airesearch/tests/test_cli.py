@@ -302,3 +302,33 @@ def test_cli_extract_list_and_export_research_facts(tmp_path: Path, capsys):
     assert "research_facts: 2" in status_out
     payload = json.loads(out_path.read_text(encoding="utf-8").splitlines()[0])
     assert payload["evidence_quote"]
+
+
+def test_cli_extract_list_and_export_code_links(tmp_path: Path, capsys):
+    import json
+
+    db_path = tmp_path / "airesearch.sqlite3"
+    paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    out_path = tmp_path / "code_links.jsonl"
+    main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
+    capsys.readouterr()
+
+    extract_code = main(["--db", str(db_path), "extract-code-links"])
+    extract_out = capsys.readouterr().out
+    list_code = main(["--db", str(db_path), "list-code-links", "--limit", "5"])
+    list_out = capsys.readouterr().out
+    export_code = main(["--db", str(db_path), "export-code-links", "--out", str(out_path)])
+    export_out = capsys.readouterr().out
+    status_code = main(["--db", str(db_path), "status"])
+    status_out = capsys.readouterr().out
+
+    assert extract_code == 0
+    assert "code_links=1" in extract_out
+    assert list_code == 0
+    assert "https://github.com/attention/transformer" in list_out
+    assert export_code == 0
+    assert "code_links_exported=1" in export_out
+    assert status_code == 0
+    assert "code_links: 1" in status_out
+    payload = json.loads(out_path.read_text(encoding="utf-8").strip())
+    assert payload["repo"] == "transformer"

@@ -217,6 +217,21 @@ create table if not exists kg_provenance (
     unique(entity_type, entity_key, source_table, source_key, source_field, extractor_name)
 );
 
+create table if not exists paper_code_links (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    url text not null,
+    host text not null default '',
+    owner text not null default '',
+    repo text not null default '',
+    source_type text not null,
+    source_path text not null default '',
+    context text not null default '',
+    created_at text not null,
+    updated_at text not null,
+    unique(paper_key, url, source_type, source_path)
+);
+
 create table if not exists fact_extraction_runs (
     id integer primary key autoincrement,
     provider_name text not null,
@@ -300,6 +315,10 @@ create index if not exists idx_kg_edges_relation on kg_edges(relation);
 create index if not exists idx_kg_edges_source_paper on kg_edges(source_paper_key);
 create index if not exists idx_kg_provenance_source on kg_provenance(source_table, source_key);
 create index if not exists idx_kg_provenance_paper on kg_provenance(source_paper_key);
+
+create index if not exists idx_paper_code_links_paper_key on paper_code_links(paper_key);
+create index if not exists idx_paper_code_links_host on paper_code_links(host);
+create index if not exists idx_paper_code_links_repo on paper_code_links(owner, repo);
 
 create index if not exists idx_fact_extraction_runs_status on fact_extraction_runs(status);
 create index if not exists idx_fact_extraction_runs_started_at on fact_extraction_runs(started_at);
