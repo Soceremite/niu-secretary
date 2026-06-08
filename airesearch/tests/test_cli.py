@@ -263,3 +263,42 @@ def test_cli_extract_list_and_export_paper_cards(tmp_path: Path, capsys):
     assert "paper_cards: 1" in status_out
     payload = json.loads(out_path.read_text(encoding="utf-8").strip())
     assert payload["paper_key"] == "1706_03762"
+
+
+def test_cli_extract_list_and_export_research_facts(tmp_path: Path, capsys):
+    import json
+
+    db_path = tmp_path / "airesearch.sqlite3"
+    paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    fixture = Path(__file__).parent / "fixtures" / "fact_extraction_fixture.json"
+    out_path = tmp_path / "research_facts.jsonl"
+    main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
+    capsys.readouterr()
+
+    extract_code = main([
+        "--db",
+        str(db_path),
+        "extract-research-facts",
+        "--provider",
+        "fixture",
+        "--fixture",
+        str(fixture),
+    ])
+    extract_out = capsys.readouterr().out
+    list_code = main(["--db", str(db_path), "list-research-facts", "--type", "method", "--limit", "5"])
+    list_out = capsys.readouterr().out
+    export_code = main(["--db", str(db_path), "export-research-facts", "--out", str(out_path)])
+    export_out = capsys.readouterr().out
+    status_code = main(["--db", str(db_path), "status"])
+    status_out = capsys.readouterr().out
+
+    assert extract_code == 0
+    assert "facts=2" in extract_out
+    assert list_code == 0
+    assert "Transformer replaces recurrence" in list_out
+    assert export_code == 0
+    assert "research_facts_exported=2" in export_out
+    assert status_code == 0
+    assert "research_facts: 2" in status_out
+    payload = json.loads(out_path.read_text(encoding="utf-8").splitlines()[0])
+    assert payload["evidence_quote"]

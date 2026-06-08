@@ -217,6 +217,47 @@ create table if not exists kg_provenance (
     unique(entity_type, entity_key, source_table, source_key, source_field, extractor_name)
 );
 
+create table if not exists fact_extraction_runs (
+    id integer primary key autoincrement,
+    provider_name text not null,
+    extractor_version text not null,
+    fixture_path text,
+    paper_key text,
+    limit_count integer,
+    papers_seen integer not null default 0,
+    facts_written integer not null default 0,
+    provenance_written integer not null default 0,
+    started_at text not null,
+    finished_at text,
+    status text not null,
+    error text not null default ''
+);
+
+create table if not exists research_facts (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    fact_type text not null,
+    name text not null default '',
+    statement text not null,
+    confidence real not null default 0,
+    metadata_json text not null default '{}',
+    provider_name text not null,
+    extractor_version text not null,
+    created_at text not null,
+    updated_at text not null,
+    unique(paper_key, fact_type, statement, provider_name, extractor_version)
+);
+
+create table if not exists research_fact_provenance (
+    id integer primary key autoincrement,
+    fact_id integer not null references research_facts(id) on delete cascade,
+    evidence_quote text not null,
+    evidence_artifact_type text not null default '',
+    evidence_source_path text not null default '',
+    created_at text not null,
+    unique(fact_id, evidence_quote, evidence_artifact_type)
+);
+
 create table if not exists provider_query_cache (
     id integer primary key autoincrement,
     provider text not null,
@@ -259,6 +300,12 @@ create index if not exists idx_kg_edges_relation on kg_edges(relation);
 create index if not exists idx_kg_edges_source_paper on kg_edges(source_paper_key);
 create index if not exists idx_kg_provenance_source on kg_provenance(source_table, source_key);
 create index if not exists idx_kg_provenance_paper on kg_provenance(source_paper_key);
+
+create index if not exists idx_fact_extraction_runs_status on fact_extraction_runs(status);
+create index if not exists idx_fact_extraction_runs_started_at on fact_extraction_runs(started_at);
+create index if not exists idx_research_facts_paper_key on research_facts(paper_key);
+create index if not exists idx_research_facts_type on research_facts(fact_type);
+create index if not exists idx_research_fact_provenance_artifact on research_fact_provenance(evidence_artifact_type);
 
 create index if not exists idx_provider_query_cache_provider_key on provider_query_cache(provider, cache_key);
 create index if not exists idx_provider_query_cache_expires_at on provider_query_cache(expires_at);

@@ -16,6 +16,12 @@ from airesearch.canonical_candidates import (
 )
 from airesearch.config import Settings
 from airesearch.db import connect, init_db
+from airesearch.fact_extraction import (
+    FactValidationError,
+    export_research_facts,
+    extract_research_facts,
+    list_research_facts,
+)
 from airesearch.knowledge_graph import export_paper_cards, extract_paper_cards, list_paper_cards
 from airesearch.discovery import run_discovery
 from airesearch.paperpipe_sync import sync_paperpipe
@@ -79,6 +85,17 @@ def build_parser() -> argparse.ArgumentParser:
     card_listing.add_argument("--limit", type=int, default=20)
     card_export = subparsers.add_parser("export-paper-cards")
     card_export.add_argument("--out", type=Path, required=True)
+    fact_extract = subparsers.add_parser("extract-research-facts")
+    fact_extract.add_argument("--provider", choices=["fixture"], required=True)
+    fact_extract.add_argument("--fixture", type=Path, required=True)
+    fact_extract.add_argument("--paper-key")
+    fact_extract.add_argument("--limit", type=int)
+    fact_listing = subparsers.add_parser("list-research-facts")
+    fact_listing.add_argument("--paper-key")
+    fact_listing.add_argument("--type", choices=["method", "dataset", "benchmark", "claim", "limitation"])
+    fact_listing.add_argument("--limit", type=int, default=20)
+    fact_export = subparsers.add_parser("export-research-facts")
+    fact_export.add_argument("--out", type=Path, required=True)
     return parser
 
 
@@ -113,6 +130,7 @@ def print_status(db_path: Path) -> None:
     print(f"paper_cards: {count_table(db_path, 'paper_cards')}")
     print(f"kg_nodes: {count_table(db_path, 'kg_nodes')}")
     print(f"kg_edges: {count_table(db_path, 'kg_edges')}")
+    print(f"research_facts: {count_table(db_path, 'research_facts')}")
     print(
         "latest_sync: "
         + latest_value(
@@ -313,6 +331,47 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export-paper-cards":
         count = export_paper_cards(args.db, args.out)
         print(f"paper_cards_exported={count} out={args.out}")
+        return 0
+
+
+    if args.command == "extract-research-facts":
+        try:
+            result = extract_research_facts(
+                args.db,
+                provider_name=args.provider,
+                fixture_path=args.fixture,
+                paper_key=args.paper_key,
+                limit=args.limit,
+            )
+        except FactValidationError as exc:
+            print(str(exc))
+            return 2
+        print(
+            "papers_seen={seen} facts={facts} provenance={provenance}".format(
+                seen=result.papers_seen,
+                facts=result.facts_written,
+                provenance=result.provenance_written,
+            )
+        )
+        return 0
+
+    if args.command == "list-research-facts":
+        rows = list_research_facts(
+            args.db,
+            paper_key=args.paper_key,
+            fact_type=args.type,
+            limit=args.limit,
+        )
+        for row in rows:
+            print(
+                f"{row['paper_key']} | {row['fact_type']} | "
+                f"{row['confidence']:.2f} | {row['statement']}"
+            )
+        return 0
+
+    if args.command == "export-research-facts":
+        count = export_research_facts(args.db, args.out)
+        print(f"research_facts_exported={count} out={args.out}")
         return 0
 
     parser.error(f"unknown command: {args.command}")
