@@ -165,3 +165,71 @@ def test_cli_dedupe_list_and_export_canonical_candidates(tmp_path: Path, capsys)
     assert export_code == 0
     assert "canonical_candidates_exported=1" in export_out
     assert out_path.read_text(encoding="utf-8") == "https://arxiv.org/abs/2601.01234\n"
+
+
+def test_cli_review_status_select_and_export_approved_candidates(tmp_path: Path, capsys):
+    from airesearch.candidates import CandidatePaper, score_candidate, upsert_candidate
+    from airesearch.canonical_candidates import materialize_candidate_papers
+    from airesearch.db import init_db
+    from airesearch.profiles import load_profile, seed_profiles
+
+    db_path = tmp_path / "airesearch.sqlite3"
+    out_path = tmp_path / "approved_manifest.txt"
+    init_db(db_path)
+    seed_profiles(db_path)
+    profile = load_profile(db_path, "world_models_physical_ai")
+    for source_id, title in [
+        ("2601.00001", "Cosmos World Foundation Model for Physical AI"),
+        ("2507.00001", "World Model for Agents"),
+    ]:
+        candidate = CandidatePaper(
+            source="arxiv",
+            source_id=source_id,
+            title=title,
+            url=f"https://arxiv.org/abs/{source_id}",
+            organizations=["NVIDIA"] if source_id.startswith("2601") else [],
+            published_date="2026-01-15" if source_id.startswith("2601") else "2025-07-01",
+            year=2026 if source_id.startswith("2601") else 2025,
+            abstract="world foundation model physical AI",
+        )
+        score, reasons = score_candidate(profile, candidate)
+        upsert_candidate(db_path, profile_name=profile.name, candidate=candidate, score=score, reasons=reasons)
+    materialize_candidate_papers(db_path)
+
+    reject_code = main([
+        "--db",
+        str(db_path),
+        "set-canonical-status",
+        "arxiv:2507.00001",
+        "--status",
+        "rejected",
+    ])
+    reject_out = capsys.readouterr().out
+    select_code = main(["--db", str(db_path), "select-canonical-candidates", "--limit", "5"])
+    select_out = capsys.readouterr().out
+    export_code = main(["--db", str(db_path), "export-approved-candidates", "--out", str(out_path)])
+    export_out = capsys.readouterr().out
+
+    assert reject_code == 0
+    assert "status=rejected" in reject_out
+    assert select_code == 0
+    assert "canonical_candidates_selected=1" in select_out
+    assert export_code == 0
+    assert "approved_candidates_exported=1" in export_out
+    assert out_path.read_text(encoding="utf-8") == "https://arxiv.org/abs/2601.00001\n"
+
+
+def test_cli_set_canonical_status_unknown_key_returns_error(tmp_path: Path, capsys):
+    db_path = tmp_path / "airesearch.sqlite3"
+
+    code = main([
+        "--db",
+        str(db_path),
+        "set-canonical-status",
+        "arxiv:missing",
+        "--status",
+        "selected",
+    ])
+
+    assert code == 2
+    assert "canonical_candidate_not_found=arxiv:missing" in capsys.readouterr().out

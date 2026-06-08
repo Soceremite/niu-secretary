@@ -4,9 +4,14 @@ from pathlib import Path
 from airesearch.candidates import CandidatePaper, score_candidate, upsert_candidate
 from airesearch.canonical_candidates import (
     canonical_key_for_candidate,
+    export_approved_candidates,
     export_canonical_candidates,
+    list_approved_candidates,
     list_canonical_candidates,
     materialize_candidate_papers,
+    select_top_canonical_candidates,
+    set_canonical_status,
+    validate_status,
 )
 from airesearch.db import connect, init_db
 from airesearch.profiles import load_profile, seed_profiles
@@ -173,3 +178,109 @@ def test_materialize_preserves_existing_canonical_status(tmp_path: Path):
 
     rows = list_canonical_candidates(db_path, 10)
     assert rows[0]["status"] == "selected"
+
+
+def test_review_workflow_selects_top_candidates_and_exports_only_selected(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    out_path = tmp_path / "approved_manifest.txt"
+    init_db(db_path)
+    seed_profiles(db_path)
+    profile = load_profile(db_path, "world_models_physical_ai")
+    papers = [
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.00001",
+            title="Cosmos World Foundation Model for Physical AI",
+            url="https://arxiv.org/abs/2601.00001",
+            organizations=["NVIDIA"],
+            published_date="2026-01-10",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.00002",
+            title="Rejected World Model for Agents",
+            url="https://arxiv.org/abs/2601.00002",
+            published_date="2026-01-09",
+            year=2026,
+            abstract="world model agents",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2507.00001",
+            title="World Model for Agents",
+            url="https://arxiv.org/abs/2507.00001",
+            published_date="2025-07-01",
+            year=2025,
+            abstract="world model",
+        ),
+    ]
+    for candidate in papers:
+        score, reasons = score_candidate(profile, candidate)
+        upsert_candidate(db_path, profile_name=profile.name, candidate=candidate, score=score, reasons=reasons)
+    materialize_candidate_papers(db_path)
+
+    assert set_canonical_status(db_path, "arxiv:2601.00002", "rejected")
+    selected = select_top_canonical_candidates(db_path, limit=2)
+    written = export_approved_candidates(db_path, out_path)
+
+    assert selected == 2
+    assert written == 2
+    assert [row["canonical_key"] for row in list_approved_candidates(db_path)] == [
+        "arxiv:2601.00001",
+        "arxiv:2507.00001",
+    ]
+    assert out_path.read_text(encoding="utf-8").splitlines() == [
+        "https://arxiv.org/abs/2601.00001",
+        "https://arxiv.org/abs/2507.00001",
+    ]
+
+
+def test_set_canonical_status_reports_unknown_key_and_validates_status(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    init_db(db_path)
+
+    assert set_canonical_status(db_path, "arxiv:missing", "selected") is False
+
+    try:
+        validate_status("maybe")
+    except ValueError as exc:
+        assert "invalid canonical candidate status" in str(exc)
+    else:
+        raise AssertionError("validate_status should reject unknown values")
+
+
+def test_select_top_canonical_candidates_respects_min_score(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    init_db(db_path)
+    seed_profiles(db_path)
+    profile = load_profile(db_path, "world_models_physical_ai")
+    high = CandidatePaper(
+        source="arxiv",
+        source_id="2601.00001",
+        title="Cosmos World Foundation Model for Physical AI",
+        url="https://arxiv.org/abs/2601.00001",
+        organizations=["NVIDIA"],
+        published_date="2026-01-10",
+        year=2026,
+        abstract="world foundation model physical AI",
+    )
+    low = CandidatePaper(
+        source="arxiv",
+        source_id="2507.00001",
+        title="World Model for Agents",
+        url="https://arxiv.org/abs/2507.00001",
+        published_date="2025-07-01",
+        year=2025,
+        abstract="world model",
+    )
+    for candidate in [high, low]:
+        score, reasons = score_candidate(profile, candidate)
+        upsert_candidate(db_path, profile_name=profile.name, candidate=candidate, score=score, reasons=reasons)
+    materialize_candidate_papers(db_path)
+
+    selected = select_top_canonical_candidates(db_path, limit=10, min_score=0.6)
+
+    assert selected == 1
+    assert [row["canonical_key"] for row in list_approved_candidates(db_path)] == ["arxiv:2601.00001"]

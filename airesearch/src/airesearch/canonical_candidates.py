@@ -22,6 +22,9 @@ class CanonicalMaterializationResult:
     skipped_count: int
 
 
+ALLOWED_STATUSES = {"candidate", "selected", "rejected"}
+
+
 def stable_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True)
 
@@ -205,6 +208,90 @@ def list_canonical_candidates(db_path: Path, limit: int = 20) -> list[dict[str, 
             (limit,),
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def validate_status(status: str) -> str:
+    normalized = status.strip().lower()
+    if normalized not in ALLOWED_STATUSES:
+        allowed = ", ".join(sorted(ALLOWED_STATUSES))
+        raise ValueError(f"invalid canonical candidate status: {status}; expected one of: {allowed}")
+    return normalized
+
+
+def set_canonical_status(db_path: Path, canonical_key: str, status: str) -> bool:
+    init_db(db_path)
+    normalized = validate_status(status)
+    with connect(db_path) as conn:
+        cursor = conn.execute(
+            """
+            update candidate_papers
+            set status = ?, updated_at = ?
+            where canonical_key = ?
+            """,
+            (normalized, utc_now(), canonical_key),
+        )
+        conn.commit()
+    return cursor.rowcount > 0
+
+
+def select_top_canonical_candidates(db_path: Path, limit: int, min_score: float | None = None) -> int:
+    if limit <= 0:
+        raise ValueError("limit must be greater than zero")
+    init_db(db_path)
+    params: list[Any] = []
+    score_filter = ""
+    if min_score is not None:
+        score_filter = "and best_score >= ?"
+        params.append(min_score)
+    params.append(limit)
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            f"""
+            select canonical_key
+            from candidate_papers
+            where status = 'candidate'
+            {score_filter}
+            order by best_score desc, published_date desc, canonical_key asc
+            limit ?
+            """,
+            params,
+        ).fetchall()
+        keys = [row["canonical_key"] for row in rows]
+        now = utc_now()
+        for key in keys:
+            conn.execute(
+                """
+                update candidate_papers
+                set status = 'selected', updated_at = ?
+                where canonical_key = ?
+                """,
+                (now, key),
+            )
+        conn.commit()
+    return len(keys)
+
+
+def list_approved_candidates(db_path: Path) -> list[dict[str, Any]]:
+    if not db_path.exists():
+        return []
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            """
+            select *
+            from candidate_papers
+            where status = 'selected'
+            order by best_score desc, published_date desc, canonical_key asc
+            """
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def export_approved_candidates(db_path: Path, out_path: Path) -> int:
+    rows = list_approved_candidates(db_path)
+    lines = [best_identifier(row) for row in rows if best_identifier(row)]
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+    return len(lines)
 
 
 def export_canonical_candidates(db_path: Path, limit: int, out_path: Path) -> int:

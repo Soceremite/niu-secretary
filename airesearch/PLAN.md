@@ -19,7 +19,7 @@
 | local `papi` install | Done | Installed `paperpipe==1.9.3` in local `.venv` with narrow extras `llm,figures,mcp`; avoided `all` because it pulls LEANN/torch/CUDA/docling/qdrant. |
 | L0 paperpipe smoke test | Done | `papi add/list/show/search/index/ask` pass on `1706.03762` using separated LLM and embedding API config. |
 | AIResearch SQLite ledger | Done | Stage 2A implemented: SQLite schema, paperpipe sync, batch ingest, CLI, tests, and local verification. |
-| L1 discovery | Done | Stage 2B profiles, scoring, candidate storage, discovery orchestration, CLI, OpenAlex/arXiv/Semantic Scholar providers, opt-in quota-safe Google Scholar provider, provider-level error handling, Top 100 manifest export, and canonical candidate dedupe implemented. |
+| L1 discovery | Done | Stage 2B profiles, scoring, candidate storage, discovery orchestration, CLI, OpenAlex/arXiv/Semantic Scholar providers, opt-in quota-safe Google Scholar provider, provider-level error handling, Top 100 manifest export, canonical candidate dedupe, and canonical review workflow implemented. |
 | L2 knowledge graph | Not started | Extraction service and graph tables not implemented. |
 | L3 reports | Not started | Paper Card/Digest/Map/Gap Analysis not implemented. |
 
@@ -70,11 +70,13 @@
 - [x] Implemented opt-in Google Scholar provider with SQLite cache and monthly usage guard.
 - [x] Paper Copilot is treated as a human venue/source guide only; AIResearch does not automatically scrape Paper Copilot.
 - [x] Implemented Stage 2C.0 canonical candidate identity with deterministic keys, provider/profile aggregation, CLI listing, and deduplicated export.
+- [x] Implemented Stage 2C.1 canonical review workflow with selected/rejected status, top-N selection, and approved-only manifest export.
 
 ## In Progress
 
 - [x] Stage 2C.0: materialize canonical candidate papers to dedupe provider/profile overlap before review and ingestion.
-- [ ] Stage 2C.1: review canonical candidate manifests, select papers for batch ingestion, and ingest the approved batch through Stage 2A.
+- [x] Stage 2C.1: add canonical candidate review commands and approved-only export.
+- [ ] Stage 2C.2: review approved canonical candidates and run batch ingestion through Stage 2A.
 
 ## Stage 2B Completed Tasks
 

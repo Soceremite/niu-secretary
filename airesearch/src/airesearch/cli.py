@@ -7,9 +7,12 @@ from pathlib import Path
 from airesearch.batch import run_batch_ingest
 from airesearch.candidates import export_candidates, list_candidates
 from airesearch.canonical_candidates import (
+    export_approved_candidates,
     export_canonical_candidates,
     list_canonical_candidates,
     materialize_candidate_papers,
+    select_top_canonical_candidates,
+    set_canonical_status,
 )
 from airesearch.config import Settings
 from airesearch.db import connect, init_db
@@ -60,6 +63,14 @@ def build_parser() -> argparse.ArgumentParser:
     canonical_export = subparsers.add_parser("export-canonical-candidates")
     canonical_export.add_argument("--limit", type=int, default=100)
     canonical_export.add_argument("--out", type=Path, required=True)
+    set_status = subparsers.add_parser("set-canonical-status")
+    set_status.add_argument("canonical_key")
+    set_status.add_argument("--status", choices=["candidate", "selected", "rejected"], required=True)
+    select_canonical = subparsers.add_parser("select-canonical-candidates")
+    select_canonical.add_argument("--limit", type=int, required=True)
+    select_canonical.add_argument("--min-score", type=float)
+    approved_export = subparsers.add_parser("export-approved-candidates")
+    approved_export.add_argument("--out", type=Path, required=True)
     return parser
 
 
@@ -241,6 +252,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export-canonical-candidates":
         count = export_canonical_candidates(args.db, args.limit, args.out)
         print(f"canonical_candidates_exported={count} out={args.out}")
+        return 0
+
+    if args.command == "set-canonical-status":
+        updated = set_canonical_status(args.db, args.canonical_key, args.status)
+        if not updated:
+            print(f"canonical_candidate_not_found={args.canonical_key}")
+            return 2
+        print(f"canonical_candidate_updated={args.canonical_key} status={args.status}")
+        return 0
+
+    if args.command == "select-canonical-candidates":
+        try:
+            count = select_top_canonical_candidates(args.db, args.limit, args.min_score)
+        except ValueError as exc:
+            print(str(exc))
+            return 2
+        print(f"canonical_candidates_selected={count}")
+        return 0
+
+    if args.command == "export-approved-candidates":
+        count = export_approved_candidates(args.db, args.out)
+        print(f"approved_candidates_exported={count} out={args.out}")
         return 0
 
     parser.error(f"unknown command: {args.command}")
