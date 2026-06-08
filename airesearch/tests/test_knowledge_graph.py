@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from airesearch.code_links import extract_code_links
 from airesearch.db import connect, init_db
 from airesearch.knowledge_graph import (
     export_paper_cards,
@@ -79,6 +80,63 @@ def test_list_and_export_paper_cards(tmp_path: Path):
     assert payload["paper_key"] == "1706_03762"
     assert payload["title"] == "Attention Is All You Need"
     assert payload["artifact_types"]
+    assert payload["code_links"] == []
+
+
+def test_extract_paper_cards_adds_code_repository_graph(tmp_path: Path):
+    db_path = synced_fixture_db(tmp_path)
+    extract_code_links(db_path)
+
+    result = extract_paper_cards(db_path)
+
+    with connect(db_path) as conn:
+        repo_node = conn.execute(
+            "select * from kg_nodes where node_key = ?",
+            ("code_repository:github_com:attention:transformer",),
+        ).fetchone()
+        repo_edge = conn.execute(
+            """
+            select * from kg_edges
+            where source_key = ? and relation = ? and target_key = ?
+            """,
+            (
+                "paper:1706_03762",
+                "has_code_repository",
+                "code_repository:github_com:attention:transformer",
+            ),
+        ).fetchone()
+        provenance = conn.execute(
+            """
+            select count(*) as count from kg_provenance
+            where source_table = ? and source_paper_key = ?
+            """,
+            ("paper_code_links", "1706_03762"),
+        ).fetchone()["count"]
+
+    assert result.nodes_written >= 1
+    assert result.edges_written >= 1
+    assert repo_node["node_type"] == "code_repository"
+    assert repo_node["label"] == "attention/transformer"
+    assert repo_edge["relation"] == "has_code_repository"
+    assert provenance == 2
+
+
+def test_export_paper_cards_includes_code_links(tmp_path: Path):
+    db_path = synced_fixture_db(tmp_path)
+    out_path = tmp_path / "paper_cards.jsonl"
+    extract_code_links(db_path)
+    extract_paper_cards(db_path)
+
+    exported = export_paper_cards(db_path, out_path)
+    payload = json.loads(out_path.read_text(encoding="utf-8").splitlines()[0])
+
+    assert exported == 1
+    assert payload["code_links"][0]["host"] == "github.com"
+    assert payload["code_links"][0]["owner"] == "attention"
+    assert payload["code_links"][0]["repo"] == "transformer"
+    assert payload["code_links"][0]["source_path"].endswith("source.tex")
+    assert payload["code_links"][0]["source_type"] == "source_tex"
+    assert payload["code_links"][0]["url"] == "https://github.com/attention/transformer"
 
 
 def test_extract_paper_cards_can_filter_single_paper(tmp_path: Path):

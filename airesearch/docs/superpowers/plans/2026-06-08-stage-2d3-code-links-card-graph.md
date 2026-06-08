@@ -21,7 +21,7 @@
 **Files:**
 - Modify: `airesearch/tests/test_knowledge_graph.py`
 
-- [ ] **Step 1: Add a test that extracts code links before paper cards**
+- [x] **Step 1: Add a test that extracts code links before paper cards**
 
 Add imports:
 
@@ -35,8 +35,7 @@ Add this test:
 
 ```python
 def test_extract_paper_cards_adds_code_repository_graph(tmp_path: Path):
-    db_path = tmp_path / "airesearch.sqlite3"
-    setup_fixture_db(db_path)
+    db_path = synced_fixture_db(tmp_path)
     extract_code_links(db_path)
 
     result = extract_paper_cards(db_path)
@@ -73,7 +72,7 @@ def test_extract_paper_cards_adds_code_repository_graph(tmp_path: Path):
     assert provenance == 2
 ```
 
-- [ ] **Step 2: Add a test that exported paper cards include code links**
+- [x] **Step 2: Add a test that exported paper cards include code links**
 
 Add this test:
 
@@ -101,7 +100,7 @@ def test_export_paper_cards_includes_code_links(tmp_path: Path):
     ]
 ```
 
-- [ ] **Step 3: Run tests to verify they fail before implementation**
+- [x] **Step 3: Run tests to verify they fail before implementation**
 
 Run:
 
@@ -116,7 +115,7 @@ Expected: fail because code repository graph rows and `code_links` export are no
 **Files:**
 - Modify: `airesearch/src/airesearch/knowledge_graph.py`
 
-- [ ] **Step 1: Add helpers**
+- [x] **Step 1: Add helpers**
 
 Add:
 
@@ -136,7 +135,7 @@ def load_code_links(conn, paper_key: str):
     ).fetchall()
 ```
 
-- [ ] **Step 2: Load code links in `extract_one`**
+- [x] **Step 2: Load code links in `extract_one`**
 
 After artifacts are loaded, add:
 
@@ -144,7 +143,7 @@ After artifacts are loaded, add:
     code_links = load_code_links(conn, paper_key)
 ```
 
-- [ ] **Step 3: Add code repository graph rows**
+- [x] **Step 3: Add code repository graph rows**
 
 Before returning from `extract_one`, add:
 
@@ -183,7 +182,7 @@ Before returning from `extract_one`, add:
         provenance += 2
 ```
 
-- [ ] **Step 4: Include code links in paper-card export**
+- [x] **Step 4: Include code links in paper-card export**
 
 In `export_paper_cards`, query code links for each row and add:
 
@@ -201,7 +200,7 @@ In `export_paper_cards`, query code links for each row and add:
                 ],
 ```
 
-- [ ] **Step 5: Run focused tests**
+- [x] **Step 5: Run focused tests**
 
 Run:
 
@@ -216,7 +215,7 @@ Expected: pass.
 **Files:**
 - Modify: `airesearch/PLAN.md`
 
-- [ ] **Step 1: Refresh real code links and paper cards**
+- [x] **Step 1: Refresh real code links and paper cards**
 
 Run:
 
@@ -228,11 +227,11 @@ Run:
 
 Expected: real DB retains `code_links=9`; paper cards are regenerated; export exists with `code_links` arrays.
 
-- [ ] **Step 2: Update project plan**
+- [x] **Step 2: Update project plan**
 
 In `PLAN.md`, mark Stage 2D.3 as completed and note that Paper Card export and KG include code repository links.
 
-- [ ] **Step 3: Run full tests**
+- [x] **Step 3: Run full tests**
 
 Run:
 
@@ -242,7 +241,7 @@ Run:
 
 Expected: all tests pass.
 
-- [ ] **Step 4: Commit implementation**
+- [x] **Step 4: Commit implementation**
 
 Run:
 

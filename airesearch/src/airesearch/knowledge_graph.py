@@ -46,6 +46,10 @@ def artifact_node_key(paper_key: str, artifact_type: str) -> str:
     return f"artifact:{paper_key}:{normalize_key(artifact_type)}"
 
 
+def code_repository_node_key(host: str, owner: str, repo: str) -> str:
+    return f"code_repository:{normalize_key(host)}:{normalize_key(owner)}:{normalize_key(repo)}"
+
+
 def identifier_nodes(ids: dict[str, Any]) -> list[tuple[str, str, str]]:
     nodes: list[tuple[str, str, str]] = []
     for id_type, value in sorted(ids.items()):
@@ -151,6 +155,31 @@ def load_artifacts(conn, paper_key: str):
     ).fetchall()
 
 
+def load_code_links(conn, paper_key: str):
+    return conn.execute(
+        """
+        select * from paper_code_links
+        where paper_key = ?
+        order by host, owner, repo, url
+        """,
+        (paper_key,),
+    ).fetchall()
+
+
+def code_link_payloads(conn, paper_key: str) -> list[dict[str, str]]:
+    return [
+        {
+            "url": row["url"],
+            "host": row["host"],
+            "owner": row["owner"],
+            "repo": row["repo"],
+            "source_type": row["source_type"],
+            "source_path": row["source_path"],
+        }
+        for row in load_code_links(conn, paper_key)
+    ]
+
+
 def extract_one(conn, paper, now: str) -> tuple[int, int, int, int]:
     paper_key = paper["paper_key"]
     clear_prior_graph(conn, paper_key)
@@ -161,6 +190,7 @@ def extract_one(conn, paper, now: str) -> tuple[int, int, int, int]:
     if not isinstance(ids, dict):
         ids = {}
     artifacts = load_artifacts(conn, paper_key)
+    code_links = load_code_links(conn, paper_key)
     artifact_types = sorted({row["artifact_type"] for row in artifacts})
     status = "complete" if paper["title"] and authors else "partial"
 
@@ -279,6 +309,39 @@ def extract_one(conn, paper, now: str) -> tuple[int, int, int, int]:
         edges += 1
         provenance += 2
 
+    for code_link in code_links:
+        host = str(code_link["host"] or "").strip()
+        owner = str(code_link["owner"] or "").strip()
+        repo = str(code_link["repo"] or "").strip()
+        url = str(code_link["url"] or "").strip()
+        if not host or not owner or not repo or not url:
+            continue
+        node_key = code_repository_node_key(host, owner, repo)
+        source_key = str(code_link["id"])
+        upsert_node(
+            conn,
+            node_key=node_key,
+            node_type="code_repository",
+            label=f"{owner}/{repo}",
+            properties={"url": url, "host": host, "owner": owner, "repo": repo},
+            paper_key=paper_key,
+            now=now,
+        )
+        upsert_edge(
+            conn,
+            source_key=paper_node,
+            relation="has_code_repository",
+            target_key=node_key,
+            properties={"url": url, "host": host},
+            paper_key=paper_key,
+            now=now,
+        )
+        add_provenance(conn, entity_type="node", entity_key=node_key, source_table="paper_code_links", source_key=source_key, source_field="url", paper_key=paper_key, now=now)
+        add_provenance(conn, entity_type="edge", entity_key=f"{paper_node}|has_code_repository|{node_key}", source_table="paper_code_links", source_key=source_key, source_field="url", paper_key=paper_key, now=now)
+        nodes += 1
+        edges += 1
+        provenance += 2
+
     return 1, nodes, edges, provenance
 
 
@@ -338,9 +401,8 @@ def list_paper_cards(db_path: Path, limit: int = 20):
 def export_paper_cards(db_path: Path, out_path: Path) -> int:
     init_db(db_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with connect(db_path) as conn:
+    with connect(db_path) as conn, out_path.open("w", encoding="utf-8") as handle:
         rows = conn.execute("select * from paper_cards order by updated_at desc, paper_key").fetchall()
-    with out_path.open("w", encoding="utf-8") as handle:
         for row in rows:
             payload = {
                 "paper_key": row["paper_key"],
@@ -350,6 +412,7 @@ def export_paper_cards(db_path: Path, out_path: Path) -> int:
                 "venue": row["venue"],
                 "ids": parse_json(row["ids_json"], {}),
                 "artifact_types": parse_json(row["artifact_types_json"], []),
+                "code_links": code_link_payloads(conn, row["paper_key"]),
                 "source_dir": row["source_dir"],
                 "status": row["status"],
                 "extractor_version": row["extractor_version"],
