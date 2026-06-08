@@ -16,6 +16,7 @@ from airesearch.canonical_candidates import (
 )
 from airesearch.config import Settings
 from airesearch.db import connect, init_db
+from airesearch.knowledge_graph import export_paper_cards, extract_paper_cards, list_paper_cards
 from airesearch.discovery import run_discovery
 from airesearch.paperpipe_sync import sync_paperpipe
 from airesearch.profiles import seed_profiles
@@ -71,6 +72,13 @@ def build_parser() -> argparse.ArgumentParser:
     select_canonical.add_argument("--min-score", type=float)
     approved_export = subparsers.add_parser("export-approved-candidates")
     approved_export.add_argument("--out", type=Path, required=True)
+    extract_cards = subparsers.add_parser("extract-paper-cards")
+    extract_cards.add_argument("--limit", type=int)
+    extract_cards.add_argument("--paper-key")
+    card_listing = subparsers.add_parser("list-paper-cards")
+    card_listing.add_argument("--limit", type=int, default=20)
+    card_export = subparsers.add_parser("export-paper-cards")
+    card_export.add_argument("--out", type=Path, required=True)
     return parser
 
 
@@ -102,6 +110,9 @@ def print_status(db_path: Path) -> None:
     print(f"profiles: {count_table(db_path, 'research_profiles')}")
     print(f"candidates: {count_table(db_path, 'research_candidates')}")
     print(f"canonical_candidates: {count_table(db_path, 'candidate_papers')}")
+    print(f"paper_cards: {count_table(db_path, 'paper_cards')}")
+    print(f"kg_nodes: {count_table(db_path, 'kg_nodes')}")
+    print(f"kg_edges: {count_table(db_path, 'kg_edges')}")
     print(
         "latest_sync: "
         + latest_value(
@@ -274,6 +285,34 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export-approved-candidates":
         count = export_approved_candidates(args.db, args.out)
         print(f"approved_candidates_exported={count} out={args.out}")
+        return 0
+
+
+    if args.command == "extract-paper-cards":
+        result = extract_paper_cards(args.db, limit=args.limit, paper_key=args.paper_key)
+        print(
+            "papers_seen={seen} cards={cards} nodes={nodes} edges={edges} provenance={provenance}".format(
+                seen=result.papers_seen,
+                cards=result.cards_written,
+                nodes=result.nodes_written,
+                edges=result.edges_written,
+                provenance=result.provenance_written,
+            )
+        )
+        return 0
+
+    if args.command == "list-paper-cards":
+        rows = list_paper_cards(args.db, args.limit)
+        for row in rows:
+            print(
+                f"{row['paper_key']} | {row['year'] or ''} | "
+                f"{row['status']} | {row['title']}"
+            )
+        return 0
+
+    if args.command == "export-paper-cards":
+        count = export_paper_cards(args.db, args.out)
+        print(f"paper_cards_exported={count} out={args.out}")
         return 0
 
     parser.error(f"unknown command: {args.command}")

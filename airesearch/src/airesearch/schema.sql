@@ -147,6 +147,76 @@ create table if not exists candidate_paper_links (
     primary key(canonical_key, research_candidate_id)
 );
 
+create table if not exists extraction_runs (
+    id integer primary key autoincrement,
+    extractor_name text not null,
+    extractor_version text not null,
+    paper_key text,
+    limit_count integer,
+    papers_seen integer not null default 0,
+    cards_written integer not null default 0,
+    nodes_written integer not null default 0,
+    edges_written integer not null default 0,
+    provenance_written integer not null default 0,
+    started_at text not null,
+    finished_at text,
+    status text not null,
+    error text not null default ''
+);
+
+create table if not exists paper_cards (
+    paper_key text primary key references papers(paper_key) on delete cascade,
+    title text not null default '',
+    authors_json text not null default '[]',
+    year integer,
+    venue text not null default '',
+    ids_json text not null default '{}',
+    artifact_types_json text not null default '[]',
+    source_dir text not null default '',
+    status text not null default 'complete',
+    extractor_version text not null,
+    created_at text not null,
+    updated_at text not null
+);
+
+create table if not exists kg_nodes (
+    node_key text primary key,
+    node_type text not null,
+    label text not null default '',
+    properties_json text not null default '{}',
+    extractor_name text not null default 'deterministic_paper_card',
+    source_paper_key text references papers(paper_key) on delete cascade,
+    created_at text not null,
+    updated_at text not null
+);
+
+create table if not exists kg_edges (
+    id integer primary key autoincrement,
+    source_key text not null references kg_nodes(node_key) on delete cascade,
+    relation text not null,
+    target_key text not null references kg_nodes(node_key) on delete cascade,
+    properties_json text not null default '{}',
+    extractor_name text not null default 'deterministic_paper_card',
+    source_paper_key text references papers(paper_key) on delete cascade,
+    created_at text not null,
+    updated_at text not null,
+    unique(source_key, relation, target_key, extractor_name)
+);
+
+create table if not exists kg_provenance (
+    id integer primary key autoincrement,
+    entity_type text not null,
+    entity_key text not null,
+    source_table text not null,
+    source_key text not null,
+    source_field text not null default '',
+    confidence real not null default 1.0,
+    extractor_name text not null default 'deterministic_paper_card',
+    source_paper_key text references papers(paper_key) on delete cascade,
+    created_at text not null,
+    unique(entity_type, entity_key, source_table, source_key, source_field, extractor_name)
+);
+
 create table if not exists provider_query_cache (
     id integer primary key autoincrement,
     provider text not null,
@@ -180,6 +250,15 @@ create index if not exists idx_research_candidates_status on research_candidates
 create index if not exists idx_candidate_papers_best_score on candidate_papers(best_score desc);
 create index if not exists idx_candidate_papers_status on candidate_papers(status);
 create index if not exists idx_candidate_paper_links_candidate_id on candidate_paper_links(research_candidate_id);
+
+create index if not exists idx_extraction_runs_started_at on extraction_runs(started_at);
+create index if not exists idx_paper_cards_updated_at on paper_cards(updated_at desc);
+create index if not exists idx_kg_nodes_type on kg_nodes(node_type);
+create index if not exists idx_kg_nodes_source_paper on kg_nodes(source_paper_key);
+create index if not exists idx_kg_edges_relation on kg_edges(relation);
+create index if not exists idx_kg_edges_source_paper on kg_edges(source_paper_key);
+create index if not exists idx_kg_provenance_source on kg_provenance(source_table, source_key);
+create index if not exists idx_kg_provenance_paper on kg_provenance(source_paper_key);
 
 create index if not exists idx_provider_query_cache_provider_key on provider_query_cache(provider, cache_key);
 create index if not exists idx_provider_query_cache_expires_at on provider_query_cache(expires_at);

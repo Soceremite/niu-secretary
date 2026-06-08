@@ -233,3 +233,33 @@ def test_cli_set_canonical_status_unknown_key_returns_error(tmp_path: Path, caps
 
     assert code == 2
     assert "canonical_candidate_not_found=arxiv:missing" in capsys.readouterr().out
+
+
+def test_cli_extract_list_and_export_paper_cards(tmp_path: Path, capsys):
+    import json
+
+    db_path = tmp_path / "airesearch.sqlite3"
+    paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    out_path = tmp_path / "paper_cards.jsonl"
+    main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
+    capsys.readouterr()
+
+    extract_code = main(["--db", str(db_path), "extract-paper-cards"])
+    extract_out = capsys.readouterr().out
+    list_code = main(["--db", str(db_path), "list-paper-cards", "--limit", "1"])
+    list_out = capsys.readouterr().out
+    export_code = main(["--db", str(db_path), "export-paper-cards", "--out", str(out_path)])
+    export_out = capsys.readouterr().out
+    status_code = main(["--db", str(db_path), "status"])
+    status_out = capsys.readouterr().out
+
+    assert extract_code == 0
+    assert "cards=1" in extract_out
+    assert list_code == 0
+    assert "Attention Is All You Need" in list_out
+    assert export_code == 0
+    assert "paper_cards_exported=1" in export_out
+    assert status_code == 0
+    assert "paper_cards: 1" in status_out
+    payload = json.loads(out_path.read_text(encoding="utf-8").strip())
+    assert payload["paper_key"] == "1706_03762"

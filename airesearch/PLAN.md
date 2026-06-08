@@ -20,7 +20,7 @@
 | L0 paperpipe smoke test | Done | `papi add/list/show/search/index/ask` pass on `1706.03762` using separated LLM and embedding API config. |
 | AIResearch SQLite ledger | Done | Stage 2A implemented: SQLite schema, paperpipe sync, batch ingest, CLI, tests, and local verification. |
 | L1 discovery | Done | Stage 2B profiles, scoring, candidate storage, discovery orchestration, CLI, OpenAlex/arXiv/Semantic Scholar providers, opt-in quota-safe Google Scholar provider, provider-level error handling, Top 100 manifest export, canonical candidate dedupe, canonical review workflow, and first approved canonical batch ingestion completed. |
-| L2 knowledge graph | Not started | Extraction service and graph tables not implemented. |
+| L2 knowledge graph | In progress | Stage 2D.0 deterministic paper cards, graph nodes/edges, provenance, and CLI extraction/export implemented; LLM claim/method extraction not started. |
 | L3 reports | Not started | Paper Card/Digest/Map/Gap Analysis not implemented. |
 
 ## Completed
@@ -72,12 +72,15 @@
 - [x] Implemented Stage 2C.0 canonical candidate identity with deterministic keys, provider/profile aggregation, CLI listing, and deduplicated export.
 - [x] Implemented Stage 2C.1 canonical review workflow with selected/rejected status, top-N selection, and approved-only manifest export.
 - [x] Approved top 10 canonical candidates with `score >= 0.70`, exported `manifests/approved-stage-2c.txt`, batch-ingested all 10 through paperpipe, and synced the ledger.
+- [x] Implemented Stage 2D.0 deterministic L2 paper cards, graph nodes/edges, provenance records, extraction audit runs, and paper card export.
 
 ## In Progress
 
 - [x] Stage 2C.0: materialize canonical candidate papers to dedupe provider/profile overlap before review and ingestion.
 - [x] Stage 2C.1: add canonical candidate review commands and approved-only export.
 - [x] Stage 2C.2: review approved canonical candidates and run batch ingestion through Stage 2A.
+- [x] Stage 2D.0: generate deterministic paper cards and provenance graph from paperpipe metadata.
+- [ ] Stage 2D.1: add LLM-assisted method/dataset/benchmark/claim extraction with cited provenance.
 
 ## Stage 2B Completed Tasks
 
