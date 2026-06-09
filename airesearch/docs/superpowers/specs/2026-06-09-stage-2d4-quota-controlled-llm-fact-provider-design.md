@@ -19,6 +19,8 @@ Add an OpenAI-compatible fact extraction provider behind explicit CLI selection.
 
 The provider name is `openai-compatible` because it should work with OpenAI and compatible endpoints configured through environment variables. The implementation will not hard-code a single vendor-specific client into the extraction core.
 
+The model name is an opaque string passed through to the configured endpoint. AIResearch will not maintain a local model whitelist. This keeps the same provider usable for OpenAI models such as `gpt5.5`, Alibaba Bailian / DashScope OpenAI-compatible models such as `qwen3.7-max`, and future compatible model IDs without code changes.
+
 ## Inputs
 
 The evidence pack for each paper will use local data only:
@@ -105,12 +107,33 @@ New options:
 
 - `--provider fixture|openai-compatible`
 - `--fixture PATH`, required only for `fixture`
-- `--model MODEL`, defaults to `AIRESEARCH_FACT_MODEL` or a conservative configured default.
+- `--model MODEL`, defaults to `AIRESEARCH_FACT_MODEL` or a conservative configured default. The value is passed through unchanged and is not checked against a local whitelist.
 - `--base-url URL`, defaults to `OPENAI_BASE_URL` when set.
 - `--api-key-env NAME`, defaults to `OPENAI_API_KEY`.
 - `--dry-run`, builds cache rows with prompts and status `dry_run` but makes no network call.
 - `--refresh-cache`, ignores successful cache rows and calls again.
 - `--max-input-chars N`, defaults to 24000.
+
+Example OpenAI-style invocation:
+
+```bash
+airesearch extract-research-facts \
+  --provider openai-compatible \
+  --paper-key 2606_07342 \
+  --model gpt5.5 \
+  --api-key-env OPENAI_API_KEY
+```
+
+Example Alibaba Bailian / DashScope-style invocation, assuming the account exposes an OpenAI-compatible endpoint:
+
+```bash
+airesearch extract-research-facts \
+  --provider openai-compatible \
+  --paper-key 2606_07342 \
+  --model qwen3.7-max \
+  --base-url "$DASHSCOPE_OPENAI_BASE_URL" \
+  --api-key-env DASHSCOPE_API_KEY
+```
 
 The command output should distinguish real calls from cache hits:
 
@@ -127,6 +150,7 @@ Supported variables:
 - `OPENAI_API_KEY`
 - `OPENAI_BASE_URL`
 - `AIRESEARCH_FACT_MODEL`
+- Provider-specific key variables selected by `--api-key-env`, such as `DASHSCOPE_API_KEY`.
 
 If the selected provider lacks a required API key, the command exits with code 2 and records a clear validation error.
 
@@ -167,5 +191,6 @@ Required coverage:
 - `extract-research-facts --provider fixture` still passes existing tests.
 - `extract-research-facts --provider openai-compatible --dry-run --limit 1` creates cache rows and spends no model quota.
 - A fake OpenAI-compatible client can produce facts that pass validation and are persisted with provenance.
+- Model IDs are passed through without local whitelist validation, including non-OpenAI IDs such as `qwen3.7-max`.
 - Re-running with the same evidence hash uses cache and makes zero LLM calls.
 - Full test suite passes without network access or real API keys.
