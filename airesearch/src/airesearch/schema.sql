@@ -273,6 +273,22 @@ create table if not exists research_fact_provenance (
     unique(fact_id, evidence_quote, evidence_artifact_type)
 );
 
+create table if not exists fact_extraction_cache (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    provider_name text not null,
+    extractor_version text not null,
+    model text not null,
+    evidence_hash text not null,
+    prompt_json text not null,
+    response_json text not null default '',
+    status text not null,
+    error text not null default '',
+    created_at text not null,
+    updated_at text not null,
+    unique(paper_key, provider_name, extractor_version, model, evidence_hash)
+);
+
 create table if not exists provider_query_cache (
     id integer primary key autoincrement,
     provider text not null,
@@ -325,6 +341,9 @@ create index if not exists idx_fact_extraction_runs_started_at on fact_extractio
 create index if not exists idx_research_facts_paper_key on research_facts(paper_key);
 create index if not exists idx_research_facts_type on research_facts(fact_type);
 create index if not exists idx_research_fact_provenance_artifact on research_fact_provenance(evidence_artifact_type);
+
+create index if not exists idx_fact_extraction_cache_lookup
+on fact_extraction_cache(provider_name, model, evidence_hash, status);
 
 create index if not exists idx_provider_query_cache_provider_key on provider_query_cache(provider, cache_key);
 create index if not exists idx_provider_query_cache_expires_at on provider_query_cache(expires_at);
