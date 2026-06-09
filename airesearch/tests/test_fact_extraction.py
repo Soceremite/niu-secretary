@@ -6,6 +6,7 @@ import pytest
 from airesearch.db import connect, init_db
 from airesearch.fact_extraction import (
     FactValidationError,
+    build_evidence_pack,
     export_research_facts,
     extract_research_facts,
     list_research_facts,
@@ -92,3 +93,28 @@ def test_extract_research_facts_rejects_invalid_fact_type(tmp_path: Path):
 
     with pytest.raises(FactValidationError):
         extract_research_facts(db_path, provider_name="fixture", fixture_path=bad_fixture)
+
+def test_build_evidence_pack_includes_metadata_and_artifacts(tmp_path: Path):
+    db_path = synced_fixture_db(tmp_path)
+
+    with connect(db_path) as conn:
+        pack = build_evidence_pack(conn, "1706_03762", max_input_chars=4000)
+
+    assert pack.paper_key == "1706_03762"
+    assert pack.evidence_hash
+    assert "Attention Is All You Need" in pack.prompt_text
+    assert "summary" in pack.artifact_texts
+    assert "source_tex" in pack.artifact_texts
+    assert len(pack.prompt_text) <= 4000 + 1000
+
+
+def test_build_evidence_pack_hash_is_deterministic(tmp_path: Path):
+    db_path = synced_fixture_db(tmp_path)
+
+    with connect(db_path) as conn:
+        first = build_evidence_pack(conn, "1706_03762", max_input_chars=4000)
+        second = build_evidence_pack(conn, "1706_03762", max_input_chars=4000)
+
+    assert first.evidence_hash == second.evidence_hash
+    assert first.prompt_json == second.prompt_json
+

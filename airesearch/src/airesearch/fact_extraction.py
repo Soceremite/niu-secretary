@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -12,10 +13,20 @@ from airesearch.paperpipe_sync import stable_json
 
 EXTRACTOR_VERSION = "2026-06-08.1"
 ALLOWED_FACT_TYPES = {"method", "dataset", "benchmark", "claim", "limitation"}
+TEXT_ARTIFACT_TYPES = ("summary", "tldr", "notes", "source_tex")
 
 
 class FactValidationError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class EvidencePack:
+    paper_key: str
+    evidence_hash: str
+    prompt_text: str
+    prompt_json: dict[str, Any]
+    artifact_texts: dict[str, str]
 
 
 @dataclass(frozen=True)
@@ -90,6 +101,77 @@ def load_fixture_provider(fixture_path: Path) -> dict[str, list[FactPayload]]:
             raise FactValidationError(f"facts for {paper_key} must be a list")
         result[str(paper_key)] = [validate_fact(fact) for fact in facts]
     return result
+
+
+def read_artifact_text(path_value: str, *, max_chars: int) -> str:
+    path = Path(path_value)
+    if not path.exists() or max_chars <= 0:
+        return ""
+    return path.read_text(encoding="utf-8", errors="replace")[:max_chars]
+
+
+def build_evidence_pack(conn, paper_key: str, *, max_input_chars: int) -> EvidencePack:
+    paper = conn.execute("select * from papers where paper_key = ?", (paper_key,)).fetchone()
+    if paper is None:
+        raise FactValidationError(f"paper not found: {paper_key}")
+    remaining = max_input_chars
+    meta = parse_json(paper["meta_json"], {})
+    ids = parse_json(paper["ids_json"], {})
+    authors = parse_json(paper["authors_json"], [])
+    sections: list[str] = [
+        f"paper_key: {paper_key}",
+        f"title: {paper['title'] or ''}",
+        f"authors: {', '.join(str(author) for author in authors)}",
+        f"year: {paper['year'] or ''}",
+        f"venue: {paper['venue'] or ''}",
+        f"ids: {stable_json(ids)}",
+        f"metadata: {stable_json(meta)}",
+    ]
+    remaining -= sum(len(section) for section in sections)
+    artifact_texts: dict[str, str] = {}
+    artifacts = conn.execute(
+        """
+        select artifact_type, path from paper_artifacts
+        where paper_key = ? and artifact_type in ('summary', 'tldr', 'notes', 'source_tex')
+        order by case artifact_type
+            when 'summary' then 1
+            when 'tldr' then 2
+            when 'notes' then 3
+            when 'source_tex' then 4
+            else 5
+        end, path
+        """,
+        (paper_key,),
+    ).fetchall()
+    for artifact in artifacts:
+        budget = max(0, remaining)
+        text = read_artifact_text(artifact["path"], max_chars=budget)
+        if not text:
+            continue
+        artifact_texts[artifact["artifact_type"]] = text
+        sections.append(f"artifact:{artifact['artifact_type']}\n{text}")
+        remaining -= len(text)
+        if remaining <= 0:
+            break
+    prompt_json = {
+        "paper_key": paper_key,
+        "title": paper["title"] or "",
+        "authors": authors,
+        "year": paper["year"],
+        "venue": paper["venue"] or "",
+        "ids": ids,
+        "metadata": meta,
+        "artifacts": artifact_texts,
+    }
+    prompt_text = "\n\n".join(sections)
+    evidence_hash = hashlib.sha256(stable_json(prompt_json).encode("utf-8")).hexdigest()
+    return EvidencePack(
+        paper_key=paper_key,
+        evidence_hash=evidence_hash,
+        prompt_text=prompt_text,
+        prompt_json=prompt_json,
+        artifact_texts=artifact_texts,
+    )
 
 
 def load_target_papers(conn, *, paper_key: str | None, limit: int | None):
