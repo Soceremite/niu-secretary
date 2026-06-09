@@ -332,3 +332,54 @@ def test_cli_extract_list_and_export_code_links(tmp_path: Path, capsys):
     assert "code_links: 1" in status_out
     payload = json.loads(out_path.read_text(encoding="utf-8").strip())
     assert payload["repo"] == "transformer"
+
+def test_cli_openai_compatible_dry_run(tmp_path: Path, capsys, monkeypatch):
+    db_path = tmp_path / "airesearch.sqlite3"
+    paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
+    capsys.readouterr()
+
+    code = main([
+        "--db",
+        str(db_path),
+        "extract-research-facts",
+        "--provider",
+        "openai-compatible",
+        "--paper-key",
+        "1706_03762",
+        "--model",
+        "qwen3.7-max",
+        "--dry-run",
+    ])
+    out = capsys.readouterr().out
+
+    assert code == 0
+    assert "papers_seen=1" in out
+    assert "dry_runs=1" in out
+    assert "llm_calls=0" in out
+
+
+def test_cli_openai_compatible_missing_key_returns_2(tmp_path: Path, capsys, monkeypatch):
+    db_path = tmp_path / "airesearch.sqlite3"
+    paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
+    capsys.readouterr()
+
+    code = main([
+        "--db",
+        str(db_path),
+        "extract-research-facts",
+        "--provider",
+        "openai-compatible",
+        "--paper-key",
+        "1706_03762",
+        "--model",
+        "gpt5.5",
+    ])
+    out = capsys.readouterr().out
+
+    assert code == 2
+    assert "OPENAI_API_KEY" in out
+

@@ -87,10 +87,16 @@ def build_parser() -> argparse.ArgumentParser:
     card_export = subparsers.add_parser("export-paper-cards")
     card_export.add_argument("--out", type=Path, required=True)
     fact_extract = subparsers.add_parser("extract-research-facts")
-    fact_extract.add_argument("--provider", choices=["fixture"], required=True)
-    fact_extract.add_argument("--fixture", type=Path, required=True)
+    fact_extract.add_argument("--provider", choices=["fixture", "openai-compatible"], required=True)
+    fact_extract.add_argument("--fixture", type=Path)
     fact_extract.add_argument("--paper-key")
     fact_extract.add_argument("--limit", type=int)
+    fact_extract.add_argument("--model")
+    fact_extract.add_argument("--base-url")
+    fact_extract.add_argument("--api-key-env", default="OPENAI_API_KEY")
+    fact_extract.add_argument("--dry-run", action="store_true")
+    fact_extract.add_argument("--refresh-cache", action="store_true")
+    fact_extract.add_argument("--max-input-chars", type=int, default=24000)
     fact_listing = subparsers.add_parser("list-research-facts")
     fact_listing.add_argument("--paper-key")
     fact_listing.add_argument("--type", choices=["method", "dataset", "benchmark", "claim", "limitation"])
@@ -352,15 +358,25 @@ def main(argv: list[str] | None = None) -> int:
                 fixture_path=args.fixture,
                 paper_key=args.paper_key,
                 limit=args.limit,
+                model=args.model,
+                base_url=args.base_url,
+                api_key_env=args.api_key_env,
+                dry_run=args.dry_run,
+                refresh_cache=args.refresh_cache,
+                max_input_chars=args.max_input_chars,
             )
         except FactValidationError as exc:
             print(str(exc))
             return 2
         print(
-            "papers_seen={seen} facts={facts} provenance={provenance}".format(
+            "papers_seen={seen} facts={facts} provenance={provenance} "
+            "cache_hits={cache_hits} llm_calls={llm_calls} dry_runs={dry_runs}".format(
                 seen=result.papers_seen,
                 facts=result.facts_written,
                 provenance=result.provenance_written,
+                cache_hits=result.cache_hits,
+                llm_calls=result.llm_calls,
+                dry_runs=result.dry_runs,
             )
         )
         return 0
