@@ -493,18 +493,26 @@ def extract_openai_compatible_facts(
                 pack = build_evidence_pack(conn, target_paper_key, max_input_chars=max_input_chars)
                 now = utc_now()
                 if dry_run:
-                    upsert_cache_row(
+                    existing_success = find_successful_cache(
                         conn,
                         paper_key=target_paper_key,
                         provider_name=provider_name,
                         model=resolved_model,
                         evidence_hash=pack.evidence_hash,
-                        prompt_json=pack.prompt_json,
-                        response_json=None,
-                        status="dry_run",
-                        error="",
-                        now=now,
                     )
+                    if existing_success is None:
+                        upsert_cache_row(
+                            conn,
+                            paper_key=target_paper_key,
+                            provider_name=provider_name,
+                            model=resolved_model,
+                            evidence_hash=pack.evidence_hash,
+                            prompt_json=pack.prompt_json,
+                            response_json=None,
+                            status="dry_run",
+                            error="",
+                            now=now,
+                        )
                     dry_runs += 1
                     continue
                 cached = None if refresh_cache else find_successful_cache(

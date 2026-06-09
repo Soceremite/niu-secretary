@@ -233,3 +233,43 @@ def test_openai_compatible_invalid_response_does_not_write_partial_facts(tmp_pat
 
     assert list_research_facts(db_path, paper_key="1706_03762", limit=10) == []
 
+def test_openai_compatible_dry_run_does_not_overwrite_success_cache(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    payload = {
+        "facts": [
+            {
+                "fact_type": "method",
+                "name": "Transformer",
+                "statement": "The paper uses a Transformer architecture.",
+                "evidence_quote": "Attention Is All You Need",
+                "evidence_artifact_type": "summary",
+                "confidence": 0.8,
+                "metadata": {},
+            }
+        ]
+    }
+    client = FakeFactClient(payload)
+    extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="gpt5.5",
+        client=client,
+    )
+
+    dry_run = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="gpt5.5",
+        dry_run=True,
+        client=client,
+    )
+
+    assert dry_run.dry_runs == 1
+    with connect(db_path) as conn:
+        row = conn.execute("select status, response_json from fact_extraction_cache").fetchone()
+    assert row["status"] == "success"
+    assert row["response_json"]
+

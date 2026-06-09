@@ -88,7 +88,7 @@
 - [x] Stage 2D.2: extract GitHub project links from abstract-like metadata and TeX source artifacts.
 - [x] Stage 2D.3: expose extracted GitHub project links in Paper Card exports and the knowledge graph.
 - [x] Stage 2D.4: connect a real quota-controlled OpenAI-compatible LLM provider for selected papers.
-- [x] Stage 2D.4 verification: focused tests `29 passed`, full suite `71 passed`, and real DB `--dry-run` returned `llm_calls=0 dry_runs=1`.
+- [x] Stage 2D.4 verification: focused tests `30 passed`, full suite `72 passed`, and real DB `--dry-run` returned `llm_calls=0 dry_runs=1`.
 
 ## Stage 2B Completed Tasks
 
