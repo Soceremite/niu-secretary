@@ -17,6 +17,21 @@ from airesearch.paperpipe_sync import sync_paperpipe
 FIXTURE = Path(__file__).parent / "fixtures" / "fact_extraction_fixture.json"
 
 
+class FakeFactClient:
+    def __init__(self, payload: dict):
+        self.payload = payload
+        self.calls = []
+
+    def complete_json(self, *, model: str, base_url: str | None, api_key: str, prompt: str) -> dict:
+        self.calls.append({
+            "model": model,
+            "base_url": base_url,
+            "api_key": api_key,
+            "prompt": prompt,
+        })
+        return self.payload
+
+
 def synced_fixture_db(tmp_path: Path) -> Path:
     db_path = tmp_path / "airesearch.sqlite3"
     paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
@@ -117,4 +132,104 @@ def test_build_evidence_pack_hash_is_deterministic(tmp_path: Path):
 
     assert first.evidence_hash == second.evidence_hash
     assert first.prompt_json == second.prompt_json
+
+def test_openai_compatible_dry_run_writes_cache_without_calling_client(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    client = FakeFactClient({"facts": []})
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+
+    result = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="qwen3.7-max",
+        dry_run=True,
+        client=client,
+    )
+
+    assert result.papers_seen == 1
+    assert result.dry_runs == 1
+    assert result.llm_calls == 0
+    assert client.calls == []
+    with connect(db_path) as conn:
+        row = conn.execute("select * from fact_extraction_cache").fetchone()
+    assert row["model"] == "qwen3.7-max"
+    assert row["status"] == "dry_run"
+
+
+def test_openai_compatible_writes_facts_and_uses_cache(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "dash-key")
+    payload = {
+        "facts": [
+            {
+                "fact_type": "method",
+                "name": "Transformer",
+                "statement": "The paper uses a Transformer architecture.",
+                "evidence_quote": "Attention Is All You Need",
+                "evidence_artifact_type": "summary",
+                "confidence": 0.8,
+                "metadata": {"rationale": "title and summary evidence"},
+            }
+        ]
+    }
+    client = FakeFactClient(payload)
+
+    first = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="qwen3.7-max",
+        api_key_env="DASHSCOPE_API_KEY",
+        base_url="https://dashscope.example/compatible-mode/v1",
+        client=client,
+    )
+    second = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="qwen3.7-max",
+        api_key_env="DASHSCOPE_API_KEY",
+        base_url="https://dashscope.example/compatible-mode/v1",
+        client=client,
+    )
+
+    assert first.llm_calls == 1
+    assert second.cache_hits == 1
+    assert len(client.calls) == 1
+    assert client.calls[0]["model"] == "qwen3.7-max"
+    assert client.calls[0]["base_url"] == "https://dashscope.example/compatible-mode/v1"
+    facts = list_research_facts(db_path, paper_key="1706_03762", limit=10)
+    assert len(facts) == 1
+    assert facts[0]["provider_name"] == "openai-compatible"
+
+
+def test_openai_compatible_missing_api_key_fails(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    with pytest.raises(FactValidationError, match="OPENAI_API_KEY"):
+        extract_research_facts(
+            db_path,
+            provider_name="openai-compatible",
+            paper_key="1706_03762",
+            model="gpt5.5",
+            client=FakeFactClient({"facts": []}),
+        )
+
+
+def test_openai_compatible_invalid_response_does_not_write_partial_facts(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+
+    with pytest.raises(FactValidationError):
+        extract_research_facts(
+            db_path,
+            provider_name="openai-compatible",
+            paper_key="1706_03762",
+            model="gpt5.5",
+            client=FakeFactClient({"facts": [{"fact_type": "opinion"}]}),
+        )
+
+    assert list_research_facts(db_path, paper_key="1706_03762", limit=10) == []
 
