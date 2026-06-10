@@ -1,0 +1,160 @@
+{
+  "action_count": 5,
+  "evidence_cautions": [
+    "20 facts lack evidence source paths; do not quote them downstream until repaired.",
+    "118 papers have no extracted code links; implementation availability is incomplete.",
+    "165 papers are missing at least one required fact type."
+  ],
+  "executive_summary": [
+    "The current corpus contains 202 papers and 1553 extracted research facts.",
+    "Strongly represented fact types: Method, Claim. Moderately represented: Benchmark, Limitation. Under-covered: Dataset.",
+    "Follow-up work should prioritize 188 extraction targets, 118 papers without code links, and 20 missing evidence source paths."
+  ],
+  "fact_count": 1553,
+  "finding_count": 10,
+  "generated_at": "2026-06-10T07:02:42+00:00",
+  "paper_count": 202,
+  "priority_actions": [
+    {
+      "action": "Review `agenticnav` for missing fact types: Method, Dataset, Benchmark, Claim, Limitation; repair 0 missing evidence source paths; code links missing.",
+      "paper_key": "agenticnav",
+      "priority_score": 55,
+      "title": "AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness"
+    },
+    {
+      "action": "Review `2606_10904` for missing fact types: Method, Dataset, Benchmark, Claim, Limitation; repair 0 missing evidence source paths; code links missing.",
+      "paper_key": "2606_10904",
+      "priority_score": 55,
+      "title": "Comparative Analysis of Inference-Time Defense Methods for Multimodal Large Language Models"
+    },
+    {
+      "action": "Review `disco` for missing fact types: Method, Dataset, Benchmark, Claim, Limitation; repair 0 missing evidence source paths; code links missing.",
+      "paper_key": "disco",
+      "priority_score": 55,
+      "title": "DisCo: World Models with Discrete Camera Motion Control"
+    },
+    {
+      "action": "Review `flymirage` for missing fact types: Method, Dataset, Benchmark, Claim, Limitation; repair 0 missing evidence source paths; code links missing.",
+      "paper_key": "flymirage",
+      "priority_score": 55,
+      "title": "FlyMirage: A Fully Automated Generation Pipeline for Diverse and Scalable UAV Flight Data via Generative World Model"
+    },
+    {
+      "action": "Review `gem-4d` for missing fact types: Method, Dataset, Benchmark, Claim, Limitation; repair 0 missing evidence source paths; code links missing.",
+      "paper_key": "gem-4d",
+      "priority_score": 55,
+      "title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation"
+    }
+  ],
+  "provisional_areas": [
+    "Benchmark is represented in 105/202 papers; keep paper-level caveats attached.",
+    "Limitation is represented in 129/202 papers; keep paper-level caveats attached.",
+    "Dataset is represented in 97/202 papers; treat broad conclusions as provisional."
+  ],
+  "representative_findings": [
+    {
+      "confidence": 1.0,
+      "evidence_quote": "In total, our evaluation includes 11,800 simulated rollouts and 1,115 real-world rollouts.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "method",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "The evaluation consists of 11,800 simulated rollouts and 1,115 real-world rollouts across policies, tasks, and perturbation dimensions."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "For each task, we introduce controlled perturbations along four complementary dimensions: \\textit{vision}, \\textit{language}, \\textit{layout}, and \\textit{behavior}.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "method",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "The evaluation introduces controlled perturbations along four complementary dimensions: vision, language, layout, and behavior."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "We instantiate the same nine-task suite on real hardware using the DROID embodiment~\\cite{khazatsky2024droid}, enabling direct comparison between simulated and real-world policy behavior.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "dataset",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "The authors instantiate the nine-task suite on real hardware using the DROID embodiment to enable direct comparison between simulated and real-world policy behavior."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "We evaluate $\\pi_{0.5}$ on a separate set of three real-world Franka tasks, distinct from the OpenVLA-OFT tasks of Section~\\ref{sec:real_world_franka_setup}: ... \\item \\textbf{Block} ... \\item \\textbf{Cup} ... \\item \\textbf{Sweep}",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/source.tex",
+      "fact_name": "",
+      "fact_type": "dataset",
+      "paper_key": "actionmap",
+      "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+      "statement": "ActionMap is evaluated on real-world Franka manipulation tasks, including Block, Cup, and Sweep tasks."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "we construct a unified evaluation platform spanning nine tabletop manipulation tasks as shown in Figure \\ref{platform}.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "benchmark",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "The authors construct a unified evaluation platform spanning nine tabletop manipulation tasks to systematically measure simulations for VLA policy evaluation."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "We first compare three representative simulated VLA benchmarks: VLA-Arena, SIMPLER, and REALM across five recent VLA policies",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "benchmark",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "The study compares three representative simulated VLA benchmarks: VLA-Arena, SIMPLER, and REALM."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "post-training with an adequate amount of data could strengthen proxy reliability, whereas excessive fine-tuning may cause the model fit to fixed behavior trajectories, thereby obscuring its true generalization ability under distribution shifts.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "claim",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "Post-training with an adequate amount of data strengthens proxy reliability, but excessive fine-tuning may cause the model to overfit to fixed behavior trajectories and obscure true generalization ability."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "Our analysis shows that simulator proxies should be visually and physically realistic, and should reflect how policies fail under different perturbations in the real world.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10366/source.tex",
+      "fact_name": "",
+      "fact_type": "claim",
+      "paper_key": "2606_10366",
+      "paper_title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "statement": "Simulator proxies should be visually and physically realistic and reflect how policies fail under different perturbations in the real world."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "Despite the above gains, the dominant remaining error mode across all three tasks is mistimed gripper actuation rather than positioning error.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/source.tex",
+      "fact_name": "",
+      "fact_type": "limitation",
+      "paper_key": "actionmap",
+      "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+      "statement": "A dominant remaining error mode for ActionMap across tasks is mistimed gripper actuation rather than positioning error."
+    },
+    {
+      "confidence": 1.0,
+      "evidence_quote": "Due to a smaller selection of state-of-the-art image generation models due to access and availability, we were only able to choose 3 models with variance across providers, training data, architecture, and size.",
+      "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/amvicc/source.tex",
+      "fact_name": "",
+      "fact_type": "limitation",
+      "paper_key": "amvicc",
+      "paper_title": "AMVICC: A Novel Benchmark for Cross-Modal Failure Mode Profiling for VLMs and IGMs",
+      "statement": "The study was limited to evaluating only 3 image generation models due to access and availability constraints of state-of-the-art models."
+    }
+  ],
+  "supported_areas": [
+    "Method is represented in 177/202 papers; use it as a backbone for corpus-level reading.",
+    "Claim is represented in 179/202 papers; use it as a backbone for corpus-level reading."
+  ]
+}

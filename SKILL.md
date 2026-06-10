@@ -1,9 +1,9 @@
 ---
 name: niu-secretary
-description: "牛秘书品牌体系——品牌定位、视觉规范、技术架构与功能矩阵。用于统一品牌调性，指导各子产品（新闻社、塑形馆、时务局、闲趣集）的设计与开发。"
+description: "牛秘书品牌体系——品牌定位、视觉规范、技术架构与功能矩阵。用于统一品牌调性，指导各子产品（新闻社、塑形馆、时务局、闲趣集、AIResearch 研知库）的设计与开发。"
 risk: safe
 date_added: "2026-05-28"
-last_updated: "2026-05-30"
+last_updated: "2026-06-10"
 ---
 
 # 牛秘书品牌体系
@@ -84,8 +84,10 @@ last_updated: "2026-05-30"
 | 前端 | 纯 HTML/CSS/JS（无框架依赖），响应式设计 |
 | 后端 | Python HTTP API + SQLite（Action Protocol） |
 | 部署 | nginx `/niu-secretary/` → `/var/www/html/niu-secretary/` |
-| 部署权限 | 目标目录属于 root，需 sudo cp |
-| AI 驱动 | OpenClaw + DeepSeek V4 Pro / Claude Opus 4.6 |
+| 部署权限 | 目标目录属于 root，需 sudo cp / rsync |
+| AI 助手 | Python 标准库 HTTP API + SQLite Action Protocol |
+| AIResearch | Python package + SQLite + paperpipe / papi + 静态研究报告站点 |
+| AI 驱动 | OpenClaw + DeepSeek V4 Pro / Claude Opus 4.6 / OpenAI-compatible providers |
 | Logo 托管 | `logo.png` 放在各子目录下 |
 
 ---
@@ -101,6 +103,7 @@ last_updated: "2026-05-30"
 | 🏋️ 塑形馆 | `/niu-secretary/fitness/` | 科学健身管理，训练/营养/恢复/评估/咨询六大模块 |
 | 📅 时务局 | `/niu-secretary/schedule/` | 日程管理：今日排班、秘书提醒、事务抽屉、目标追踪 |
 | 🎬 闲趣集 | `/niu-secretary/leisure/` | 休闲推荐：今晚首推、今日候选、口味档案 |
+| 🧠 AIResearch 研知库 | `/niu-secretary/airesearch/` | 本地自动科研 RAG、论文知识图谱、事实溯源、研究地图、静态报告站点 |
 
 ### 规划中
 
@@ -119,8 +122,8 @@ v2.0 的核心理念：牛秘书主页 AI、语音助手、四个子网页和未
 
 牛秘书 AI 是总入口，不直接把一句话硬塞进某个页面，而是先理解意图，再调用能力：
 
-1. **意图分流**：先调用模型判断用户属于 `fitness`、`schedule`、`news`、`leisure`、`chat` 或 `unknown`。
-2. **模块 Prompt**：根据板块选择专用 prompt。塑形馆负责营养、训练、恢复、评估；时务局负责日程、提醒、待办；新闻社和闲趣集保留后续技能接入。
+1. **意图分流**：先调用模型判断用户属于 `fitness`、`schedule`、`news`、`leisure`、`airesearch`、`chat` 或 `unknown`。
+2. **模块 Prompt**：根据板块选择专用 prompt。塑形馆负责营养、训练、恢复、评估；时务局负责日程、提醒、待办；新闻社、闲趣集和 AIResearch 保留后续技能接入。
 3. **动作生成**：模型只生成允许的 action 和参数，不直接写库。
 4. **用户确认**：主页先展示可编辑 JSON，用户确认后才执行。
 5. **统一落库**：确认后调用 `/niu-secretary/api/actions/execute` 写入服务端 SQLite。
@@ -130,10 +133,21 @@ v2.0 的核心理念：牛秘书主页 AI、语音助手、四个子网页和未
 
 > **数据源原则（2026-05-30 起）**：后端 SQLite 是唯一权威数据源。各板块页面优先调用 `actions/execute` 的 list 类动作读取，请求失败时才回落到 localStorage 缓存。AI 写入的数据因此能被各板块直接读到，并跨设备一致。
 
+> **AIResearch 状态（2026-06-10 起）**：AIResearch 已进入 MVP 可发布状态。当前链路包含 paperpipe 本地论文库、OpenAlex/arXiv/Semantic Scholar/SerpAPI 候选发现、规范化 ingest、论文卡片、代码链接、artifact ledger、研究事实抽取、事实审计、证据修复、研究 digest/map/gap/synthesis/narrative、语义聚类、人审摘要、静态报告站点、刷新命令、健康检查、DB 备份、发布差异和外部静态站点 deploy/rollback 脚本。
+
 ### 本地启动
 
 ```bash
 NIU_SECRETARY_API_PORT=5188 python3 server/niu_secretary_api.py
+```
+
+### AIResearch 本地启动
+
+```bash
+cd airesearch
+source ./activate.sh
+python -m airesearch.cli health-check --site-dir exports/site-current
+python -m airesearch.cli serve-report-site --dir exports/site-current --host 127.0.0.1 --port 8765
 ```
 
 ### 本地配置
@@ -217,7 +231,29 @@ sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
 
 ---
 
-## 部署流程
+## AIResearch 研知库运行边界
+
+AIResearch 是牛秘书当前最重的子系统。根项目文档只记录入口和运维边界，详细实现以 `airesearch/SKILL.md`、`airesearch/PLAN.md` 和 `airesearch/DEVELOPMENT.md` 为准。
+
+### 核心能力
+
+- 论文 ingest 必须优先通过 `papi add`，不要绕过 paperpipe 直接写论文库。
+- SQLite 是 MVP 账本，记录论文、候选、来源、provenance、facts、reports、run history。
+- 报告必须基于可追溯 evidence，不把 `summary.md` 当作完整 literature review。
+- 生成性内容必须区分事实、证据和假设；假设要明确标注。
+- 外部静态站点部署前必须有快照，回滚使用 `deploy/rollback-airesearch.sh latest` 或指定快照名。
+
+### 常用命令
+
+```bash
+cd airesearch
+python -m airesearch.cli run-launch-refresh --limit-per-profile 50 --select-limit 10 --min-score 0.60 --out-dir exports/mvp-current --site-dir exports/site-current --progress
+python -m airesearch.cli health-check --site-dir exports/site-current --require-fact-provider
+python -m airesearch.cli backup-db --out-dir backups --label before-launch-refresh
+python -m airesearch.cli write-static-host-config --site-dir exports/site-current --out-dir deploy --base-path /niu-secretary/airesearch/ --deploy-root /var/www/html/niu-secretary/airesearch
+python -m airesearch.cli write-static-deploy-scripts --site-dir exports/site-current --out-dir deploy --deploy-root /var/www/html/niu-secretary/airesearch
+```
+
 
 ```bash
 # 备份
@@ -232,6 +268,14 @@ sudo cp /home/ubuntu/.openclaw/workspace/niu-secretary/dist/logo.png /var/www/ht
 cd /home/ubuntu/.openclaw/workspace/niu-secretary/fitness
 npm run build
 sudo cp -r dist/* /var/www/html/niu-secretary/fitness/
+
+# 部署 AIResearch 静态站点
+cd /home/ubuntu/.openclaw/workspace/niu-secretary/airesearch
+python -m airesearch.cli write-static-deploy-scripts --site-dir exports/site-current --out-dir deploy --deploy-root /var/www/html/niu-secretary/airesearch
+sudo deploy/deploy-airesearch.sh
+
+# 回滚 AIResearch 静态站点
+sudo deploy/rollback-airesearch.sh latest
 ```
 
 ---
@@ -255,6 +299,7 @@ sudo cp -r dist/* /var/www/html/niu-secretary/fitness/
 - 🏋️ [塑形馆 SKILL.md](fitness/SKILL.md)
 - 📅 [时务局 SKILL.md](schedule/SKILL.md)
 - 🎬 [闲趣集 SKILL.md](leisure/SKILL.md)
+- 🧠 [AIResearch 研知库 SKILL.md](airesearch/SKILL.md)
 
 ---
 
@@ -264,3 +309,4 @@ sudo cp -r dist/* /var/www/html/niu-secretary/fitness/
 - **品牌设计**：牛秘书团队
 - **技术协作**：DeepSeek V4 Pro / Claude Opus 4.6
 - **基础设施**：OpenClaw
+- **科研底座**：paperpipe / papi + AIResearch SQLite ledger

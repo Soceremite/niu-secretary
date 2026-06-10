@@ -156,3 +156,32 @@ def test_google_scholar_gets_conservative_trusted_source_score():
 
     assert score > 0
     assert "venue:trusted_source=google_scholar" in reasons
+
+
+def test_source_specific_tuning_prefers_resolvable_arxiv_over_unverified_scholar():
+    profile = next(profile for profile in default_profiles() if profile.name == "diffusion_models")
+    shared = {
+        "title": "Diffusion Policy for Generalist Robot Foundation Models",
+        "published_date": "2026-01-01",
+        "year": 2026,
+        "abstract": "diffusion policy for robot foundation models",
+    }
+    arxiv_candidate = CandidatePaper(
+        source="arxiv",
+        source_id="2601.00001",
+        url="https://arxiv.org/abs/2601.00001",
+        **shared,
+    )
+    scholar_candidate = CandidatePaper(
+        source="google_scholar",
+        source_id="scholar-result",
+        url="https://example.org/paper",
+        **shared,
+    )
+
+    arxiv_score, arxiv_reasons = score_candidate(profile, arxiv_candidate)
+    scholar_score, scholar_reasons = score_candidate(profile, scholar_candidate)
+
+    assert arxiv_score > scholar_score
+    assert "source:arxiv_direct" in arxiv_reasons
+    assert "source:google_scholar_unverified" in scholar_reasons

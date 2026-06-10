@@ -23,23 +23,27 @@
     </div>
     <div class="topbar-nav-row">
       <nav class="topbar-nav" id="topbar-nav">
-        <a href="#section-domestic" data-section="domestic" class="active">
+        <a href="./" data-section="recommend" class="active">
+          <span class="nav-icon">荐</span> 智能推荐
+          <span class="nav-badge">精选</span>
+        </a>
+        <a href="?section=domestic" data-section="domestic">
           <span class="nav-icon">壹</span> 国内要闻
           <span class="nav-badge" id="badge-domestic">-</span>
         </a>
-        <a href="#section-international" data-section="international">
+        <a href="?section=international" data-section="international">
           <span class="nav-icon">贰</span> 国际焦点
           <span class="nav-badge" id="badge-international">-</span>
         </a>
-        <a href="#section-finance" data-section="finance">
+        <a href="?section=finance" data-section="finance">
           <span class="nav-icon">叁</span> 财经快讯
           <span class="nav-badge" id="badge-finance">-</span>
         </a>
-        <a href="#section-tech" data-section="tech">
+        <a href="?section=tech" data-section="tech">
           <span class="nav-icon">肆</span> 科技动态
           <span class="nav-badge" id="badge-tech">-</span>
         </a>
-        <a href="#section-ai" data-section="ai">
+        <a href="?section=ai" data-section="ai">
           <span class="nav-icon">伍</span> 人工智能
           <span class="nav-badge" id="badge-ai">-</span>
         </a>
@@ -67,41 +71,80 @@
   <div class="ab-slogan">要闻置顶，分栏阅览。</div>
 </div>
 
-<!-- ============ STATS BAR ============ -->
-<div style="padding:0 24px;position:relative;z-index:1;">
-<div class="stats-bar">
-  <div class="stat-item"><div class="num" id="stat-domestic">-</div><div class="label">第一版 · 国内</div></div>
-  <div class="stat-item"><div class="num" id="stat-international">-</div><div class="label">第二版 · 国际</div></div>
-  <div class="stat-item"><div class="num" id="stat-finance">-</div><div class="label">第三版 · 财经</div></div>
-  <div class="stat-item"><div class="num" id="stat-tech">-</div><div class="label">第四版 · 科技</div></div>
-  <div class="stat-item"><div class="num" id="stat-ai">-</div><div class="label">第五版 · AI</div></div>
-</div>
-</div>
-
-<!-- ============ MY FOCUS · PERSONALIZED PICKS ============ -->
-<div style="padding:0 24px;position:relative;z-index:1;">
-  <section id="focus-panel" style="max-width:var(--max-width);margin:0 auto 8px;border:1px solid var(--line);background:var(--card);box-shadow:0 1px 0 var(--paper-deep);">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px double var(--line);">
-      <div style="display:flex;align-items:baseline;gap:10px;">
-        <span style="font-family:'Noto Serif SC',serif;font-weight:700;font-size:18px;color:var(--brand);letter-spacing:.04em;">我的关注</span>
-        <span style="font-size:12px;color:var(--muted);">据画像为你精选今日要闻</span>
-      </div>
-      <span id="focus-tags" style="font-size:12px;color:var(--ink-soft);text-align:right;">—</span>
-    </div>
-    <div id="focus-body" style="padding:8px 20px 16px;">
-      <p style="color:var(--muted);font-size:14px;margin:8px 0;">正在为你筛选…</p>
-    </div>
-  </section>
-</div>
-
 <!-- ============ MAIN CONTENT (dynamic slots) ============ -->
 <div class="container">
-  <div class="section-slot" id="slot-domestic"></div>
-  <div class="section-slot" id="slot-international"></div>
-  <div class="section-slot" id="slot-finance"></div>
-  <div class="section-slot" id="slot-tech"></div>
-  <div class="section-slot" id="slot-ai"></div>
+  <div class="section-slot active" id="section-slot"></div>
 </div>
+
+<template id="recommend-template">
+  <section class="recommend-page" id="section-recommend">
+    <!-- Section title with decorative rules -->
+    <div class="section-title">
+      <span>智能推荐</span>
+      <em>今日画像精选 · 为你定制</em>
+    </div>
+
+    <!-- Skeleton state (visible until JS fills) -->
+    <div class="rec-loading" id="rec-loading">
+      <div class="rec-sketch">
+        <div class="rec-sketch-hero"></div>
+        <div class="rec-sketch-grid">
+          <div class="rec-sketch-card"></div>
+          <div class="rec-sketch-card"></div>
+          <div class="rec-sketch-card"></div>
+          <div class="rec-sketch-card"></div>
+        </div>
+      </div>
+      <p class="rec-loading-text">牛秘书正在从五版要闻中为你筛选…</p>
+    </div>
+
+    <!-- Filled state (hidden until data arrives) -->
+    <div class="rec-filled" id="rec-filled" hidden>
+      <!-- Profile bar -->
+      <div class="rec-profile-bar" id="rec-profile-bar">
+        <div class="rec-profile-left">
+          <span class="rec-profile-label">你的关注</span>
+          <span class="rec-profile-tags" id="focus-tags"></span>
+        </div>
+        <span class="rec-profile-note" id="rec-profile-note"></span>
+      </div>
+
+      <!-- Hero recommendation -->
+      <article class="rec-hero" id="rec-hero">
+        <div class="rec-hero-inner">
+          <div class="rec-hero-badge">
+            <span class="rec-hero-flag">头条荐读</span>
+            <span class="rec-hero-meta" id="rec-hero-meta"></span>
+          </div>
+          <h3 class="rec-hero-title" id="rec-hero-title"></h3>
+          <p class="rec-hero-summary" id="rec-hero-summary"></p>
+          <div class="rec-hero-action">阅览全文 →</div>
+        </div>
+        <div class="rec-hero-ornament" aria-hidden="true">
+          <span class="rec-hero-num">01</span>
+          <span class="rec-hero-section" id="rec-hero-section-label"></span>
+        </div>
+      </article>
+
+      <!-- Secondary grid -->
+      <div class="rec-grid" id="rec-grid"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="rec-empty" id="rec-empty" hidden>
+      <div class="rec-empty-inner">
+        <span class="rec-empty-icon">📭</span>
+        <p>今日暂无匹配内容</p>
+        <p class="rec-empty-hint">试着去牛秘书主页和 AI 聊聊你关注的话题</p>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div class="rec-error" id="rec-error" hidden>
+      <p>个性化精选暂时不可用，请稍后再试。</p>
+    </div>
+  </section>
+</template>
 
 <!-- ============ FOOTER ============ -->
 <div class="footer">
@@ -132,7 +175,24 @@
   'use strict';
 
   const SECTIONS = ['domestic', 'international', 'finance', 'tech', 'ai'];
+  const PAGES = ['recommend', ...SECTIONS];
+  const SECTION_LABELS = {
+    recommend: '智能推荐',
+    domestic: '国内要闻',
+    international: '国际焦点',
+    finance: '财经快讯',
+    tech: '科技动态',
+    ai: '人工智能'
+  };
+  const sectionCache = {};
   const detailMap = {};
+  let currentSection = getRequestedSection();
+
+  function getRequestedSection() {
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'recommend';
+    return PAGES.includes(section) ? section : 'recommend';
+  }
 
   // Date display
   const now = new Date();
@@ -149,62 +209,105 @@
   updateTime();
   setInterval(updateTime, 60000);
 
-  // Load sections
+  // Load all section fragments for counts/details, then render one edition as a subpage.
   async function loadSections() {
     const promises = SECTIONS.map(async (name) => {
       try {
         const res = await fetch(`sections/${name}.html?t=${Date.now()}`);
         if (!res.ok) return;
         const html = await res.text();
-        const slot = document.getElementById(`slot-${name}`);
-        slot.innerHTML = html;
-        registerDetails(slot);
+        sectionCache[name] = html;
+        registerDetailsFromHtml(html);
       } catch(e) {
         console.warn(`Failed to load section: ${name}`, e);
       }
     });
     await Promise.all(promises);
     updateStats();
-    setupNavHighlight();
+    renderSection(currentSection, { replace: true });
+    setupEditionLinks();
   }
 
   // Register detail templates
-  function registerDetails(container) {
-    container.querySelectorAll('template.detail-tpl').forEach(tpl => {
+  function registerDetailsFromHtml(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('template.detail-tpl').forEach(tpl => {
       detailMap[tpl.dataset.id] = tpl.innerHTML;
     });
   }
 
   // Update stats badges
   function updateStats() {
-    let total = 0;
     SECTIONS.forEach(name => {
-      const count = document.querySelectorAll(`#section-${name} .news-card`).length;
-      const statEl = document.getElementById(`stat-${name}`);
+      const html = sectionCache[name] || '';
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const count = doc.querySelectorAll('.news-card').length;
       const badgeEl = document.getElementById(`badge-${name}`);
-      if (statEl) statEl.textContent = count;
       if (badgeEl) badgeEl.textContent = count;
-      total += count;
     });
   }
 
-  // Nav highlight on scroll
-  function setupNavHighlight() {
-    const navLinks = document.querySelectorAll('.topbar-nav a[data-section]');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          navLinks.forEach(a => {
-            a.classList.toggle('active', `section-${a.dataset.section}` === id);
-          });
-        }
-      });
-    }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+  function setActiveSection(section) {
+    document.querySelectorAll('[data-section]').forEach(el => {
+      el.classList.toggle('active', el.dataset.section === section);
+      el.setAttribute('aria-current', el.dataset.section === section ? 'page' : 'false');
+    });
+    document.title = `牛秘书新闻社 · ${SECTION_LABELS[section]}`;
+    const deck = document.querySelector('.hero-deck');
+    if (deck) {
+      deck.textContent = section === 'recommend'
+        ? '默认呈现智能推荐，从五版要闻中筛出与你最相关的几条。'
+        : `正在阅览：${SECTION_LABELS[section]}。五版分开，翻阅更利落。`;
+    }
+  }
 
-    SECTIONS.forEach(name => {
-      const el = document.getElementById(`section-${name}`);
-      if (el) observer.observe(el);
+  function renderSection(section, options = {}) {
+    const slot = document.getElementById('section-slot');
+    if (!slot) return;
+    currentSection = section;
+    setActiveSection(section);
+
+    const commit = () => {
+      if (section === 'recommend') {
+        const tpl = document.getElementById('recommend-template');
+        slot.innerHTML = tpl ? tpl.innerHTML : '';
+        loadFocus();
+      } else {
+        const html = sectionCache[section];
+        if (!html) return;
+        slot.innerHTML = html;
+      }
+      slot.classList.remove('is-leaving', 'revealed');
+      requestAnimationFrame(() => slot.classList.add('revealed'));
+      window.scrollTo({ top: 0, behavior: options.replace ? 'auto' : 'smooth' });
+    };
+
+    if (options.replace) {
+      commit();
+      return;
+    }
+
+    slot.classList.add('is-leaving');
+    window.setTimeout(commit, 180);
+  }
+
+  function navigateSection(section, options = {}) {
+    if (!PAGES.includes(section) || section === currentSection) return;
+    const url = new URL(window.location.href);
+    if (section === 'recommend') url.searchParams.delete('section');
+    else url.searchParams.set('section', section);
+    if (!options.fromPopState) window.history.pushState({ section }, '', url);
+    renderSection(section);
+  }
+
+  function setupEditionLinks() {
+    document.querySelectorAll('a[data-section]').forEach(link => {
+      link.addEventListener('click', (event) => {
+        const section = link.dataset.section;
+        if (!PAGES.includes(section)) return;
+        event.preventDefault();
+        navigateSection(section);
+      });
     });
   }
 
@@ -213,14 +316,20 @@
     const content = detailMap[id];
     if (!content) return;
     document.getElementById('detail-body').innerHTML = content;
-    document.getElementById('detail-overlay').classList.add('active');
+    const overlay = document.getElementById('detail-overlay');
+    overlay.classList.add('active');
+    requestAnimationFrame(() => overlay.classList.add('ready'));
     document.body.style.overflow = 'hidden';
   };
 
   window.closeDetail = function(e) {
     if (e && e.target !== e.currentTarget) return;
-    document.getElementById('detail-overlay').classList.remove('active');
-    document.body.style.overflow = '';
+    const overlay = document.getElementById('detail-overlay');
+    overlay.classList.remove('ready');
+    window.setTimeout(() => {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }, 180);
   };
 
   // ESC to close
@@ -228,9 +337,13 @@
     if (e.key === 'Escape') closeDetail();
   });
 
+  window.addEventListener('popstate', () => {
+    navigateSection(getRequestedSection(), { fromPopState: true });
+  });
+
   // Init
   document.addEventListener('DOMContentLoaded', () => {
-    loadSections().then(loadFocus);
+    loadSections();
     setupScrollReveal();
   });
 
@@ -264,40 +377,122 @@
         if (m) return m[1];
       }
     }
+    for (const name of SECTIONS) {
+      const html = sectionCache[name];
+      if (!html) continue;
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const cachedCards = doc.querySelectorAll('.news-card');
+      for (const card of cachedCards) {
+        const h = card.querySelector('h3');
+        if (h && h.textContent.trim() === String(title).trim()) {
+          const link = card.closest('.card-link');
+          const m = link && link.getAttribute('onclick') && link.getAttribute('onclick').match(/openDetail\('([^']+)'\)/);
+          if (m) return m[1];
+        }
+      }
+    }
     return null;
   }
 
   async function loadFocus() {
-    const tagsEl = document.getElementById('focus-tags');
-    const bodyEl = document.getElementById('focus-body');
+    const loading = document.getElementById('rec-loading');
+    const filled  = document.getElementById('rec-filled');
+    const empty   = document.getElementById('rec-empty');
+    const error   = document.getElementById('rec-error');
+
     try {
       const data = await callAction('news.recommend', { limit: 6 });
       const profile = data.profile || {};
       const topics = Array.isArray(profile.topics) ? profile.topics : [];
       const exclude = Array.isArray(profile.excludeTopics) ? profile.excludeTopics : [];
-      tagsEl.innerHTML = topics.length
-        ? ('关注：' + topics.map(esc).join(' · ') + (exclude.length ? ('　屏蔽：' + exclude.map(esc).join(' · ')) : ''))
-        : '尚未设关注话题 — 去主页和牛秘书 AI 聊聊“我关注 AI 和财经”就能设定';
       const items = data.items || [];
+
+      // Always hide loading
+      if (loading) loading.hidden = true;
+
       if (!items.length) {
-        bodyEl.innerHTML = '<p style="color:var(--muted);font-size:14px;margin:8px 0;">今日暂无匹配内容。</p>';
+        if (empty) empty.hidden = false;
         return;
       }
-      const note = data.personalized
-        ? ''
-        : '<p style="color:var(--muted);font-size:12px;margin:0 0 8px;">暂未设个性化关注，先为你列出今日要闻。</p>';
-      bodyEl.innerHTML = note + '<div style="display:grid;gap:8px;">' + items.map(function(it) {
-        const did = findDetailIdByTitle(it.title);
-        const clickable = did ? (' onclick="openDetail(\'' + did + '\')" style="cursor:pointer;"') : '';
-        return '<div class="focus-item"' + clickable + ' style="display:flex;align-items:baseline;gap:10px;padding:8px 10px;border-left:3px solid var(--' + esc(it.section) + ');background:rgba(255,247,218,0.5);">' +
-          '<span style="flex-shrink:0;font-size:11px;color:var(--muted);min-width:52px;">' + esc(it.sectionLabel) + '</span>' +
-          '<span style="flex-shrink:0;font-size:11px;font-weight:700;color:var(--brand);">' + esc(it.tag) + '</span>' +
-          '<span style="font-size:14px;color:var(--ink);font-weight:600;line-height:1.45;">' + esc(it.title) + '</span>' +
-        '</div>';
-      }).join('') + '</div>';
+
+      // --- Profile bar ---
+      const tagsEl = document.getElementById('focus-tags');
+      if (tagsEl) {
+        tagsEl.innerHTML = topics.length
+          ? topics.map(function(t) { return '<span class="rec-chip">' + esc(t) + '</span>'; }).join('')
+          : '<span class="rec-chip is-muted">默认要闻</span>';
+      }
+
+      const noteEl = document.getElementById('rec-profile-note');
+      if (noteEl) {
+        noteEl.textContent = data.personalized
+          ? '已按画像重排'
+          : '未设关注话题，按权重排版';
+        if (exclude.length) {
+          noteEl.textContent += ' · 已避开 ' + exclude.join('、');
+        }
+      }
+
+      // --- Hero (first item) ---
+      const lead = items[0];
+      const leadDetailId = findDetailIdByTitle(lead.title);
+      const heroEl = document.getElementById('rec-hero');
+
+      document.getElementById('rec-hero-meta').textContent =
+        (lead.sectionLabel || '') + ' · ' + (lead.tag || '');
+      document.getElementById('rec-hero-title').textContent = lead.title;
+      document.getElementById('rec-hero-summary').textContent = lead.summary || '';
+      document.getElementById('rec-hero-section-label').textContent = lead.sectionLabel || '';
+
+      if (heroEl) {
+        heroEl.setAttribute('data-section', lead.section || '');
+        if (leadDetailId) {
+          heroEl.style.cursor = 'pointer';
+          heroEl.addEventListener('click', function() { openDetail(leadDetailId); });
+        }
+      }
+
+      // --- Grid (remaining items) ---
+      const gridEl = document.getElementById('rec-grid');
+      if (gridEl) {
+        const rest = items.slice(1);
+        gridEl.innerHTML = rest.map(function(it, idx) {
+          const did = findDetailIdByTitle(it.title);
+          return '<article class="rec-card" data-section="' + esc(it.section) + '">' +
+            '<div class="rec-card-head">' +
+              '<span class="rec-card-num">' + String(idx + 2).padStart(2, '0') + '</span>' +
+              '<span class="rec-card-meta">' + esc(it.sectionLabel) + ' · ' + esc(it.tag) + '</span>' +
+            '</div>' +
+            '<h4 class="rec-card-title">' + esc(it.title) + '</h4>' +
+            '<p class="rec-card-summary">' + esc(it.summary || '') + '</p>' +
+            '<span class="rec-card-read">阅览 →</span>' +
+          '</article>';
+        }).join('');
+
+        // Attach click handlers for cards that have a matching detail
+        gridEl.querySelectorAll('.rec-card').forEach(function(card, idx) {
+          const item = items[idx + 1];
+          if (!item) return;
+          const did = findDetailIdByTitle(item.title);
+          if (did) {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function() { openDetail(did); });
+          }
+        });
+      }
+
+      // Show filled
+      if (filled) {
+        filled.hidden = false;
+        // Stagger reveal
+        requestAnimationFrame(function() {
+          filled.classList.add('is-revealed');
+        });
+      }
+
     } catch (e) {
-      tagsEl.textContent = '';
-      bodyEl.innerHTML = '<p style="color:var(--muted);font-size:14px;margin:8px 0;">个性化精选暂时不可用。</p>';
+      if (loading) loading.hidden = true;
+      if (error) error.hidden = false;
     }
   }
 
@@ -312,18 +507,15 @@
       });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    // Observe section slots
-    document.querySelectorAll('.section-slot').forEach(slot => observer.observe(slot));
-
-    // Observe stats bar and announce bar
-    document.querySelectorAll('.stats-bar, .announce-bar').forEach(el => {
+    // Observe announce bar
+    document.querySelectorAll('.announce-bar').forEach(el => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(16px)';
       el.style.transition = 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
       observer.observe(el);
     });
 
-    // After reveal, reset styles for stats/announce
+    // After reveal, reset styles for announce
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -334,7 +526,7 @@
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.stats-bar, .announce-bar').forEach(el => revealObserver.observe(el));
+    document.querySelectorAll('.announce-bar').forEach(el => revealObserver.observe(el));
   }
 })();
 </script>

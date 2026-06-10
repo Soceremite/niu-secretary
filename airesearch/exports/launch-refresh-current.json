@@ -1,0 +1,132 @@
+{
+  "approved_count": 210,
+  "approved_manifest_path": "manifests/approved-launch-refresh-current.txt",
+  "batch": {
+    "duplicate": 0,
+    "failed": 9,
+    "skipped": 0,
+    "success": 201,
+    "total": 210
+  },
+  "canonical": {
+    "candidates_seen": 845,
+    "canonical_count": 737,
+    "links_count": 845,
+    "skipped_count": 0
+  },
+  "concise_log_path": "logs/launch-refresh-2026-06-10T03-22-07-00-00.log",
+  "db_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/airesearch.sqlite3",
+  "discovery": [
+    {
+      "errors": [],
+      "profile_name": "multimodal_foundation_models",
+      "skipped_count": 33,
+      "stored_count": 158,
+      "total_seen": 191
+    },
+    {
+      "errors": [
+        "semantic_scholar: HTTP Error 429: "
+      ],
+      "profile_name": "unified_multimodal_understanding_generation",
+      "skipped_count": 113,
+      "stored_count": 82,
+      "total_seen": 195
+    },
+    {
+      "errors": [
+        "semantic_scholar: HTTP Error 429: "
+      ],
+      "profile_name": "world_models_physical_ai",
+      "skipped_count": 42,
+      "stored_count": 142,
+      "total_seen": 184
+    },
+    {
+      "errors": [
+        "semantic_scholar: HTTP Error 429: "
+      ],
+      "profile_name": "diffusion_models",
+      "skipped_count": 48,
+      "stored_count": 148,
+      "total_seen": 196
+    },
+    {
+      "errors": [
+        "semantic_scholar: HTTP Error 429: "
+      ],
+      "profile_name": "embodied_ai_vla_robotics",
+      "skipped_count": 62,
+      "stored_count": 125,
+      "total_seen": 187
+    }
+  ],
+  "generated_at": "2026-06-10T03:22:07+00:00",
+  "mvp": {
+    "bundle_artifacts": 17,
+    "cards_written": 202,
+    "fact_failures": 23,
+    "facts_written": 1551,
+    "hard_failures": 0,
+    "out_dir": "exports/mvp-current",
+    "papers_seen": 202,
+    "repaired_paths": 369,
+    "site_path": "exports/mvp-current/bundle/index.html",
+    "steps": [
+      "init-db",
+      "sync-paperpipe",
+      "extract-paper-cards",
+      "extract-code-links",
+      "extract-research-facts",
+      "audit-research-facts",
+      "repair-evidence-source-paths",
+      "export-paper-cards",
+      "generate-research-clusters",
+      "generate-cluster-review",
+      "generate-report-bundle",
+      "generate-report-site"
+    ]
+  },
+  "paper_db_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe",
+  "profile_names": [
+    "multimodal_foundation_models",
+    "unified_multimodal_understanding_generation",
+    "world_models_physical_ai",
+    "diffusion_models",
+    "embodied_ai_vla_robotics"
+  ],
+  "profiles_seeded": 5,
+  "provider_names": [
+    "openalex",
+    "arxiv",
+    "semantic_scholar",
+    "google_scholar"
+  ],
+  "publish": {
+    "diff_path": "exports/site-current/publish-diff.json",
+    "entrypoint": "exports/site-current/index.html",
+    "file_count": 19,
+    "manifest_path": "exports/site-current/publish.json",
+    "out_dir": "exports/site-current",
+    "source_dir": "exports/mvp-current/bundle"
+  },
+  "run_history_path": "exports/run-history/launch-refresh-2026-06-10T03-22-07-00-00.json",
+  "run_manifest_path": "exports/launch-refresh-current.json",
+  "selected_count": 100,
+  "steps": [
+    "init-db",
+    "seed-profiles",
+    "discover-candidates",
+    "dedupe-candidates",
+    "select-canonical-candidates",
+    "export-approved-candidates",
+    "batch-ingest",
+    "sync-paperpipe",
+    "run-mvp-pipeline",
+    "publish-static-site"
+  ],
+  "sync": {
+    "artifacts_seen": 1212,
+    "papers_seen": 202
+  }
+}

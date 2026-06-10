@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-06-10T07:52:24.340653+00:00",
+  "site_dir": "exports/site-current",
+  "resolved_site_dir": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/exports/site-current",
+  "deploy_root": "/var/www/html/niu-secretary/airesearch",
+  "snapshot_root": "/var/www/html/niu-secretary/.airesearch-deploy-snapshots",
+  "deploy_script": "deploy/deploy-airesearch.sh",
+  "rollback_script": "deploy/rollback-airesearch.sh",
+  "deploy_command": "sudo deploy/deploy-airesearch.sh",
+  "rollback_command": "sudo deploy/rollback-airesearch.sh latest",
+  "rollback_hint": "Run rollback-airesearch.sh latest to restore the newest pre-deploy snapshot, or pass a snapshot directory name."
+}

@@ -1,0 +1,144 @@
+{
+  "cluster_count": 3,
+  "clustered_fact_count": 6,
+  "clusters": [
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:dataset-evaluate-held-out",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_07342",
+          "paper_title": "LLM-Guided Evolution for Medical Decision Pipelines",
+          "statement": "MIMIC-ESI is utilized as a held-out dataset to evaluate safety-weighted triage performance.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_07342",
+          "paper_title": "LLM-Guided Evolution for Medical Decision Pipelines",
+          "statement": "iCRAFTMD is used as a held-out dataset to evaluate the transferability of interactive consultation policies.",
+          "year": 2026
+        }
+      ],
+      "label": "Dataset Evaluate Held Out",
+      "paper_count": 1,
+      "token_signature": [
+        "dataset",
+        "evaluate",
+        "held",
+        "out",
+        "consultation"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:2014-english-evaluate-task",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The WMT 2014 English-to-French translation task was used to evaluate the model.",
+          "year": 2017
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The WMT 2014 English-to-German translation task was used to evaluate the model.",
+          "year": 2017
+        }
+      ],
+      "label": "2014 English Evaluate Task",
+      "paper_count": 1,
+      "token_signature": [
+        "2014",
+        "english",
+        "evaluate",
+        "task",
+        "translation"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:2014-bleu-english-task",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer establishes a new single-model state-of-the-art BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs.",
+          "year": 2017
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU.",
+          "year": 2017
+        }
+      ],
+      "label": "2014 Bleu English Task",
+      "paper_count": 1,
+      "token_signature": [
+        "2014",
+        "bleu",
+        "english",
+        "task",
+        "transformer"
+      ]
+    }
+  ],
+  "fact_count": 79,
+  "generated_at": "2026-06-09T11:28:05+00:00",
+  "mode": "token",
+  "paper_count": 11,
+  "semantic_threshold": null,
+  "singleton_count": 73,
+  "singleton_summaries": [
+    {
+      "fact_count": 27,
+      "fact_type": "method",
+      "paper_count": 11
+    },
+    {
+      "fact_count": 9,
+      "fact_type": "dataset",
+      "paper_count": 8
+    },
+    {
+      "fact_count": 5,
+      "fact_type": "benchmark",
+      "paper_count": 4
+    },
+    {
+      "fact_count": 28,
+      "fact_type": "claim",
+      "paper_count": 11
+    },
+    {
+      "fact_count": 4,
+      "fact_type": "limitation",
+      "paper_count": 3
+    }
+  ]
+}

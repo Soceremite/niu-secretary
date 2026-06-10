@@ -1,0 +1,2468 @@
+{
+  "extraction_target_count": 188,
+  "extraction_targets": [
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "agenticnav",
+      "priority_score": 55,
+      "title": "AgenticNav: Zero-Shot Vision-and-Language Navigation as a Tool-Calling Harness",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "2606_10904",
+      "priority_score": 55,
+      "title": "Comparative Analysis of Inference-Time Defense Methods for Multimodal Large Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "disco",
+      "priority_score": 55,
+      "title": "DisCo: World Models with Discrete Camera Motion Control",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "flymirage",
+      "priority_score": 55,
+      "title": "FlyMirage: A Fully Automated Generation Pipeline for Diverse and Scalable UAV Flight Data via Generative World Model",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "gem-4d",
+      "priority_score": 55,
+      "title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "latent-diffusion-policy",
+      "priority_score": 55,
+      "title": "Latent Diffusion Policy: Shaping Latent Spaces for Diffusion-Based Robotic Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "multimodal-structure-learning",
+      "priority_score": 55,
+      "title": "Multimodal Structure Learning: Disentangling Shared and Specific Topology via Cross-Modal Graphical Lasso",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "oscar",
+      "priority_score": 55,
+      "title": "OSCAR: Omni-Embodiment Action-Conditioned World Model for Robotics",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "paretoslider",
+      "priority_score": 55,
+      "title": "ParetoSlider: Diffusion Models Post-Training for Continuous Reward Control",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "phyedit",
+      "priority_score": 55,
+      "title": "PhyEdit: Towards Real-World Object Manipulation via Physically-Grounded Image Editing",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "probeact",
+      "priority_score": 55,
+      "title": "ProbeAct: Probe-Guided Training-Free Failure Recovery in Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "q-vgm",
+      "priority_score": 55,
+      "title": "Q-VGM: Q-Guided Value-Gradient Matching for Flow-Matching VLA Policies",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "thinking-with-imagination",
+      "priority_score": 55,
+      "title": "Thinking with Imagination: Agentic Visual Spatial Reasoning with World Simulators",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "ttt-vla",
+      "priority_score": 55,
+      "title": "TTT-VLA: Test-Time Latent Prompt Optimization for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "verispace",
+      "priority_score": 55,
+      "title": "VeriSpace: Spatially Grounded Action Verification for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "vla-os",
+      "priority_score": 55,
+      "title": "VLA-OS: Structuring and Dissecting Planning Representations and Paradigms in Vision-Language-Action Models",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "2505_19789v4",
+      "priority_score": 55,
+      "title": "What Can RL Bring to VLA Generalization? An Empirical Study",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "db-3dme",
+      "priority_score": 50,
+      "title": "DB-3DME: From Dataset to Benchmark for Human-aligned Automatic 3D Mesh Evaluation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "geoworld-vlm",
+      "priority_score": 50,
+      "title": "GeoWorld-VLM: Geometry from World Models for Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "memoryvla",
+      "priority_score": 50,
+      "title": "MemoryVLA++: Temporal Modeling via Memory and Imagination in Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "mlingualfc",
+      "priority_score": 50,
+      "title": "MLingualFC: Evaluating Jailbreak Vulnerabilities in Multilingual Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "mpcot",
+      "priority_score": 50,
+      "title": "MPCoT: Reward-Guided Multi-Path Latent Reasoning for Test-Time Scalable Vision-Language-Action",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark",
+        "claim",
+        "limitation"
+      ],
+      "paper_key": "popcorn",
+      "priority_score": 50,
+      "title": "Popcorn: A Configurable Benchmark for Visual Evidence in Multimodal Movie Recommendation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "fate-vla",
+      "priority_score": 35,
+      "title": "FATE-VLA:Failue-aware test generation for vision-language-action models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "2506_18504v2",
+      "priority_score": 35,
+      "title": "Generalizing vision-language models to novel domains: A comprehensive survey",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "kairos",
+      "priority_score": 35,
+      "title": "Kairos: A Scalable Serving System for Physical AI",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "maskalign",
+      "priority_score": 35,
+      "title": "MaskAlign: Token-Subset Representation Alignment for Efficient Diffusion Training",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "paco-vla",
+      "priority_score": 35,
+      "title": "PaCo-VLA: Passivity-Shielded Compliance Prior for Contact-Rich Vision-Language-Action Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "2606_08953",
+      "priority_score": 35,
+      "title": "Self-Consistent Generative Paths via Admissible Random Variational Transport",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "torl-vla",
+      "priority_score": 35,
+      "title": "TORL-VLA: Tactile Guided Online Reinforcement Learning for Contact-Rich Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2604_13654",
+      "priority_score": 35,
+      "title": "Vision-and-Language Navigation for UAVs: Progress, Challenges, and a Research Roadmap",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "motionenhancer",
+      "priority_score": 30,
+      "title": "MotionEnhancer: Leveraging Video Diffusion for Motion-Enhanced Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "ptq4arvg",
+      "priority_score": 30,
+      "title": "PTQ4ARVG: Post-Training Quantization for AutoRegressive Visual Generation Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "method",
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2605_00080",
+      "priority_score": 30,
+      "title": "World Model for Robot Learning: A Comprehensive Survey",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 3,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "ct-vam",
+      "priority_score": 28,
+      "title": "CT-VAM: A Cerebello-Thalamic-Inspired Vision-Action Model for Efficient Visuomotor Control",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "automot",
+      "priority_score": 25,
+      "title": "AutoMoT: A Unified Vision-Language-Action Model with Asynchronous Mixture-of-Transformers for End-to-End Autonomous Driving",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "c3ache",
+      "priority_score": 25,
+      "title": "C$^3$ache: Accelerating World Action Models with Cross Inference Chunk Cache",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "coarse-to-control",
+      "priority_score": 25,
+      "title": "Coarse-to-Control: Action-Token Planning for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "cocosi",
+      "priority_score": 25,
+      "title": "CoCoSI: Collaborative Cognitive Map Construction for Spatial Intelligence",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "cp4d",
+      "priority_score": 25,
+      "title": "CP4D: Compositional Physics-aware 4D Scene Generation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "2606_10400",
+      "priority_score": 25,
+      "title": "Do Vision-Language Models See or Guess? Measuring and Reducing Textual-Prior Reliance with a Phrasing-Controlled Benchmark",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "2606_09148",
+      "priority_score": 25,
+      "title": "Explicit Representation Alignment for Multimodal Sentiment Analysis",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "fmrfusion",
+      "priority_score": 25,
+      "title": "FMRFusion: Frequency-Aware Multi-View Representation Learning for Heterogeneous Image Fusion",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "2606_10147",
+      "priority_score": 25,
+      "title": "From Senses to Decisions: The Information Flow of Auditory and Visual Perception in Multimodal LLMs",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2606_08743",
+      "priority_score": 25,
+      "title": "Guided Discovery of New Behaviors using Diffusion Policies",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "hoist",
+      "priority_score": 25,
+      "title": "HOIST: Humanoid Optimization with Imitation and Sample-efficient Tuning for Manipulating Suspended Loads",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "legs",
+      "priority_score": 25,
+      "title": "LEGS: Fine-Tuning Teleop-Free VLAs for Humanoid Loco-manipulation in an Embodied Gaussian Splatting World",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "lucid-sae",
+      "priority_score": 25,
+      "title": "LUCID-SAE: Learning Unified Vision-Language Sparse Codes for Interpretable Concept Discovery",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "omni123",
+      "priority_score": 25,
+      "title": "Omni123: Exploring 3D Native Foundation Models with Limited 3D Data by Unifying Text to 2D and 3D Generation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2606_03556",
+      "priority_score": 25,
+      "title": "Partially Observable Adversarial Patch Attacks on Vision-Language-Action Models in Robotics",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "phaser",
+      "priority_score": 25,
+      "title": "PHASER: Phase-Aware and Semantic Experience Replay for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "reactive-flux-matching",
+      "priority_score": 25,
+      "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "2606_07217",
+      "priority_score": 25,
+      "title": "Robotic Policy Adaptation via Weight-Space Meta-Learning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "speakerllm",
+      "priority_score": 25,
+      "title": "SpeakerLLM: A Speaker-Specialized Audio-LLM for Speaker Understanding and Verification Reasoning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2606_00966",
+      "priority_score": 25,
+      "title": "Threading Optimization for Vision-Language-Action Model Inference in Low-Cost Smart Agricultural Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2606_02313",
+      "priority_score": 25,
+      "title": "Towards Precise Intent-Aligned VLA Aerial Navigation via Expert-Guided GRPO",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "2605_24578",
+      "priority_score": 25,
+      "title": "World Models as Group Actions",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 4,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "2606_05979",
+      "priority_score": 24,
+      "title": "World-Language-Action Model for Unified World Modeling, Language Reasoning, and Action Synthesis",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "2606_06186",
+      "priority_score": 20,
+      "title": "Adversarial Attacks Already Tell the Answer: Directional Bias-Guided Test-time Defense for Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "1706_03762",
+      "priority_score": 20,
+      "title": "Attention Is All You Need",
+      "venue": "",
+      "year": 2017
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "blue",
+      "priority_score": 20,
+      "title": "BLUE: Toward Better Language Use in Efficient Vision-Language-Action Models for Autonomous Driving",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "c-genreg",
+      "priority_score": 20,
+      "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "cosmos-3",
+      "priority_score": 20,
+      "title": "Cosmos 3: Omnimodal World Models for Physical AI",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "diff-ca",
+      "priority_score": 20,
+      "title": "Diff-CA: Separating Common and Salient Factors with Diffusion Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "flashtts",
+      "priority_score": 20,
+      "title": "FlashTTS: Fast Streaming TTS with MTP Acceleration and X-pred Mean Flow Distillation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "freeanimate",
+      "priority_score": 20,
+      "title": "FreeAnimate: Training-Free Human Image Animation with Preview-Guided Denoising",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "gp-adapter",
+      "priority_score": 20,
+      "title": "GP-Adapter: Gaussian Process CLIP-Adapter for Few-Shot Out-of-Distribution Detection",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "incantation",
+      "priority_score": 20,
+      "title": "Incantation: Natural Language as the Action Interface for Multi-Entity Video World Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "look-on-demand",
+      "priority_score": 20,
+      "title": "Look on Demand: A Cognitive Scheduling Framework for Visual Evidence Acquisition in Multimodal Reasoning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "2605_30571",
+      "priority_score": 20,
+      "title": "Memory-Bound but Not Bandwidth-Limited: The Physical AI Inference Gap in Batch-1 LLM Decode",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "native3d",
+      "priority_score": 20,
+      "title": "Native3D: End-to-End 3D Scene Generation via Unified Mesh-Texture Modeling and Semantic Alignment",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "ss-tpt",
+      "priority_score": 20,
+      "title": "SS-TPT: Stability and Suitability-Guided Test-Time Prompt Tuning for Adversarially Robust Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "2606_07000",
+      "priority_score": 20,
+      "title": "Teaching the Way, Not the Answer: Privileged Tutoring Distillation for Multimodal Policy Optimization",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark",
+        "limitation"
+      ],
+      "paper_key": "2605_08129",
+      "priority_score": 20,
+      "title": "Towards Customized Multimodal Role-Play",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "2606_10501",
+      "priority_score": 20,
+      "title": "Uncovering Vulnerability of Vision-Language-Action Models under Joint-Level Physical Faults",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "unicompress",
+      "priority_score": 20,
+      "title": "UniCompress: Token Compression for Unified Vision-Language Understanding and Generation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "benchmark"
+      ],
+      "paper_key": "wall-wm",
+      "priority_score": 20,
+      "title": "WALL-WM: Carving World Action Modeling at the Event Joints",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset",
+        "limitation"
+      ],
+      "paper_key": "watch-remember-reason",
+      "priority_score": 20,
+      "title": "Watch, Remember, Reason: Human-View Video Understanding with MLLMs",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 3,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "tracing-the-oracle",
+      "priority_score": 18,
+      "title": "Tracing the Oracle: Improving Diffusion Timestep Scheduling for 3D CT Reconstruction",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 2,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "aura",
+      "priority_score": 17,
+      "title": "AURA: Action-Gated Memory for Robot Policies at Constant VRAM",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "2606_10366",
+      "priority_score": 15,
+      "title": "A Practical Recipe Towards Improving Sim-and-Real Correlation for VLA Evaluation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "audioprocessbench",
+      "priority_score": 15,
+      "title": "AudioProcessBench: Benchmark for Identifying Process Errors in Audio-Grounded Reasoning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "beyond-task-success",
+      "priority_score": 15,
+      "title": "Beyond Task Success: Behavioral and Representational Diagnostics for WAM and VLA",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "chronophybench",
+      "priority_score": 15,
+      "title": "ChronoPhyBench: Do MLLMs Truly Understand the World or Merely Exploit Language Priors?",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "clasp",
+      "priority_score": 15,
+      "title": "CLASP: Language-Driven Robot Skill Selection and Composition using Task-Parameterized Learning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_01951",
+      "priority_score": 15,
+      "title": "Co-training with Ego-centric Video and Demonstration for Robot Navigation Task",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_04046",
+      "priority_score": 15,
+      "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_10833",
+      "priority_score": 15,
+      "title": "Do VLMs Reason Like Engineers? A Benchmark and a Stage-wise Evaluation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "easylens",
+      "priority_score": 15,
+      "title": "EasyLens: A Training-Free Plug-and-Play Subtle-Lesion Representation Amplifier for Medical Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "exdet",
+      "priority_score": 15,
+      "title": "ExDet: Open-Domain Open-Vocabulary Detection with Cross-modal Extrapolation and Rectification",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "fire",
+      "priority_score": 15,
+      "title": "FiRe: Fine-grained Multimodal Reasoning for Enhanced Image Generation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_10543",
+      "priority_score": 15,
+      "title": "Flexible Flows for Biological Sequence Design",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "flow-control",
+      "priority_score": 15,
+      "title": "Flow Control: Steering Vision-Language-Action Models with Simple Real-Time Inputs",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "2606_06278",
+      "priority_score": 15,
+      "title": "Geodesic Flow Matching on a Riemannian Degradation Manifold for Blind Image Restoration",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "haptile",
+      "priority_score": 15,
+      "title": "HapTile: A Haptic-Informed Vision-Tactile-Language-Action Dataset for Contact-Rich Imitation Learning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "homeworld",
+      "priority_score": 15,
+      "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "lafp",
+      "priority_score": 15,
+      "title": "LAFP: Preserving Latent Action Structure in Latent Policy Learning via Flow Matching",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_01151",
+      "priority_score": 15,
+      "title": "Lagrangian Perturbation Diffusion Steering: Latent Reinforcement Learning for Generative Policies",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "magis",
+      "priority_score": 15,
+      "title": "MAGIS: Evidence-Based Multi-Agent Reasoning for Interpretable Strabismus Clinical Decision-Making",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "medq-uni",
+      "priority_score": 15,
+      "title": "MedQ-UNI: Toward Unified Medical Image Quality Assessment and Restoration via Vision-Language Modeling",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "metaworld",
+      "priority_score": 15,
+      "title": "MetaWorld: Scaling Multi-Agent Video World Model from Single-view Video Data",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "mirabench",
+      "priority_score": 15,
+      "title": "MiraBench: Evaluating Action-Conditioned Reliability in Robotic World Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "mive",
+      "priority_score": 15,
+      "title": "MiVE: Multiscale Vision-language features for reference-guided video Editing",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_05751",
+      "priority_score": 15,
+      "title": "Multi-Condition Guided Diffusion Model for Controllable Elastic Parameter Synthesis",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "nextmotionqa",
+      "priority_score": 15,
+      "title": "NextMotionQA: Benchmarking and Judging Human Motion Understanding with Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "pamf",
+      "priority_score": 15,
+      "title": "PAMF: Prior-Aware Multimodal Fusion for Incomplete Time Series Data",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "par3d",
+      "priority_score": 15,
+      "title": "PAR3D: A Unified 3D-MLLM with Part-Aware Representation for Scene Understanding",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "pil-world",
+      "priority_score": 15,
+      "title": "PiL-World: A Chunk-Wise World Model for VLA Policy-in-the-Loop Evaluation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_06303",
+      "priority_score": 15,
+      "title": "Plug-and-Play Guidance for Discrete Diffusion Models via Gradient-Informed Logit Correction",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_04968",
+      "priority_score": 15,
+      "title": "Potential-Guided Flow Matching for Vision-Language-Action Policy Improvement",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "prpo",
+      "priority_score": 15,
+      "title": "PRPO: Perception-Reinforced Policy Optimization via Token-Level Dynamic Advantage Reshaping",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "reinflow",
+      "priority_score": 15,
+      "title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_08957",
+      "priority_score": 15,
+      "title": "Rethinking 3D Shape Generation: Diffusion over Superquadrics",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "rog-grasp",
+      "priority_score": 15,
+      "title": "ROG-Grasp: Root-Oriented Geometry for Robotic Grasping and Placement",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "safevla-bench",
+      "priority_score": 15,
+      "title": "SafeVLA-Bench: A Benchmark for the Success-Safety Gap in Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_03724",
+      "priority_score": 15,
+      "title": "Same Weights, Different Robot: A Deployment Safety View of VLA Policies",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "sarm2",
+      "priority_score": 15,
+      "title": "SARM2: Multi-Task Stage Aware Reward Modeling for Self Improving Robotic Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_09009",
+      "priority_score": 15,
+      "title": "Scaling by Diversified Experience for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_09059",
+      "priority_score": 15,
+      "title": "Stage-1 Controls the Entropy Regime, Not the Outcome",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "stediff",
+      "priority_score": 15,
+      "title": "STEDiff: Strengthening Text Embedding for Text-to-Image Alignment in Diffusion Model",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "stream",
+      "priority_score": 15,
+      "title": "STREAM: Stochastic Riemannian Flow Matching with Anisotropic Decoder for Digital Histopathology Image Generation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_10918",
+      "priority_score": 15,
+      "title": "Task Robustness via Re-Labelling Vision-Action Robot Data",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_01847",
+      "priority_score": 15,
+      "title": "The Lie We Tell: Correcting the Euclidean Fallacy in Vision Language Action Policies via Score Matching on Tangent Space",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_08031",
+      "priority_score": 15,
+      "title": "Vision-Language Asymmetry in Bistable Image Captioning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_06356",
+      "priority_score": 15,
+      "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2605_16547",
+      "priority_score": 15,
+      "title": "World Model-Enabled Causal Digital Twins for Semantic Communications in Physical AI Systems",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_09749",
+      "priority_score": 15,
+      "title": "Your Model Already Knows: Attention-Guided Safety Filter for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "amvicc",
+      "priority_score": 10,
+      "title": "AMVICC: A Novel Benchmark for Cross-Modal Failure Mode Profiling for VLMs and IGMs",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_08970",
+      "priority_score": 10,
+      "title": "An Effective Router for Vision-Language Model Selection",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "2606_08894",
+      "priority_score": 10,
+      "title": "Are Reasoning Vision-Language Models Robust to Semantic Visual Distractions?",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_06895",
+      "priority_score": 10,
+      "title": "Blockchain Infrastructure for Intelligent Cyber--Physical--Social Systems:Post-Quantum Security, Interoperability, and Trustworthy Data Economies in the Era of Embodied AI",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "caprl",
+      "priority_score": 10,
+      "title": "CapRL++: Unified Reinforcement Learning with Verifiable Rewards for Dense Image and Video Captioning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2605_24322",
+      "priority_score": 10,
+      "title": "Causal Physics Steering in Video World Models via Concept Activation Vectors",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "colavla",
+      "priority_score": 10,
+      "title": "ColaVLA: Leveraging Cognitive Latent Reasoning for Hierarchical Parallel Trajectory Planning in Autonomous Driving",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "diff2sp",
+      "priority_score": 10,
+      "title": "Diff2SP: Diffusion Models for Correlated Scenario Generation in Stochastic Programming",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_07779",
+      "priority_score": 10,
+      "title": "Do Vision-Language Models See Dwarf Galaxies the Way We Do?",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "editssc",
+      "priority_score": 10,
+      "title": "EditSSC: Toward Editable Semantic Occupancy Scenes with Unconditional Diffusion Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_10450",
+      "priority_score": 10,
+      "title": "Few-step Generative Models as Lossy Compression",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2605_08638",
+      "priority_score": 10,
+      "title": "Geometry Guided Self-Consistency for Physical AI",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "guide-me-out",
+      "priority_score": 10,
+      "title": "Guide Me Out: A Framework to Benchmark VLM Operators Communication in Crisis Scenarios",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2407_21243",
+      "priority_score": 10,
+      "title": "Informed Correctors for Discrete Diffusion Models",
+      "venue": "",
+      "year": 2024
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "l-sdppo",
+      "priority_score": 10,
+      "title": "L-SDPPO: Policy Optimization of Spiking Diffusion Policy for Intra-vehicular Robotic Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "lara",
+      "priority_score": 10,
+      "title": "LARA: Latent Action Representation Alignment for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "less-is-more",
+      "priority_score": 10,
+      "title": "Less Is More: Training-Free Acceleration Framework of 3D Diffusion Models for Low-Count PET Denoising via Global-Local Trajectory Reduction",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "2606_07342",
+      "priority_score": 10,
+      "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "modip",
+      "priority_score": 10,
+      "title": "MODIP: Efficient Model-Based Optimization for Diffusion Policies",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "nvidia-omnidreams",
+      "priority_score": 10,
+      "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "occupancy-reward-shaping",
+      "priority_score": 10,
+      "title": "Occupancy Reward Shaping: Improving Credit Assignment for Offline Goal-Conditioned Reinforcement Learning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "omnivl-guard",
+      "priority_score": 10,
+      "title": "OmniVL-Guard: Towards Unified Vision-Language Forgery Detection and Grounding via Balanced RL",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_01503",
+      "priority_score": 10,
+      "title": "On the Limits of Token Reduction for Efficient Unified Vision Language Training",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "openeai-platform",
+      "priority_score": 10,
+      "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "pai-bench",
+      "priority_score": 10,
+      "title": "PAI-Bench: A Comprehensive Benchmark For Physical AI",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "phycritic",
+      "priority_score": 10,
+      "title": "PhyCritic: Multimodal Critic Models for Physical AI",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "pre-vla",
+      "priority_score": 10,
+      "title": "Pre-VLA: Preemptive Runtime Verification for Reliable Vision-Language-Action and World-Model Rollouts",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2503_00307",
+      "priority_score": 10,
+      "title": "Remasking Discrete Diffusion Models with Inference-Time Scaling",
+      "venue": "",
+      "year": 2025
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "robosemanticbench",
+      "priority_score": 10,
+      "title": "RoboSemanticBench: Diagnosing Semantic Grounding in Action Prediction for VLA Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "scope",
+      "priority_score": 10,
+      "title": "SCOPE: Simulating Cross-game Operations in Playable Environments for FPS World Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "seetraceact",
+      "priority_score": 10,
+      "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_06682",
+      "priority_score": 10,
+      "title": "Spatiotemporal Imputation with Graph-Informed Flow Matching",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "limitation"
+      ],
+      "paper_key": "2606_09091",
+      "priority_score": 10,
+      "title": "Stabilizing On-Policy Distillation for MLLM Reasoning with Global Normalization",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_05783",
+      "priority_score": 10,
+      "title": "Stochastic Multiscale Reconstruction of Lagrangian Turbulence via Guided Diffusion Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "trara",
+      "priority_score": 10,
+      "title": "TraRA: Trajectory-level Recognition Aggregation for Video Text Spotting in Urban Surveillance",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "tvi-cot",
+      "priority_score": 10,
+      "title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "dataset"
+      ],
+      "paper_key": "2606_08775",
+      "priority_score": 10,
+      "title": "Unifying Object-Centric World Models and Diffusion Policy: A Hierarchical Framework for Multi-Stage Robotic Tasks",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [
+        "benchmark"
+      ],
+      "paper_key": "2606_09132",
+      "priority_score": 10,
+      "title": "Vision Language Model Helps Private Information De-Identification in Vision Data",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 7,
+      "missing_fact_types": [],
+      "paper_key": "2606_00253",
+      "priority_score": 7,
+      "title": "Per-Group Error, Not Total MSE: Fine-Tuning Vision-Language-Action Models for 11-DoF Mobile Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "3dthinkvla",
+      "priority_score": 5,
+      "title": "3DThinkVLA: Endowing Vision-Language-Action Models with Latent 3D Priors via 3D-Thinking-Guided Co-training",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "behaviorvlm",
+      "priority_score": 5,
+      "title": "BehaviorVLM: Unified Finetuning-Free Behavioral Understanding with Vision-Language Reasoning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_08881",
+      "priority_score": 5,
+      "title": "Benchmarking Vision-Language-Action Models on SO-101: Failure and Recovery Analysis",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "beyond-consistency",
+      "priority_score": 5,
+      "title": "Beyond Consistency: Preserving Temporal Structure in Zero-Shot Video Editing",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2605_12034",
+      "priority_score": 5,
+      "title": "Boosting Omni-Modal Language Models: Staged Post-Training with Visually Debiased Evaluation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_00269",
+      "priority_score": 5,
+      "title": "Closed-Loop Neural Activation Control in Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_05737",
+      "priority_score": 5,
+      "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_00985",
+      "priority_score": 5,
+      "title": "Make Your VLA More Robust Without More Data By Interleaving Motion Planning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "mmbu",
+      "priority_score": 5,
+      "title": "MMBU: A Massive Multi-modal Biomedical Understanding Benchmark to Probe the Perception Capabilities of Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "physics-in-2-steps",
+      "priority_score": 5,
+      "title": "Physics in 2-Steps: Locking Motion Priors Before Visual Refinement Erases Them",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "reason-twice",
+      "priority_score": 5,
+      "title": "Reason Twice: Segmentation via Candidate Discovery and Comparative Reasoning",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_10348",
+      "priority_score": 5,
+      "title": "Rethinking Embodied Navigation via Relational Inductive Bias",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_03784",
+      "priority_score": 5,
+      "title": "Revisiting Embodied Chain-of-Thought for Generalizable Robot Manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_06695",
+      "priority_score": 5,
+      "title": "S23DR 2026 Winning Solution",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_02735",
+      "priority_score": 5,
+      "title": "See Less, Specify More: Visual Evidence Budgets for Generalizable VLAs",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "simple",
+      "priority_score": 5,
+      "title": "SIMPLE: Simulation-Based Policy Learning and Evaluation for Humanoid Loco-manipulation",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_07861",
+      "priority_score": 5,
+      "title": "The Last Visible Pixel: Probing Fine-Scale Perception in Vision-Language Models",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2605_27817",
+      "priority_score": 5,
+      "title": "Turning Video Models into Generalist Robot Policies",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "what-if-world",
+      "priority_score": 5,
+      "title": "What-If World: A Causal Benchmark for General World Models in Embodied Scenarios",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_09644",
+      "priority_score": 5,
+      "title": "Where Does the Answer Come From? Benchmarking View-Level Visual Evidence Identification in Multi-View MLLMs for Autonomous Driving",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": false,
+      "missing_evidence_source_path_count": 0,
+      "missing_fact_types": [],
+      "paper_key": "2606_09362",
+      "priority_score": 5,
+      "title": "Zero-Shot Semantic Re-Identification for Autonomous Driving: A VLM Baseline Study",
+      "venue": "",
+      "year": 2026
+    },
+    {
+      "has_code_links": true,
+      "missing_evidence_source_path_count": 1,
+      "missing_fact_types": [],
+      "paper_key": "2606_06002",
+      "priority_score": 1,
+      "title": "Global-Local Monte Carlo Tree Search in Vision-Language Models for Text-to-3D Indoor Scene Generation",
+      "venue": "",
+      "year": 2026
+    }
+  ],
+  "fact_count": 1553,
+  "generated_at": "2026-06-10T07:02:42+00:00",
+  "missing_evidence_source_path_count": 20,
+  "moderate_coverage": {
+    "fact_types": [
+      {
+        "coverage_ratio": 0.5198019801980198,
+        "fact_count": 128,
+        "fact_type": "benchmark",
+        "paper_count": 105
+      },
+      {
+        "coverage_ratio": 0.6386138613861386,
+        "fact_count": 214,
+        "fact_type": "limitation",
+        "paper_count": 129
+      }
+    ],
+    "name": "moderate"
+  },
+  "paper_count": 202,
+  "papers_missing_fact_types": 165,
+  "papers_without_code_links": 118,
+  "required_fact_types": [
+    "method",
+    "dataset",
+    "benchmark",
+    "claim",
+    "limitation"
+  ],
+  "strong_coverage": {
+    "fact_types": [
+      {
+        "coverage_ratio": 0.8762376237623762,
+        "fact_count": 644,
+        "fact_type": "method",
+        "paper_count": 177
+      },
+      {
+        "coverage_ratio": 0.8861386138613861,
+        "fact_count": 432,
+        "fact_type": "claim",
+        "paper_count": 179
+      }
+    ],
+    "name": "strong"
+  },
+  "synthesis_notes": [
+    {
+      "coverage_ratio": 0.8762376237623762,
+      "fact_count": 644,
+      "fact_type": "method",
+      "note": "Well covered across the current corpus; use these facts as the backbone for synthesis.",
+      "paper_count": 177
+    },
+    {
+      "coverage_ratio": 0.4801980198019802,
+      "fact_count": 135,
+      "fact_type": "dataset",
+      "note": "Under-covered; treat conclusions as provisional until more papers include this fact type.",
+      "paper_count": 97
+    },
+    {
+      "coverage_ratio": 0.5198019801980198,
+      "fact_count": 128,
+      "fact_type": "benchmark",
+      "note": "Partially covered; use with paper-level caveats and prioritize missing papers before broad claims.",
+      "paper_count": 105
+    },
+    {
+      "coverage_ratio": 0.8861386138613861,
+      "fact_count": 432,
+      "fact_type": "claim",
+      "note": "Well covered across the current corpus; use these facts as the backbone for synthesis.",
+      "paper_count": 179
+    },
+    {
+      "coverage_ratio": 0.6386138613861386,
+      "fact_count": 214,
+      "fact_type": "limitation",
+      "note": "Partially covered; use with paper-level caveats and prioritize missing papers before broad claims.",
+      "paper_count": 129
+    }
+  ],
+  "weak_coverage": {
+    "fact_types": [
+      {
+        "coverage_ratio": 0.4801980198019802,
+        "fact_count": 135,
+        "fact_type": "dataset",
+        "paper_count": 97
+      }
+    ],
+    "name": "weak"
+  }
+}

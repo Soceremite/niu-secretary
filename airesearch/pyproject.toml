@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airesearch"
+version = "0.1.0"
+description = "Local research paper ledger and batch ingest layer for paperpipe."
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+airesearch = "airesearch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+airesearch = ["schema.sql"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

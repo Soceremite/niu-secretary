@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -55,6 +56,8 @@ class FactExtractionResult:
     cache_hits: int = 0
     llm_calls: int = 0
     dry_runs: int = 0
+    failed_count: int = 0
+    failed_errors: dict[str, str] | None = None
 
 
 class OpenAICompatibleClient:
@@ -460,8 +463,12 @@ def extract_openai_compatible_facts(
     dry_run: bool,
     refresh_cache: bool,
     max_input_chars: int,
+    concurrency: int = 5,
     client: Any | None,
+    error_policy: str = "strict",
 ) -> FactExtractionResult:
+    if error_policy not in {"strict", "warn"}:
+        raise ValueError("error_policy must be one of: strict, warn")
     provider_name = "openai-compatible"
     resolved_model = model or os.environ.get("AIRESEARCH_FACT_MODEL") or "gpt-4.1-mini"
     resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL")
@@ -483,19 +490,20 @@ def extract_openai_compatible_facts(
             if not api_key:
                 raise FactValidationError(f"{api_key_env} is required for openai-compatible provider")
             target_papers = load_target_papers(conn, paper_key=paper_key, limit=limit)
-            facts_written = 0
-            provenance_written = 0
-            cache_hits = 0
-            llm_calls = 0
-            dry_runs = 0
             active_client = client or OpenAICompatibleClient()
-            for target_paper_key in target_papers:
-                pack = build_evidence_pack(conn, target_paper_key, max_input_chars=max_input_chars)
+
+            # ── Phase 1: Build all evidence packs, identify workload ──
+            llm_queue: list[tuple[str, EvidencePack]] = []
+            cache_results: list[tuple[str, EvidencePack, list[FactPayload]]] = []
+            dry_run_count = 0
+
+            for pk in target_papers:
+                pack = build_evidence_pack(conn, pk, max_input_chars=max_input_chars)
                 now = utc_now()
                 if dry_run:
                     existing_success = find_successful_cache(
                         conn,
-                        paper_key=target_paper_key,
+                        paper_key=pk,
                         provider_name=provider_name,
                         model=resolved_model,
                         evidence_hash=pack.evidence_hash,
@@ -503,7 +511,7 @@ def extract_openai_compatible_facts(
                     if existing_success is None:
                         upsert_cache_row(
                             conn,
-                            paper_key=target_paper_key,
+                            paper_key=pk,
                             provider_name=provider_name,
                             model=resolved_model,
                             evidence_hash=pack.evidence_hash,
@@ -513,72 +521,136 @@ def extract_openai_compatible_facts(
                             error="",
                             now=now,
                         )
-                    dry_runs += 1
+                    dry_run_count += 1
                     continue
-                cached = None if refresh_cache else find_successful_cache(
-                    conn,
-                    paper_key=target_paper_key,
-                    provider_name=provider_name,
-                    model=resolved_model,
-                    evidence_hash=pack.evidence_hash,
-                )
-                if cached is not None:
-                    raw_response = parse_json(cached["response_json"], {})
-                    facts = validate_provider_response(raw_response)
-                    cache_hits += 1
-                else:
-                    try:
-                        raw_response = active_client.complete_json(
+                if not refresh_cache:
+                    cached = find_successful_cache(
+                        conn,
+                        paper_key=pk,
+                        provider_name=provider_name,
+                        model=resolved_model,
+                        evidence_hash=pack.evidence_hash,
+                    )
+                    if cached is not None:
+                        raw_response = parse_json(cached["response_json"], {})
+                        facts = validate_provider_response(raw_response)
+                        cache_results.append((pk, pack, facts))
+                        continue
+                llm_queue.append((pk, pack))
+
+            # ── Phase 2: Concurrent LLM calls via ThreadPoolExecutor ──
+            llm_results: dict[str, list[FactPayload]] = {}
+            llm_errors: dict[str, str] = {}
+            if llm_queue:
+                workers = max(1, min(concurrency, len(llm_queue)))
+                with ThreadPoolExecutor(max_workers=workers) as executor:
+                    future_map = {}
+                    for pk, pack in llm_queue:
+                        future = executor.submit(
+                            active_client.complete_json,
                             model=resolved_model,
                             base_url=resolved_base_url,
                             api_key=api_key,
                             prompt=pack.prompt_text,
                         )
-                        facts = validate_provider_response(raw_response)
-                    except Exception as exc:
-                        upsert_cache_row(
-                            conn,
-                            paper_key=target_paper_key,
-                            provider_name=provider_name,
-                            model=resolved_model,
-                            evidence_hash=pack.evidence_hash,
-                            prompt_json=pack.prompt_json,
-                            response_json=None,
-                            status="failed",
-                            error=str(exc),
-                            now=utc_now(),
-                        )
-                        raise
+                        future_map[future] = (pk, pack)
+                    for future in as_completed(future_map):
+                        pk, pack = future_map[future]
+                        try:
+                            raw_response = future.result()
+                            facts = validate_provider_response(raw_response)
+                            llm_results[pk] = facts
+                        except Exception as exc:
+                            llm_errors[pk] = f"{type(exc).__name__}: {exc}"
+
+            # ── Phase 3: Sequential DB writes ──
+            facts_written = 0
+            provenance_written = 0
+            cache_hits = 0
+            llm_calls = 0
+            now = utc_now()
+
+            for pk, pack, facts in cache_results:
+                fact_count, provenance_count = write_facts(
+                    conn, paper_key=pk, provider_name=provider_name, facts=facts, now=now,
+                )
+                facts_written += fact_count
+                provenance_written += provenance_count
+                cache_hits += 1
+
+            for pk, pack in llm_queue:
+                if pk in llm_errors:
                     upsert_cache_row(
                         conn,
-                        paper_key=target_paper_key,
+                        paper_key=pk,
                         provider_name=provider_name,
                         model=resolved_model,
                         evidence_hash=pack.evidence_hash,
                         prompt_json=pack.prompt_json,
-                        response_json=raw_response,
-                        status="success",
-                        error="",
-                        now=utc_now(),
+                        response_json=None,
+                        status="failed",
+                        error=llm_errors[pk],
+                        now=now,
                     )
-                    llm_calls += 1
-                fact_count, provenance_count = write_facts(
+                    continue
+                facts = llm_results[pk]
+                upsert_cache_row(
                     conn,
-                    paper_key=target_paper_key,
+                    paper_key=pk,
                     provider_name=provider_name,
-                    facts=facts,
-                    now=utc_now(),
+                    model=resolved_model,
+                    evidence_hash=pack.evidence_hash,
+                    prompt_json=pack.prompt_json,
+                    response_json={"facts": [{
+                        "fact_type": f.fact_type,
+                        "name": f.name,
+                        "statement": f.statement,
+                        "evidence_quote": f.evidence_quote,
+                        "evidence_artifact_type": f.evidence_artifact_type,
+                        "confidence": f.confidence,
+                        "metadata": f.metadata,
+                    } for f in facts]},
+                    status="success",
+                    error="",
+                    now=now,
+                )
+                fact_count, provenance_count = write_facts(
+                    conn, paper_key=pk, provider_name=provider_name, facts=facts, now=now,
                 )
                 facts_written += fact_count
                 provenance_written += provenance_count
+                llm_calls += 1
+
+            if llm_errors and error_policy == "strict":
+                error_lines = [f"{pk}: {err}" for pk, err in llm_errors.items()]
+                raise FactValidationError(
+                    f"LLM extraction failed for {len(llm_errors)}/{len(llm_queue)} papers:\n"
+                    + "\n".join(error_lines)
+                )
+
+            status = "partial_success" if llm_errors else "success"
+            error_summary = ""
+            if llm_errors:
+                error_summary = (
+                    f"LLM extraction failed for {len(llm_errors)}/{len(llm_queue)} papers:\n"
+                    + "\n".join(f"{pk}: {err}" for pk, err in llm_errors.items())
+                )
             conn.execute(
                 """
                 update fact_extraction_runs set
                     papers_seen = ?, facts_written = ?, provenance_written = ?,
-                    finished_at = ?, status = ?
+                    finished_at = ?, status = ?, error = ?
                 where id = ?
                 """,
-                (len(target_papers), facts_written, provenance_written, utc_now(), "success", run_id),
+                (
+                    len(target_papers),
+                    facts_written,
+                    provenance_written,
+                    utc_now(),
+                    status,
+                    error_summary,
+                    run_id,
+                ),
             )
             conn.commit()
             return FactExtractionResult(
@@ -587,7 +659,9 @@ def extract_openai_compatible_facts(
                 provenance_written,
                 cache_hits=cache_hits,
                 llm_calls=llm_calls,
-                dry_runs=dry_runs,
+                dry_runs=dry_run_count,
+                failed_count=len(llm_errors),
+                failed_errors=dict(llm_errors) if llm_errors else None,
             )
         except Exception as exc:
             conn.execute(
@@ -611,7 +685,9 @@ def extract_research_facts(
     dry_run: bool = False,
     refresh_cache: bool = False,
     max_input_chars: int = 24000,
+    concurrency: int = 5,
     client: Any | None = None,
+    error_policy: str = "strict",
 ) -> FactExtractionResult:
     if provider_name == "fixture":
         if fixture_path is None:
@@ -634,7 +710,9 @@ def extract_research_facts(
             dry_run=dry_run,
             refresh_cache=refresh_cache,
             max_input_chars=max_input_chars,
+            concurrency=concurrency,
             client=client,
+            error_policy=error_policy,
         )
     raise FactValidationError(f"unsupported fact extraction provider: {provider_name}")
 

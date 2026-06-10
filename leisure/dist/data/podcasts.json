@@ -1,57 +1,57 @@
 [
   {
-    "id": "podcast_001",
-    "title": "机核 GADIO 科幻专题",
-    "podcast": "机核 GADIO",
-    "episode": "E142: 赛博朋克的过去与未来",
-    "genres": ["科技", "文化", "游戏"],
-    "duration": "65分钟",
-    "matchScore": 95,
-    "reason": "机核的深度文化解读一直是中文播客的天花板，科幻专题配今天的烧脑片单绝配",
-    "platformUrl": "https://www.gcores.com/gadios"
-  },
-  {
-    "id": "podcast_002",
-    "title": "故事 FM 悬疑特辑",
-    "podcast": "故事FM",
-    "episode": "E789: 一个真实的密室杀人案",
-    "genres": ["真实故事", "悬疑", "人文"],
-    "duration": "45分钟",
-    "matchScore": 92,
-    "reason": "真实故事的力量在于它的不可思议，这期悬疑特辑比虚构还要烧脑",
-    "platformUrl": "https://storyfm.cn/"
-  },
-  {
-    "id": "podcast_003",
-    "title": "忽左忽右 科技人文",
+    "id": "podcast-hzyy-248",
+    "title": "《挽救计划》原著解读：安迪·威尔的科学浪漫主义",
     "podcast": "忽左忽右",
-    "episode": "E256: AI时代的伦理困境",
-    "genres": ["科技", "人文", "哲学"],
-    "duration": "58分钟",
-    "matchScore": 90,
-    "reason": "AI伦理的深度讨论，看完《黑镜》再听这个，思考会更深一层",
-    "platformUrl": "https://www.justpodmedia.com/shows/huzuohuoyou"
+    "episode": "第248期",
+    "genres": ["科技", "文学", "科幻"],
+    "duration": "85分钟",
+    "matchScore": 95,
+    "reason": "配合今天的科幻观影推荐，先听播客了解安迪·威尔如何用硬核科学写出最温柔的拯救故事——从《火星救援》到《挽救计划》，科学浪漫主义的极致表达",
+    "platformUrl": "https://www.xiaoyuzhoufm.com/podcast/5e74f9f6418a84a046a2edb6"
   },
   {
-    "id": "podcast_004",
-    "title": "日谈公园 深度访谈",
-    "podcast": "日谈公园",
-    "episode": "E445: 和东野圭吾译者聊推理小说",
-    "genres": ["文学", "推理", "访谈"],
+    "id": "podcast-fpyp-192",
+    "title": "韩国电影为什么总能拍出9分神作？从《世界的主人》聊起",
+    "podcast": "反派影评",
+    "episode": "第192期",
+    "genres": ["电影", "文化", "评论"],
     "duration": "72分钟",
-    "matchScore": 88,
-    "reason": "推理小说的深度解读，配合今天的悬疑片单，让大脑全程保持活跃",
-    "platformUrl": "https://www.ximalaya.com/album/291017"
+    "matchScore": 90,
+    "reason": "豆瓣9.1分韩国片的深度拆解——韩国电影工业如何把社会议题拍成爆款？今天没有日程催促，刚好静下心来听一场高质量影评对谈",
+    "platformUrl": "https://www.xiaoyuzhoufm.com/podcast/5e8b1f0c418a84a046da4f3b"
   },
   {
-    "id": "podcast_005",
-    "title": "硬地骇客 独立开发者",
-    "podcast": "硬地骇客",
-    "episode": "E67: 独立开发者的深度思考",
-    "genres": ["科技", "创业", "生活方式"],
-    "duration": "52分钟",
-    "matchScore": 85,
-    "reason": "技术人的深度思考，适合在轻松的一天慢慢听，可能会激发新的灵感",
-    "platformUrl": "https://podcast.hardenx.com/"
+    "id": "podcast-gushi-612",
+    "title": "我是一个AI研究员，但我开始害怕自己的创造",
+    "podcast": "故事FM",
+    "episode": "E612",
+    "genres": ["科技", "人文", "故事"],
+    "duration": "45分钟",
+    "matchScore": 87,
+    "reason": "科技与人文的烧脑碰撞——一线AI研究员的真实自述，关于恐惧、伦理与未来。轻松日程适合听这种需要慢慢消化的话题",
+    "platformUrl": "https://www.xiaoyuzhoufm.com/podcast/5e74f9f6418a84a046a2edb9"
+  },
+  {
+    "id": "podcast-ritan-386",
+    "title": "悬疑小说家的自我修养：如何设计一个完美的谜题",
+    "podcast": "日谈公园",
+    "episode": "Vol.386",
+    "genres": ["文学", "犯罪", "创作"],
+    "duration": "65分钟",
+    "matchScore": 83,
+    "reason": "悬疑爱好者必听——畅销悬疑作家揭秘谜题设计心法。今天既然走烧脑路线，就从创作源头感受一下悬疑的底层逻辑",
+    "platformUrl": "https://www.xiaoyuzhoufm.com/podcast/5e74f9f6418a84a046a2edc0"
+  },
+  {
+    "id": "podcast-suiji-178",
+    "title": "独处的艺术：为什么「无所事事」是最高级的创造",
+    "podcast": "随机波动",
+    "episode": "第178期",
+    "genres": ["哲学", "心理", "生活方式"],
+    "duration": "55分钟",
+    "matchScore": 80,
+    "reason": "今天日程全空——正好听这期关于独处与创造力的深度对谈。三位主播用哲学视角告诉你，「无聊」才是真正的生产力源泉",
+    "platformUrl": "https://www.xiaoyuzhoufm.com/podcast/5e74f9f6418a84a046a2edc4"
   }
 ]

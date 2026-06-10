@@ -1,12 +1,15 @@
 # 牛秘书
 
-牛秘书是一个私人 AI 管家 Web 服务矩阵，当前包含品牌主页、新闻社、塑形馆、时务局和闲趣集。v2.0 起，项目新增统一 Action Protocol：主页 AI 助手、子网页和未来语音助手都通过同一组 API 读写能力，避免每个页面各自维护一套业务逻辑。
+牛秘书是一个私人 AI 管家 Web 服务矩阵，当前包含品牌主页、新闻社、塑形馆、时务局、闲趣集和 AIResearch 研知库。v2.0 起，项目新增统一 Action Protocol：主页 AI 助手、子网页和未来语音助手都通过同一组 API 读写能力，避免每个页面各自维护一套业务逻辑。
+
+AIResearch 研知库已经从规划项推进到 MVP 可发布状态：本地论文库、候选发现、可审计 ingest、研究事实抽取、知识图谱、跨论文关系、研究报告、静态站点发布、健康检查、备份、刷新脚本和外部静态站点回滚脚本都已具备。
 
 ## 当前版本
 
-- 当前标签：`v2.0`
+- 当前标签：`v2.1-dev`
 - 前端形态：静态 HTML/CSS/JavaScript
 - 后端形态：Python 标准库 HTTP API + SQLite
+- AIResearch：Python package + SQLite + paperpipe / papi + 静态研究报告站点
 - 部署入口：`/niu-secretary/`
 - 远程仓库：`git@github.com:Soceremite/niu-secretary.git`
 
@@ -19,12 +22,13 @@
 | 塑形馆 | `/niu-secretary/fitness/` | 训练、营养、恢复、评估、咨询一体化管理 |
 | 时务局 | `/niu-secretary/schedule/` | 日程、提醒、事务抽屉、目标追踪 |
 | 闲趣集 | `/niu-secretary/leisure/` | 影视、音乐、播客、小说等休闲推荐 |
+| AIResearch 研知库 | `/niu-secretary/airesearch/` | 本地自动科研 RAG、论文知识图谱、事实溯源、研究地图、静态报告站点 |
 
 ## v2.0 设计
 
 牛秘书 AI 助手不是单页聊天框，而是统一调度入口：
 
-1. 模型先判断用户意图属于 `fitness`、`schedule`、`news`、`leisure`、`chat` 或 `unknown`。
+1. 模型先判断用户意图属于 `fitness`、`schedule`、`news`、`leisure`、`airesearch`、`chat` 或 `unknown`。
 2. 服务端按模块选择专用 prompt，生成候选 action。
 3. 前端展示可编辑 JSON 参数，用户确认后执行。
 4. `/niu-secretary/api/actions/execute` 统一落库。
@@ -47,9 +51,22 @@
 
 - `fitness.nutrition.create`
 - `fitness.nutrition.today_summary`
+- `fitness.nutrition.list`
+- `fitness.nutrition.delete`
 - `schedule.event.create`
+- `schedule.event.list`
+- `schedule.event.delete`
 - `schedule.todo.create`
+- `schedule.todo.list`
+- `schedule.todo.toggle`
+- `schedule.todo.delete`
 - `schedule.today_summary`
+- `profile.get`
+- `profile.update`
+- `profile.reset`
+- `profile.changes`
+- `fitness.recommend`
+- `schedule.recommend`
 
 ## 目录结构
 
@@ -58,6 +75,7 @@
 ├── config/                 # 本地环境变量模板，不含真实密钥
 ├── dist/                   # 牛秘书品牌主页静态文件
 ├── docs/                   # 设计文档和实施计划
+├── airesearch/             # 牛秘书 AIResearch 研知库（本地自动科研 RAG + 知识图谱）
 ├── fitness/                # 牛秘书塑形馆
 ├── leisure/                # 牛秘书闲趣集
 ├── news-daily/             # 牛秘书新闻社
@@ -107,6 +125,25 @@ cd fitness
 npm run build
 ```
 
+启动 AIResearch 本地环境：
+
+```bash
+cd airesearch
+source ./activate.sh
+python -m airesearch.cli health-check --site-dir exports/site-current
+python -m airesearch.cli serve-report-site --dir exports/site-current --host 127.0.0.1 --port 8765
+```
+
+常用 AIResearch 刷新与发布：
+
+```bash
+cd airesearch
+python -m airesearch.cli run-launch-refresh --limit-per-profile 50 --select-limit 10 --min-score 0.60 --out-dir exports/mvp-current --site-dir exports/site-current --progress
+python -m airesearch.cli publish-static-site --source-dir exports/mvp-current/bundle --out-dir exports/site-current
+python -m airesearch.cli write-static-host-config --site-dir exports/site-current --out-dir deploy --base-path /niu-secretary/airesearch/ --deploy-root /var/www/html/niu-secretary/airesearch
+python -m airesearch.cli write-static-deploy-scripts --site-dir exports/site-current --out-dir deploy --deploy-root /var/www/html/niu-secretary/airesearch
+```
+
 ## 部署
 
 线上静态目录：
@@ -129,6 +166,21 @@ npm run build
 sudo cp -r dist/. /var/www/html/niu-secretary/fitness/
 ```
 
+部署 AIResearch 静态站点：
+
+```bash
+cd airesearch
+python -m airesearch.cli write-static-deploy-scripts --site-dir exports/site-current --out-dir deploy --deploy-root /var/www/html/niu-secretary/airesearch
+sudo deploy/deploy-airesearch.sh
+```
+
+回滚 AIResearch 外部静态站点：
+
+```bash
+cd airesearch
+sudo deploy/rollback-airesearch.sh latest
+```
+
 重启服务：
 
 ```bash
@@ -143,6 +195,7 @@ python3 -m unittest server.test_niu_secretary_api
 python3 -m py_compile server/actions.py server/assistant.py server/capabilities.py server/niu_secretary_api.py server/store.py
 node --check dist/assistant.js
 node --check fitness/dist/js/features/nutrition.js
+cd airesearch && .venv/bin/python -m pytest -q
 curl --noproxy '*' -s http://127.0.0.1/niu-secretary/api/health
 ```
 
@@ -152,6 +205,8 @@ curl --noproxy '*' -s http://127.0.0.1/niu-secretary/api/health
 - `*.env` 默认被 `.gitignore` 忽略，只允许提交 `*.env.example`。
 - AI 生成的 action 必须先让用户确认，再写入数据库。
 - 服务端执行 action 前会做字段清洗、范围限制和动作白名单校验。
+- AIResearch 不提交真实 `.env`、API Key、SQLite 数据库和 `.venv`；可提交源码、测试、文档、静态发布产物和可审计 manifest。
+- 外部静态站点部署前先生成快照；需要回滚时使用 `rollback-airesearch.sh latest` 或指定快照名。
 
 ## Git 版本
 

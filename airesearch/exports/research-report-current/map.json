@@ -1,0 +1,2697 @@
+{
+  "fact_count": 79,
+  "fact_type_counts": {
+    "benchmark": 7,
+    "claim": 30,
+    "dataset": 11,
+    "limitation": 4,
+    "method": 27
+  },
+  "generated_at": "2026-06-09T12:31:18+00:00",
+  "item_count": 79,
+  "paper_count": 11,
+  "sections": [
+    {
+      "fact_type": "method",
+      "items": [
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "During furniture and object layout generation, a VLM-based refiner iteratively corrects furniture and object placement, and a 3D generative model enables flexible replacement of individual assets.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/summary.md",
+              "paper_key": "homeworld",
+              "statement": "A VLM-based refiner is used to iteratively correct furniture and object placement, while a 3D generative model allows for the flexible replacement of individual assets."
+            }
+          ],
+          "fact_count": 1,
+          "key": "a vlm-based refiner is used to iteratively correct furniture and object placement, while a 3d generative model allows for the flexible replacement of individual assets.",
+          "label": "A VLM-based refiner is used to iteratively correct furniture and object placement, while a 3D generative model allows for the flexible replacement of individual assets.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "We introduce Flux Matching, a framework that learns two complementary objects directly from reactive trajectory data: a current velocity $u(z)$, whose streamlines trace the dominant reaction pathways, and a scalar potential $h(z)$, obtained from a weighted Helmholtz-Hodge decomposition of the reactive current, that serves as a data-driven reaction coordinate.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reactive-flux-matching/summary.md",
+              "paper_key": "reactive-flux-matching",
+              "statement": "Flux Matching is a framework that learns a current velocity and a scalar potential directly from reactive trajectory data to trace dominant reaction pathways and serve as a data-driven reaction coordinate."
+            }
+          ],
+          "fact_count": 1,
+          "key": "flux matching is a framework that learns a current velocity and a scalar potential directly from reactive trajectory data to trace dominant reaction pathways and serve as a data-driven reaction coordinate.",
+          "label": "Flux Matching is a framework that learns a current velocity and a scalar potential directly from reactive trajectory data to trace dominant reaction pathways and serve as a data-driven reaction coordinate.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "reactive-flux-matching",
+              "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "In a controlled safety-alignment experiment using a multimodal knowledge graph with two diffusion backbones, we implement three of the four layers cumulatively, surface (input-side and output-side) and trajectory--latent (mid-generation).",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06356/summary.md",
+              "paper_key": "2606_06356",
+              "statement": "In a controlled safety-alignment experiment, the framework was instantiated in diffusion models using a multimodal knowledge graph with two diffusion backbones, implementing three layers cumulatively: surface and trajectory-latent."
+            }
+          ],
+          "fact_count": 1,
+          "key": "in a controlled safety-alignment experiment, the framework was instantiated in diffusion models using a multimodal knowledge graph with two diffusion backbones, implementing three layers cumulatively: surface and trajectory-latent.",
+          "label": "In a controlled safety-alignment experiment, the framework was instantiated in diffusion models using a multimodal knowledge graph with two diffusion backbones, implementing three layers cumulatively: surface and trajectory-latent.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_06356",
+              "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "we introduce OmniDreams, a foundation generative world model mid- and post-trained from the Cosmos diffusion model to autoregressively generate action-conditioned videos in real time.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/summary.md",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "OmniDreams is a foundation generative world model that is mid- and post-trained from the Cosmos diffusion model to autoregressively generate action-conditioned videos in real time."
+            }
+          ],
+          "fact_count": 1,
+          "key": "omnidreams is a foundation generative world model that is mid- and post-trained from the cosmos diffusion model to autoregressively generate action-conditioned videos in real time.",
+          "label": "OmniDreams is a foundation generative world model that is mid- and post-trained from the Cosmos diffusion model to autoregressively generate action-conditioned videos in real time.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "Deployed in a closed-loop system with the Alpamayo 1 policy model and AlpaSim orchestrator, OmniDreams acts as a highly responsive, reactive environment",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/summary.md",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "OmniDreams is deployed in a closed-loop system alongside the Alpamayo 1 policy model and the AlpaSim orchestrator to act as a responsive and reactive environment."
+            }
+          ],
+          "fact_count": 1,
+          "key": "omnidreams is deployed in a closed-loop system alongside the alpamayo 1 policy model and the alpasim orchestrator to act as a responsive and reactive environment.",
+          "label": "OmniDreams is deployed in a closed-loop system alongside the Alpamayo 1 policy model and the AlpaSim orchestrator to act as a responsive and reactive environment.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "OpenEAI-Arm provides open-source mechanical designs for low manufacturing cost and compliant control methods for higher accuracy.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/summary.md",
+              "paper_key": "openeai-platform",
+              "statement": "OpenEAI-Arm provides open-source mechanical designs to ensure low manufacturing cost and utilizes compliant control methods for higher accuracy."
+            }
+          ],
+          "fact_count": 1,
+          "key": "openeai-arm provides open-source mechanical designs to ensure low manufacturing cost and utilizes compliant control methods for higher accuracy.",
+          "label": "OpenEAI-Arm provides open-source mechanical designs to ensure low manufacturing cost and utilizes compliant control methods for higher accuracy.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-Arm",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-Arm"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-VLA",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-VLA"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "sii-research",
+                  "repo": "ORoboSoul",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/sii-research/ORoboSoul"
+                }
+              ],
+              "paper_key": "openeai-platform",
+              "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "We present OpenEAI-Platform, a fully open-source platform that integrates a low-cost 6+1 degree-of-freedom (dof) robotic arm (OpenEAI-Arm) and a reproducible VLA model (OpenEAI-VLA).",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/summary.md",
+              "paper_key": "openeai-platform",
+              "statement": "OpenEAI-Platform is a fully open-source platform that integrates a low-cost 6+1 degree-of-freedom robotic arm (OpenEAI-Arm) and a reproducible vision-language-action model (OpenEAI-VLA)."
+            }
+          ],
+          "fact_count": 1,
+          "key": "openeai-platform is a fully open-source platform that integrates a low-cost 6+1 degree-of-freedom robotic arm (openeai-arm) and a reproducible vision-language-action model (openeai-vla).",
+          "label": "OpenEAI-Platform is a fully open-source platform that integrates a low-cost 6+1 degree-of-freedom robotic arm (OpenEAI-Arm) and a reproducible vision-language-action model (OpenEAI-VLA).",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-Arm",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-Arm"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-VLA",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-VLA"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "sii-research",
+                  "repo": "ORoboSoul",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/sii-research/ORoboSoul"
+                }
+              ],
+              "paper_key": "openeai-platform",
+              "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "To address this limitation, we propose SeeTraceAct, a demo-conditioned VLA framework that encourages precise spatial grounding through visibility-aware prediction of future end-effector traces.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/summary.md",
+              "paper_key": "seetraceact",
+              "statement": "SeeTraceAct is a demo-conditioned Vision-Language-Action (VLA) framework that uses visibility-aware prediction of future end-effector traces to encourage precise spatial grounding."
+            }
+          ],
+          "fact_count": 1,
+          "key": "seetraceact is a demo-conditioned vision-language-action (vla) framework that uses visibility-aware prediction of future end-effector traces to encourage precise spatial grounding.",
+          "label": "SeeTraceAct is a demo-conditioned Vision-Language-Action (VLA) framework that uses visibility-aware prediction of future end-effector traces to encourage precise spatial grounding.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "Given a demonstration video, \\textsc{SeeTraceAct} learns a \\emph{visual latent plan} that summarizes the task-relevant motion the robot should execute. During training, this latent plan is decoded into future end-effector traces in the robot's camera views.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+              "paper_key": "seetraceact",
+              "statement": "SeeTraceAct learns a visual latent plan from a demonstration video to summarize task-relevant motion, which is decoded into future end-effector traces during training."
+            }
+          ],
+          "fact_count": 1,
+          "key": "seetraceact learns a visual latent plan from a demonstration video to summarize task-relevant motion, which is decoded into future end-effector traces during training.",
+          "label": "SeeTraceAct learns a visual latent plan from a demonstration video to summarize task-relevant motion, which is decoded into future end-effector traces during training.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "We formulate urgency triage, interactive consultation, and medical image classification as evolutionary searches over executable artifacts optimized by task-specific fitness functions.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "The authors frame urgency triage, interactive consultation, and medical image classification as evolutionary searches over executable artifacts that are optimized using task-specific fitness functions."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the authors frame urgency triage, interactive consultation, and medical image classification as evolutionary searches over executable artifacts that are optimized using task-specific fitness functions.",
+          "label": "The authors frame urgency triage, interactive consultation, and medical image classification as evolutionary searches over executable artifacts that are optimized using task-specific fitness functions.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Both minimize quadratic functionals over the reactive path ensemble, analogous to the flow matching loss in generative modeling, and require no knowledge of the underlying dynamics or stationary distribution.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reactive-flux-matching/summary.md",
+              "paper_key": "reactive-flux-matching",
+              "statement": "The current velocity and scalar potential in Flux Matching minimize quadratic functionals over the reactive path ensemble without requiring knowledge of the underlying dynamics or stationary distribution."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the current velocity and scalar potential in flux matching minimize quadratic functionals over the reactive path ensemble without requiring knowledge of the underlying dynamics or stationary distribution.",
+          "label": "The current velocity and scalar potential in Flux Matching minimize quadratic functionals over the reactive path ensemble without requiring knowledge of the underlying dynamics or stationary distribution.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "reactive-flux-matching",
+              "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "Building upon the generated whole-home floorplan, we leverage image generation models to draft furniture layouts from multi-level roaming viewpoints, and then generate the layouts of small manipulable objects on different supporting surfaces (e.g., cabinets, desks, and dining tables) for embodied AI simulation.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/summary.md",
+              "paper_key": "homeworld",
+              "statement": "The framework leverages image generation models to draft furniture layouts from multi-level roaming viewpoints and generates layouts of small manipulable objects on supporting surfaces."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the framework leverages image generation models to draft furniture layouts from multi-level roaming viewpoints and generates layouts of small manipulable objects on supporting surfaces.",
+          "label": "The framework leverages image generation models to draft furniture layouts from multi-level roaming viewpoints and generates layouts of small manipulable objects on supporting surfaces.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "it autoregressively conditions its photorealistic sensor generation on past frames, the current simulator state, and immediate driving actions.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "The model autoregressively conditions its photorealistic sensor generation on past frames, the current simulator state, and immediate driving actions."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the model autoregressively conditions its photorealistic sensor generation on past frames, the current simulator state, and immediate driving actions.",
+          "label": "The model autoregressively conditions its photorealistic sensor generation on past frames, the current simulator state, and immediate driving actions.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "OpenEAI-VLA builds on Qwen3-VL-4B and uses a Diffusion Transformer action head",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/summary.md",
+              "paper_key": "openeai-platform",
+              "statement": "The OpenEAI-VLA model is built upon the Qwen3-VL-4B architecture and employs a Diffusion Transformer action head."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the openeai-vla model is built upon the qwen3-vl-4b architecture and employs a diffusion transformer action head.",
+          "label": "The OpenEAI-VLA model is built upon the Qwen3-VL-4B architecture and employs a Diffusion Transformer action head.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-Arm",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-Arm"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-VLA",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-VLA"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "sii-research",
+                  "repo": "ORoboSoul",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/sii-research/ORoboSoul"
+                }
+              ],
+              "paper_key": "openeai-platform",
+              "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "We study LLM-guided MAP-Elites evolution as an inference-time alternative for discovering medical decision strategies",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "The paper investigates LLM-guided MAP-Elites evolution as an inference-time method for discovering medical decision strategies."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the paper investigates llm-guided map-elites evolution as an inference-time method for discovering medical decision strategies.",
+          "label": "The paper investigates LLM-guided MAP-Elites evolution as an inference-time method for discovering medical decision strategies.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "We further attach basic physical attributes and simple surface texture and lighting setups to complete the pipeline for embodied AI use.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/source.tex",
+              "paper_key": "homeworld",
+              "statement": "The pipeline attaches basic physical attributes, simple surface textures, and lighting setups to complete the scene for embodied AI use."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the pipeline attaches basic physical attributes, simple surface textures, and lighting setups to complete the scene for embodied ai use.",
+          "label": "The pipeline attaches basic physical attributes, simple surface textures, and lighting setups to complete the scene for embodied AI use.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Since thegenerative process unfolds as a trajectory of internal states, knowledge can act on four structurally distinct components of this process: the input/output boundary, the transition function, the intermediate state, and the model parameters. This maps to four intervention layers: surface, trajectory, latent, and parametric infusion.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06356/summary.md",
+              "paper_key": "2606_06356",
+              "statement": "The proposed framework maps knowledge infusion to four intervention layers: surface, trajectory, latent, and parametric infusion, which correspond to the input/output boundary, the transition function, the intermediate state, and the model parameters."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the proposed framework maps knowledge infusion to four intervention layers: surface, trajectory, latent, and parametric infusion, which correspond to the input/output boundary, the transition function, the intermediate state, and the model parameters.",
+          "label": "The proposed framework maps knowledge infusion to four intervention layers: surface, trajectory, latent, and parametric infusion, which correspond to the input/output boundary, the transition function, the intermediate state, and the model parameters.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_06356",
+              "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "We keep standard velocity prediction and add no teacher model, distillation stage, or auxiliary objective; in our main recipe, we simply bias the training time distribution toward high-noise states.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "The proposed method for one-step action generation in VLA models uses standard velocity prediction and biases the training time distribution toward high-noise states, without using a teacher model, distillation stage, or auxiliary objective."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the proposed method for one-step action generation in vla models uses standard velocity prediction and biases the training time distribution toward high-noise states, without using a teacher model, distillation stage, or auxiliary objective.",
+          "label": "The proposed method for one-step action generation in VLA models uses standard velocity prediction and biases the training time distribution toward high-noise states, without using a teacher model, distillation stage, or auxiliary objective.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "With detailed descriptions and a K-D tree-based representation, our method enables fine-grained, controllable whole-home floorplan generation.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/summary.md",
+              "paper_key": "homeworld",
+              "statement": "The proposed method uses a K-D tree-based representation and detailed descriptions to enable fine-grained, controllable whole-home floorplan generation."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the proposed method uses a k-d tree-based representation and detailed descriptions to enable fine-grained, controllable whole-home floorplan generation.",
+          "label": "The proposed method uses a K-D tree-based representation and detailed descriptions to enable fine-grained, controllable whole-home floorplan generation.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "Our system turns a text prompt into a complete indoor scene in four stages: 1) build a large-scale floorplan dataset and train a prompt-conditioned generator; 2) given the floorplan, create an unfurnished 3D shell and progressively place furniture via hierarchical roaming with grounding/retrieval; 3)  improve the scene using a finetuned VLM-based refiner to fix violations in a reflective loop; 4) add manipulable objects in feasible surface tops (e.g. dining tables, desks, cabinets, etc.).",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/source.tex",
+              "paper_key": "homeworld",
+              "statement": "The system generates a complete indoor scene from a text prompt in four stages: dataset building and generator training, unfurnished 3D shell creation and hierarchical furniture placement, VLM-based scene refinement, and manipulable object addition."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the system generates a complete indoor scene from a text prompt in four stages: dataset building and generator training, unfurnished 3d shell creation and hierarchical furniture placement, vlm-based scene refinement, and manipulable object addition.",
+          "label": "The system generates a complete indoor scene from a text prompt in four stages: dataset building and generator training, unfurnished 3D shell creation and hierarchical furniture placement, VLM-based scene refinement, and manipulable object addition.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "we presented the Transformer, the first sequence transduction model based entirely on attention, replacing the recurrent layers most commonly used in encoder-decoder architectures with multi-headed self-attention.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The Transformer is a sequence transduction model based entirely on attention mechanisms, replacing recurrent layers with multi-headed self-attention."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the transformer is a sequence transduction model based entirely on attention mechanisms, replacing recurrent layers with multi-headed self-attention.",
+          "label": "The Transformer is a sequence transduction model based entirely on attention mechanisms, replacing recurrent layers with multi-headed self-attention.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Five integrated modules progress from embodied AI and world-model requirements through quantum hardware reality and evidence-based security migration, to scalable cross-shard architectures via BrokerChain protocols, trustworthy data economies implementing Croissant metadata standards and robotic learning provenance, and industry ecosystem integration for multi-modal cloud deployment.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/summary.md",
+              "paper_key": "2606_06895",
+              "statement": "The tutorial covers scalable cross-shard architectures via BrokerChain protocols and trustworthy data economies implementing Croissant metadata standards and robotic learning provenance."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the tutorial covers scalable cross-shard architectures via brokerchain protocols and trustworthy data economies implementing croissant metadata standards and robotic learning provenance.",
+          "label": "The tutorial covers scalable cross-shard architectures via BrokerChain protocols and trustworthy data economies implementing Croissant metadata standards and robotic learning provenance.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "QuantBlockchain",
+                  "repo": "ieee-icbc-tutorial-qbe",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/QuantBlockchain/ieee-icbc-tutorial-qbe"
+                }
+              ],
+              "paper_key": "2606_06895",
+              "title": "Blockchain Infrastructure for Intelligent Cyber--Physical--Social Systems:Post-Quantum Security, Interoperability, and Trustworthy Data Economies in the Era of Embodied AI",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "The session opens with an immersive AWS Braket demonstration engaging participants with superconducting, trapped-ion, and neutral-atom hardware to assess cryptographic threat timelines and witness ECDSA-to-post-quantum signature transitions.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/summary.md",
+              "paper_key": "2606_06895",
+              "statement": "The tutorial includes an immersive AWS Braket demonstration engaging participants with superconducting, trapped-ion, and neutral-atom hardware to assess cryptographic threat timelines and witness ECDSA-to-post-quantum signature transitions."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the tutorial includes an immersive aws braket demonstration engaging participants with superconducting, trapped-ion, and neutral-atom hardware to assess cryptographic threat timelines and witness ecdsa-to-post-quantum signature transitions.",
+          "label": "The tutorial includes an immersive AWS Braket demonstration engaging participants with superconducting, trapped-ion, and neutral-atom hardware to assess cryptographic threat timelines and witness ECDSA-to-post-quantum signature transitions.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "QuantBlockchain",
+                  "repo": "ieee-icbc-tutorial-qbe",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/QuantBlockchain/ieee-icbc-tutorial-qbe"
+                }
+              ],
+              "paper_key": "2606_06895",
+              "title": "Blockchain Infrastructure for Intelligent Cyber--Physical--Social Systems:Post-Quantum Security, Interoperability, and Trustworthy Data Economies in the Era of Embodied AI",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "\\textsc{SeeTraceAct} therefore uses a visibility-aware trace decoder that predicts both trace coordinates and their validity, preserving supervision under partial visibility.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+              "paper_key": "seetraceact",
+              "statement": "To handle partial visibility in multi-view setups, SeeTraceAct employs a visibility-aware trace decoder that predicts both trace coordinates and their validity."
+            }
+          ],
+          "fact_count": 1,
+          "key": "to handle partial visibility in multi-view setups, seetraceact employs a visibility-aware trace decoder that predicts both trace coordinates and their validity.",
+          "label": "To handle partial visibility in multi-view setups, SeeTraceAct employs a visibility-aware trace decoder that predicts both trace coordinates and their validity.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "To enable reactive control, we also design a lightweight adapter for distilling the deliberate focus ability into VLAs.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/summary.md",
+              "paper_key": "2606_04046",
+              "statement": "A lightweight adapter is designed to distill deliberate focus capabilities into VLAs to facilitate reactive control."
+            }
+          ],
+          "fact_count": 1,
+          "key": "a lightweight adapter is designed to distill deliberate focus capabilities into vlas to facilitate reactive control.",
+          "label": "A lightweight adapter is designed to distill deliberate focus capabilities into VLAs to facilitate reactive control.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_04046",
+              "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "we propose SceneDiver, a coarse-to-fine focus plan generation method for VLMs leveraging their long-term planning abilities, that first constructs a holistic scene graph to establish initial comprehension, then progressively decomposes the task into simpler sub-problems through an iterative cycle of recognition, understanding, and analysis.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/summary.md",
+              "paper_key": "2606_04046",
+              "statement": "SceneDiver is a coarse-to-fine focus plan generation method for VLMs that builds a holistic scene graph for initial comprehension and iteratively decomposes tasks into simpler sub-problems through recognition, understanding, and analysis."
+            }
+          ],
+          "fact_count": 1,
+          "key": "scenediver is a coarse-to-fine focus plan generation method for vlms that builds a holistic scene graph for initial comprehension and iteratively decomposes tasks into simpler sub-problems through recognition, understanding, and analysis.",
+          "label": "SceneDiver is a coarse-to-fine focus plan generation method for VLMs that builds a holistic scene graph for initial comprehension and iteratively decomposes tasks into simpler sub-problems through recognition, understanding, and analysis.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_04046",
+              "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.92,
+          "evidence": [
+            {
+              "confidence": 0.92,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "The Transformer uses attention instead of recurrence or convolution.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/summary.md",
+              "paper_key": "1706_03762",
+              "statement": "The Transformer replaces recurrence and convolution with attention-based sequence modeling."
+            }
+          ],
+          "fact_count": 1,
+          "key": "transformer attention architecture",
+          "label": "Transformer attention architecture",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        }
+      ],
+      "title": "Method"
+    },
+    {
+      "fact_type": "dataset",
+      "items": [
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "We first isolate the effect in a controlled MNIST grid-to-sequence task, then test it with extensive robot-policy experiments.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "A controlled MNIST grid-to-sequence task is used to isolate the effect of the proposed high-noise biased training schedule."
+            }
+          ],
+          "fact_count": 1,
+          "key": "a controlled mnist grid-to-sequence task is used to isolate the effect of the proposed high-noise biased training schedule.",
+          "label": "A controlled MNIST grid-to-sequence task is used to isolate the effect of the proposed high-noise biased training schedule.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "In interactive consultation, evolved policies improve the accuracy--cost frontier across Llama-3, Qwen-3.5, and Gemma-4 and transfer to held-out iCRAFTMD.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "iCRAFTMD is used as a held-out dataset to evaluate the transferability of interactive consultation policies."
+            }
+          ],
+          "fact_count": 1,
+          "key": "icraftmd is used as a held-out dataset to evaluate the transferability of interactive consultation policies.",
+          "label": "iCRAFTMD is used as a held-out dataset to evaluate the transferability of interactive consultation policies.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "while improving safety-weighted held-out MIMIC-ESI performance.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "MIMIC-ESI is utilized as a held-out dataset to evaluate safety-weighted triage performance."
+            }
+          ],
+          "fact_count": 1,
+          "key": "mimic-esi is utilized as a held-out dataset to evaluate safety-weighted triage performance.",
+          "label": "MIMIC-ESI is utilized as a held-out dataset to evaluate safety-weighted triage performance.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "and is trained in two stages with only open-source robot and multimodal datasets.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/summary.md",
+              "paper_key": "openeai-platform",
+              "statement": "OpenEAI-VLA is trained in two stages using exclusively open-source robot and multimodal datasets."
+            }
+          ],
+          "fact_count": 1,
+          "key": "openeai-vla is trained in two stages using exclusively open-source robot and multimodal datasets.",
+          "label": "OpenEAI-VLA is trained in two stages using exclusively open-source robot and multimodal datasets.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-Arm",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-Arm"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-VLA",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-VLA"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "sii-research",
+                  "repo": "ORoboSoul",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/sii-research/ORoboSoul"
+                }
+              ],
+              "paper_key": "openeai-platform",
+              "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "In PneumoniaMNIST, prompt-only evolution improves frozen MedGemma VLMs while preserving strict JSON outputs.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "PneumoniaMNIST is used as a dataset for the medical image classification task."
+            }
+          ],
+          "fact_count": 1,
+          "key": "pneumoniamnist is used as a dataset for the medical image classification task.",
+          "label": "PneumoniaMNIST is used as a dataset for the medical image classification task.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "To enable reproducible evaluation with cross-embodiment demonstrations, we introduce and release RoboCasa-DC, a demo-conditioned extension of RoboCasa with episode-paired humanoid videos.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/summary.md",
+              "paper_key": "seetraceact",
+              "statement": "RoboCasa-DC is a demo-conditioned extension of the RoboCasa dataset that includes episode-paired humanoid videos for cross-embodiment demonstrations."
+            }
+          ],
+          "fact_count": 1,
+          "key": "robocasa-dc is a demo-conditioned extension of the robocasa dataset that includes episode-paired humanoid videos for cross-embodiment demonstrations.",
+          "label": "RoboCasa-DC is a demo-conditioned extension of the RoboCasa dataset that includes episode-paired humanoid videos for cross-embodiment demonstrations.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "First, we curate a large-scale dataset of 300K real residential floorplans to train a large language model for whole-home floorplan generation.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/source.tex",
+              "paper_key": "homeworld",
+              "statement": "The authors curated a large-scale dataset of 300,000 real residential floorplans to train a large language model for whole-home floorplan generation."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the authors curated a large-scale dataset of 300,000 real residential floorplans to train a large language model for whole-home floorplan generation.",
+          "label": "The authors curated a large-scale dataset of 300,000 real residential floorplans to train a large language model for whole-home floorplan generation.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "Finally, alongside our generation pipeline, we will release the floorplan dataset and 5K fully furnished scenes to the community.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/source.tex",
+              "paper_key": "homeworld",
+              "statement": "The authors plan to release the 300K floorplan dataset and 5,000 fully furnished scenes to the community alongside their generation pipeline."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the authors plan to release the 300k floorplan dataset and 5,000 fully furnished scenes to the community alongside their generation pipeline.",
+          "label": "The authors plan to release the 300K floorplan dataset and 5,000 fully furnished scenes to the community alongside their generation pipeline.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Test system\n- Müller-Brown\n- Alanine Dipeptide\n- AIB9",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reactive-flux-matching/summary.md",
+              "paper_key": "reactive-flux-matching",
+              "statement": "The framework is validated on molecular test systems including the Müller-Brown potential, Alanine Dipeptide, and AIB9."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the framework is validated on molecular test systems including the müller-brown potential, alanine dipeptide, and aib9.",
+          "label": "The framework is validated on molecular test systems including the Müller-Brown potential, Alanine Dipeptide, and AIB9.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "reactive-flux-matching",
+              "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The model was applied to English constituency parsing with both large and limited training data to demonstrate generalization to other tasks."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the model was applied to english constituency parsing with both large and limited training data to demonstrate generalization to other tasks.",
+          "label": "The model was applied to English constituency parsing with both large and limited training data to demonstrate generalization to other tasks.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "mid- and post-training on 21k hours of driving scenarios",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "The OmniDreams model is mid- and post-trained on a dataset comprising 21,000 hours of driving scenarios."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the omnidreams model is mid- and post-trained on a dataset comprising 21,000 hours of driving scenarios.",
+          "label": "The OmniDreams model is mid- and post-trained on a dataset comprising 21,000 hours of driving scenarios.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        }
+      ],
+      "title": "Dataset"
+    },
+    {
+      "fact_type": "benchmark",
+      "items": [
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "A real-robot bimanual YAM RSS evaluation gives a small-sample cross-architecture check of the same sampler trend.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "A real-robot bimanual YAM RSS evaluation is used to provide a small-sample cross-architecture check of the sampler trend."
+            }
+          ],
+          "fact_count": 1,
+          "key": "a real-robot bimanual yam rss evaluation is used to provide a small-sample cross-architecture check of the sampler trend.",
+          "label": "A real-robot bimanual YAM RSS evaluation is used to provide a small-sample cross-architecture check of the sampler trend.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "a world-action model (WAM) post-trained from OmniDreams achieves strong performance on the Physical AI Autonomous Vehicles NuRec dataset",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "A world-action model (WAM) post-trained from OmniDreams was evaluated on the Physical AI Autonomous Vehicles NuRec dataset."
+            }
+          ],
+          "fact_count": 1,
+          "key": "a world-action model (wam) post-trained from omnidreams was evaluated on the physical ai autonomous vehicles nurec dataset.",
+          "label": "A world-action model (WAM) post-trained from OmniDreams was evaluated on the Physical AI Autonomous Vehicles NuRec dataset.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "In triage, evolved programs increase Semigran accuracy from $77.3\\%$ to $87.1\\%$ and emergency recall from $0.60$ to $0.97$",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "Semigran is used as a benchmark for evaluating the urgency triage task."
+            }
+          ],
+          "fact_count": 1,
+          "key": "semigran is used as a benchmark for evaluating the urgency triage task.",
+          "label": "Semigran is used as a benchmark for evaluating the urgency triage task.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "Across standard LIBERO, LIBERO-Plus, and LIBERO-Pro, one-step policies trained with high-noise biased schedules generally match ten-step decoding under the same recipe",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "The proposed method is evaluated on the standard LIBERO, LIBERO-Plus, and LIBERO-Pro benchmarks."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the proposed method is evaluated on the standard libero, libero-plus, and libero-pro benchmarks.",
+          "label": "The proposed method is evaluated on the standard LIBERO, LIBERO-Plus, and LIBERO-Pro benchmarks.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "Experiments on RoboCasa-DC and a real-world benchmark, where a Franka Panda arm is conditioned on human demonstrations, show that SeeTraceAct outperforms baselines",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/summary.md",
+              "paper_key": "seetraceact",
+              "statement": "The real-world benchmark used to evaluate SeeTraceAct involves conditioning a Franka Panda arm on human demonstrations."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the real-world benchmark used to evaluate seetraceact involves conditioning a franka panda arm on human demonstrations.",
+          "label": "The real-world benchmark used to evaluate SeeTraceAct involves conditioning a Franka Panda arm on human demonstrations.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The WMT 2014 English-to-French translation task was used to evaluate the model."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the wmt 2014 english-to-french translation task was used to evaluate the model.",
+          "label": "The WMT 2014 English-to-French translation task was used to evaluate the model.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The WMT 2014 English-to-German translation task was used to evaluate the model."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the wmt 2014 english-to-german translation task was used to evaluate the model.",
+          "label": "The WMT 2014 English-to-German translation task was used to evaluate the model.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        }
+      ],
+      "title": "Benchmark"
+    },
+    {
+      "fact_type": "claim",
+      "items": [
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Across four real-world manipulation tasks, OpenEAI-Arm outperforms two commercial 6+1-dof arms under the same policy",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/summary.md",
+              "paper_key": "openeai-platform",
+              "statement": "Across four real-world manipulation tasks, the OpenEAI-Arm outperforms two commercial 6+1-dof arms when operating under the same policy."
+            }
+          ],
+          "fact_count": 1,
+          "key": "across four real-world manipulation tasks, the openeai-arm outperforms two commercial 6+1-dof arms when operating under the same policy.",
+          "label": "Across four real-world manipulation tasks, the OpenEAI-Arm outperforms two commercial 6+1-dof arms when operating under the same policy.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-Arm",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-Arm"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-VLA",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-VLA"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "sii-research",
+                  "repo": "ORoboSoul",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/sii-research/ORoboSoul"
+                }
+              ],
+              "paper_key": "openeai-platform",
+              "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Simultaneously, quantum computing advances recognized by the 2025 Nobel Prize in Physics and the Turing Award threaten the cryptographic primitives securing these data economies, creating an interdependent imperative: long-lived verification for embodied AI depends on crypto-agile architectures capable of withstanding quantum adversaries.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/summary.md",
+              "paper_key": "2606_06895",
+              "statement": "Advances in quantum computing threaten the cryptographic primitives securing emerging data economies, making long-lived verification for embodied AI dependent on crypto-agile architectures capable of withstanding quantum adversaries."
+            }
+          ],
+          "fact_count": 1,
+          "key": "advances in quantum computing threaten the cryptographic primitives securing emerging data economies, making long-lived verification for embodied ai dependent on crypto-agile architectures capable of withstanding quantum adversaries.",
+          "label": "Advances in quantum computing threaten the cryptographic primitives securing emerging data economies, making long-lived verification for embodied AI dependent on crypto-agile architectures capable of withstanding quantum adversaries.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "QuantBlockchain",
+                  "repo": "ieee-icbc-tutorial-qbe",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/QuantBlockchain/ieee-icbc-tutorial-qbe"
+                }
+              ],
+              "paper_key": "2606_06895",
+              "title": "Blockchain Infrastructure for Intelligent Cyber--Physical--Social Systems:Post-Quantum Security, Interoperability, and Trustworthy Data Economies in the Era of Embodied AI",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "This tutorial examines blockchain as the coordination layer bridging this dual transition, from financial substrate to foundational Cyber-Physical-Social Systems infrastructure that simultaneously secures against quantum cryptanalysis and enables scalable, trustworthy data economies.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/summary.md",
+              "paper_key": "2606_06895",
+              "statement": "Blockchain serves as the coordination layer bridging the transition from financial substrate to foundational Cyber-Physical-Social Systems infrastructure that secures against quantum cryptanalysis and enables scalable, trustworthy data economies."
+            }
+          ],
+          "fact_count": 1,
+          "key": "blockchain serves as the coordination layer bridging the transition from financial substrate to foundational cyber-physical-social systems infrastructure that secures against quantum cryptanalysis and enables scalable, trustworthy data economies.",
+          "label": "Blockchain serves as the coordination layer bridging the transition from financial substrate to foundational Cyber-Physical-Social Systems infrastructure that secures against quantum cryptanalysis and enables scalable, trustworthy data economies.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "QuantBlockchain",
+                  "repo": "ieee-icbc-tutorial-qbe",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/QuantBlockchain/ieee-icbc-tutorial-qbe"
+                }
+              ],
+              "paper_key": "2606_06895",
+              "title": "Blockchain Infrastructure for Intelligent Cyber--Physical--Social Systems:Post-Quantum Security, Interoperability, and Trustworthy Data Economies in the Era of Embodied AI",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "We show empirically that each additional layer addresses failure classes that prior layers cannot reach, reducing knowledge-violating outputs by 70.97% compared to vanilla generation and empirically confirming the framework's complementarity prediction.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06356/summary.md",
+              "paper_key": "2606_06356",
+              "statement": "Empirical results show that each additional intervention layer addresses failure classes that prior layers cannot reach, reducing knowledge-violating outputs by 70.97% compared to vanilla generation."
+            }
+          ],
+          "fact_count": 1,
+          "key": "empirical results show that each additional intervention layer addresses failure classes that prior layers cannot reach, reducing knowledge-violating outputs by 70.97% compared to vanilla generation.",
+          "label": "Empirical results show that each additional intervention layer addresses failure classes that prior layers cannot reach, reducing knowledge-violating outputs by 70.97% compared to vanilla generation.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_06356",
+              "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "In interactive consultation, evolved policies improve the accuracy--cost frontier across Llama-3, Qwen-3.5, and Gemma-4 and transfer to held-out iCRAFTMD.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "Evolved policies for interactive consultation improve the accuracy-cost frontier across Llama-3, Qwen-3.5, and Gemma-4, and successfully transfer to the held-out iCRAFTMD dataset."
+            }
+          ],
+          "fact_count": 1,
+          "key": "evolved policies for interactive consultation improve the accuracy-cost frontier across llama-3, qwen-3.5, and gemma-4, and successfully transfer to the held-out icraftmd dataset.",
+          "label": "Evolved policies for interactive consultation improve the accuracy-cost frontier across Llama-3, Qwen-3.5, and Gemma-4, and successfully transfer to the held-out iCRAFTMD dataset.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "In triage, evolved programs increase Semigran accuracy from $77.3\\%$ to $87.1\\%$ and emergency recall from $0.60$ to $0.97$",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "Evolved programs for the triage task increase Semigran accuracy from 77.3% to 87.1% and emergency recall from 0.60 to 0.97."
+            }
+          ],
+          "fact_count": 1,
+          "key": "evolved programs for the triage task increase semigran accuracy from 77.3% to 87.1% and emergency recall from 0.60 to 0.97.",
+          "label": "Evolved programs for the triage task increase Semigran accuracy from 77.3% to 87.1% and emergency recall from 0.60 to 0.97.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Existing methods incorporate knowledge through mechanisms such as prompt augmentation, guidance, latent editing, or fine-tuning, yet they are typically categorized by technique rather than by the component of the generative process they modify.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06356/summary.md",
+              "paper_key": "2606_06356",
+              "statement": "Existing methods for incorporating knowledge are typically categorized by technique rather than by the component of the generative process they modify."
+            }
+          ],
+          "fact_count": 1,
+          "key": "existing methods for incorporating knowledge are typically categorized by technique rather than by the component of the generative process they modify.",
+          "label": "Existing methods for incorporating knowledge are typically categorized by technique rather than by the component of the generative process they modify.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_06356",
+              "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "Experiments and user studies demonstrate that our pipeline produces indoor spaces with greater layout diversity and stronger 3D design appeal, outperforming prior methods on both quantitative and qualitative metrics.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/source.tex",
+              "paper_key": "homeworld",
+              "statement": "Experiments and user studies show that the proposed pipeline produces indoor spaces with greater layout diversity and stronger 3D design appeal, outperforming prior methods on quantitative and qualitative metrics."
+            }
+          ],
+          "fact_count": 1,
+          "key": "experiments and user studies show that the proposed pipeline produces indoor spaces with greater layout diversity and stronger 3d design appeal, outperforming prior methods on quantitative and qualitative metrics.",
+          "label": "Experiments and user studies show that the proposed pipeline produces indoor spaces with greater layout diversity and stronger 3D design appeal, outperforming prior methods on quantitative and qualitative metrics.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "homeworld",
+              "title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Flux Matching is validated through the generation of current velocity trajectories and rate constant calculations on molecular systems.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reactive-flux-matching/summary.md",
+              "paper_key": "reactive-flux-matching",
+              "statement": "Flux Matching is validated through the generation of current velocity trajectories and rate constant calculations on molecular systems."
+            }
+          ],
+          "fact_count": 1,
+          "key": "flux matching is validated through the generation of current velocity trajectories and rate constant calculations on molecular systems.",
+          "label": "Flux Matching is validated through the generation of current velocity trajectories and rate constant calculations on molecular systems.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "reactive-flux-matching",
+              "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "We argue that knowledge infusion in iterative generative models is fundamentally anintervention-layer problem.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06356/summary.md",
+              "paper_key": "2606_06356",
+              "statement": "Knowledge infusion in iterative generative models is fundamentally an intervention-layer problem."
+            }
+          ],
+          "fact_count": 1,
+          "key": "knowledge infusion in iterative generative models is fundamentally an intervention-layer problem.",
+          "label": "Knowledge infusion in iterative generative models is fundamentally an intervention-layer problem.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_06356",
+              "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Multimodal generative models produce fluent outputs but remain unreliable when generation must respect structured, domain-specific, or safety-critical knowledge.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06356/summary.md",
+              "paper_key": "2606_06356",
+              "statement": "Multimodal generative models produce fluent outputs but remain unreliable when generation must respect structured, domain-specific, or safety-critical knowledge."
+            }
+          ],
+          "fact_count": 1,
+          "key": "multimodal generative models produce fluent outputs but remain unreliable when generation must respect structured, domain-specific, or safety-critical knowledge.",
+          "label": "Multimodal generative models produce fluent outputs but remain unreliable when generation must respect structured, domain-specific, or safety-critical knowledge.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_06356",
+              "title": "Where Should Knowledge Enter? A Layered Framework for Knowledge Infusion in Multimodal Iterative Generative Mo",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "and OpenEAI-VLA achieves success rates comparable to the large-scale pretrained pi0 baseline with only limited pretraining data.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/summary.md",
+              "paper_key": "openeai-platform",
+              "statement": "OpenEAI-VLA achieves success rates that are comparable to the large-scale pretrained pi0 baseline, despite being trained with only limited pretraining data."
+            }
+          ],
+          "fact_count": 1,
+          "key": "openeai-vla achieves success rates that are comparable to the large-scale pretrained pi0 baseline, despite being trained with only limited pretraining data.",
+          "label": "OpenEAI-VLA achieves success rates that are comparable to the large-scale pretrained pi0 baseline, despite being trained with only limited pretraining data.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-Arm",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-Arm"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "eai-yeslab",
+                  "repo": "OpenEAI-VLA",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/eai-yeslab/OpenEAI-VLA"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "sii-research",
+                  "repo": "ORoboSoul",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/sii-research/ORoboSoul"
+                }
+              ],
+              "paper_key": "openeai-platform",
+              "title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "In PneumoniaMNIST, prompt-only evolution improves frozen MedGemma VLMs while preserving strict JSON outputs.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "Prompt-only evolution improves the performance of frozen MedGemma VLMs on the PneumoniaMNIST dataset while maintaining strict JSON output formatting."
+            }
+          ],
+          "fact_count": 1,
+          "key": "prompt-only evolution improves the performance of frozen medgemma vlms on the pneumoniamnist dataset while maintaining strict json output formatting.",
+          "label": "Prompt-only evolution improves the performance of frozen MedGemma VLMs on the PneumoniaMNIST dataset while maintaining strict JSON output formatting.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "Qualitative analysis shows that the gains come from interpretable program-level mechanisms, calibrated triage boundaries, targeted evidence acquisition, selective commitment, and finding-oriented visual decision rules, rather than superficial prompt rewording alone.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "Qualitative analysis reveals that performance improvements stem from interpretable program-level mechanisms like calibrated triage boundaries, targeted evidence acquisition, selective commitment, and finding-oriented visual decision rules, rather than just superficial prompt rewording."
+            }
+          ],
+          "fact_count": 1,
+          "key": "qualitative analysis reveals that performance improvements stem from interpretable program-level mechanisms like calibrated triage boundaries, targeted evidence acquisition, selective commitment, and finding-oriented visual decision rules, rather than just superficial prompt rewording.",
+          "label": "Qualitative analysis reveals that performance improvements stem from interpretable program-level mechanisms like calibrated triage boundaries, targeted evidence acquisition, selective commitment, and finding-oriented visual decision rules, rather than just superficial prompt rewording.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "Experiments on RoboCasa-DC and a real-world benchmark, where a Franka Panda arm is conditioned on human demonstrations, show that SeeTraceAct outperforms baselines, achieving the best success rate across all four RoboCasa-DC settings and improving real-world average success by 12.5 percentage points.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/summary.md",
+              "paper_key": "seetraceact",
+              "statement": "SeeTraceAct achieves the highest success rate across all four RoboCasa-DC settings and improves real-world average success by 12.5 percentage points compared to baselines."
+            }
+          ],
+          "fact_count": 1,
+          "key": "seetraceact achieves the highest success rate across all four robocasa-dc settings and improves real-world average success by 12.5 percentage points compared to baselines.",
+          "label": "SeeTraceAct achieves the highest success rate across all four RoboCasa-DC settings and improves real-world average success by 12.5 percentage points compared to baselines.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "These results show that strong one-step VLA action generation can emerge from standard diffusion training, without importing the full few-step diffusion machinery developed for image generation.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "Strong one-step VLA action generation can be achieved through standard diffusion training without needing the complex few-step diffusion machinery developed for image generation."
+            }
+          ],
+          "fact_count": 1,
+          "key": "strong one-step vla action generation can be achieved through standard diffusion training without needing the complex few-step diffusion machinery developed for image generation.",
+          "label": "Strong one-step VLA action generation can be achieved through standard diffusion training without needing the complex few-step diffusion machinery developed for image generation.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "The deployment of embodied artificial intelligence via world-model-based robotics presents a transformative opportunity for blockchain infrastructure, establishing urgent demand for trustworthy data provenance, cross-organizational governance, and incentive-compatible sharing across decentralized ecosystems.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/summary.md",
+              "paper_key": "2606_06895",
+              "statement": "The deployment of embodied artificial intelligence via world-model-based robotics creates an urgent demand for trustworthy data provenance, cross-organizational governance, and incentive-compatible sharing across decentralized ecosystems."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the deployment of embodied artificial intelligence via world-model-based robotics creates an urgent demand for trustworthy data provenance, cross-organizational governance, and incentive-compatible sharing across decentralized ecosystems.",
+          "label": "The deployment of embodied artificial intelligence via world-model-based robotics creates an urgent demand for trustworthy data provenance, cross-organizational governance, and incentive-compatible sharing across decentralized ecosystems.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "QuantBlockchain",
+                  "repo": "ieee-icbc-tutorial-qbe",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06895/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/QuantBlockchain/ieee-icbc-tutorial-qbe"
+                }
+              ],
+              "paper_key": "2606_06895",
+              "title": "Blockchain Infrastructure for Intelligent Cyber--Physical--Social Systems:Post-Quantum Security, Interoperability, and Trustworthy Data Economies in the Era of Embodied AI",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "while improving safety-weighted held-out MIMIC-ESI performance.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+              "paper_key": "2606_07342",
+              "statement": "The evolved triage programs improve performance on the held-out MIMIC-ESI dataset when weighted for safety."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the evolved triage programs improve performance on the held-out mimic-esi dataset when weighted for safety.",
+          "label": "The evolved triage programs improve performance on the held-out MIMIC-ESI dataset when weighted for safety.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "BIMSBbioinfo",
+                  "repo": "medLLMbenchmark",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07342/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/BIMSBbioinfo/medLLMbenchmark"
+                },
+                {
+                  "host": "github.com",
+                  "owner": "univanxx",
+                  "repo": "llm_guided_evo_medical",
+                  "source_path": "",
+                  "source_type": "meta_json",
+                  "url": "https://github.com/univanxx/llm_guided_evo_medical"
+                }
+              ],
+              "paper_key": "2606_07342",
+              "title": "LLM-Guided Evolution for Medical Decision Pipelines",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "and their level sets in turn provide adaptive interfaces for improved sampling with enhanced sampling methods.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reactive-flux-matching/summary.md",
+              "paper_key": "reactive-flux-matching",
+              "statement": "The level sets of the learned current velocity and scalar potential can be used as adaptive interfaces to improve sampling with enhanced sampling methods."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the level sets of the learned current velocity and scalar potential can be used as adaptive interfaces to improve sampling with enhanced sampling methods.",
+          "label": "The level sets of the learned current velocity and scalar potential can be used as adaptive interfaces to improve sampling with enhanced sampling methods.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "reactive-flux-matching",
+              "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "For translation tasks, the Transformer can be trained significantly faster than architectures based on recurrent or convolutional layers.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The Transformer can be trained significantly faster than architectures based on recurrent or convolutional layers for translation tasks."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the transformer can be trained significantly faster than architectures based on recurrent or convolutional layers for translation tasks.",
+          "label": "The Transformer can be trained significantly faster than architectures based on recurrent or convolutional layers for translation tasks.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The Transformer establishes a new single-model state-of-the-art BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the transformer establishes a new single-model state-of-the-art bleu score of 41.8 on the wmt 2014 english-to-french translation task after training for 3.5 days on eight gpus.",
+          "label": "The Transformer establishes a new single-model state-of-the-art BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+              "paper_key": "1706_03762",
+              "statement": "The Transformer model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the transformer model achieves 28.4 bleu on the wmt 2014 english-to-german translation task, improving over the existing best results, including ensembles, by over 2 bleu.",
+          "label": "The Transformer model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Unlike committor-based methods, $u$ and $h$ remain well-defined under projection onto non-Markovian collective variables",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reactive-flux-matching/summary.md",
+              "paper_key": "reactive-flux-matching",
+              "statement": "Unlike committor-based methods, the current velocity and scalar potential in Flux Matching remain well-defined when projected onto non-Markovian collective variables."
+            }
+          ],
+          "fact_count": 1,
+          "key": "unlike committor-based methods, the current velocity and scalar potential in flux matching remain well-defined when projected onto non-markovian collective variables.",
+          "label": "Unlike committor-based methods, the current velocity and scalar potential in Flux Matching remain well-defined when projected onto non-Markovian collective variables.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "reactive-flux-matching",
+              "title": "Reactive Flux Matching: Mechanism Discovery and Adaptive Sampling of Rare Events",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "On a 1.4B VLM model with a 30M action head, one-step decoding reaches 95.6\\% on LIBERO-Long.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "Using a 1.4B VLM model with a 30M action head, the one-step decoding method achieves a 95.6% success rate on LIBERO-Long."
+            }
+          ],
+          "fact_count": 1,
+          "key": "using a 1.4b vlm model with a 30m action head, the one-step decoding method achieves a 95.6% success rate on libero-long.",
+          "label": "Using a 1.4B VLM model with a 30M action head, the one-step decoding method achieves a 95.6% success rate on LIBERO-Long.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "source_tex",
+              "evidence_quote": "We argue that VLA action generation has a different condition-target structure: the policy is conditioned on rich observations, language, and state, but predicts only a compact, low-dimensional action chunk.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+              "paper_key": "2606_05737",
+              "statement": "VLA action generation has a different condition-target structure compared to image generation, as the policy is conditioned on rich observations, language, and state, but predicts only a compact, low-dimensional action chunk."
+            }
+          ],
+          "fact_count": 1,
+          "key": "vla action generation has a different condition-target structure compared to image generation, as the policy is conditioned on rich observations, language, and state, but predicts only a compact, low-dimensional action chunk.",
+          "label": "VLA action generation has a different condition-target structure compared to image generation, as the policy is conditioned on rich observations, language, and state, but predicts only a compact, low-dimensional action chunk.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_05737",
+              "title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "Evaluations on standard embodied AI benchmarks confirm that our method substantially reduces visual hallucinations for both VLMs and VLAs, while preserving computational efficiency in tasks requiring fast execution.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/summary.md",
+              "paper_key": "2606_04046",
+              "statement": "Evaluations on standard embodied AI benchmarks demonstrate that the proposed method significantly reduces visual hallucinations for both VLMs and VLAs while maintaining computational efficiency for fast-execution tasks."
+            }
+          ],
+          "fact_count": 1,
+          "key": "evaluations on standard embodied ai benchmarks demonstrate that the proposed method significantly reduces visual hallucinations for both vlms and vlas while maintaining computational efficiency for fast-execution tasks.",
+          "label": "Evaluations on standard embodied AI benchmarks demonstrate that the proposed method significantly reduces visual hallucinations for both VLMs and VLAs while maintaining computational efficiency for fast-execution tasks.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_04046",
+              "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "VLMs are better at long-term planning, while VLAs are better at reactive control.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/summary.md",
+              "paper_key": "2606_04046",
+              "statement": "In embodied vision-language decision making tasks, Vision-Language Models (VLMs) excel at long-term planning, whereas Vision-Language-Action Models (VLAs) are more effective for reactive control."
+            }
+          ],
+          "fact_count": 1,
+          "key": "in embodied vision-language decision making tasks, vision-language models (vlms) excel at long-term planning, whereas vision-language-action models (vlas) are more effective for reactive control.",
+          "label": "In embodied vision-language decision making tasks, Vision-Language Models (VLMs) excel at long-term planning, whereas Vision-Language-Action Models (VLAs) are more effective for reactive control.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_04046",
+              "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "OmniDreams synthesizes complex, unobserved phenomena that are hard for traditional simulators to capture, such as extreme weather and unpredictable dynamic agent behaviors.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/summary.md",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "OmniDreams is capable of synthesizing complex, unobserved phenomena that are difficult for traditional simulators to capture, such as extreme weather and unpredictable dynamic agent behaviors."
+            }
+          ],
+          "fact_count": 1,
+          "key": "omnidreams is capable of synthesizing complex, unobserved phenomena that are difficult for traditional simulators to capture, such as extreme weather and unpredictable dynamic agent behaviors.",
+          "label": "OmniDreams is capable of synthesizing complex, unobserved phenomena that are difficult for traditional simulators to capture, such as extreme weather and unpredictable dynamic agent behaviors.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "surpassing the VLA-based Alpamayo 1.5 research policy model while using only 1/5 the total parameters.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "The WAM post-trained from OmniDreams surpasses the VLA-based Alpamayo 1.5 research policy model on the NuRec dataset while using only one-fifth of the total parameters."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the wam post-trained from omnidreams surpasses the vla-based alpamayo 1.5 research policy model on the nurec dataset while using only one-fifth of the total parameters.",
+          "label": "The WAM post-trained from OmniDreams surpasses the VLA-based Alpamayo 1.5 research policy model on the NuRec dataset while using only one-fifth of the total parameters.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.85,
+          "evidence": [
+            {
+              "confidence": 0.85,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "The Transformer uses attention instead of recurrence or convolution.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/summary.md",
+              "paper_key": "1706_03762",
+              "statement": "Attention alone is presented as sufficient for the model architecture described in the paper summary."
+            }
+          ],
+          "fact_count": 1,
+          "key": "attention-only modeling",
+          "label": "Attention-only modeling",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "tensorflow",
+                  "repo": "tensor2tensor",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/tensorflow/tensor2tensor"
+                }
+              ],
+              "paper_key": "1706_03762",
+              "title": "Attention Is All You Need",
+              "venue": "",
+              "year": 2017
+            }
+          ]
+        }
+      ],
+      "title": "Claim"
+    },
+    {
+      "fact_type": "limitation",
+      "items": [
+        {
+          "average_confidence": 1.0,
+          "evidence": [
+            {
+              "confidence": 1.0,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "We find that existing end-to-end approaches often struggle when successful execution requires precisely localizing small target regions.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+              "paper_key": "seetraceact",
+              "statement": "Existing end-to-end approaches for one-shot demo-conditioned VLAs frequently fail at tasks that require precisely localizing small target regions."
+            }
+          ],
+          "fact_count": 1,
+          "key": "existing end-to-end approaches for one-shot demo-conditioned vlas frequently fail at tasks that require precisely localizing small target regions.",
+          "label": "Existing end-to-end approaches for one-shot demo-conditioned VLAs frequently fail at tasks that require precisely localizing small target regions.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "jaehyeon-son",
+                  "repo": "SeeTraceAct",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/jaehyeon-son/SeeTraceAct"
+                }
+              ],
+              "paper_key": "seetraceact",
+              "title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "A straightforward solution is one-step focus: directly attending to essential objects. However, this approach proves ineffective because effective focus inherently requires deep scene understanding.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/summary.md",
+              "paper_key": "2606_04046",
+              "statement": "A one-step focus approach that directly attends to essential objects is ineffective because achieving effective focus inherently requires a deep understanding of the scene."
+            }
+          ],
+          "fact_count": 1,
+          "key": "a one-step focus approach that directly attends to essential objects is ineffective because achieving effective focus inherently requires a deep understanding of the scene.",
+          "label": "A one-step focus approach that directly attends to essential objects is ineffective because achieving effective focus inherently requires a deep understanding of the scene.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_04046",
+              "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.95,
+          "evidence": [
+            {
+              "confidence": 0.95,
+              "evidence_artifact_type": "summary",
+              "evidence_quote": "However, their performance is limited by the same perceptual bottleneck: visual hallucinations arise due to the models' inability to distinguish task-relevant objects from distractors.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/summary.md",
+              "paper_key": "2606_04046",
+              "statement": "The performance of VLMs and VLAs is constrained by a perceptual bottleneck where visual hallucinations occur because the models cannot distinguish task-relevant objects from distractors."
+            }
+          ],
+          "fact_count": 1,
+          "key": "the performance of vlms and vlas is constrained by a perceptual bottleneck where visual hallucinations occur because the models cannot distinguish task-relevant objects from distractors.",
+          "label": "The performance of VLMs and VLAs is constrained by a perceptual bottleneck where visual hallucinations occur because the models cannot distinguish task-relevant objects from distractors.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [],
+              "paper_key": "2606_04046",
+              "title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        },
+        {
+          "average_confidence": 0.9,
+          "evidence": [
+            {
+              "confidence": 0.9,
+              "evidence_artifact_type": "abstract",
+              "evidence_quote": "While recent reconstruction-based neural simulators offer photorealism, they are fundamentally constrained by their initial captured data and struggle to generalize to highly dynamic or novel scenes.",
+              "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+              "paper_key": "nvidia-omnidreams",
+              "statement": "Reconstruction-based neural simulators are fundamentally constrained by their initial captured data and struggle to generalize to highly dynamic or novel scenes."
+            }
+          ],
+          "fact_count": 1,
+          "key": "reconstruction-based neural simulators are fundamentally constrained by their initial captured data and struggle to generalize to highly dynamic or novel scenes.",
+          "label": "Reconstruction-based neural simulators are fundamentally constrained by their initial captured data and struggle to generalize to highly dynamic or novel scenes.",
+          "paper_count": 1,
+          "papers": [
+            {
+              "code_links": [
+                {
+                  "host": "github.com",
+                  "owner": "NVlabs",
+                  "repo": "alpasim",
+                  "source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/nvidia-omnidreams/source.tex",
+                  "source_type": "source_tex",
+                  "url": "https://github.com/NVlabs/alpasim"
+                }
+              ],
+              "paper_key": "nvidia-omnidreams",
+              "title": "NVIDIA OmniDreams: Real-Time Generative World Model for Closed-Loop Autonomous Vehicle Simulation",
+              "venue": "",
+              "year": 2026
+            }
+          ]
+        }
+      ],
+      "title": "Limitation"
+    }
+  ]
+}

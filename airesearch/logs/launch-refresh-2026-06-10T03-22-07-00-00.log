@@ -1,0 +1,17 @@
+generated_at=2026-06-10T03:22:07+00:00
+profiles=5
+providers=openalex,arxiv,semantic_scholar,google_scholar
+discovered=655
+discovery_errors=4
+canonical=737
+selected=100
+approved=210
+batch_failed=9
+papers=202
+facts=1551
+fact_failures=23
+site=exports/site-current/index.html
+publish_diff=exports/site-current/publish-diff.json
+run_manifest=exports/launch-refresh-current.json
+run_history=exports/run-history/launch-refresh-2026-06-10T03-22-07-00-00.json
+steps=init-db,seed-profiles,discover-candidates,dedupe-candidates,select-canonical-candidates,export-approved-candidates,batch-ingest,sync-paperpipe,run-mvp-pipeline,publish-static-site

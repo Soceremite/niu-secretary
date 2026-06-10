@@ -337,7 +337,7 @@ class GoogleScholarProvider:
     def search(self, profile_name: str, limit: int) -> list[CandidatePaper]:
         if not self.api_key:
             raise ValueError("SERPAPI_API_KEY is required for google_scholar provider")
-        bounded_limit = max(1, min(limit, 20))
+        bounded_limit = max(1, min(limit, 50))
         query = profile_query(profile_name)
         key = cache_key(self.name, profile_name, query, bounded_limit)
 

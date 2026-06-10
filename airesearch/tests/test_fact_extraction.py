@@ -32,12 +32,77 @@ class FakeFactClient:
         return self.payload
 
 
+class PromptAwareFactClient:
+    def __init__(self, payloads: dict[str, dict], failures: dict[str, Exception] | None = None):
+        self.payloads = payloads
+        self.failures = failures or {}
+        self.calls = []
+
+    def complete_json(self, *, model: str, base_url: str | None, api_key: str, prompt: str) -> dict:
+        self.calls.append(prompt)
+        for marker, error in self.failures.items():
+            if marker in prompt:
+                raise error
+        for marker, payload in self.payloads.items():
+            if marker in prompt:
+                return payload
+        return {"facts": []}
+
+
 def synced_fixture_db(tmp_path: Path) -> Path:
     db_path = tmp_path / "airesearch.sqlite3"
     paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
     init_db(db_path)
     sync_paperpipe(db_path=db_path, paper_db_path=paper_db)
     return db_path
+
+
+def add_synthetic_paper(db_path: Path, tmp_path: Path) -> None:
+    paper_dir = tmp_path / "synthetic_paper"
+    paper_dir.mkdir()
+    summary_path = paper_dir / "summary.md"
+    summary_path.write_text(
+        "Synthetic Control Paper introduces a controlled benchmark for fact extraction.",
+        encoding="utf-8",
+    )
+    now = "2026-06-09T00:00:00+00:00"
+    with connect(db_path) as conn:
+        conn.execute(
+            """
+            insert into papers (
+                paper_key, title, authors_json, year, venue, ids_json,
+                paper_dir, meta_json, created_at, updated_at
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "synthetic_control",
+                "Synthetic Control Paper",
+                json.dumps(["Test Author"]),
+                2026,
+                "TestConf",
+                json.dumps({"arxiv_id": "2606.00000"}),
+                str(paper_dir),
+                json.dumps({"abstract": "Controlled benchmark for fact extraction."}),
+                now,
+                now,
+            ),
+        )
+        conn.execute(
+            """
+            insert into paper_artifacts (
+                paper_key, artifact_type, path, sha256, size_bytes, updated_at
+            ) values (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "synthetic_control",
+                "summary",
+                str(summary_path),
+                "0" * 64,
+                summary_path.stat().st_size,
+                now,
+            ),
+        )
+        conn.commit()
 
 
 def test_extract_research_facts_from_fixture_creates_facts_and_provenance(tmp_path: Path):
@@ -273,3 +338,164 @@ def test_openai_compatible_dry_run_does_not_overwrite_success_cache(tmp_path: Pa
     assert row["status"] == "success"
     assert row["response_json"]
 
+def test_openai_compatible_processes_multiple_papers_with_concurrency(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    add_synthetic_paper(db_path, tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    client = PromptAwareFactClient({
+        "Attention Is All You Need": {
+            "facts": [
+                {
+                    "fact_type": "method",
+                    "name": "Transformer",
+                    "statement": "The paper uses an attention-based Transformer architecture.",
+                    "evidence_quote": "Attention Is All You Need",
+                    "evidence_artifact_type": "summary",
+                    "confidence": 0.8,
+                    "metadata": {},
+                }
+            ]
+        },
+        "Synthetic Control Paper": {
+            "facts": [
+                {
+                    "fact_type": "benchmark",
+                    "name": "Synthetic benchmark",
+                    "statement": "The paper introduces a controlled benchmark for fact extraction.",
+                    "evidence_quote": "controlled benchmark for fact extraction",
+                    "evidence_artifact_type": "summary",
+                    "confidence": 0.9,
+                    "metadata": {},
+                }
+            ]
+        },
+    })
+
+    result = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        model="qwen3.7-max",
+        client=client,
+        concurrency=2,
+    )
+
+    assert result.papers_seen == 2
+    assert result.llm_calls == 2
+    assert result.facts_written == 2
+    assert len(client.calls) == 2
+    with connect(db_path) as conn:
+        statuses = [
+            row["status"]
+            for row in conn.execute("select status from fact_extraction_cache order by paper_key").fetchall()
+        ]
+    assert statuses == ["success", "success"]
+
+
+def test_openai_compatible_concurrent_failure_marks_only_failed_paper_cache(
+    tmp_path: Path, monkeypatch
+):
+    db_path = synced_fixture_db(tmp_path)
+    add_synthetic_paper(db_path, tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    client = PromptAwareFactClient(
+        {
+            "Attention Is All You Need": {
+                "facts": [
+                    {
+                        "fact_type": "method",
+                        "name": "Transformer",
+                        "statement": "The paper uses an attention-based Transformer architecture.",
+                        "evidence_quote": "Attention Is All You Need",
+                        "evidence_artifact_type": "summary",
+                        "confidence": 0.8,
+                        "metadata": {},
+                    }
+                ]
+            }
+        },
+        failures={"Synthetic Control Paper": FactValidationError("provider failed")},
+    )
+
+    with pytest.raises(FactValidationError, match="synthetic_control"):
+        extract_research_facts(
+            db_path,
+            provider_name="openai-compatible",
+            model="qwen3.7-max",
+            client=client,
+            concurrency=2,
+        )
+
+    assert len(client.calls) == 2
+    facts = list_research_facts(db_path, limit=10)
+    assert [row["paper_key"] for row in facts] == ["1706_03762"]
+    with connect(db_path) as conn:
+        cache_rows = conn.execute(
+            """
+            select paper_key, status, error from fact_extraction_cache
+            order by paper_key
+            """
+        ).fetchall()
+    assert [(row["paper_key"], row["status"]) for row in cache_rows] == [
+        ("1706_03762", "success"),
+        ("synthetic_control", "failed"),
+    ]
+    assert "provider failed" in cache_rows[1]["error"]
+
+
+def test_openai_compatible_warn_policy_keeps_successes_when_one_paper_fails(
+    tmp_path: Path, monkeypatch
+):
+    db_path = synced_fixture_db(tmp_path)
+    add_synthetic_paper(db_path, tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    client = PromptAwareFactClient(
+        {
+            "Attention Is All You Need": {
+                "facts": [
+                    {
+                        "fact_type": "method",
+                        "name": "Transformer",
+                        "statement": "The paper uses an attention-based Transformer architecture.",
+                        "evidence_quote": "Attention Is All You Need",
+                        "evidence_artifact_type": "summary",
+                        "confidence": 0.8,
+                        "metadata": {},
+                    }
+                ]
+            }
+        },
+        failures={"Synthetic Control Paper": FactValidationError("provider failed")},
+    )
+
+    result = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        model="qwen3.7-max",
+        client=client,
+        concurrency=2,
+        error_policy="warn",
+    )
+
+    assert result.papers_seen == 2
+    assert result.llm_calls == 1
+    assert result.failed_count == 1
+    assert result.failed_errors is not None
+    assert "synthetic_control" in result.failed_errors
+    facts = list_research_facts(db_path, limit=10)
+    assert [row["paper_key"] for row in facts] == ["1706_03762"]
+    with connect(db_path) as conn:
+        run_row = conn.execute(
+            "select status, error from fact_extraction_runs order by id desc limit 1"
+        ).fetchone()
+        cache_rows = conn.execute(
+            """
+            select paper_key, status, error from fact_extraction_cache
+            order by paper_key
+            """
+        ).fetchall()
+    assert run_row["status"] == "partial_success"
+    assert "synthetic_control" in run_row["error"]
+    assert [(row["paper_key"], row["status"]) for row in cache_rows] == [
+        ("1706_03762", "success"),
+        ("synthetic_control", "failed"),
+    ]

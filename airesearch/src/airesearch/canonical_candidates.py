@@ -22,6 +22,19 @@ class CanonicalMaterializationResult:
     skipped_count: int
 
 
+@dataclass(frozen=True)
+class CandidateReviewResult:
+    total_count: int
+    selected_count: int
+    already_in_database_count: int
+    manually_rejected_count: int
+    below_min_score_count: int
+    not_in_top_limit_count: int
+    missing_identifier_count: int
+    json_path: Path
+    markdown_path: Path | None = None
+
+
 ALLOWED_STATUSES = {"candidate", "selected", "rejected"}
 
 
@@ -87,6 +100,90 @@ def canonical_key_for_candidate(row: dict[str, Any]) -> str:
     if normalized:
         return f"title_year:{normalized}:{year}"
     return ""
+
+
+def _json_object(raw: str | None) -> dict[str, Any]:
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def canonical_keys_for_existing_papers(db_path: Path) -> set[str]:
+    if not db_path.exists():
+        return set()
+    keys: set[str] = set()
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            """
+            select paper_key, title, year, ids_json, meta_json
+            from papers
+            """
+        ).fetchall()
+        source_rows = conn.execute(
+            """
+            select ps.source_type, ps.source_value, p.year
+            from paper_sources ps
+            left join papers p on p.paper_key = ps.paper_key
+            """
+        ).fetchall()
+
+    for row in rows:
+        ids = _json_object(row["ids_json"])
+        meta = _json_object(row["meta_json"])
+        title = str(row["title"] or meta.get("title") or "")
+        year = row["year"] or meta.get("year") or ""
+        source_values = [
+            str(row["paper_key"] or ""),
+            str(ids.get("arxiv_id") or ""),
+            str(ids.get("doi") or ""),
+            str(ids.get("s2_id") or ""),
+            str(ids.get("url") or ""),
+            str(meta.get("arxiv_id") or ""),
+            str(meta.get("doi") or ""),
+            str(meta.get("s2_id") or ""),
+            str(meta.get("url") or ""),
+        ]
+
+        arxiv_id = extract_arxiv_id(*source_values)
+        if arxiv_id:
+            keys.add(f"arxiv:{arxiv_id}")
+        doi = extract_doi(*source_values)
+        if doi:
+            keys.add(f"doi:{doi}")
+        s2_id = ids.get("s2_id") or meta.get("s2_id")
+        if s2_id:
+            keys.add(f"semantic_scholar:{str(s2_id).lower()}")
+        openalex_id = ids.get("openalex_id") or meta.get("openalex_id") or meta.get("openalex")
+        if openalex_id:
+            keys.add(f"openalex:{str(openalex_id).rstrip('/').rsplit('/', 1)[-1].lower()}")
+        normalized_title = normalize_title(title)
+        if normalized_title:
+            year_text = str(year or "")
+            keys.add(f"title_year:{normalized_title}:{year_text}")
+
+    for source_row in source_rows:
+        source_type = str(source_row["source_type"] or "").lower()
+        source_value = str(source_row["source_value"] or "")
+        arxiv_id = extract_arxiv_id(source_value)
+        if arxiv_id:
+            keys.add(f"arxiv:{arxiv_id}")
+        doi = extract_doi(source_value)
+        if doi:
+            keys.add(f"doi:{doi}")
+        if source_type == "s2_id" and source_value:
+            keys.add(f"semantic_scholar:{source_value.lower()}")
+        if source_type in {"openalex", "openalex_id"} and source_value:
+            keys.add(f"openalex:{source_value.rstrip('/').rsplit('/', 1)[-1].lower()}")
+        if source_type == "title" and source_value:
+            normalized_title = normalize_title(source_value)
+            year_text = str(source_row["year"] or "")
+            keys.add(f"title_year:{normalized_title}:{year_text}")
+
+    return keys
 
 
 def best_identifier(row: dict[str, Any]) -> str:
@@ -238,12 +335,12 @@ def select_top_canonical_candidates(db_path: Path, limit: int, min_score: float 
     if limit <= 0:
         raise ValueError("limit must be greater than zero")
     init_db(db_path)
+    existing_keys = canonical_keys_for_existing_papers(db_path)
     params: list[Any] = []
     score_filter = ""
     if min_score is not None:
         score_filter = "and best_score >= ?"
         params.append(min_score)
-    params.append(limit)
     with connect(db_path) as conn:
         rows = conn.execute(
             f"""
@@ -252,11 +349,14 @@ def select_top_canonical_candidates(db_path: Path, limit: int, min_score: float 
             where status = 'candidate'
             {score_filter}
             order by best_score desc, published_date desc, canonical_key asc
-            limit ?
             """,
             params,
         ).fetchall()
-        keys = [row["canonical_key"] for row in rows]
+        keys = [
+            row["canonical_key"]
+            for row in rows
+            if row["canonical_key"] not in existing_keys
+        ][:limit]
         now = utc_now()
         for key in keys:
             conn.execute(
@@ -300,3 +400,169 @@ def export_canonical_candidates(db_path: Path, limit: int, out_path: Path) -> in
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
     return len(lines)
+
+
+def _decode_list(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value]
+
+
+def _candidate_review_reason(
+    row: dict[str, Any],
+    *,
+    existing_keys: set[str],
+    min_score: float | None,
+) -> str:
+    identifier = best_identifier(row)
+    if not identifier:
+        return "missing_identifier"
+    status = str(row.get("status") or "")
+    canonical_key = str(row.get("canonical_key") or "")
+    if status == "selected":
+        return "selected"
+    if canonical_key in existing_keys:
+        return "already_in_database"
+    if status == "rejected":
+        return "manually_rejected"
+    score = float(row.get("best_score") or 0)
+    if min_score is not None and score < min_score:
+        return "below_min_score"
+    return "not_in_top_limit"
+
+
+def build_candidate_review(
+    db_path: Path,
+    *,
+    min_score: float | None = None,
+    limit: int | None = None,
+) -> dict[str, Any]:
+    init_db(db_path)
+    existing_keys = canonical_keys_for_existing_papers(db_path)
+    with connect(db_path) as conn:
+        rows = [
+            dict(row)
+            for row in conn.execute(
+                """
+                select *
+                from candidate_papers
+                order by best_score desc, published_date desc, canonical_key asc
+                """
+            )
+        ]
+
+    items: list[dict[str, Any]] = []
+    counts = {
+        "selected": 0,
+        "already_in_database": 0,
+        "manually_rejected": 0,
+        "below_min_score": 0,
+        "not_in_top_limit": 0,
+        "missing_identifier": 0,
+    }
+    for index, row in enumerate(rows, start=1):
+        reason = _candidate_review_reason(row, existing_keys=existing_keys, min_score=min_score)
+        counts[reason] += 1
+        items.append(
+            {
+                "rank": index,
+                "canonical_key": row["canonical_key"],
+                "title": row["title"],
+                "identifier": best_identifier(row),
+                "status": row["status"],
+                "review_reason": reason,
+                "best_score": row["best_score"],
+                "published_date": row["published_date"],
+                "year": row["year"],
+                "profiles": _decode_list(row.get("profiles_json")),
+                "sources": _decode_list(row.get("sources_json")),
+                "source_urls": _decode_list(row.get("source_urls_json")),
+            }
+        )
+
+    return {
+        "generated_at": utc_now(),
+        "selection": {
+            "limit": limit,
+            "min_score": min_score,
+            "selected_count": counts["selected"],
+        },
+        "summary": {
+            "total_count": len(items),
+            **counts,
+        },
+        "items": items,
+    }
+
+
+def _candidate_review_markdown(payload: dict[str, Any]) -> str:
+    summary = payload["summary"]
+    selection = payload["selection"]
+    lines = [
+        "# Candidate Review",
+        "",
+        f"- generated_at: {payload['generated_at']}",
+        f"- selection_limit: {selection['limit']}",
+        f"- min_score: {selection['min_score']}",
+        f"- total: {summary['total_count']}",
+        f"- selected: {summary['selected']}",
+        f"- already_in_database: {summary['already_in_database']}",
+        f"- manually_rejected: {summary['manually_rejected']}",
+        f"- below_min_score: {summary['below_min_score']}",
+        f"- not_in_top_limit: {summary['not_in_top_limit']}",
+        f"- missing_identifier: {summary['missing_identifier']}",
+        "",
+        "| Rank | Reason | Score | Status | Title | Identifier |",
+        "| ---: | --- | ---: | --- | --- | --- |",
+    ]
+    for item in payload["items"]:
+        title = str(item["title"] or "").replace("|", "\\|")
+        identifier = str(item["identifier"] or "").replace("|", "\\|")
+        lines.append(
+            "| {rank} | {reason} | {score:.3f} | {status} | {title} | {identifier} |".format(
+                rank=item["rank"],
+                reason=item["review_reason"],
+                score=float(item["best_score"] or 0),
+                status=item["status"],
+                title=title,
+                identifier=identifier,
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def export_candidate_review(
+    db_path: Path,
+    json_path: Path,
+    *,
+    markdown_path: Path | None = None,
+    min_score: float | None = None,
+    limit: int | None = None,
+) -> CandidateReviewResult:
+    payload = build_candidate_review(db_path, min_score=min_score, limit=limit)
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    if markdown_path is not None:
+        markdown_path.parent.mkdir(parents=True, exist_ok=True)
+        markdown_path.write_text(_candidate_review_markdown(payload), encoding="utf-8")
+    summary = payload["summary"]
+    return CandidateReviewResult(
+        total_count=summary["total_count"],
+        selected_count=summary["selected"],
+        already_in_database_count=summary["already_in_database"],
+        manually_rejected_count=summary["manually_rejected"],
+        below_min_score_count=summary["below_min_score"],
+        not_in_top_limit_count=summary["not_in_top_limit"],
+        missing_identifier_count=summary["missing_identifier"],
+        json_path=json_path,
+        markdown_path=markdown_path,
+    )

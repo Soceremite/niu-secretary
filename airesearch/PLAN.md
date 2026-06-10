@@ -1,580 +1,293 @@
-# AIResearch Implementation Plan
+# AIResearch Roadmap
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Goal:** Build 牛秘书 AIResearch 研知库 as a launchable local research-paper system on top of `paperpipe` / `papi`, with discovery, auditable ingestion, knowledge extraction, provenance, reports, and static publishing.
 
-**Goal:** Build 牛秘书 AIResearch 研知库 as a local research-paper system on top of `paperpipe` / `papi`, with scheduled paper discovery, auditable ingestion, knowledge graph extraction, provenance, and research reports.
+**Current launch artifact:** `exports/site-current/index.html` after publish; source bundle is `exports/mvp-current/bundle/index.html`.
 
-**Architecture:** `paperpipe` is the L0 paper grounding substrate for single-paper ingestion, artifacts, search, RAG, export, and agent skills. AIResearch adds L1 scheduled discovery, L2 SQLite-backed knowledge graph and provenance, and L3 research reports. Start with SQLite and paperpipe outputs; only evaluate Kuzu or a separate vector store after scale or query requirements demand it.
+**Current real corpus:** 202 papers, 1553 extracted facts, 0 fact-audit hard failures, 0 MVP pipeline fact failures.
 
-**Tech Stack:** Python, `paperpipe` / `papi`, SQLite, OpenAlex API, Semantic Scholar API, cloud LLM, cloud embedding, optional PaperQA2, optional GROBID, optional Kuzu.
-
----
-
-## Current Status
-
-| Area | Status | Notes |
-| --- | --- | --- |
-| paperpipe capability audit | Done | GitHub/PyPI capability boundary reviewed; `SKILL.md`, `REQUIREMENTS.md`, and decision note updated. |
-| local `PLAN.md` | Done | This file is now the implementation and status tracker. |
-| local `papi` install | Done | Installed `paperpipe==1.9.3` in local `.venv` with narrow extras `llm,figures,mcp`; avoided `all` because it pulls LEANN/torch/CUDA/docling/qdrant. |
-| L0 paperpipe smoke test | Done | `papi add/list/show/search/index/ask` pass on `1706.03762` using separated LLM and embedding API config. |
-| AIResearch SQLite ledger | Done | Stage 2A implemented: SQLite schema, paperpipe sync, batch ingest, CLI, tests, and local verification. |
-| L1 discovery | Done | Stage 2B profiles, scoring, candidate storage, discovery orchestration, CLI, OpenAlex/arXiv/Semantic Scholar providers, opt-in quota-safe Google Scholar provider, provider-level error handling, Top 100 manifest export, canonical candidate dedupe, canonical review workflow, and first approved canonical batch ingestion completed. |
-| L2 knowledge graph | In progress | Stage 2D.0 deterministic paper cards, Stage 2D.1 research fact substrate, deterministic GitHub code-link extraction, code repository graph integration, and quota-controlled OpenAI-compatible fact provider implemented. |
-| L3 reports | Not started | Paper Card/Digest/Map/Gap Analysis not implemented. |
-
-## Completed
-
-- [x] Created `airesearch/REQUIREMENTS.md`.
-- [x] Created `airesearch/SKILL.md`.
-- [x] Created decision note: `airesearch/decisions/2026-06-08-ingestion-stack-selection.md`.
-- [x] Re-audited `paperpipe` / `papi` against the GitHub/PyPI project.
-- [x] Clarified that `papi ask`, MCP, figures, PaperQA2, and LEANN are conditional extras, not unconditional capabilities.
-- [x] Clarified that AIResearch owns scheduled discovery, run audit, knowledge graph, provenance, and reports.
-- [x] Confirmed `paperpipe` was not installed locally before Phase 1.
-- [x] Created local project plan: `airesearch/PLAN.md`.
-- [x] Created local `.venv` and installed `paperpipe==1.9.3`.
-- [x] Installed Phase 1 extras with `paperpipe[llm,figures,mcp]` instead of `paperpipe[all]` to avoid LEANN/torch/CUDA heavy dependencies.
-- [x] Created `airesearch/data/paperpipe/` and `airesearch/.env.example`.
-- [x] Added arXiv paper `1706.03762` (`Attention Is All You Need`) to the local paperpipe database.
-- [x] Verified `papi list`, `papi show --level summary`, `papi show --level eq`, `papi search`, and `papi index --backend search`.
-- [x] Verified `papi index --backend pqa` and `papi ask` with separated LLM and embedding API config.
-- [x] Created Stage 2A design spec: `docs/superpowers/specs/2026-06-08-stage-2a-ledger-batch-ingest-design.md`.
-- [x] Created Stage 2A implementation plan: `docs/superpowers/plans/2026-06-08-stage-2a-ledger-batch-ingest.md`.
-- [x] Implemented AIResearch Python package skeleton under `src/airesearch/`.
-- [x] Created SQLite ledger schema and DB helpers.
-- [x] Implemented paperpipe sync into `data/airesearch.sqlite3`.
-- [x] Implemented batch ingest manifest workflow with per-item success/failure/duplicate tracking.
-- [x] Implemented CLI commands: `init-db`, `sync-paperpipe`, `batch-ingest`, and `status`.
-- [x] Added local `.gitignore` for `.env`, `.venv`, caches, and generated data.
-- [x] Verified Stage 2A with `pytest -v`: 10 tests passed.
-- [x] Synced real paperpipe DB: `papers_seen=1 artifacts_seen=6`.
-- [x] Verified duplicate batch path: `total=1 success=0 failed=0 duplicate=1 skipped=0`.
-- [x] Created Stage 2B design spec: `docs/superpowers/specs/2026-06-08-stage-2b-research-candidate-discovery-design.md`.
-- [x] Created Stage 2B implementation plan: `docs/superpowers/plans/2026-06-08-stage-2b-research-candidate-discovery.md`.
-- [x] Extended SQLite schema with `research_profiles`, `discovery_runs`, and `research_candidates`.
-- [x] Implemented default Stage 2B research profiles with 12-month primary window and 2024 strong-backing exception window.
-- [x] Implemented deterministic candidate scoring by recency, backing, venue/source, topic relevance, and artifacts.
-- [x] Implemented candidate storage, listing, and manifest export.
-- [x] Implemented discovery provider abstraction and offline orchestration.
-- [x] Added CLI commands: `seed-profiles`, `discover-candidates`, `list-candidates`, and `export-candidates`.
-- [x] Seeded real local ledger with 5 research profiles.
-- [x] Verified Stage 2B local implementation with `pytest -v`: 18 tests passed.
-- [x] Implemented Stage 2B network providers for OpenAlex, arXiv, and Semantic Scholar.
-- [x] Added provider-level error handling so Semantic Scholar 429/rate-limit failures are recorded without blocking other sources.
-- [x] Added candidate quality filters for future dates, topicless primary-window papers, obvious non-paper OpenAlex locations, and duplicate titles.
-- [x] Ran real arXiv discovery for 5 profiles and stored 237 candidates: multimodal 50, unified 39, world models 50, diffusion 48, embodied/VLA 50.
-- [x] Exported Top 100 manifests under `manifests/` for all 5 Stage 2B profiles.
-- [x] Verified Stage 2B provider implementation with `pytest -v`: 22 tests passed.
-- [x] Designed quota-safe Google Scholar provider through SerpAPI and Paper Copilot venue-guide policy.
-- [x] Implemented opt-in Google Scholar provider with SQLite cache and monthly usage guard.
-- [x] Paper Copilot is treated as a human venue/source guide only; AIResearch does not automatically scrape Paper Copilot.
-- [x] Implemented Stage 2C.0 canonical candidate identity with deterministic keys, provider/profile aggregation, CLI listing, and deduplicated export.
-- [x] Implemented Stage 2C.1 canonical review workflow with selected/rejected status, top-N selection, and approved-only manifest export.
-- [x] Approved top 10 canonical candidates with `score >= 0.70`, exported `manifests/approved-stage-2c.txt`, batch-ingested all 10 through paperpipe, and synced the ledger.
-- [x] Implemented Stage 2D.0 deterministic L2 paper cards, graph nodes/edges, provenance records, extraction audit runs, and paper card export.
-- [x] Implemented Stage 2D.1 fixture-backed research fact extraction substrate with fact/provenance tables, validation, CLI, and JSONL export.
-- [x] Implemented deterministic GitHub code-link extraction from paper metadata and `source_tex`, with CLI listing/export and project URL normalization.
-- [x] Integrated extracted GitHub code links into Paper Card export and KG `code_repository` / `has_code_repository` graph rows.
-- [x] Implemented Stage 2D.4 OpenAI-compatible research fact provider with evidence-pack hashing, dry-run mode, response cache, model passthrough for OpenAI and Alibaba Bailian / DashScope-style endpoints, CLI controls, and no-network tests.
-
-## In Progress
-
-- [x] Stage 2C.0: materialize canonical candidate papers to dedupe provider/profile overlap before review and ingestion.
-- [x] Stage 2C.1: add canonical candidate review commands and approved-only export.
-- [x] Stage 2C.2: review approved canonical candidates and run batch ingestion through Stage 2A.
-- [x] Stage 2D.0: generate deterministic paper cards and provenance graph from paperpipe metadata.
-- [x] Stage 2D.1: add LLM-shaped method/dataset/benchmark/claim extraction substrate with cited provenance and fixture provider.
-- [x] Stage 2D.2: extract GitHub project links from abstract-like metadata and TeX source artifacts.
-- [x] Stage 2D.3: expose extracted GitHub project links in Paper Card exports and the knowledge graph.
-- [x] Stage 2D.4: connect a real quota-controlled OpenAI-compatible LLM provider for selected papers.
-- [x] Stage 2D.4 verification: focused tests `30 passed`, full suite `72 passed`, and real DB `--dry-run` returned `llm_calls=0 dry_runs=1`.
-
-## Stage 2B Completed Tasks
-
-- [x] Stage 2B Task 1: extend SQLite schema for profiles, discovery runs, and candidates.
-- [x] Stage 2B Task 2: seed default research profiles for multimodal, unified generation/understanding, world models, diffusion, and embodied AI.
-- [x] Stage 2B Task 3: implement recency/backing/venue/topic/artifact candidate scoring.
-- [x] Stage 2B Task 4: implement discovery orchestration with provider abstraction.
-- [x] Stage 2B Task 5: add `seed-profiles`, `discover-candidates`, `list-candidates`, and `export-candidates` CLI commands.
-- [x] Stage 2B Task 6: implement network providers for OpenAlex, arXiv, and Semantic Scholar.
-- [x] Stage 2B Task 7: run real arXiv discovery and export Top 100 manifests for all 5 research profiles.
-- [x] Stage 2B Task 8: add opt-in Google Scholar discovery through SerpAPI with SQLite cache and monthly usage guard.
-- [x] Stage 2B Task 9: document Paper Copilot as a human venue/source guide only, not an automatic scraping provider.
+**Operating principle:** do not skip launch-critical capability, but avoid getting stuck on tiny polish items. Build the whole usable path first, then harden the highest-risk submodules.
 
 ---
 
-## File Map
+## Status Overview
 
-| Path | Responsibility |
-| --- | --- |
-| `airesearch/PLAN.md` | Project implementation plan, phase status, and execution tracker. |
-| `airesearch/SKILL.md` | Agent-facing instructions and capability boundaries. |
-| `airesearch/REQUIREMENTS.md` | Product and architecture requirements. |
-| `airesearch/decisions/*.md` | Architecture decision records. |
-| `airesearch/docs/superpowers/specs/2026-06-08-stage-2a-ledger-batch-ingest-design.md` | Stage 2A accepted design. |
-| `airesearch/docs/superpowers/plans/2026-06-08-stage-2a-ledger-batch-ingest.md` | Stage 2A implementation plan. |
-| `airesearch/docs/superpowers/specs/2026-06-08-stage-2b-research-candidate-discovery-design.md` | Stage 2B candidate discovery design. |
-| `airesearch/docs/superpowers/plans/2026-06-08-stage-2b-research-candidate-discovery.md` | Stage 2B implementation plan. |
-| `airesearch/data/paperpipe/` | Planned `PAPER_DB_PATH` for paperpipe local paper database. |
-| `airesearch/data/airesearch.sqlite3` | AIResearch SQLite ledger created by Stage 2A. |
-| `airesearch/src/airesearch/` | Planned Python package for CLI, ledger sync, discovery, extraction, and reports. |
-| `airesearch/tests/` | Planned tests for schema, adapters, discovery, and reporting. |
+| Layer | Status | What Exists | Main Gap |
+| --- | --- | --- | --- |
+| L0 paper grounding | Done | `paperpipe==1.9.3`, local paper DB, `papi add/list/show/search/index/ask` smoke-tested | None for MVP |
+| L1 discovery and ingest | Mostly done | profiles, OpenAlex/arXiv/Semantic Scholar/SerpAPI providers, scoring, candidate export, canonical review, approved ingest, one-command launch refresh, scheduled wrapper | real corpus expansion run beyond the current 11-paper local corpus |
+| L2 knowledge graph and provenance | Done for MVP | paper cards, code links, graph rows, fact extraction, audit, evidence repair, artifact ledger, claim trace | trace lookup UI polish |
+| L3 reports | Done for MVP | digest, map, gap analysis, synthesis, narrative, clustering, review packets, report bundle, cross-paper relations, static navigation | report quality/editorial polish |
+| Launch pipeline | Done for MVP | `run-launch-refresh` with optional unified progress, run history/log output, publish diff metadata, `run-mvp-pipeline`, static HTML site export, local publish/serve commands, static-host config generation, deploy/rollback script generation | None for MVP |
+| Operations | MVP ready | launch runbook, DB backup command, health check command, scheduled refresh wrapper generator, local env and developer docs, external deploy rollback scripts | None for MVP |
 
 ---
 
-## Phase 0: Documentation And Scope Lock
+## Development Order
 
-**Status:** Done
+This is the intended order from foundation to launch. Completed work stays checked; incomplete work is ordered by上线 priority.
 
-**Technical Path:**
+### 0. Scope And Foundation
 
-- Use `paperpipe` only as L0 local paper grounding.
-- Keep `GROBID`, `MinerU`, `Kuzu`, and separate vector stores optional.
-- Use SQLite for MVP ledger, candidates, graph adjacency, provenance, and jobs.
-- Treat cloud LLM outputs as draft unless backed by provenance.
+- [x] Audit upstream `paperpipe` / `papi` capability boundary.
+- [x] Create `REQUIREMENTS.md`, `SKILL.md`, and ingestion-stack decision note.
+- [x] Keep SQLite as MVP ledger; keep Kuzu, separate vector DB, GROBID, MinerU, and heavy local GPU dependencies optional.
+- [x] Create local `.venv`, `.env.example`, and `activate.sh` workflow.
 
-**Tasks:**
+### 1. L0 Paperpipe Integration
 
-- [x] Audit upstream `paperpipe` capabilities.
-- [x] Update `SKILL.md` with verified paperpipe boundary.
-- [x] Update `REQUIREMENTS.md` with conditional extras and MVP scope.
-- [x] Update ingestion-stack decision note.
-- [x] Create this local `PLAN.md`.
+- [x] Install `paperpipe==1.9.3` with focused extras `llm,figures,mcp`.
+- [x] Store local paper artifacts under `data/paperpipe/`.
+- [x] Verify `papi add/list/show/search/index/ask` on `1706.03762`.
+- [x] Confirm separated LLM and embedding configuration works through local environment variables.
 
-**Verification:**
+### 2. L1 Ledger, Discovery, Candidate Review, Ingest
 
-- [x] Search docs for stale claims: LEANN as unsupported, Neo4j as default, Qdrant as default, `papi ask` as zero-config.
+- [x] Implement SQLite bootstrap and config loading.
+- [x] Sync paperpipe metadata and artifacts into `data/airesearch.sqlite3`.
+- [x] Implement batch ingest manifest workflow with per-item success/failure/duplicate/skipped accounting.
+- [x] Implement discovery profiles for multimodal, unified multimodal, world models, diffusion, and embodied AI / VLA robotics.
+- [x] Implement OpenAlex, arXiv, Semantic Scholar, and opt-in SerpAPI Google Scholar providers.
+- [x] Support Google Scholar / SerpAPI result requests up to 50 per profile, still quota-guarded and opt-in.
+- [x] Implement provider cache and provider-level error handling.
+- [x] Implement candidate scoring by recency, backing, venue/source, topic match, and artifact signals.
+- [x] Implement canonical candidate dedupe, selected/rejected review state, approved manifest export, and approved batch ingestion.
+- [x] Filter already-ingested papers out of automatic Top-N canonical selection so corpus expansion targets new papers.
+- [x] Add one-command fresh corpus refresh: discover across all profiles, dedupe, select by threshold, export approved manifest, ingest, sync, then run MVP pipeline and publish.
+- [x] Add scheduled execution wrapper for daily/weekly discovery refresh with run logs.
+- [x] Implement URL normalization pipeline for non-arxiv sources (NeurIPS proceedings, CVPR openaccess, preprints.org, figshare, generic DOIs) that ``papi add`` cannot resolve directly. (2026-06-10)
+- [x] Add clearer candidate rejection reasons in exports for fast manual review.
+
+### 3. L2 Knowledge Graph, Provenance, Facts
+
+- [x] Generate deterministic paper cards from paperpipe artifacts.
+- [x] Extract and normalize GitHub code links from metadata and source text.
+- [x] Write paper, code repository, and relation rows into graph tables.
+- [x] Implement fixture and OpenAI-compatible research fact providers.
+- [x] Cache real extraction by evidence-pack hash.
+- [x] Add dry-run mode and concurrent LLM calls with serial DB writes.
+- [x] Extract real facts across the expanded local corpus with `qwen3.7-max` through the configured OpenAI-compatible endpoint.
+- [x] Audit extracted facts with hard/soft issue classification.
+- [x] Repair evidence source paths and reach 0 hard failures / 0 source-path warnings.
+- [x] Add richer chunk/equation/citation ledger from paperpipe artifacts so reports can cite more than summary/source paths.
+- [x] Add `claim-trace` command to inspect one claim/fact back to paper, artifact, source path, and graph relations.
+- [x] Add citation/code/method/dataset/benchmark cross-paper relation summaries for stronger research maps.
+
+### 4. L3 Reports, Clustering, Review
+
+- [x] Generate deterministic Research Digest Markdown/JSON.
+- [x] Generate deterministic Research Map Markdown/JSON.
+- [x] Generate deterministic Gap Analysis Markdown/JSON.
+- [x] Generate deterministic Research Synthesis Markdown/JSON.
+- [x] Generate deterministic Narrative Report Markdown/JSON.
+- [x] Generate Report Bundle with `manifest.json` and `index.md`.
+- [x] Repair evidence source paths before bundle generation.
+- [x] Generate token and semantic research clusters.
+- [x] Add OpenAI-compatible embedding provider for semantic clusters.
+- [x] Calibrate semantic thresholds and select default threshold `0.82`.
+- [x] Generate cluster review packets, edit review status, summarize accepted clusters, and include reviewed clusters in bundles.
+- [x] Generate dependency-free static `index.html` for report bundles.
+- [x] Add static-site search/filter with generated `search-index.json`.
+- [x] Add provenance jump links with generated `provenance-index.json`.
+- [x] Improve static site navigation for larger corpora: paper list and cluster list.
+- [x] Add report diff/regeneration metadata so a refreshed corpus can be compared with the previous publish.
+
+### 5. MVP Launch Pipeline
+
+- [x] Implement `run-mvp-pipeline` as the fast local publish path.
+- [x] Pipeline steps: init DB, sync paperpipe, extract paper cards, extract code links, reuse or refresh facts, audit facts, repair evidence, cluster, review packet, bundle, static site.
+- [x] Real local run produced `exports/mvp-current/bundle/index.html` with 202 papers, 1553 facts, and 21 launch artifacts.
+- [x] Add `publish-static-site` command to copy the latest bundle to a stable public directory such as `exports/site-current/`.
+- [x] Add `serve-report-site` command for local HTTP preview.
+- [x] Add `publish.json` manifest with source bundle, output path, generated time, file count, and entrypoint.
+- [x] Add `run-launch-refresh` command to discover, dedupe, select, export, ingest, sync, run the MVP pipeline, publish, and write a run manifest.
+- [x] Add optional unified progress display for `run-launch-refresh --progress`.
+- [x] Add optional deployment target for nginx or another static host after local publish is stable.
+- [x] Add external static deploy scripts with pre-deploy snapshots and rollback automation.
+
+### 6. Operations And Hardening
+
+- [x] Maintain `DEVELOPMENT.md` for implemented modules, commands, environment, verification, and feature logs.
+- [x] Add launch runbook: refresh corpus, run pipeline, publish, verify, rollback.
+- [x] Add concise log files for discovery, ingest, extraction, report generation, and publish.
+- [x] Add DB backup/export command before destructive or large refresh runs.
+- [x] Add minimal health check that validates DB, paperpipe path, latest bundle, site entrypoint, and required environment variables without printing secrets.
 
 ---
 
-## Phase 1: L0 paperpipe Integration
+## Phase 3.1-3.4 Reconciliation
 
-**Status:** Done
+The old `PLAN.md` listed Phase 3.1-3.4 as unchecked even though much of that work was later implemented under Stage 2B/2C modules. This section records the accurate status.
 
-**Goal:** Install `paperpipe`, configure local storage and model access, then verify a small paper workflow.
+| Old Item | Current Status | Implemented By | Remaining Gap |
+| --- | --- | --- | --- |
+| 3.1 Research topic CRUD | Partially covered | `profiles.py`, `seed-profiles`, default research profiles | full arbitrary topic CRUD is still not built; for launch, profile-based discovery is enough |
+| 3.2 OpenAlex discovery | Done for MVP | `providers.py`, `discovery.py`, provider cache | broader query tuning and source-specific quality tuning |
+| 3.3 Semantic Scholar expansion | Done for MVP | `providers.py`, provider error handling and rate-limit behavior | deeper seed expansion and smarter retry/backoff telemetry |
+| 3.4 Candidate scoring and ingest | Mostly done | `candidates.py`, `canonical_candidates.py`, `batch.py`, approved manifest ingest | one-command fresh corpus refresh and clearer rejection exports |
 
-**Technical Path:**
-
-- Store all paperpipe artifacts under `airesearch/data/paperpipe`.
-- Use cloud LLM and cloud embedding by default.
-- Verify LLM-dependent and RAG-dependent paths separately.
-- Do not build AIResearch custom ingestion before `papi add/show/search/ask` works.
-
-### Task 1.1: Install paperpipe
-
-**Files:**
-
-- Create: `airesearch/data/paperpipe/`
-- Create or modify: shell/profile environment only if needed
-
-- [x] Check tool availability.
-
-Run:
-
-```bash
-which uv
-python3 --version
-```
-
-Expected:
-
-- `uv` exists, or Python is available for venv fallback.
-
-- [x] Install paperpipe.
-
-Preferred:
-
-```bash
-uv tool install paperpipe --with "paperpipe[all]"
-```
-
-Fallback used:
-
-```bash
-python3 -m venv /home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/.venv
-/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/.venv/bin/pip install --index-url https://pypi.org/simple paperpipe
-/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/.venv/bin/pip install --index-url https://pypi.org/simple 'paperpipe[llm,figures,mcp]'
-```
-
-`paperpipe[all]` was attempted and stopped because it began pulling LEANN, torch, CUDA, docling, and qdrant dependencies that are outside the current no-local-GPU MVP path.
-
-- [x] Verify install.
-
-Run:
-
-```bash
-papi --help
-papi models
-```
-
-Expected:
-
-- `papi --help` prints CLI help.
-- `papi models` prints configured or configurable model information.
-
-### Task 1.2: Configure local paper database
-
-**Files:**
-
-- Create: `airesearch/data/paperpipe/`
-- Create: `airesearch/.env.example`
-
-- [x] Create the local paper database directory.
-
-Run:
-
-```bash
-mkdir -p /home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe
-```
-
-- [x] Create `.env.example`.
-
-Content:
-
-```bash
-PAPER_DB_PATH=/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe
-OPENAI_API_KEY=
-GEMINI_API_KEY=
-GOOGLE_API_KEY=
-PAPERPIPE_LLM_MODEL=gpt-4o-mini
-PAPERPIPE_EMBEDDING_MODEL=text-embedding-3-small
-PAPERPIPE_PQA_INDEX_DIR=/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/.pqa_index
-```
-
-- [x] Export `PAPER_DB_PATH` for smoke tests.
-
-Run:
-
-```bash
-export PAPER_DB_PATH=/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe
-papi path
-```
-
-Expected:
-
-- `papi path` points to the AIResearch local paper DB path.
-
-### Task 1.3: Run paperpipe smoke workflow
-
-**Files:**
-
-- Modify: `airesearch/data/paperpipe/`
-
-- [x] Add one small test paper.
-
-Run:
-
-```bash
-export PAPER_DB_PATH=/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe
-papi add 1706.03762
-```
-
-Expected:
-
-- The paper is added or a clear model/API/config error is produced.
-
-- [x] Verify formula/context access.
-
-Run:
-
-```bash
-papi show 1706.03762 --level summary
-papi show 1706.03762 --level eq
-```
-
-Expected:
-
-- Summary and equation/context output are available, or missing capabilities are clearly identified.
-
-- [x] Verify search.
-
-Run:
-
-```bash
-papi search attention
-papi index --backend search
-papi search attention --backend search
-```
-
-Expected:
-
-- Search finds the added paper.
-- `papi index --backend search` builds `data/paperpipe/search.db` for 1 paper.
-
-- [x] Verify RAG only after backend is configured.
-
-Run:
-
-```bash
-papi ask "What problem does the Transformer solve?"
-```
-
-Expected:
-
-- Answer cites paper evidence.
-- Working config requires `text-embedding-v4`, `encoding_format=float`, explicit `--agent.agent_llm`, and LLM/embedding config JSON. Use `source activate.sh`, then call `airesearch_papi_index` and `airesearch_papi_ask`.
+Conclusion: Phase 3 is no longer "not implemented"; it is "MVP implemented, automation/hardening pending."
 
 ---
 
-## Phase 2: AIResearch SQLite Ledger
+## Completed Feature Inventory
 
-**Status:** Done for Stage 2A ledger and batch ingest; later KG tables remain Phase 4 scope.
+### Core Modules
 
-**Goal:** Create an auditable local ledger that maps paperpipe artifacts to AIResearch records.
+- `config.py`: local path and environment config.
+- `db.py`, `schema.sql`: SQLite schema and bootstrap.
+- `paperpipe_sync.py`: sync paperpipe paper/artifact state into AIResearch.
+- `batch.py`: approved manifest ingestion through `papi`; integrated URL normalizer pre-pass (2026-06-10).
+- `url_normalizer.py`: resolve NeurIPS/CVPR/preprints/figshare/DOI URLs to arXiv IDs or titles; 7-category classifier with per-category resolver chain + OpenAlex/arXiv API fallback (2026-06-10).
+- `profiles.py`, `discovery.py`, `providers.py`, `provider_cache.py`: discovery profiles, provider calls, caching, and normalized candidates.
+- `candidates.py`, `canonical_candidates.py`: scoring, dedupe, review status, and approved candidate export.
+- `knowledge_graph.py`: deterministic paper cards and graph/provenance rows.
+- `code_links.py`: GitHub repository extraction and graph integration.
+- `fact_extraction.py`: fixture and OpenAI-compatible fact extraction, caching, concurrency.
+- `fact_audit.py`: fact quality audit.
+- `evidence_repair.py`: evidence source-path repair.
+- `embeddings.py`: OpenAI-compatible embedding provider.
+- `research_digest.py`, `research_map.py`, `research_gap_analysis.py`, `research_synthesis.py`, `research_narrative.py`: deterministic reports.
+- `research_clusters.py`, `research_cluster_calibration.py`, `research_cluster_review.py`, `research_review_editor.py`, `research_review_summary.py`: clustering and human-review workflow.
+- `research_bundle.py`, `research_site.py`: bundle, static site export, search/provenance/navigation indexes.
+- `mvp_pipeline.py`: one-command MVP pipeline orchestration.
+- `static_publish.py`: stable local static-site publish, preview support, and static-host config generation.
+- `launch_refresh.py`: one-command corpus refresh and publish orchestration.
+- `launch_ops.py`: launch health check and SQLite backup support.
+- `cli.py`: command-line surface.
 
-**Technical Path:**
+### Main Commands
 
-- Keep paperpipe as source of paper artifacts.
-- Use AIResearch SQLite for supplementary state: source, run, candidate, provenance, graph, reports.
-- Do not duplicate PDFs or raw paper content in SQLite.
+```bash
+python -m airesearch.cli init-db
+python -m airesearch.cli sync-paperpipe
+python -m airesearch.cli batch-ingest manifests/approved-stage-2c.txt
+python -m airesearch.cli normalize-url "https://proceedings.neurips.cc/..."
+python -m airesearch.cli status
+python -m airesearch.cli seed-profiles
+python -m airesearch.cli discover-candidates --profile diffusion_models --provider arxiv --limit 50
+python -m airesearch.cli dedupe-candidates
+python -m airesearch.cli select-canonical-candidates --limit 10 --min-score 0.70
+python -m airesearch.cli export-approved-candidates --out manifests/approved-stage-2c.txt
+python -m airesearch.cli extract-paper-cards
+python -m airesearch.cli extract-code-links
+python -m airesearch.cli extract-artifact-ledger
+python -m airesearch.cli export-artifact-ledger --out exports/artifact-ledger-current.md
+python -m airesearch.cli extract-research-facts --provider openai-compatible --concurrency 5
+python -m airesearch.cli claim-trace --fact-id 1
+python -m airesearch.cli audit-research-facts
+python -m airesearch.cli repair-evidence-source-paths --apply --out exports/evidence-source-path-repair-current.jsonl
+python -m airesearch.cli generate-research-digest --out exports/research-digest-current.md
+python -m airesearch.cli generate-research-map --out exports/research-map-current.md
+python -m airesearch.cli generate-research-relations --out exports/research-relations-current.md
+python -m airesearch.cli generate-gap-analysis --out exports/research-gap-analysis-current.md
+python -m airesearch.cli generate-research-synthesis --out exports/research-synthesis-current.md
+python -m airesearch.cli generate-narrative-report --out exports/research-narrative-current.md
+python -m airesearch.cli generate-research-clusters --mode semantic --semantic-threshold 0.82 --out exports/research-clusters-semantic-current.md
+python -m airesearch.cli generate-cluster-review --clusters exports/research-clusters-semantic-current.json --out exports/research-cluster-review-current.md
+python -m airesearch.cli generate-report-bundle --out-dir exports/research-report-current
+python -m airesearch.cli generate-report-site --bundle-dir exports/research-report-current
+python -m airesearch.cli run-mvp-pipeline --out-dir exports/mvp-current
+python -m airesearch.cli run-launch-refresh --limit-per-profile 50 --select-limit 10 --min-score 0.60 --out-dir exports/mvp-current --site-dir exports/site-current --progress
+python -m airesearch.cli health-check --site-dir exports/site-current --require-fact-provider
+python -m airesearch.cli backup-db --out-dir backups --label before-launch-refresh
+python -m airesearch.cli write-refresh-wrapper --out scripts/airesearch-refresh.sh --schedule daily
+python -m airesearch.cli publish-static-site --source-dir exports/mvp-current/bundle --out-dir exports/site-current
+python -m airesearch.cli serve-report-site --dir exports/site-current --host 127.0.0.1 --port 8765
+python -m airesearch.cli write-static-host-config --site-dir exports/site-current --out-dir deploy --base-path /niu-secretary/airesearch/ --deploy-root /var/www/html/niu-secretary/airesearch
+python -m airesearch.cli write-static-deploy-scripts --site-dir exports/site-current --out-dir deploy --deploy-root /var/www/html/niu-secretary/airesearch
+sudo rsync -av --delete /home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/exports/site-current/ /var/www/html/niu-secretary/airesearch/
+```
 
-### Task 2.1: Create package skeleton
+Large corpus expansion example:
 
-**Files:**
+`--select-limit 100` selects up to 100 not-yet-ingested canonical candidates; already-ingested papers are skipped before the approved manifest is written.
 
-- Create: `airesearch/pyproject.toml`
-- Create: `airesearch/src/airesearch/__init__.py`
-- Create: `airesearch/src/airesearch/config.py`
-- Create: `airesearch/tests/test_config.py`
-
-- [x] Define Python package metadata.
-- [x] Implement config loading for `PAPER_DB_PATH` and `AIRESEARCH_DB_PATH`.
-- [x] Test default path resolution.
-
-### Task 2.2: Create SQLite schema
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/schema.sql`
-- Create: `airesearch/src/airesearch/db.py`
-- Create: `airesearch/tests/test_schema.py`
-
-**Tables:**
-
-- `papers`
-- `paper_sources`
-- `paper_artifacts`
-- `paper_chunks`
-- `paper_equations`
-- `paper_claims`
-- `paper_citations`
-- `research_topics`
-- `research_runs`
-- `research_candidates`
-- `graph_entities`
-- `graph_relations`
-- `provenance`
-- `api_cache`
-- `jobs`
-
-- [x] Write Stage 2A schema with stable primary keys and foreign keys.
-- [x] Add migration/bootstrap function.
-- [x] Test schema creation in a temporary SQLite database.
-
-### Task 2.3: Sync paperpipe index
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/paperpipe_sync.py`
-- Create: `airesearch/tests/test_paperpipe_sync.py`
-
-- [x] Read paperpipe `index.json`.
-- [x] Upsert paper metadata into `papers`.
-- [x] Hash and record `summary.md`, `equations.md`, `tldr.md`, `source.tex`, `paper.pdf` in `paper_artifacts`.
-- [x] Preserve unknown paperpipe fields as JSON metadata.
-- [x] Implement batch manifest parsing and per-item status tracking.
-- [x] Implement CLI status summary for paper count, artifact count, latest sync, and latest ingest run.
-- [x] Create local DB at `data/airesearch.sqlite3`.
-
----
-
-## Phase 3: L1 Scheduled Discovery
-
-**Status:** In progress for Stage 2B candidate discovery; automatic `papi add` remains disabled until user review.
-
-**Goal:** Discover candidate papers automatically, score them, and add only selected papers through `papi add`.
-
-**Stage 2B Policy:** Default candidate search window is the last 12 months. Papers from 2024-01-01 onward are allowed only when they are famous models or have strong backing from preferred companies, schools, scholars, venues, or released artifacts. Older papers are background-only by default.
-
-**Technical Path:**
-
-- OpenAlex provides broad discovery and metadata.
-- Semantic Scholar provides seed expansion and paper recommendations.
-- API responses are cached for 7 days.
-- Candidate scoring happens before `papi add`.
-- Every skipped candidate gets a reason.
-
-### Task 3.1: Research topic CRUD
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/topics.py`
-- Create: `airesearch/tests/test_topics.py`
-
-- [ ] Add topic create/list/update/delete functions.
-- [ ] Validate keywords, exclude keywords, seeds, authors, venues, and frequency.
-- [ ] Test duplicate topic names and invalid frequency handling.
-
-### Task 3.2: OpenAlex discovery
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/openalex.py`
-- Create: `airesearch/tests/test_openalex.py`
-
-- [ ] Implement query construction from topic fields.
-- [ ] Cache responses in `api_cache`.
-- [ ] Normalize candidate records into `research_candidates`.
-- [ ] Test cache hit and miss behavior with mocked HTTP responses.
-
-### Task 3.3: Semantic Scholar expansion
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/semantic_scholar.py`
-- Create: `airesearch/tests/test_semantic_scholar.py`
-
-- [ ] Implement seed paper lookup and recommendation expansion.
-- [ ] Add token-bucket limit for free tier behavior.
-- [ ] Respect `Retry-After` on 429 responses.
-- [ ] Test rate limiting and retry behavior with mocked HTTP responses.
-
-### Task 3.4: Candidate scoring and ingest
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/candidates.py`
-- Create: `airesearch/src/airesearch/papi_runner.py`
-- Create: `airesearch/tests/test_candidates.py`
-- Create: `airesearch/tests/test_papi_runner.py`
-
-- [ ] Score candidates with metadata gate, duplicate check, and abstract similarity.
-- [ ] Mark rejected candidates with `filtered`, `duplicate`, or `low_score`.
-- [ ] Run `papi add <id>` only for selected candidates.
-- [ ] Record subprocess command, exit code, stderr/stdout summary, and artifact sync result.
+```bash
+python -m airesearch.cli run-launch-refresh \
+  --provider openalex \
+  --provider arxiv \
+  --provider semantic_scholar \
+  --provider google_scholar \
+  --limit-per-profile 100 \
+  --select-limit 100 \
+  --min-score 0.60 \
+  --refresh-facts \
+  --fact-error-policy warn \
+  --semantic \
+  --semantic-threshold 0.82 \
+  --out-dir exports/mvp-current \
+  --site-dir exports/site-current \
+  --progress
+```
 
 ---
 
-## Phase 4: L2 Knowledge Graph And Provenance
+## Current Focus
 
-**Status:** Not started
+**2026-06-10:** URL normalization pipeline (`url_normalizer.py`) implemented and integrated into `batch.py` / `launch_refresh.py`. Of 14 previously-failed papers from the 100-paper batch, 10 now resolve (2 to exact arXiv IDs, 8 to searchable titles). 2 CVPR papers fail due to CVF server SSL issues; 2 are non-AI papers that should not be ingested. Static-site corpus navigation, static host config generation, source-specific discovery tuning, and method/dataset/benchmark relation analytics are implemented. Full test suite: 242 passed.
 
-**Goal:** Extract claims, methods, datasets, metrics, tasks, equations, and evidence links from paperpipe artifacts.
+Stage 5C is implemented. Candidate review exports, static-site search/filter, provenance jump links, claim trace, larger-corpus navigation, static-host config generation, external deploy rollback scripts, source-specific discovery tuning, and richer relation analytics are now available. Optional graph/vector/parser backends are deferred until measured scale or artifact-quality limits justify them.
 
-**Technical Path:**
+Why this is next:
 
-- Start with SQLite adjacency tables.
-- Extraction input comes from `summary.md`, `equations.md`, and selected chunks.
-- Every extracted entity and relation carries provenance.
-- LLM extraction is cached by text hash, task type, model, and prompt version.
+- Stage 5A provides one command for discovery, canonical selection, approved ingest, MVP generation, and static publish.
+- Stage 5B adds the runbook, preflight/postflight health check, and DB backup before large refreshes.
+- Stage 5C adds unattended-run support with a refresh wrapper, concise logs, run history, and publish diff metadata.
 
-### Task 4.1: Chunk and equation ledger
+Stage 5A deliverables:
 
-**Files:**
+- [x] `run-launch-refresh` CLI command.
+- [x] Discover across all seeded profiles or a selected profile list.
+- [x] Dedupe candidates and select by threshold/limit.
+- [x] Export approved manifest, run batch ingest, sync paperpipe, run MVP pipeline, and publish static site.
+- [x] Write a run manifest/log with counts, selected papers, skipped papers, provider errors, and output paths.
+- [x] Show optional unified progress for long refresh runs, including discovery, ingest, facts, report generation, and publish.
 
-- Create: `airesearch/src/airesearch/artifacts.py`
-- Create: `airesearch/tests/test_artifacts.py`
+Stage 5B deliverables:
 
-- [ ] Parse sections from `summary.md`.
-- [ ] Parse equation blocks from `equations.md`.
-- [ ] Create stable chunk IDs using paper ID, section, ordinal, and text hash.
-- [ ] Record artifacts without storing full PDFs in SQLite.
+- [x] Launch runbook in `DEVELOPMENT.md`.
+- [x] `health-check` command that validates DB, paperpipe path, output site, and required env names without printing secrets.
+- [x] `backup-db` command before large refreshes.
 
-### Task 4.2: Extraction service
+Stage 5C deliverables:
 
-**Files:**
-
-- Create: `airesearch/src/airesearch/extraction.py`
-- Create: `airesearch/tests/test_extraction.py`
-
-- [ ] Define extraction input JSON with `paper_id`, `chunk_ids`, `task_type`, `source_files`, and `provenance_required`.
-- [ ] Define output schema for claims, entities, relations, confidence, and evidence.
-- [ ] Cache extraction outputs for 7 days.
-- [ ] Test schema validation and cache reuse.
-
-### Task 4.3: Graph writes and claim trace
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/graph.py`
-- Create: `airesearch/tests/test_graph.py`
-
-- [ ] Upsert entities by normalized type/name.
-- [ ] Upsert graph relations with provenance IDs.
-- [ ] Implement `claim_trace` lookup from claim text to evidence.
-- [ ] Test relation insertion and trace output.
+- [x] Optional scheduled wrapper for daily/weekly refresh with concise logs.
+- [x] Persist launch run history under `logs/` and `exports/run-history/`.
+- [x] Add report/site diff metadata so the latest publish can be compared with the previous publish.
 
 ---
 
-## Phase 5: L3 Reports
+## Backlog By Priority
 
-**Status:** Not started
+### P0: Required Before First Real上线
 
-**Goal:** Generate auditable paper cards, research digests, research maps, and gap analyses.
+- [x] Fresh corpus refresh command across all profiles.
+- [x] Launch runbook in `DEVELOPMENT.md`.
+- [x] Environment/health check command that does not print secrets.
+- [x] DB backup/export before large refreshes.
 
-**Technical Path:**
+### P1: Required For A Useful Research Product
 
-- Reports must separate extracted facts, model summaries, and speculative hypotheses.
-- Every important claim must link to provenance.
-- Start with Markdown reports; only add HTML/UI after content workflow is stable.
+- [x] Larger corpus expansion beyond the initial 11 papers.
+- [x] Candidate rejection reason export and faster manual review.
+- [x] Search/filter in static site.
+- [x] Provenance jump links from reports to paper/artifact/source path.
+- [x] Static-site paper and cluster navigation for larger corpora.
+- [x] Claim trace CLI.
+- [x] Report regeneration diff.
 
-### Task 5.1: Paper Card
+### P2: Scale And Quality
 
-**Files:**
+- [x] Richer citation parsing, equations ledger, and chunk ledger.
+- [x] Cross-paper method/dataset/benchmark/citation analytics.
+- [x] Better source-specific discovery tuning.
 
-- Create: `airesearch/src/airesearch/reports/paper_card.py`
-- Create: `airesearch/tests/test_paper_card.py`
+Deferred optional evaluations:
 
-- [ ] Generate one structured Markdown card per paper.
-- [ ] Include title, authors, year, venue, IDs, summary, method, datasets, metrics, equations, claims, limitations, and provenance links.
-- [ ] Test report rendering with fixture graph data.
-
-### Task 5.2: Research Digest
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/reports/digest.py`
-- Create: `airesearch/tests/test_digest.py`
-
-- [ ] Generate digest for a topic and time window.
-- [ ] Include selected papers, skipped candidates, why each paper matters, and suggested reading order.
-- [ ] Test digest rendering with fixture candidates and papers.
-
-### Task 5.3: Research Map and Gap Analysis
-
-**Files:**
-
-- Create: `airesearch/src/airesearch/reports/map.py`
-- Create: `airesearch/src/airesearch/reports/gap.py`
-- Create: `airesearch/tests/test_map.py`
-- Create: `airesearch/tests/test_gap.py`
-
-- [ ] Group papers by method, dataset, task, and citation relation.
-- [ ] Identify missing benchmark/method combinations from graph gaps.
-- [ ] Mark hypotheses as speculative.
-- [ ] Test map and gap output with fixture graph data.
-
----
-
-## Phase 6: Scale And Optional Integrations
-
-**Status:** Not started
-
-**Trigger Conditions:**
-
-- More than 5000 papers.
-- More than 3-hop graph queries are common.
-- SQLite recursive queries become too slow.
-- Citation parsing quality becomes a blocker.
-- PaperQA2 search latency or recall becomes a blocker.
-
-**Optional Paths:**
-
-- Kuzu for graph queries.
-- GROBID for citation parsing.
-- Separate vector store only if paperpipe RAG is insufficient.
-- HTML dashboard only after reports are stable.
+- Kuzu graph backend only if SQLite graph queries become too slow.
+- GROBID/MinerU only if paperpipe artifacts are insufficient.
+- Separate vector store only if paperpipe RAG becomes insufficient.
 
 ---
 
@@ -583,35 +296,21 @@ Expected:
 - Never bypass `papi add` for paper ingestion unless paperpipe cannot handle a specific source.
 - Never treat `papi ask` as available until the RAG backend is verified.
 - Never write cloud API keys into committed files.
-- Never upload local PDFs, notes, or SQLite DBs to unknown services.
+- Never print API keys in logs, docs, test output, or final answers.
 - Always record run inputs, selected candidates, skipped candidates, thresholds, errors, and report paths.
-- Always keep generated hypotheses labeled as hypotheses.
+- Always label generated hypotheses as hypotheses.
+- Keep `DEVELOPMENT.md` updated when commands, modules, outputs, environment variables, or launch procedures change.
 
-## Status Update Procedure
+---
 
-When work progresses:
+## Historical Notes
 
-1. Move the active item into `In Progress`.
-2. Check off completed task steps.
-3. Add new blockers under the phase where they occurred.
-4. Update `Current Status`.
-5. Add a short entry under `Completed` when a phase or task is finished.
+- `paperpipe[all]` was intentionally avoided because it pulls heavy optional dependencies such as LEANN, torch/CUDA, docling, and qdrant.
+- Real arXiv discovery previously stored 237 candidates across 5 profiles and exported Top 100 manifests.
+- Approved canonical candidate workflow ingested 10 additional papers through paperpipe.
+- Initial real Stage 2D extraction produced 79 facts over 11 papers using `qwen3.7-max` through a Bailian/DashScope-compatible endpoint.
+- Latest real Stage 4A MVP pipeline completed with:
 
-
-### Phase 1 Execution Notes
-
-- `uv` is not installed, so Phase 1 used the local `.venv` fallback.
-- Core install succeeded with `paperpipe==1.9.3`.
-- Narrow extras installed: `llm`, `figures`, `mcp`.
-- `paperpipe[all]` is not suitable for this MVP environment because it pulls LEANN, torch, CUDA, PaperQA full extras, docling, and qdrant.
-- `papi path` resolves to `airesearch/data/paperpipe` when `PAPER_DB_PATH` is set.
-- `papi models` runs but probes 0 combinations without provider credentials.
-- `papi add 1706.03762` succeeded and downloaded PDF plus LaTeX source; LLM-generated name, TLDR, summary, equations, and tags failed only because no Gemini/Google API key was configured.
-- `papi show 1706_03762 --level summary` returns metadata-derived summary fallback.
-- `papi show 1706_03762 --level eq` returns extracted Transformer equations.
-- `papi search attention` finds the paper across title, abstract, summary, and equations.
-- `papi ask` reaches PaperQA2 when `.venv/bin` is on `PATH`.
-- `papi index --backend search` succeeds and creates `search.db`.
-- `papi index --backend pqa` succeeds with `text-embedding-v4` and `encoding_format=float`.
-- `papi ask "What problem does the Transformer solve?"` succeeds and returns cited evidence from `1706_03762`.
-
+```text
+papers=202 cards=202 facts=1553 repaired=0 artifacts=21 site=exports/mvp-current/bundle/index.html
+```

@@ -1,0 +1,3445 @@
+{
+  "accept_candidate_count": 37,
+  "cluster_count": 85,
+  "fact_count": 1553,
+  "generated_at": "2026-06-10T07:02:38+00:00",
+  "items": [
+    {
+      "average_confidence": 0.9833333333333334,
+      "cluster_id": "method:backbone-language-vision-action",
+      "fact_count": 3,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/lara/source.tex",
+          "fact_name": "",
+          "paper_key": "lara",
+          "paper_title": "LARA: Latent Action Representation Alignment for Vision-Language-Action Models",
+          "statement": "The VLA policy in LARA uses Eagle-2 as the vision-language backbone and models the diffusion process with a 16-layer Diffusion Transformer (DiT).",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/openeai-platform/source.tex",
+          "fact_name": "",
+          "paper_key": "openeai-platform",
+          "paper_title": "OpenEAI-Platform: An Open-source Embodied Artificial Intelligence Hardware-Software Unified Platform",
+          "statement": "OpenEAI-VLA uses Qwen3-VL-4B as the backbone vision-language model and employs a diffusion-transformer-based action head for continuous action generation.",
+          "year": 2026
+        },
+        {
+          "confidence": 0.95,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/3dthinkvla/source.tex",
+          "fact_name": "",
+          "paper_key": "3dthinkvla",
+          "paper_title": "3DThinkVLA: Endowing Vision-Language-Action Models with Latent 3D Priors via 3D-Thinking-Guided Co-training",
+          "statement": "The implementation adopts the StarVLA framework with Qwen3-VL 2B as the vision-language backbone and attaches an OFT-style action head to predict continuous robot control actions.",
+          "year": 2026
+        }
+      ],
+      "label": "Backbone Language Vision Action",
+      "paper_count": 3,
+      "rationale": "Accept candidate because it has cross-paper support: 3 facts across 3 papers with average confidence 0.98.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "backbone",
+        "language",
+        "vision",
+        "action",
+        "continuous"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-asynchronous-chunk-current",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/ct-vam/source.tex",
+          "fact_name": "",
+          "paper_key": "ct-vam",
+          "paper_title": "CT-VAM: A Cerebello-Thalamic-Inspired Vision-Action Model for Efficient Visuomotor Control",
+          "statement": "CT-VAM employs flow-consistent inpainting for asynchronous chunk execution, enabling next-chunk inference to overlap with current execution while preserving action continuity.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/kairos/source.tex",
+          "fact_name": "",
+          "paper_key": "kairos",
+          "paper_title": "Kairos: A Scalable Serving System for Physical AI",
+          "statement": "To reduce robot idling between inference rounds, existing physical AI systems use asynchronous inference, which launches the next inference while the robot is still executing the current action chunk.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Asynchronous Chunk Current",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "asynchronous",
+        "chunk",
+        "current",
+        "inference"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-control-language-steer",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_00269/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_00269",
+          "paper_title": "Closed-Loop Neural Activation Control in Vision-Language-Action Models",
+          "statement": "The paper proposes CTRL-STEER, a closed-loop framework that replaces static intervention strength with adaptive, time-varying control signals for steering Vision-Language-Action (VLA) models.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/flow-control/source.tex",
+          "fact_name": "",
+          "paper_key": "flow-control",
+          "paper_title": "Flow Control: Steering Vision-Language-Action Models with Simple Real-Time Inputs",
+          "statement": "Flow control is a technique to steer vision-language-action (VLA) models in real-time using generic inputs like a keyboard, without requiring retraining or fine-tuning.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Control Language Steer",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "control",
+        "language",
+        "steer",
+        "time"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:any-fine-pretrained-requiring",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/c-genreg/source.tex",
+          "fact_name": "",
+          "paper_key": "c-genreg",
+          "paper_title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+          "statement": "The C-GenReg pipeline is fully zero-shot and plug-and-play, relying entirely on pretrained modules without requiring any fine-tuning or additional learning.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/clasp/source.tex",
+          "fact_name": "",
+          "paper_key": "clasp",
+          "paper_title": "CLASP: Language-Driven Robot Skill Selection and Composition using Task-Parameterized Learning",
+          "statement": "The framework operates without requiring any fine-tuning of the pretrained vision-language model.",
+          "year": 2026
+        }
+      ],
+      "label": "Any Fine Pretrained Requiring",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "any",
+        "fine",
+        "pretrained",
+        "requiring",
+        "tuning"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:autoencoder-quantized-representation-vae",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/chexanatomy/source.tex",
+          "fact_name": "",
+          "paper_key": "chexanatomy",
+          "paper_title": "CheXanatomy: Anatomy-Aware Vision-Language Modeling for Chest Radiographs",
+          "statement": "Segmentation masks are encoded into a discrete 16-dimensional latent representation using a vector-quantized variational autoencoder (VQ-VAE) for autoregressive prediction.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/editssc/source.tex",
+          "fact_name": "",
+          "paper_key": "editssc",
+          "paper_title": "EditSSC: Toward Editable Semantic Occupancy Scenes with Unconditional Diffusion Models",
+          "statement": "The pilot study evaluates a vector-quantized VAE (VQ-VAE) using BEV representation as an alternative to the original SemCity autoencoder.",
+          "year": 2026
+        }
+      ],
+      "label": "Autoencoder Quantized Representation Vae",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "autoencoder",
+        "quantized",
+        "representation",
+        "vae",
+        "vector"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:beyond-characterize-conventional-failure",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08881/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_08881",
+          "paper_title": "Benchmarking Vision-Language-Action Models on SO-101: Failure and Recovery Analysis",
+          "statement": "The evaluation framework incorporates a structured failure taxonomy, semantic- and execution-level failure decomposition, and recovery-aware evaluation metrics to characterize policy robustness beyond conventional task success rates.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/fate-vla/source.tex",
+          "fact_name": "",
+          "paper_key": "fate-vla",
+          "paper_title": "FATE-VLA:Failue-aware test generation for vision-language-action models",
+          "statement": "The approach introduces trajectory-level and object-level failure diversity metrics to characterize the heterogeneity of discovered weaknesses beyond conventional success rates.",
+          "year": 2026
+        }
+      ],
+      "label": "Beyond Characterize Conventional Failure",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "beyond",
+        "characterize",
+        "conventional",
+        "failure",
+        "level"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:designed-fine-framework-online",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/modip/summary.md",
+          "fact_name": "",
+          "paper_key": "modip",
+          "paper_title": "MODIP: Efficient Model-Based Optimization for Diffusion Policies",
+          "statement": "MODIP is a framework designed for the offline-to-online fine-tuning of diffusion policies.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/source.tex",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "ReinFlow is an online reinforcement learning framework designed to fine-tune flow matching policies for continuous robotic control.",
+          "year": 2025
+        }
+      ],
+      "label": "Designed Fine Framework Online",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "designed",
+        "fine",
+        "framework",
+        "online",
+        "policies"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:distillation-level-policy-reverse",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_09091/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_09091",
+          "paper_title": "Stabilizing On-Policy Distillation for MLLM Reasoning with Global Normalization",
+          "statement": "In the on-policy distillation setup, the token-level reward is defined as the negative reverse KL divergence between the student and teacher model distributions.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_09059/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_09059",
+          "paper_title": "Stage-1 Controls the Entropy Regime, Not the Outcome",
+          "statement": "The on-policy distillation (OPD) method uses a same-modality 72B teacher model to train a 7B student model using reverse-KL, token-level distillation.",
+          "year": 2026
+        }
+      ],
+      "label": "Distillation Level Policy Reverse",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "distillation",
+        "level",
+        "policy",
+        "reverse",
+        "student"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:flow-matching-objective-trained",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mive/source.tex",
+          "fact_name": "",
+          "paper_key": "mive",
+          "paper_title": "MiVE: Multiscale Vision-language features for reference-guided video Editing",
+          "statement": "The MiVE model is trained using the flow matching objective.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/torl-vla/source.tex",
+          "fact_name": "",
+          "paper_key": "torl-vla",
+          "paper_title": "TORL-VLA: Tactile Guided Online Reinforcement Learning for Contact-Rich Manipulation",
+          "statement": "The model's output head jointly predicts the action chunk and the co-predicted future wrench sequence, trained with a joint action-wrench flow matching objective.",
+          "year": 2026
+        }
+      ],
+      "label": "Flow Matching Objective Trained",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "flow",
+        "matching",
+        "objective",
+        "trained",
+        "action"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:framework-generative-training-vision",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/c-genreg/source.tex",
+          "fact_name": "",
+          "paper_key": "c-genreg",
+          "paper_title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+          "statement": "C-GenReg is a training-free framework for 3D point cloud registration that leverages world-scale generative priors and Vision Foundation Models (VFMs).",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/world2vlm/source.tex",
+          "fact_name": "",
+          "paper_key": "world2vlm",
+          "paper_title": "World2VLM: Distilling World Model Imagination into VLMs for Dynamic Spatial Reasoning",
+          "statement": "World2VLM is a training framework that distills spatial imagination from a generative world model into a vision-language model.",
+          "year": 2026
+        }
+      ],
+      "label": "Framework Generative Training Vision",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "framework",
+        "generative",
+        "training",
+        "vision",
+        "world"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:language-study-vision-autoregressive",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mmbu/source.tex",
+          "fact_name": "",
+          "paper_key": "mmbu",
+          "paper_title": "MMBU: A Massive Multi-modal Biomedical Understanding Benchmark to Probe the Perception Capabilities of Vision-Language Models",
+          "statement": "The study evaluates 15 open-weight and 2 frontier Vision-Language Models (VLMs).",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01503/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01503",
+          "paper_title": "On the Limits of Token Reduction for Efficient Unified Vision Language Training",
+          "statement": "The study uses the VILA-U (7B) model paradigm as the testbed for the unified autoregressive vision-language model.",
+          "year": 2026
+        }
+      ],
+      "label": "Language Study Vision Autoregressive",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "language",
+        "study",
+        "vision",
+        "autoregressive",
+        "evaluates"
+      ]
+    },
+    {
+      "average_confidence": 0.975,
+      "cluster_id": "method:action-expert-flow-matching",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/flow-control/source.tex",
+          "fact_name": "",
+          "paper_key": "flow-control",
+          "paper_title": "Flow Control: Steering Vision-Language-Action Models with Simple Real-Time Inputs",
+          "statement": "The π_0.5 VLA generates actions using a flow matching action expert implemented with a downsized 300M-parameter Gemma transformer.",
+          "year": 2026
+        },
+        {
+          "confidence": 0.95,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_09009/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_09009",
+          "paper_title": "Scaling by Diversified Experience for Vision-Language-Action Models",
+          "statement": "The Action Expert in SyVLA is a 0.69B parameter Flow Matching model based on a 15-layer decoder-only transformer with a hidden size of 1408 and 32 attention heads.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Expert Flow Matching",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 0.97.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "expert",
+        "flow",
+        "matching",
+        "parameter"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-actionmap-head-heatmap",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/summary.md",
+          "fact_name": "",
+          "paper_key": "actionmap",
+          "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+          "statement": "ActionMap is a voxel heatmap action head designed to replace the native action decoder in existing Vision-Language-Action (VLA) models.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/summary.md",
+          "fact_name": "",
+          "paper_key": "actionmap",
+          "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+          "statement": "The ActionMap head predicts a voxel heatmap over the action space for each new action, with each voxel storing the probability of the corresponding action.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Actionmap Head Heatmap",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "actionmap",
+        "head",
+        "heatmap",
+        "voxel"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-actions-distribution-future",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/world-action-models/source.tex",
+          "fact_name": "",
+          "paper_key": "world-action-models",
+          "paper_title": "World Action Models: The Next Frontier in Embodied AI",
+          "statement": "Joint World Action Models directly model the joint distribution of future states and actions, co-optimizing state prediction and action generation within a shared representational space.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/world-action-models/summary.md",
+          "fact_name": "",
+          "paper_key": "world-action-models",
+          "paper_title": "World Action Models: The Next Frontier in Embodied AI",
+          "statement": "World Action Models (WAMs) are defined as embodied foundation models that unify predictive state modeling with action generation to target a joint distribution over future states and actions.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Actions Distribution Future",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "actions",
+        "distribution",
+        "future",
+        "generation"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-atomic-event-events",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/wall-wm/summary.md",
+          "fact_name": "",
+          "paper_key": "wall-wm",
+          "paper_title": "WALL-WM: Carving World Action Modeling at the Event Joints",
+          "statement": "WALL-WM shifts video-action learning from chunk-centric optimization to event-grounded Vision-Language-Action pretraining, using semantically coherent action events as the atomic unit of learning.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/wall-wm/source.tex",
+          "fact_name": "",
+          "paper_key": "wall-wm",
+          "paper_title": "WALL-WM: Carving World Action Modeling at the Event Joints",
+          "statement": "WALL-WM treats action-grounded semantic events as the atomic training unit, pairing them with event captions to train a video-action denoiser.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Atomic Event Events",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "atomic",
+        "event",
+        "events",
+        "grounded"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-controller-conventions-executable",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_03724/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_03724",
+          "paper_title": "Same Weights, Different Robot: A Deployment Safety View of VLA Policies",
+          "statement": "An executable VLA policy is formally defined as a tuple comprising the learned model, image and language processor, normalized action representation, metadata-selected unnormalizer, and controller conventions.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_03724/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_03724",
+          "paper_title": "Same Weights, Different Robot: A Deployment Safety View of VLA Policies",
+          "statement": "The authors formalize the deployment-safety gap as an executable policy specification problem, defining a VLA policy to include the learned model, action representation, metadata-selected unnormalizer, and controller-facing conventions.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Controller Conventions Executable",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "controller",
+        "conventions",
+        "executable",
+        "learned"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:action-dynamics-embodiment-idm",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2605_27817/summary.md",
+          "fact_name": "",
+          "paper_key": "2605_27817",
+          "paper_title": "Turning Video Models into Generalist Robot Policies",
+          "statement": "The paper proposes the Video-to-Embodied Robot Action Model (VERA), a closed-loop policy that decouples an action-free video world model from an embodiment-specific inverse dynamics model (IDM) based on the robot embodiment Jacobian.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2605_27817/source.tex",
+          "fact_name": "",
+          "paper_key": "2605_27817",
+          "paper_title": "Turning Video Models into Generalist Robot Policies",
+          "statement": "The proposed inverse dynamics model, termed Jacobian IDM (J-IDM), translates visual plans into low-level action chunks by inverting the robot embodiment Jacobian.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Dynamics Embodiment Idm",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "dynamics",
+        "embodiment",
+        "idm",
+        "inverse"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:admissible-fixed-framework-local",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08953/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_08953",
+          "paper_title": "Self-Consistent Generative Paths via Admissible Random Variational Transport",
+          "statement": "The framework utilizes a random fixed-point path residual (R-FPR) to measure the gap between the actual generated path and an admissible local correction.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08953/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_08953",
+          "paper_title": "Self-Consistent Generative Paths via Admissible Random Variational Transport",
+          "statement": "The paper introduces Self-Consistent Generative Paths (SCGP), a framework that defines a self-consistent generative path as a random fixed point of admissible local variational transport corrections.",
+          "year": 2026
+        }
+      ],
+      "label": "Admissible Fixed Framework Local",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "admissible",
+        "fixed",
+        "framework",
+        "local",
+        "path"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:agent-atomic-cocosi-commits",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/cocosi/source.tex",
+          "fact_name": "",
+          "paper_key": "cocosi",
+          "paper_title": "CoCoSI: Collaborative Cognitive Map Construction for Spatial Intelligence",
+          "statement": "CoCoSI introduces atomic commits for controlled map updates and cross-agent verification for reconciling inconsistent object localization and layout estimation.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/cocosi/source.tex",
+          "fact_name": "",
+          "paper_key": "cocosi",
+          "paper_title": "CoCoSI: Collaborative Cognitive Map Construction for Spatial Intelligence",
+          "statement": "The CoCoSI framework features local-global agent coordination, cognitive map construction with atomic commits, and cross-agent verification.",
+          "year": 2026
+        }
+      ],
+      "label": "Agent Atomic Cocosi Commits",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "agent",
+        "atomic",
+        "cocosi",
+        "commits",
+        "cross"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:alignment-maskalign-representation-subsets",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/maskalign/summary.md",
+          "fact_name": "",
+          "paper_key": "maskalign",
+          "paper_title": "MaskAlign: Token-Subset Representation Alignment for Efficient Diffusion Training",
+          "statement": "MaskAlign is a token-subset representation alignment method that applies alignment to randomly sampled token subsets during training.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/maskalign/source.tex",
+          "fact_name": "",
+          "paper_key": "maskalign",
+          "paper_title": "MaskAlign: Token-Subset Representation Alignment for Efficient Diffusion Training",
+          "statement": "MaskAlign uses a shared random mask to compute representation alignment on token subsets while preserving the class token.",
+          "year": 2026
+        }
+      ],
+      "label": "Alignment Maskalign Representation Subsets",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "alignment",
+        "maskalign",
+        "representation",
+        "subsets",
+        "token"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:attention-boosted-ddim-denoising",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/freeanimate/source.tex",
+          "fact_name": "",
+          "paper_key": "freeanimate",
+          "paper_title": "FreeAnimate: Training-Free Human Image Animation with Preview-Guided Denoising",
+          "statement": "FreeAnimate introduces Inversion-Boosted Attention, which leverages preview-frame attention maps from DDIM inversion to guide the denoising process.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/freeanimate/source.tex",
+          "fact_name": "",
+          "paper_key": "freeanimate",
+          "paper_title": "FreeAnimate: Training-Free Human Image Animation with Preview-Guided Denoising",
+          "statement": "Inversion-Boosted Attention (IBA) stores and reuses self-attention and cross-attention maps generated during the DDIM inversion process of preview frames to compute attention during the denoising process.",
+          "year": 2026
+        }
+      ],
+      "label": "Attention Boosted Ddim Denoising",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "attention",
+        "boosted",
+        "ddim",
+        "denoising",
+        "inversion"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:brightness-centroid-frequency-fundamental",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/speakerllm/source.tex",
+          "fact_name": "",
+          "paper_key": "speakerllm",
+          "paper_title": "SpeakerLLM: A Speaker-Specialized Audio-LLM for Speaker Understanding and Verification Reasoning",
+          "statement": "Acoustic feature extraction derives pitch from the per-utterance mean fundamental frequency using librosa.pyin, and timbral brightness from the per-utterance mean spectral centroid over STFT frames.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/speakerllm/source.tex",
+          "fact_name": "",
+          "paper_key": "speakerllm",
+          "paper_title": "SpeakerLLM: A Speaker-Specialized Audio-LLM for Speaker Understanding and Verification Reasoning",
+          "statement": "Pitch attributes are discretized using gender-conditioned fundamental frequency (F0) percentile cutoffs, while timbral brightness uses gender-shared spectral-centroid percentile cutoffs.",
+          "year": 2026
+        }
+      ],
+      "label": "Brightness Centroid Frequency Fundamental",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "brightness",
+        "centroid",
+        "frequency",
+        "fundamental",
+        "pitch"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:capability-structural-structure-suc",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tabverse/source.tex",
+          "fact_name": "",
+          "paper_key": "tabverse",
+          "paper_title": "TABVERSE: Benchmarking Cross-Format Table Understanding in LLMs and VLMs",
+          "statement": "TABVERSE evaluates LLMs and VLMs across three tasks: Question Answering (QA), Structural Understanding Capability (SUC), and Structure Reconstruction (SR).",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tabverse/source.tex",
+          "fact_name": "",
+          "paper_key": "tabverse",
+          "paper_title": "TABVERSE: Benchmarking Cross-Format Table Understanding in LLMs and VLMs",
+          "statement": "The Structural Understanding Capability (SUC) task probes structure understanding through boundary detection, size estimation, and index-based retrieval.",
+          "year": 2026
+        }
+      ],
+      "label": "Capability Structural Structure Suc",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "capability",
+        "structural",
+        "structure",
+        "suc",
+        "understanding"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:chunk-decoding-event-inference",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/wall-wm/source.tex",
+          "fact_name": "",
+          "paper_key": "wall-wm",
+          "paper_title": "WALL-WM: Carving World Action Modeling at the Event Joints",
+          "statement": "In the unified inference mode, a VLM with Staircase Decoding supplies event-structured latent reasoning over task progress to guide the next local chunk while maintaining a gradient-continuous VLA path.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/wall-wm/summary.md",
+          "fact_name": "",
+          "paper_key": "wall-wm",
+          "paper_title": "WALL-WM: Carving World Action Modeling at the Event Joints",
+          "statement": "WALL-WM supports two complementary inference modes: an event mode that consumes next-event descriptions for variable-length execution chunks, and a unified mode that uses a VLM with Staircase Decoding for fixed-length chunk inference.",
+          "year": 2026
+        }
+      ],
+      "label": "Chunk Decoding Event Inference",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "chunk",
+        "decoding",
+        "event",
+        "inference",
+        "mode"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:cloud-fitting-orientation-plane",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/rog-grasp/source.tex",
+          "fact_name": "",
+          "paper_key": "rog-grasp",
+          "paper_title": "ROG-Grasp: Root-Oriented Geometry for Robotic Grasping and Placement",
+          "statement": "ROG-Grasp estimates produce orientation from root surface geometry using RGB-D perception, employing a YOLO-based root detector and point cloud plane fitting to infer the root normal.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/rog-grasp/source.tex",
+          "fact_name": "",
+          "paper_key": "rog-grasp",
+          "paper_title": "ROG-Grasp: Root-Oriented Geometry for Robotic Grasping and Placement",
+          "statement": "The orientation of the root surface is estimated by applying a least-squares plane fitting method to the extracted 3D root point cloud.",
+          "year": 2026
+        }
+      ],
+      "label": "Cloud Fitting Orientation Plane",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "cloud",
+        "fitting",
+        "orientation",
+        "plane",
+        "point"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:conditioning-diffusion-dps-explicit",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05751/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_05751",
+          "paper_title": "Multi-Condition Guided Diffusion Model for Controllable Elastic Parameter Synthesis",
+          "statement": "For explicit conditioning, a DPS-projection hybrid guidance strategy is developed by introducing an additional projection step into diffusion posterior sampling (DPS) to enhance the enforcement of conditions.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05751/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_05751",
+          "paper_title": "Multi-Condition Guided Diffusion Model for Controllable Elastic Parameter Synthesis",
+          "statement": "The unified multi-condition guided diffusion framework incorporates implicit and explicit conditioning information using iterative latent variable refinement, Adapter-based conditioning, and a diffusion posterior sampling (DPS)-projection guidance strategy.",
+          "year": 2026
+        }
+      ],
+      "label": "Conditioning Diffusion Dps Explicit",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "conditioning",
+        "diffusion",
+        "dps",
+        "explicit",
+        "guidance"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:control-cot-reasoning-textual",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tvi-cot/summary.md",
+          "fact_name": "",
+          "paper_key": "tvi-cot",
+          "paper_title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+          "statement": "The TVI-CoT framework enables the explicit interleaving of textual reasoning and visual feature access using learnable control tokens <THINK>, <LOOK>, and <ANSWER>.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tvi-cot/source.tex",
+          "fact_name": "",
+          "paper_key": "tvi-cot",
+          "paper_title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+          "statement": "The control tokens in TVI-CoT allow the model to dynamically switch between textual reasoning and visual grounding, attending to relevant image regions based on the evolving reasoning state.",
+          "year": 2026
+        }
+      ],
+      "label": "Control Cot Reasoning Textual",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "control",
+        "cot",
+        "reasoning",
+        "textual",
+        "tokens"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:convert-discrete-markov-noise",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/source.tex",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "ReinFlow injects learnable noise into a flow policy's deterministic path to convert it into a discrete-time Markov Process for exact likelihood computation.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/source.tex",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "ReinFlow utilizes a noise injection network to convert flows into a discrete-time Markov process with Gaussian transition probabilities.",
+          "year": 2025
+        }
+      ],
+      "label": "Convert Discrete Markov Noise",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "convert",
+        "discrete",
+        "markov",
+        "noise",
+        "process"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:cross-heterogeneous-image-interleaved",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/omni123/summary.md",
+          "fact_name": "",
+          "paper_key": "omni123",
+          "paper_title": "Omni123: Exploring 3D Native Foundation Models with Limited 3D Data by Unifying Text to 2D and 3D Generation",
+          "statement": "The authors introduce an interleaved X-to-X training paradigm to coordinate cross-modal tasks over heterogeneous paired datasets without needing fully aligned text-image-3D triplets.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/omni123/source.tex",
+          "fact_name": "",
+          "paper_key": "omni123",
+          "paper_title": "Omni123: Exploring 3D Native Foundation Models with Limited 3D Data by Unifying Text to 2D and 3D Generation",
+          "statement": "The training process consists of three stages: cross-modal pre-training over heterogeneous pairs, continued training with learnable view tokens, and Text-Image-3D interleaved fine-tuning.",
+          "year": 2026
+        }
+      ],
+      "label": "Cross Heterogeneous Image Interleaved",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "cross",
+        "heterogeneous",
+        "image",
+        "interleaved",
+        "modal"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:denoising-diffusion-global-skipping",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/less-is-more/source.tex",
+          "fact_name": "",
+          "paper_key": "less-is-more",
+          "paper_title": "Less Is More: Training-Free Acceleration Framework of 3D Diffusion Models for Low-Count PET Denoising via Global-Local Trajectory Reduction",
+          "statement": "The global denoising step skipping strategy initializes the reverse diffusion process from an intermediate denoising step using a noise-consistent transformation of the low-count input.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/less-is-more/source.tex",
+          "fact_name": "",
+          "paper_key": "less-is-more",
+          "paper_title": "Less Is More: Training-Free Acceleration Framework of 3D Diffusion Models for Low-Count PET Denoising via Global-Local Trajectory Reduction",
+          "statement": "The paper proposes a training-free Global-Local Skipping Strategy to accelerate diffusion model-based 3D PET denoising.",
+          "year": 2026
+        }
+      ],
+      "label": "Denoising Diffusion Global Skipping",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "denoising",
+        "diffusion",
+        "global",
+        "skipping",
+        "strategy"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:diff2sp-downstream-incorporates-optimization",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/diff2sp/source.tex",
+          "fact_name": "",
+          "paper_key": "diff2sp",
+          "paper_title": "Diff2SP: Diffusion Models for Correlated Scenario Generation in Stochastic Programming",
+          "statement": "Diff2SP incorporates the downstream stochastic optimization problem into training through a differentiable optimization layer.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/diff2sp/source.tex",
+          "fact_name": "",
+          "paper_key": "diff2sp",
+          "paper_title": "Diff2SP: Diffusion Models for Correlated Scenario Generation in Stochastic Programming",
+          "statement": "Diff2SP is a diffusion-based generative framework that incorporates downstream optimization objectives directly into scenario generation for stochastic programming.",
+          "year": 2026
+        }
+      ],
+      "label": "Diff2Sp Downstream Incorporates Optimization",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "diff2sp",
+        "downstream",
+        "incorporates",
+        "optimization",
+        "stochastic"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:diffusion-guided-modip-mpc",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/modip/source.tex",
+          "fact_name": "",
+          "paper_key": "modip",
+          "paper_title": "MODIP: Efficient Model-Based Optimization for Diffusion Policies",
+          "statement": "MODIP employs a DP-guided MPC planner that uses the diffusion policy as a multi-modal action sequence prior and refines the proposed trajectories through latent MPC.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/modip/source.tex",
+          "fact_name": "",
+          "paper_key": "modip",
+          "paper_title": "MODIP: Efficient Model-Based Optimization for Diffusion Policies",
+          "statement": "MODIP fine-tunes the diffusion policy using behavioral cloning on the improved trajectories generated by the DP-guided MPC planner.",
+          "year": 2026
+        }
+      ],
+      "label": "Diffusion Guided Modip Mpc",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "diffusion",
+        "guided",
+        "modip",
+        "mpc",
+        "planner"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:diffusion-level-low-policy",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08775/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_08775",
+          "paper_title": "Unifying Object-Centric World Models and Diffusion Policy: A Hierarchical Framework for Multi-Stage Robotic Tasks",
+          "statement": "A low-level, goal-conditioned diffusion policy sequentially tracks and executes the subgoals optimized by the object-centric world model.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08775/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_08775",
+          "paper_title": "Unifying Object-Centric World Models and Diffusion Policy: A Hierarchical Framework for Multi-Stage Robotic Tasks",
+          "statement": "The paper introduces WorldDP, a hierarchical framework that uses a high-level world model to optimize feasible subgoals during runtime, which are then executed by a low-level Diffusion Policy.",
+          "year": 2026
+        }
+      ],
+      "label": "Diffusion Level Low Policy",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "diffusion",
+        "level",
+        "low",
+        "policy",
+        "subgoals"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:fine-fire-generation-grained",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/fire/source.tex",
+          "fact_name": "",
+          "paper_key": "fire",
+          "paper_title": "FiRe: Fine-grained Multimodal Reasoning for Enhanced Image Generation",
+          "statement": "FiRe is a fine-grained multimodal reasoning method for text-to-image generation that decomposes prompts into visual requirements, self-judges their satisfaction, and applies localized refinement.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/fire/source.tex",
+          "fact_name": "",
+          "paper_key": "fire",
+          "paper_title": "FiRe: Fine-grained Multimodal Reasoning for Enhanced Image Generation",
+          "statement": "The FiRe method consists of six reasoning steps: Initial T2I Generation, Prompt Summarization, Tuple Decomposition, Tuple VQA, Fine-grained Feedback Generation, and Localized Image Correction.",
+          "year": 2026
+        }
+      ],
+      "label": "Fine Fire Generation Grained",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "fine",
+        "fire",
+        "generation",
+        "grained",
+        "image"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:global-guided-learnable-meta",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/unicompress/source.tex",
+          "fact_name": "",
+          "paper_key": "unicompress",
+          "paper_title": "UniCompress: Token Compression for Unified Vision-Language Understanding and Generation",
+          "statement": "UniCompress introduces a plug-in compression and decompression mechanism guided by learnable global meta tokens to reduce visual token count.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/unicompress/source.tex",
+          "fact_name": "",
+          "paper_key": "unicompress",
+          "paper_title": "UniCompress: Token Compression for Unified Vision-Language Understanding and Generation",
+          "statement": "UniCompress uses a compressor to convert a dense token grid into a short sequence of compressed tokens augmented by learnable global meta tokens, and a global-guided decompressor to reconstruct the token grid.",
+          "year": 2026
+        }
+      ],
+      "label": "Global Guided Learnable Meta",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "global",
+        "guided",
+        "learnable",
+        "meta",
+        "token"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:image-mask-rea2seg-segmentation",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reason-twice/summary.md",
+          "fact_name": "",
+          "paper_key": "reason-twice",
+          "paper_title": "Reason Twice: Segmentation via Candidate Discovery and Comparative Reasoning",
+          "statement": "Rea2Seg reformulates image segmentation as candidate discovery followed by discriminative mask selection.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reason-twice/summary.md",
+          "fact_name": "",
+          "paper_key": "reason-twice",
+          "paper_title": "Reason Twice: Segmentation via Candidate Discovery and Comparative Reasoning",
+          "statement": "The paper proposes a two-stage framework called Rea2Seg for mask generation and selection in reasoning-based image segmentation.",
+          "year": 2026
+        }
+      ],
+      "label": "Image Mask Rea2Seg Segmentation",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "image",
+        "mask",
+        "rea2seg",
+        "segmentation",
+        "selection"
+      ]
+    },
+    {
+      "average_confidence": 0.96,
+      "cluster_id": "method:architecture-attention-recurrence-transformer",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/summary.md",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer is a network architecture based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.",
+          "year": 2017
+        },
+        {
+          "confidence": 0.92,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/summary.md",
+          "fact_name": "Transformer attention architecture",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer replaces recurrence and convolution with attention-based sequence modeling.",
+          "year": 2017
+        }
+      ],
+      "label": "Architecture Attention Recurrence Transformer",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 0.96.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "architecture",
+        "attention",
+        "recurrence",
+        "transformer",
+        "convolution"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:evaluated-proposed-dataset-datasets",
+      "fact_count": 4,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06186/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_06186",
+          "paper_title": "Adversarial Attacks Already Tell the Answer: Directional Bias-Guided Test-time Defense for Vision-Language Models",
+          "statement": "The proposed DBD method is evaluated across 15 datasets.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2407_21243/summary.md",
+          "fact_name": "",
+          "paper_key": "2407_21243",
+          "paper_title": "Informed Correctors for Discrete Diffusion Models",
+          "statement": "The proposed method is evaluated on the text8 dataset.",
+          "year": 2024
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2407_21243/summary.md",
+          "fact_name": "",
+          "paper_key": "2407_21243",
+          "paper_title": "Informed Correctors for Discrete Diffusion Models",
+          "statement": "The proposed method is evaluated on the tokenized ImageNet 256x256 dataset.",
+          "year": 2024
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06682/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_06682",
+          "paper_title": "Spatiotemporal Imputation with Graph-Informed Flow Matching",
+          "statement": "The proposed GiFlow model is evaluated on both synthetic and real-world datasets.",
+          "year": 2026
+        }
+      ],
+      "label": "Evaluated Proposed Dataset Datasets",
+      "paper_count": 3,
+      "rationale": "Accept candidate because it has cross-paper support: 4 facts across 3 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "evaluated",
+        "proposed",
+        "dataset",
+        "datasets",
+        "256x256"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:authors-dataset-plan-release",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/homeworld/summary.md",
+          "fact_name": "",
+          "paper_key": "homeworld",
+          "paper_title": "HomeWorld: A Unified Floorplan-to-Furnished Framework for Generating Controllable, Densely Interactive Whole-Home Scenes",
+          "statement": "The authors plan to release their floorplan dataset and 5,000 fully furnished scenes to the public.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/speakerllm/source.tex",
+          "fact_name": "",
+          "paper_key": "speakerllm",
+          "paper_title": "SpeakerLLM: A Speaker-Specialized Audio-LLM for Speaker Understanding and Verification Reasoning",
+          "statement": "The authors plan to release the metadata-enriched supervision dataset and the target-construction code to ensure reproducibility.",
+          "year": 2026
+        }
+      ],
+      "label": "Authors Dataset Plan Release",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "authors",
+        "dataset",
+        "plan",
+        "release",
+        "000"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:available-dataset-publicly-code",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/omnivl-guard/source.tex",
+          "fact_name": "",
+          "paper_key": "omnivl-guard",
+          "paper_title": "OmniVL-Guard: Towards Unified Vision-Language Forgery Detection and Grounding via Balanced RL",
+          "statement": "The dataset and code for the OmniVL-Guard framework are publicly available on GitHub.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/world2vlm/source.tex",
+          "fact_name": "",
+          "paper_key": "world2vlm",
+          "paper_title": "World2VLM: Distilling World Model Imagination into VLMs for Dynamic Spatial Reasoning",
+          "statement": "The World2VLM dataset is publicly available on Hugging Face.",
+          "year": 2026
+        }
+      ],
+      "label": "Available Dataset Publicly Code",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "available",
+        "dataset",
+        "publicly",
+        "code",
+        "face"
+      ]
+    },
+    {
+      "average_confidence": 0.95,
+      "cluster_id": "dataset:dataset-evaluates-performance-mauve",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mllm-for3d/source.tex",
+          "fact_name": "",
+          "paper_key": "mllm-for3d",
+          "paper_title": "MLLM-For3D: Adapting Multimodal Large Language Model for 3D Reasoning Segmentation",
+          "statement": "The pilot study evaluates the performance of 2D reasoning segmentation models on the ScanNet++ dataset.",
+          "year": 2025
+        },
+        {
+          "confidence": 0.9,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2503_00307/source.tex",
+          "fact_name": "",
+          "paper_key": "2503_00307",
+          "paper_title": "Remasking Discrete Diffusion Models with Inference-Time Scaling",
+          "statement": "The paper evaluates model performance using MAUVE scores on the OpenWebText dataset.",
+          "year": 2025
+        }
+      ],
+      "label": "Dataset Evaluates Performance Mauve",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 0.95.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "dataset",
+        "evaluates",
+        "performance",
+        "mauve",
+        "openwebtext"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:000-assets-over-scenes",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/simple/source.tex",
+          "fact_name": "",
+          "paper_key": "simple",
+          "paper_title": "SIMPLE: Simulation-Based Policy Learning and Evaluation for Humanoid Loco-manipulation",
+          "statement": "The SIMPLE environment consists of 60 diverse whole-body loco-manipulation tasks, 50 indoor scenes, and over 1,000 object assets.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/simple/source.tex",
+          "fact_name": "",
+          "paper_key": "simple",
+          "paper_title": "SIMPLE: Simulation-Based Policy Learning and Evaluation for Humanoid Loco-manipulation",
+          "statement": "The dataset curated for SIMPLE includes over 1,000 Objaverse assets and 50 HSSD scenes.",
+          "year": 2026
+        }
+      ],
+      "label": "000 Assets Over Scenes",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "000",
+        "assets",
+        "over",
+        "scenes",
+        "simple"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:arena-dataset-gr1-manipulation",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mirabench/source.tex",
+          "fact_name": "",
+          "paper_key": "mirabench",
+          "paper_title": "MiraBench: Evaluating Action-Conditioned Reliability in Robotic World Models",
+          "statement": "The NVIDIA Arena-GR1-Manipulation-Task dataset is an open-source benchmark released under the CC-BY-4.0 license, focusing on a microwave door opening task with the Fourier GR-1 humanoid robot.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mirabench/source.tex",
+          "fact_name": "",
+          "paper_key": "mirabench",
+          "paper_title": "MiraBench: Evaluating Action-Conditioned Reliability in Robotic World Models",
+          "statement": "The study utilizes the NVIDIA Arena-GR1-Manipulation-Task dataset and the PsiBot SynData dataset for training and evaluation.",
+          "year": 2026
+        }
+      ],
+      "label": "Arena Dataset Gr1 Manipulation",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "arena",
+        "dataset",
+        "gr1",
+        "manipulation",
+        "nvidia"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:attention-collect-dataset-statistics",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01503/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01503",
+          "paper_title": "On the Limits of Token Reduction for Efficient Unified Vision Language Training",
+          "statement": "The JournyDB dataset is used to collect attention statistics for visual generation tasks.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01503/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01503",
+          "paper_title": "On the Limits of Token Reduction for Efficient Unified Vision Language Training",
+          "statement": "The ShareGPT-4v dataset is used to collect attention statistics for visual understanding tasks.",
+          "year": 2026
+        }
+      ],
+      "label": "Attention Collect Dataset Statistics",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "attention",
+        "collect",
+        "dataset",
+        "statistics",
+        "tasks"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "dataset:choice-commonsense-covers-mathematical",
+      "fact_count": 2,
+      "fact_type": "dataset",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/robosemanticbench/source.tex",
+          "fact_name": "",
+          "paper_key": "robosemanticbench",
+          "paper_title": "RoboSemanticBench: Diagnosing Semantic Grounding in Action Prediction for VLA Models",
+          "statement": "RSB covers controlled arithmetic, grade-school mathematical understanding, and commonsense or factual understanding under four-choice and ten-choice suites.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/robosemanticbench/source.tex",
+          "fact_name": "",
+          "paper_key": "robosemanticbench",
+          "paper_title": "RoboSemanticBench: Diagnosing Semantic Grounding in Action Prediction for VLA Models",
+          "statement": "RSB-General covers non-mathematical semantic understanding, including commonsense QA and MMLU-derived multiple-choice questions.",
+          "year": 2026
+        }
+      ],
+      "label": "Choice Commonsense Covers Mathematical",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "choice",
+        "commonsense",
+        "covers",
+        "mathematical",
+        "rsb"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:evaluated-manipulation-benchmarks-real",
+      "fact_count": 4,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/coarse-to-control/summary.md",
+          "fact_name": "",
+          "paper_key": "coarse-to-control",
+          "paper_title": "Coarse-to-Control: Action-Token Planning for Vision-Language-Action Models",
+          "statement": "The proposed method is evaluated on the LIBERO and SimplerEnv-WidowX benchmarks, as well as real-world manipulation tasks.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01151/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01151",
+          "paper_title": "Lagrangian Perturbation Diffusion Steering: Latent Reinforcement Learning for Generative Policies",
+          "statement": "The proposed method is evaluated on RoboMimic manipulation, OpenAI Gym locomotion, and Adroit dexterous manipulation benchmarks.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/occupancy-reward-shaping/summary.md",
+          "fact_name": "",
+          "paper_key": "occupancy-reward-shaping",
+          "paper_title": "Occupancy Reward Shaping: Improving Credit Assignment for Offline Goal-Conditioned Reinforcement Learning",
+          "statement": "The method is evaluated on 13 long-horizon locomotion and manipulation tasks, as well as 3 real-world Tokamak control tasks for nuclear fusion.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/vista/source.tex",
+          "fact_name": "",
+          "paper_key": "vista",
+          "paper_title": "VISTA: Vision-Grounded and Physics-Validated Adaptation of UMI data for VLA Training",
+          "statement": "VISTA is evaluated on UMI-style simulation benchmarks, including RoboTwin-UMI and LIBERO-UMI, as well as 20 diverse real-world manipulation tasks.",
+          "year": 2026
+        }
+      ],
+      "label": "Evaluated Manipulation Benchmarks Real",
+      "paper_count": 4,
+      "rationale": "Accept candidate because it has cross-paper support: 4 facts across 4 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "evaluated",
+        "manipulation",
+        "benchmarks",
+        "real",
+        "tasks"
+      ]
+    },
+    {
+      "average_confidence": 0.9875,
+      "cluster_id": "benchmark:benchmark-evaluated-libero-four",
+      "fact_count": 4,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/source.tex",
+          "fact_name": "",
+          "paper_key": "actionmap",
+          "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+          "statement": "ActionMap is evaluated on the LIBERO simulation benchmark, specifically across four suites with 10 tasks per suite.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_00269/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_00269",
+          "paper_title": "Closed-Loop Neural Activation Control in Vision-Language-Action Models",
+          "statement": "The method is evaluated on four task suites from the LIBERO benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "",
+          "fact_name": "",
+          "paper_key": "ct-vam",
+          "paper_title": "CT-VAM: A Cerebello-Thalamic-Inspired Vision-Action Model for Efficient Visuomotor Control",
+          "statement": "CT-VAM is evaluated on the LIBERO benchmark for simulation experiments to assess its visuomotor performance.",
+          "year": 2026
+        },
+        {
+          "confidence": 0.95,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/3dthinkvla/source.tex",
+          "fact_name": "",
+          "paper_key": "3dthinkvla",
+          "paper_title": "3DThinkVLA: Endowing Vision-Language-Action Models with Latent 3D Priors via 3D-Thinking-Guided Co-training",
+          "statement": "The method is evaluated on the LIBERO benchmark, which tests knowledge transfer and policy generalization across four task suites: LIBERO-Spatial, LIBERO-Object, LIBERO-Goal, and LIBERO-Long.",
+          "year": 2026
+        }
+      ],
+      "label": "Benchmark Evaluated Libero Four",
+      "paper_count": 4,
+      "rationale": "Accept candidate because it has cross-paper support: 4 facts across 4 papers with average confidence 0.99.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "benchmark",
+        "evaluated",
+        "libero",
+        "four",
+        "suites"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:benchmark-evaluated-framework-proposed",
+      "fact_count": 3,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_00269/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_00269",
+          "paper_title": "Closed-Loop Neural Activation Control in Vision-Language-Action Models",
+          "statement": "The method is also evaluated on the BridgeData V2 benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/colavla/source.tex",
+          "fact_name": "",
+          "paper_key": "colavla",
+          "paper_title": "ColaVLA: Leveraging Cognitive Latent Reasoning for Hierarchical Parallel Trajectory Planning in Autonomous Driving",
+          "statement": "The proposed ColaVLA framework is evaluated on the nuScenes benchmark.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/magis/summary.md",
+          "fact_name": "",
+          "paper_key": "magis",
+          "paper_title": "MAGIS: Evidence-Based Multi-Agent Reasoning for Interpretable Strabismus Clinical Decision-Making",
+          "statement": "The study evaluates the proposed framework on a fine-grained strabismus benchmark.",
+          "year": 2026
+        }
+      ],
+      "label": "Benchmark Evaluated Framework Proposed",
+      "paper_count": 3,
+      "rationale": "Accept candidate because it has cross-paper support: 3 facts across 3 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "benchmark",
+        "evaluated",
+        "framework",
+        "proposed",
+        "bridgedata"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:benchmark-evaluated-proposed-abc",
+      "fact_count": 3,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/pre-vla/source.tex",
+          "fact_name": "",
+          "paper_key": "pre-vla",
+          "paper_title": "Pre-VLA: Preemptive Runtime Verification for Reliable Vision-Language-Action and World-Model Rollouts",
+          "statement": "The proposed method is evaluated on the LIBERO robotic manipulation benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/stediff/summary.md",
+          "fact_name": "",
+          "paper_key": "stediff",
+          "paper_title": "STEDiff: Strengthening Text Embedding for Text-to-Image Alignment in Diffusion Model",
+          "statement": "STEDiff is evaluated using the T2I-CompBench benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01847/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01847",
+          "paper_title": "The Lie We Tell: Correcting the Euclidean Fallacy in Vision Language Action Policies via Score Matching on Tangent Space",
+          "statement": "The proposed method is evaluated on the CALVIN ABC->D benchmark.",
+          "year": 2026
+        }
+      ],
+      "label": "Benchmark Evaluated Proposed Abc",
+      "paper_count": 3,
+      "rationale": "Accept candidate because it has cross-paper support: 3 facts across 3 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "benchmark",
+        "evaluated",
+        "proposed",
+        "abc",
+        "calvin"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:achieves-benchmark-blue-rate",
+      "fact_count": 3,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/blue/summary.md",
+          "fact_name": "",
+          "paper_key": "blue",
+          "paper_title": "BLUE: Toward Better Language Use in Efficient Vision-Language-Action Models for Autonomous Driving",
+          "statement": "BLUE achieves a 76.2% success rate on the Bench2Drive benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/blue/source.tex",
+          "fact_name": "",
+          "paper_key": "blue",
+          "paper_title": "BLUE: Toward Better Language Use in Efficient Vision-Language-Action Models for Autonomous Driving",
+          "statement": "BLUE achieves a driving score of 36 on the Longest6 v2 benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_03784/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_03784",
+          "paper_title": "Revisiting Embodied Chain-of-Thought for Generalizable Robot Manipulation",
+          "statement": "ERVLA achieves state-of-the-art performance on the LIBERO-Plus benchmark with an 86.9% success rate and reaches a 53.2% success rate on VLABench.",
+          "year": 2026
+        }
+      ],
+      "label": "Achieves Benchmark Blue Rate",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 3 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "achieves",
+        "benchmark",
+        "blue",
+        "rate",
+        "success"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:action-benchmark-language-policies",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08881/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_08881",
+          "paper_title": "Benchmarking Vision-Language-Action Models on SO-101: Failure and Recovery Analysis",
+          "statement": "The paper introduces a standardized real-world benchmark for evaluating Vision-Language-Action (VLA) and imitation learning policies on the low-cost SO-101 robotic platform.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/phail/summary.md",
+          "fact_name": "",
+          "paper_key": "phail",
+          "paper_title": "PhAIL: A Real-Robot VLA Benchmark and Distributional Methodology",
+          "statement": "PhAIL (Physical AI Leaderboard) is an open real-robot benchmark on a Franka FR3 that evaluates vision-language-action (VLA) policies using a distributional evaluation methodology.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Benchmark Language Policies",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "benchmark",
+        "language",
+        "policies",
+        "real"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:action-benchmark-language-vision",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_04046",
+          "paper_title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+          "statement": "The LIBERO-plus benchmark is used in the study to evaluate the robustness of Vision-Language-Action (VLA) models against environmental interference.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/robosemanticbench/summary.md",
+          "fact_name": "",
+          "paper_key": "robosemanticbench",
+          "paper_title": "RoboSemanticBench: Diagnosing Semantic Grounding in Action Prediction for VLA Models",
+          "statement": "RoboSemanticBench (RSB) is an embodied benchmark designed to diagnose semantic grounding in action prediction for vision-language-action (VLA) models.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Benchmark Language Vision",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "benchmark",
+        "language",
+        "vision",
+        "vla"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:authors-benchmark-evaluating-introduce",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10833/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_10833",
+          "paper_title": "Do VLMs Reason Like Engineers? A Benchmark and a Stage-wise Evaluation",
+          "statement": "The authors introduce EngVQA, a multimodal benchmark for evaluating engineering reasoning across 5 engineering subjects containing 696 problems.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10543/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_10543",
+          "paper_title": "Flexible Flows for Biological Sequence Design",
+          "statement": "The authors introduce a novel peptide-MHC II benchmark for generating and evaluating MHC-conditioned peptide sequences.",
+          "year": 2026
+        }
+      ],
+      "label": "Authors Benchmark Evaluating Introduce",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "authors",
+        "benchmark",
+        "evaluating",
+        "introduce",
+        "696"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:authors-benchmark-fine-grained",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reason-twice/summary.md",
+          "fact_name": "",
+          "paper_key": "reason-twice",
+          "paper_title": "Reason Twice: Segmentation via Candidate Discovery and Comparative Reasoning",
+          "statement": "The authors introduce a new benchmark called ReasonSeg-SGDR that evaluates a model's perception, grounding, and reasoning abilities across discriminative recognition, spatial reasoning, geometric reasoning, and multi-step reasoning with fine-grained mask generation.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07861/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_07861",
+          "paper_title": "The Last Visible Pixel: Probing Fine-Scale Perception in Vision-Language Models",
+          "statement": "The authors introduce FineSightBench, a new benchmark that systematically probes the limit of fine-grained visual perception in VLMs by separating perception tasks from reasoning tasks across controlled scales of 4-48px.",
+          "year": 2026
+        }
+      ],
+      "label": "Authors Benchmark Fine Grained",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "authors",
+        "benchmark",
+        "fine",
+        "grained",
+        "introduce"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:behavior-evaluated-manipulation-proposed",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_00985/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_00985",
+          "paper_title": "Make Your VLA More Robust Without More Data By Interleaving Motion Planning",
+          "statement": "The proposed MPVI approach is evaluated on the BEHAVIOR-1K benchmark, which involves long-horizon mobile manipulation tasks.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04968/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_04968",
+          "paper_title": "Potential-Guided Flow Matching for Vision-Language-Action Policy Improvement",
+          "statement": "The proposed method is evaluated across five BEHAVIOR-1K simulation tasks and five real-world bimanual manipulation tasks.",
+          "year": 2026
+        }
+      ],
+      "label": "Behavior Evaluated Manipulation Proposed",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "behavior",
+        "evaluated",
+        "manipulation",
+        "proposed",
+        "tasks"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:benchmark-evaluate-libero-used",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_07217/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_07217",
+          "paper_title": "Robotic Policy Adaptation via Weight-Space Meta-Learning",
+          "statement": "The LIBERO benchmark is used to evaluate the performance and generalization capabilities of the WIZARD framework.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10501/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_10501",
+          "paper_title": "Uncovering Vulnerability of Vision-Language-Action Models under Joint-Level Physical Faults",
+          "statement": "The LIBERO benchmark is used to evaluate the success rates of VLA models under joint fault conditions.",
+          "year": 2026
+        }
+      ],
+      "label": "Benchmark Evaluate Libero Used",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "benchmark",
+        "evaluate",
+        "libero",
+        "used",
+        "capabilities"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:benchmarks-evaluated-framework-exdet",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/exdet/source.tex",
+          "fact_name": "",
+          "paper_key": "exdet",
+          "paper_title": "ExDet: Open-Domain Open-Vocabulary Detection with Cross-modal Extrapolation and Rectification",
+          "statement": "The ExDet framework is evaluated on the OD-LVIS, OV-LVIS, Objects365, and MSOSB benchmarks.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10348/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_10348",
+          "paper_title": "Rethinking Embodied Navigation via Relational Inductive Bias",
+          "statement": "The proposed DB-Nav framework is evaluated on standard ObjectNav benchmarks.",
+          "year": 2026
+        }
+      ],
+      "label": "Benchmarks Evaluated Framework Exdet",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "benchmarks",
+        "evaluated",
+        "framework",
+        "exdet",
+        "lvis"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:evaluates-libero-pro-proposed",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_05737/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_05737",
+          "paper_title": "Let It Be Simple: One-Step Action Generation for Vision-Language-Action Models",
+          "statement": "The paper evaluates the proposed method on the standard LIBERO, LIBERO-Plus, and LIBERO-Pro benchmarks.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_02735/summary.md",
+          "fact_name": "",
+          "paper_key": "2606_02735",
+          "paper_title": "See Less, Specify More: Visual Evidence Budgets for Generalizable VLAs",
+          "statement": "The paper evaluates the proposed method using the LIBERO-PRO benchmark, including object and goal ablations.",
+          "year": 2026
+        }
+      ],
+      "label": "Evaluates Libero Pro Proposed",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "evaluates",
+        "libero",
+        "pro",
+        "proposed",
+        "ablations"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:2014-bleu-english-task",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/summary.md",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over existing best results by over 2 BLEU.",
+          "year": 2017
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/summary.md",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer model establishes a single-model state-of-the-art BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs.",
+          "year": 2017
+        }
+      ],
+      "label": "2014 Bleu English Task",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "2014",
+        "bleu",
+        "english",
+        "task",
+        "transformer"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:bench-conditional-generation-pai",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/pai-bench/source.tex",
+          "fact_name": "",
+          "paper_key": "pai-bench",
+          "paper_title": "PAI-Bench: A Comprehensive Benchmark For Physical AI",
+          "statement": "PAI-Bench is a unified benchmark designed to evaluate perception and prediction capabilities across video generation, conditional video generation, and video understanding for Physical AI.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/pai-bench/source.tex",
+          "fact_name": "",
+          "paper_key": "pai-bench",
+          "paper_title": "PAI-Bench: A Comprehensive Benchmark For Physical AI",
+          "statement": "PAI-Bench is divided into three tracks: PAI-Bench-G for video generation, PAI-Bench-C for conditional video generation, and PAI-Bench-U for physical video understanding.",
+          "year": 2025
+        }
+      ],
+      "label": "Bench Conditional Generation Pai",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "bench",
+        "conditional",
+        "generation",
+        "pai",
+        "physical"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:achieves-benchmark-rate-success",
+      "fact_count": 3,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/coarse-to-control/source.tex",
+          "fact_name": "",
+          "paper_key": "coarse-to-control",
+          "paper_title": "Coarse-to-Control: Action-Token Planning for Vision-Language-Action Models",
+          "statement": "Coarse-to-Control achieves a 97.90% average success rate on the LIBERO benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/coarse-to-control/source.tex",
+          "fact_name": "",
+          "paper_key": "coarse-to-control",
+          "paper_title": "Coarse-to-Control: Action-Token Planning for Vision-Language-Action Models",
+          "statement": "Coarse-to-Control achieves an 83.3% success rate on the SimplerEnv-WidowX benchmark.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_04046/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_04046",
+          "paper_title": "Dive into the Scene: Breaking the Perceptual Bottleneck in Vision-Language Decision Making via Focus Plan Generation",
+          "statement": "On the LIBERO-plus benchmark, SceneDiver achieves up to a 9.6% improvement in success rate while adding only a 2.64% computational overhead.",
+          "year": 2026
+        }
+      ],
+      "label": "Achieves Benchmark Rate Success",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 3 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "achieves",
+        "benchmark",
+        "rate",
+        "success",
+        "coarse"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:achieves-art-dna-generation",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10543/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_10543",
+          "paper_title": "Flexible Flows for Biological Sequence Design",
+          "statement": "FlexFlow achieves state-of-the-art performance across diverse biological sequence tasks, including density estimation, unconditional and conditional DNA sequence generation, and peptide sequence generation.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_06303/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_06303",
+          "paper_title": "Plug-and-Play Guidance for Discrete Diffusion Models via Gradient-Informed Logit Correction",
+          "statement": "GILC achieves state-of-the-art performance without additional training across DNA, protein sequence, and molecular generation tasks, frequently outperforming fine-tuning approaches.",
+          "year": 2026
+        }
+      ],
+      "label": "Achieves Art Dna Generation",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "achieves",
+        "art",
+        "dna",
+        "generation",
+        "performance"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:achieves-art-performance-state",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/exdet/source.tex",
+          "fact_name": "",
+          "paper_key": "exdet",
+          "paper_title": "ExDet: Open-Domain Open-Vocabulary Detection with Cross-modal Extrapolation and Rectification",
+          "statement": "ExDet achieves state-of-the-art performance on the OD-LVIS, OV-LVIS, Objects365, and MSOSB datasets.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mive/source.tex",
+          "fact_name": "",
+          "paper_key": "mive",
+          "paper_title": "MiVE: Multiscale Vision-language features for reference-guided video Editing",
+          "statement": "MiVE achieves state-of-the-art performance, ranking highest in human preference and outperforming academic and commercial systems.",
+          "year": 2026
+        }
+      ],
+      "label": "Achieves Art Performance State",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "achieves",
+        "art",
+        "performance",
+        "state",
+        "academic"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:action-better-environments-modeling",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/c3ache/source.tex",
+          "fact_name": "",
+          "paper_key": "c3ache",
+          "paper_title": "C$^3$ache: Accelerating World Action Models with Cross Inference Chunk Cache",
+          "statement": "World Action Models (WAMs) generalize better to novel motions and environments than standard Vision-Language-Action (VLA) policies because they use a video-modeling objective to learn from abundant unlabeled video.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/world-action-models/source.tex",
+          "fact_name": "",
+          "paper_key": "world-action-models",
+          "paper_title": "World Action Models: The Next Frontier in Embodied AI",
+          "statement": "Integrating world modeling into embodied policies enables stronger physical understanding, better generalization across novel environments, and the use of large-scale human video data lacking action annotations.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Better Environments Modeling",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "better",
+        "environments",
+        "modeling",
+        "novel"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:action-language-physical-robot",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/c3ache/source.tex",
+          "fact_name": "",
+          "paper_key": "c3ache",
+          "paper_title": "C$^3$ache: Accelerating World Action Models with Cross Inference Chunk Cache",
+          "statement": "Vision-Language-Action (VLA) models are limited in their physical behaviors because they are bounded by the specific robot demonstrations they were fine-tuned on.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_10501/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_10501",
+          "paper_title": "Uncovering Vulnerability of Vision-Language-Action Models under Joint-Level Physical Faults",
+          "statement": "Vision-Language-Action (VLA) models exhibit vulnerability to joint-level physical faults when their predicted actions are executed through a perturbed robot body.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Language Physical Robot",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "language",
+        "physical",
+        "robot",
+        "vision"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:average-compared-improves-libero",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/phaser/summary.md",
+          "fact_name": "",
+          "paper_key": "phaser",
+          "paper_title": "PHASER: Phase-Aware and Semantic Experience Replay for Vision-Language-Action Models",
+          "statement": "PHASER improves the Average Success Rate by up to 31% compared to matched-budget experience replay and achieves an 87.8% final ASR on the LIBERO-Goal continual learning setting.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/pre-vla/source.tex",
+          "fact_name": "",
+          "paper_key": "pre-vla",
+          "paper_title": "Pre-VLA: Preemptive Runtime Verification for Reliable Vision-Language-Action and World-Model Rollouts",
+          "statement": "Pre-VLA improves the average closed-loop success rate across four LIBERO suites from 30.79% to 37.62% compared to RynnVLA-002.",
+          "year": 2026
+        }
+      ],
+      "label": "Average Compared Improves Libero",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "average",
+        "compared",
+        "improves",
+        "libero",
+        "rate"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:existing-experimental-generation-methods",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/freeanimate/source.tex",
+          "fact_name": "",
+          "paper_key": "freeanimate",
+          "paper_title": "FreeAnimate: Training-Free Human Image Animation with Preview-Guided Denoising",
+          "statement": "Experimental results show that FreeAnimate outperforms existing training-free competitors and training-based baseline methods, achieving generation quality comparable to state-of-the-art methods and offering robust generalization across diverse datasets.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/native3d/source.tex",
+          "fact_name": "",
+          "paper_key": "native3d",
+          "paper_title": "Native3D: End-to-End 3D Scene Generation via Unified Mesh-Texture Modeling and Semantic Alignment",
+          "statement": "Experimental results indicate that Native3D surpasses existing methods in both generation quality and editing flexibility for 3D scenes.",
+          "year": 2026
+        }
+      ],
+      "label": "Existing Experimental Generation Methods",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 1.00.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "existing",
+        "experimental",
+        "generation",
+        "methods",
+        "quality"
+      ]
+    },
+    {
+      "average_confidence": 0.975,
+      "cluster_id": "claim:achieves-art-performance-real",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/wall-wm/summary.md",
+          "fact_name": "",
+          "paper_key": "wall-wm",
+          "paper_title": "WALL-WM: Carving World Action Modeling at the Event Joints",
+          "statement": "WALL-WM achieves state-of-the-art performance in large-scale real-world generalization evaluation, demonstrating broad generalization across language, scenes, and tasks.",
+          "year": 2026
+        },
+        {
+          "confidence": 0.95,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/3dthinkvla/source.tex",
+          "fact_name": "",
+          "paper_key": "3dthinkvla",
+          "paper_title": "3DThinkVLA: Endowing Vision-Language-Action Models with Latent 3D Priors via 3D-Thinking-Guided Co-training",
+          "statement": "3DThinkVLA achieves state-of-the-art performance on LIBERO, LIBERO-PLUS, SimplerEnv, and challenging real-world manipulation tasks.",
+          "year": 2026
+        }
+      ],
+      "label": "Achieves Art Performance Real",
+      "paper_count": 2,
+      "rationale": "Accept candidate because it has cross-paper support: 2 facts across 2 papers with average confidence 0.97.",
+      "recommended_status": "accept_candidate",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "achieves",
+        "art",
+        "performance",
+        "real",
+        "state"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:achieves-baseline-benchmark-compared",
+      "fact_count": 4,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tvi-cot/summary.md",
+          "fact_name": "",
+          "paper_key": "tvi-cot",
+          "paper_title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+          "statement": "TVI-CoT achieves a 3.4% performance improvement on the MathVista benchmark compared to the baseline.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tvi-cot/summary.md",
+          "fact_name": "",
+          "paper_key": "tvi-cot",
+          "paper_title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+          "statement": "TVI-CoT achieves a 3.4% performance improvement on the ScienceQA benchmark compared to the baseline.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tvi-cot/summary.md",
+          "fact_name": "",
+          "paper_key": "tvi-cot",
+          "paper_title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+          "statement": "TVI-CoT achieves a 3.8% performance improvement on the MathVerse benchmark compared to the baseline.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/tvi-cot/summary.md",
+          "fact_name": "",
+          "paper_key": "tvi-cot",
+          "paper_title": "TVI-CoT: Text-Visual Interleaved Chain-of-Thought Reasoning for Multimodal Understanding",
+          "statement": "TVI-CoT achieves a 6.1% performance improvement on the MMMU benchmark compared to the baseline.",
+          "year": 2026
+        }
+      ],
+      "label": "Achieves Baseline Benchmark Compared",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 4 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "achieves",
+        "baseline",
+        "benchmark",
+        "compared",
+        "cot"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:2048-context-gpu-h100",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2605_30571/summary.md",
+          "fact_name": "",
+          "paper_key": "2605_30571",
+          "paper_title": "Memory-Bound but Not Bandwidth-Limited: The Physical AI Inference Gap in Batch-1 LLM Decode",
+          "statement": "For the Qwen-2.5-7B model at a context length of 2048, the L4 GPU reaches about 81% of its analytic memory floor, whereas the H100 GPU reaches only 27%.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2605_30571/summary.md",
+          "fact_name": "",
+          "paper_key": "2605_30571",
+          "paper_title": "Memory-Bound but Not Bandwidth-Limited: The Physical AI Inference Gap in Batch-1 LLM Decode",
+          "statement": "Using CUDA Graphs on an H100 GPU at a context length of 2048 improves decode latency by 1.259x, while on an L4 GPU it only improves latency by 1.028x.",
+          "year": 2026
+        }
+      ],
+      "label": "2048 Context Gpu H100",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "2048",
+        "context",
+        "gpu",
+        "h100",
+        "length"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:action-higher-noise-prior",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01151/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01151",
+          "paper_title": "Lagrangian Perturbation Diffusion Steering: Latent Reinforcement Learning for Generative Policies",
+          "statement": "LP-DS achieves return improvements of up to 25% over prior baselines while maintaining higher action-space entropy than unconstrained noise-space steering.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01151/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01151",
+          "paper_title": "Lagrangian Perturbation Diffusion Steering: Latent Reinforcement Learning for Generative Policies",
+          "statement": "LP-DS mitigates mode collapse compared to prior-replacing noise-space steering methods, thereby preserving higher action-space diversity.",
+          "year": 2026
+        }
+      ],
+      "label": "Action Higher Noise Prior",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "action",
+        "higher",
+        "noise",
+        "prior",
+        "space"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:actionmap-baseline-compared-produces",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/source.tex",
+          "fact_name": "",
+          "paper_key": "actionmap",
+          "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+          "statement": "ActionMap produces better spatial precision at contact and placement compared to the flow-matching baseline.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/actionmap/source.tex",
+          "fact_name": "",
+          "paper_key": "actionmap",
+          "paper_title": "ActionMap: Robot Policy Learning via Voxel Action Heatmap",
+          "statement": "ActionMap produces noticeably smoother end-effector trajectories throughout execution compared to the baseline.",
+          "year": 2026
+        }
+      ],
+      "label": "Actionmap Baseline Compared Produces",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "actionmap",
+        "baseline",
+        "compared",
+        "produces",
+        "better"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:alignment-full-loss-maskalign",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/maskalign/source.tex",
+          "fact_name": "",
+          "paper_key": "maskalign",
+          "paper_title": "MaskAlign: Token-Subset Representation Alignment for Efficient Diffusion Training",
+          "statement": "MaskAlign lowers the full-token alignment loss during training.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/maskalign/source.tex",
+          "fact_name": "",
+          "paper_key": "maskalign",
+          "paper_title": "MaskAlign: Token-Subset Representation Alignment for Efficient Diffusion Training",
+          "statement": "MaskAlign narrows the alignment-loss gap between randomly masked and full-token inputs, indicating improved stability under token-subset perturbations.",
+          "year": 2026
+        }
+      ],
+      "label": "Alignment Full Loss Maskalign",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "alignment",
+        "full",
+        "loss",
+        "maskalign",
+        "token"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:aura-benchmark-fewer-matches",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/aura/summary.md",
+          "fact_name": "",
+          "paper_key": "aura",
+          "paper_title": "AURA: Action-Gated Memory for Robot Policies at Constant VRAM",
+          "statement": "On a controlled synthetic benchmark, AURA-Mem matches the best O(1) baseline in accuracy while using 5.19 to 6.13 times fewer memory writes.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/aura/summary.md",
+          "fact_name": "",
+          "paper_key": "aura",
+          "paper_title": "AURA: Action-Gated Memory for Robot Policies at Constant VRAM",
+          "statement": "On the LIBERO-Long benchmark, AURA-Mem matches the ungated base policy success rate of 0.233 and exceeds the always-write KV arm's 0.217, while using 7.0 times fewer writes.",
+          "year": 2026
+        }
+      ],
+      "label": "Aura Benchmark Fewer Matches",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "aura",
+        "benchmark",
+        "fewer",
+        "matches",
+        "mem"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:average-fine-manipulation-policies",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/summary.md",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "ReinFlow's performance in manipulation tasks is comparable to fine-tuned DDIM policies while saving an average of 23.20% in computation time.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/summary.md",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "Shortcut Model policies fine-tuned with ReinFlow achieved a 40.34% average net increase in success rate in state and visual manipulation tasks.",
+          "year": 2025
+        }
+      ],
+      "label": "Average Fine Manipulation Policies",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "average",
+        "fine",
+        "manipulation",
+        "policies",
+        "reinflow"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:base-degradation-largely-reasoning",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08894/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_08894",
+          "paper_title": "Are Reasoning Vision-Language Models Robust to Semantic Visual Distractions?",
+          "statement": "Reasoning VLMs show consistently lower robustness to semantic distractions compared to perceptual degradation, where they largely track their non-reasoning base models.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_08894/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_08894",
+          "paper_title": "Are Reasoning Vision-Language Models Robust to Semantic Visual Distractions?",
+          "statement": "Under vision corruptions, reasoning VLMs largely inherit their base models' robustness patterns, whereas semantic distraction produces sharply different degradation behaviors.",
+          "year": 2026
+        }
+      ],
+      "label": "Base Degradation Largely Reasoning",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "base",
+        "degradation",
+        "largely",
+        "reasoning",
+        "robustness"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:cdt-framework-mbpo-ppo",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2605_16547/source.tex",
+          "fact_name": "",
+          "paper_key": "2605_16547",
+          "paper_title": "World Model-Enabled Causal Digital Twins for Semantic Communications in Physical AI Systems",
+          "statement": "The WM-CDT framework achieves up to 17.3%, 55.4%, 30.7%, and 33.7% higher return-per-kbit than AC-based recurrent reinforcement learning (AC-RRL), model-based policy optimization (MBPO), AC, and proximal policy optimization (PPO), respectively.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2605_16547/source.tex",
+          "fact_name": "",
+          "paper_key": "2605_16547",
+          "paper_title": "World Model-Enabled Causal Digital Twins for Semantic Communications in Physical AI Systems",
+          "statement": "The WM-CDT framework improves the navigation success rate by up to 9.6%, 26.3%, 16.1%, and 18.0% compared to AC-RRL, MBPO, AC, and PPO, respectively.",
+          "year": 2026
+        }
+      ],
+      "label": "Cdt Framework Mbpo Ppo",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "cdt",
+        "framework",
+        "mbpo",
+        "ppo",
+        "respectively"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:deeper-details-early-encode",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mive/source.tex",
+          "fact_name": "",
+          "paper_key": "mive",
+          "paper_title": "MiVE: Multiscale Vision-language features for reference-guided video Editing",
+          "statement": "Early layers of VLMs exhibit higher Attention Mask Ratios, confirming they capture spatial details, while deeper layers have lower ratios, indicating they encode holistic semantics.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mive/summary.md",
+          "fact_name": "",
+          "paper_key": "mive",
+          "paper_title": "MiVE: Multiscale Vision-language features for reference-guided video Editing",
+          "statement": "VLM layers encode complementary information hierarchically, with early layers capturing localized spatial details and deeper layers encoding global semantics.",
+          "year": 2026
+        }
+      ],
+      "label": "Deeper Details Early Encode",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "deeper",
+        "details",
+        "early",
+        "encode",
+        "layers"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:fine-legged-locomotion-reinflow",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/summary.md",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "Fine-tuning Rectified Flow policies with ReinFlow in legged locomotion tasks resulted in an average net episode reward growth of 135.36%.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/reinflow/summary.md",
+          "fact_name": "",
+          "paper_key": "reinflow",
+          "paper_title": "ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning",
+          "statement": "ReinFlow saves 82.63% of wall time compared to the DPPO diffusion RL fine-tuning method in legged locomotion tasks.",
+          "year": 2025
+        }
+      ],
+      "label": "Fine Legged Locomotion Reinflow",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "fine",
+        "legged",
+        "locomotion",
+        "reinflow",
+        "tasks"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:for3d-methods-mllm-reasoning",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mllm-for3d/source.tex",
+          "fact_name": "",
+          "paper_key": "mllm-for3d",
+          "paper_title": "MLLM-For3D: Adapting Multimodal Large Language Model for 3D Reasoning Segmentation",
+          "statement": "MLLM-For3D achieves approximately 55% higher mIoU compared to previous methods in 3D reasoning segmentation tasks without 3D annotations.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/mllm-for3d/summary.md",
+          "fact_name": "",
+          "paper_key": "mllm-for3d",
+          "paper_title": "MLLM-For3D: Adapting Multimodal Large Language Model for 3D Reasoning Segmentation",
+          "statement": "MLLM-For3D outperforms existing 3D reasoning segmentation methods on indoor scene benchmarks without using any labeled 3D training data.",
+          "year": 2025
+        }
+      ],
+      "label": "For3D Methods Mllm Reasoning",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "for3d",
+        "methods",
+        "mllm",
+        "reasoning",
+        "segmentation"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:framework-improves-integrated-proposed",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/sarm2/summary.md",
+          "fact_name": "",
+          "paper_key": "sarm2",
+          "paper_title": "SARM2: Multi-Task Stage Aware Reward Modeling for Self Improving Robotic Manipulation",
+          "statement": "When integrated into the SPIRAL framework, the proposed method improves task success on the Cleaning Whiteboard task from 50% to 90%.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/sarm2/summary.md",
+          "fact_name": "",
+          "paper_key": "sarm2",
+          "paper_title": "SARM2: Multi-Task Stage Aware Reward Modeling for Self Improving Robotic Manipulation",
+          "statement": "When integrated into the SPIRAL framework, the proposed method improves task success on the Folding Shorts task from 58% to 100%.",
+          "year": 2026
+        }
+      ],
+      "label": "Framework Improves Integrated Proposed",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "framework",
+        "improves",
+        "integrated",
+        "proposed",
+        "spiral"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:image-late-layer-tasks",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01503/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01503",
+          "paper_title": "On the Limits of Token Reduction for Efficient Unified Vision Language Training",
+          "statement": "In visual understanding tasks, attention to image tokens drops from roughly 30% in the first layer to below 10% in middle and late layers.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2606_01503/source.tex",
+          "fact_name": "",
+          "paper_key": "2606_01503",
+          "paper_title": "On the Limits of Token Reduction for Efficient Unified Vision Language Training",
+          "statement": "There is a fundamental asymmetry in token utilization between visual understanding and generation tasks, where understanding exhibits late-layer visual redundancy and generation maintains persistent dependence on image tokens.",
+          "year": 2026
+        }
+      ],
+      "label": "Image Late Layer Tasks",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "image",
+        "late",
+        "layer",
+        "tasks",
+        "tokens"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:language-large-mllms-multimodal",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2506_18504v2/source.tex",
+          "fact_name": "",
+          "paper_key": "2506_18504v2",
+          "paper_title": "Generalizing vision-language models to novel domains: A comprehensive survey",
+          "statement": "Multimodal large language models (MLLMs) enhance the generalizability of vision-language systems by leveraging powerful large language models.",
+          "year": 2025
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/2506_18504v2/summary.md",
+          "fact_name": "",
+          "paper_key": "2506_18504v2",
+          "paper_title": "Generalizing vision-language models to novel domains: A comprehensive survey",
+          "statement": "The survey discusses the relations and differences between VLMs and up-to-date multimodal large language models (MLLMs), such as DeepSeek-VL.",
+          "year": 2025
+        }
+      ],
+      "label": "Language Large Mllms Multimodal",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "language",
+        "large",
+        "mllms",
+        "multimodal",
+        "date"
+      ]
+    },
+    {
+      "average_confidence": 0.95,
+      "cluster_id": "claim:diffusion-latent-performance-reconstruction",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 0.95,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/editssc/source.tex",
+          "fact_name": "",
+          "paper_key": "editssc",
+          "paper_title": "EditSSC: Toward Editable Semantic Occupancy Scenes with Unconditional Diffusion Models",
+          "statement": "High reconstruction fidelity paired with an unstructured latent space, such as that produced by a simple MLP, is detrimental to diffusion performance.",
+          "year": 2026
+        },
+        {
+          "confidence": 0.95,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/editssc/source.tex",
+          "fact_name": "",
+          "paper_key": "editssc",
+          "paper_title": "EditSSC: Toward Editable Semantic Occupancy Scenes with Unconditional Diffusion Models",
+          "statement": "The organization and structure of the latent space are more critical for diffusion quality than autoencoder reconstruction performance alone.",
+          "year": 2026
+        }
+      ],
+      "label": "Diffusion Latent Performance Reconstruction",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 0.95.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "diffusion",
+        "latent",
+        "performance",
+        "reconstruction",
+        "space"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "limitation:evidence-faithfulness-joint-linguistic",
+      "fact_count": 2,
+      "fact_type": "limitation",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/look-on-demand/source.tex",
+          "fact_name": "",
+          "paper_key": "look-on-demand",
+          "paper_title": "Look on Demand: A Cognitive Scheduling Framework for Visual Evidence Acquisition in Multimodal Reasoning",
+          "statement": "In unified multimodal models, dominant linguistic priors from joint training objectives can bias visual representations toward the language space, leading to hallucinations and reduced faithfulness to image evidence.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/look-on-demand/source.tex",
+          "fact_name": "",
+          "paper_key": "look-on-demand",
+          "paper_title": "Look on Demand: A Cognitive Scheduling Framework for Visual Evidence Acquisition in Multimodal Reasoning",
+          "statement": "The unified multimodal representation paradigm suffers from linguistic dominance caused by joint optimization and attention mechanisms, weakening faithfulness to visual evidence.",
+          "year": 2026
+        }
+      ],
+      "label": "Evidence Faithfulness Joint Linguistic",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "evidence",
+        "faithfulness",
+        "joint",
+        "linguistic",
+        "multimodal"
+      ]
+    }
+  ],
+  "mode": "token",
+  "needs_review_count": 48,
+  "paper_count": 202,
+  "review_item_count": 85,
+  "semantic_threshold": null
+}

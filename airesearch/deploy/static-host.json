@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-06-10T07:12:21.373080+00:00",
+  "site_dir": "exports/site-current",
+  "resolved_site_dir": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/exports/site-current",
+  "config_path": "deploy/airesearch.nginx.conf",
+  "base_path": "/niu-secretary/airesearch/",
+  "deploy_root": "/var/www/html/niu-secretary/airesearch",
+  "deploy_command": "sudo rsync -av --delete /home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/exports/site-current/ /var/www/html/niu-secretary/airesearch/",
+  "install_hint": "Copy the published site into deploy_root, then include airesearch.nginx.conf inside the existing niu-secretary nginx server block and reload nginx."
+}

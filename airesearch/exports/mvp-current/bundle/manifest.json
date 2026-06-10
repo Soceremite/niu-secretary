@@ -1,0 +1,121 @@
+{
+  "artifact_count": 20,
+  "artifacts": [
+    {
+      "extra_counts": {},
+      "fact_count": 1553,
+      "json_path": "digest.json",
+      "markdown_path": "digest.md",
+      "name": "digest",
+      "paper_count": 202,
+      "title": "Research Digest"
+    },
+    {
+      "extra_counts": {
+        "chunk_count": 39214,
+        "citation_count": 25237,
+        "equation_count": 22063
+      },
+      "fact_count": 0,
+      "json_path": "artifact-ledger.json",
+      "markdown_path": "artifact-ledger.md",
+      "name": "artifact-ledger",
+      "paper_count": 202,
+      "title": "Artifact Ledger"
+    },
+    {
+      "extra_counts": {
+        "item_count": 1553
+      },
+      "fact_count": 1553,
+      "json_path": "map.json",
+      "markdown_path": "map.md",
+      "name": "map",
+      "paper_count": 202,
+      "title": "Research Map"
+    },
+    {
+      "extra_counts": {
+        "citation_artifact_paper_count": 202,
+        "code_relation_count": 8,
+        "dataset_relation_count": 0,
+        "relation_count": 8
+      },
+      "fact_count": 1553,
+      "json_path": "relations.json",
+      "markdown_path": "relations.md",
+      "name": "relations",
+      "paper_count": 202,
+      "title": "Cross-Paper Relations"
+    },
+    {
+      "extra_counts": {
+        "missing_evidence_source_path_count": 20,
+        "papers_missing_fact_types": 165,
+        "papers_without_code_links": 118
+      },
+      "fact_count": 1553,
+      "json_path": "gap-analysis.json",
+      "markdown_path": "gap-analysis.md",
+      "name": "gap-analysis",
+      "paper_count": 202,
+      "title": "Gap Analysis"
+    },
+    {
+      "extra_counts": {
+        "extraction_target_count": 188
+      },
+      "fact_count": 1553,
+      "json_path": "synthesis.json",
+      "markdown_path": "synthesis.md",
+      "name": "synthesis",
+      "paper_count": 202,
+      "title": "Research Synthesis"
+    },
+    {
+      "extra_counts": {
+        "action_count": 5,
+        "finding_count": 10
+      },
+      "fact_count": 1553,
+      "json_path": "narrative.json",
+      "markdown_path": "narrative.md",
+      "name": "narrative",
+      "paper_count": 202,
+      "title": "Narrative Report"
+    },
+    {
+      "extra_counts": {
+        "cluster_count": 85,
+        "clustered_fact_count": 183,
+        "singleton_count": 1370
+      },
+      "fact_count": 1553,
+      "json_path": "clusters.json",
+      "markdown_path": "clusters.md",
+      "name": "clusters",
+      "paper_count": 202,
+      "title": "Research Clusters"
+    },
+    {
+      "extra_counts": {
+        "accepted_count": 0,
+        "accepted_fact_count": 0,
+        "accepted_paper_count": 0
+      },
+      "fact_count": 1553,
+      "json_path": "reviewed-clusters.json",
+      "markdown_path": "reviewed-clusters.md",
+      "name": "reviewed-clusters",
+      "paper_count": 202,
+      "title": "Reviewed Cluster Summary"
+    }
+  ],
+  "fact_count": 1553,
+  "generated_at": "2026-06-10T07:02:44+00:00",
+  "index_path": "index.md",
+  "manifest_path": "manifest.json",
+  "out_dir": "exports/mvp-current/bundle",
+  "paper_count": 202,
+  "report_count": 9
+}

@@ -1,0 +1,18 @@
+{
+  "accepted_count": 0,
+  "accepted_fact_count": 0,
+  "accepted_items": [],
+  "accepted_paper_count": 0,
+  "review_item_count": 85,
+  "source_fact_count": 1553,
+  "source_generated_at": "2026-06-10T07:02:38+00:00",
+  "source_mode": "token",
+  "source_paper_count": 202,
+  "source_semantic_threshold": null,
+  "status_counts": {
+    "accepted": 0,
+    "needs_revision": 0,
+    "pending": 85,
+    "rejected": 0
+  }
+}

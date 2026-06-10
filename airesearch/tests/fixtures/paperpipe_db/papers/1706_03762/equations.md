@@ -1,0 +1,3 @@
+# Equations
+
+Attention(Q, K, V) = softmax(QK^T / sqrt(d_k))V

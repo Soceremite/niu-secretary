@@ -4,7 +4,9 @@ from pathlib import Path
 from airesearch.candidates import CandidatePaper, score_candidate, upsert_candidate
 from airesearch.canonical_candidates import (
     canonical_key_for_candidate,
+    canonical_keys_for_existing_papers,
     export_approved_candidates,
+    export_candidate_review,
     export_canonical_candidates,
     list_approved_candidates,
     list_canonical_candidates,
@@ -284,3 +286,211 @@ def test_select_top_canonical_candidates_respects_min_score(tmp_path: Path):
 
     assert selected == 1
     assert [row["canonical_key"] for row in list_approved_candidates(db_path)] == ["arxiv:2601.00001"]
+
+
+def test_select_top_canonical_candidates_skips_existing_papers(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    init_db(db_path)
+    seed_profiles(db_path)
+    profile = load_profile(db_path, "world_models_physical_ai")
+    papers = [
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.00001",
+            title="Already Ingested World Model",
+            url="https://arxiv.org/abs/2601.00001",
+            organizations=["NVIDIA"],
+            published_date="2026-01-10",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.00002",
+            title="New World Model One",
+            url="https://arxiv.org/abs/2601.00002",
+            organizations=["NVIDIA"],
+            published_date="2026-01-09",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.00003",
+            title="New World Model Two",
+            url="https://arxiv.org/abs/2601.00003",
+            organizations=["NVIDIA"],
+            published_date="2026-01-08",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+    ]
+    for candidate in papers:
+        score, reasons = score_candidate(profile, candidate)
+        upsert_candidate(db_path, profile_name=profile.name, candidate=candidate, score=score, reasons=reasons)
+    now = "2026-06-10T00:00:00+00:00"
+    with connect(db_path) as conn:
+        conn.execute(
+            """
+            insert into papers (
+                paper_key, title, authors_json, year, venue, ids_json,
+                paper_dir, meta_json, created_at, updated_at
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "2601_00001",
+                "Already Ingested World Model",
+                "[]",
+                2026,
+                "",
+                json.dumps({"arxiv_id": "2601.00001"}),
+                str(tmp_path / "paper"),
+                json.dumps({"arxiv_id": "2601.00001"}),
+                now,
+                now,
+            ),
+        )
+        conn.execute(
+            """
+            insert into paper_sources (paper_key, source_type, source_value, created_at)
+            values (?, ?, ?, ?)
+            """,
+            ("2601_00001", "arxiv_id", "2601.00001", now),
+        )
+        conn.commit()
+    materialize_candidate_papers(db_path)
+
+    existing_keys = canonical_keys_for_existing_papers(db_path)
+    selected = select_top_canonical_candidates(db_path, limit=2)
+
+    assert "arxiv:2601.00001" in existing_keys
+    assert selected == 2
+    assert [row["canonical_key"] for row in list_approved_candidates(db_path)] == [
+        "arxiv:2601.00002",
+        "arxiv:2601.00003",
+    ]
+
+
+def test_export_candidate_review_explains_selection_outcomes(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    json_path = tmp_path / "candidate-review.json"
+    markdown_path = tmp_path / "candidate-review.md"
+    init_db(db_path)
+    seed_profiles(db_path)
+    profile = load_profile(db_path, "world_models_physical_ai")
+    candidates = [
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.10001",
+            title="Already Ingested Candidate",
+            url="https://arxiv.org/abs/2601.10001",
+            published_date="2026-01-10",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.10002",
+            title="Selected New Candidate",
+            url="https://arxiv.org/abs/2601.10002",
+            published_date="2026-01-09",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.10003",
+            title="Top Limit Overflow Candidate",
+            url="https://arxiv.org/abs/2601.10003",
+            published_date="2026-01-08",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.10004",
+            title="Manually Rejected Candidate",
+            url="https://arxiv.org/abs/2601.10004",
+            published_date="2026-01-07",
+            year=2026,
+            abstract="world foundation model physical AI",
+        ),
+        CandidatePaper(
+            source="arxiv",
+            source_id="2601.10005",
+            title="Low Score Candidate",
+            url="https://arxiv.org/abs/2601.10005",
+            published_date="2026-01-06",
+            year=2026,
+            abstract="world model",
+        ),
+    ]
+    for candidate in candidates:
+        score, reasons = score_candidate(profile, candidate)
+        upsert_candidate(db_path, profile_name=profile.name, candidate=candidate, score=score, reasons=reasons)
+    materialize_candidate_papers(db_path)
+    now = "2026-06-10T00:00:00+00:00"
+    with connect(db_path) as conn:
+        conn.execute(
+            """
+            insert into papers (
+                paper_key, title, authors_json, year, venue, ids_json,
+                paper_dir, meta_json, created_at, updated_at
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "2601_10001",
+                "Already Ingested Candidate",
+                "[]",
+                2026,
+                "",
+                json.dumps({"arxiv_id": "2601.10001"}),
+                str(tmp_path / "paper"),
+                json.dumps({"arxiv_id": "2601.10001"}),
+                now,
+                now,
+            ),
+        )
+        conn.execute(
+            "update candidate_papers set best_score = 0.99 where canonical_key = 'arxiv:2601.10001'"
+        )
+        conn.execute(
+            "update candidate_papers set best_score = 0.98 where canonical_key = 'arxiv:2601.10002'"
+        )
+        conn.execute(
+            "update candidate_papers set best_score = 0.97 where canonical_key = 'arxiv:2601.10003'"
+        )
+        conn.execute(
+            "update candidate_papers set best_score = 0.96, status = 'rejected' where canonical_key = 'arxiv:2601.10004'"
+        )
+        conn.execute(
+            "update candidate_papers set best_score = 0.20 where canonical_key = 'arxiv:2601.10005'"
+        )
+        conn.commit()
+
+    selected = select_top_canonical_candidates(db_path, limit=1, min_score=0.6)
+    result = export_candidate_review(
+        db_path,
+        json_path,
+        markdown_path=markdown_path,
+        min_score=0.6,
+        limit=1,
+    )
+
+    assert selected == 1
+    assert result.total_count == 5
+    assert result.selected_count == 1
+    assert result.already_in_database_count == 1
+    assert result.manually_rejected_count == 1
+    assert result.below_min_score_count == 1
+    assert result.not_in_top_limit_count == 1
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    reasons = {item["canonical_key"]: item["review_reason"] for item in payload["items"]}
+    assert reasons == {
+        "arxiv:2601.10001": "already_in_database",
+        "arxiv:2601.10002": "selected",
+        "arxiv:2601.10003": "not_in_top_limit",
+        "arxiv:2601.10004": "manually_rejected",
+        "arxiv:2601.10005": "below_min_score",
+    }
+    assert "already_in_database: 1" in markdown_path.read_text(encoding="utf-8")

@@ -46,7 +46,6 @@ def text_blob(candidate: CandidatePaper) -> str:
         candidate.title,
         candidate.abstract,
         candidate.venue,
-        candidate.source,
         " ".join(candidate.authors),
         " ".join(candidate.organizations),
         " ".join(candidate.artifact_links),
@@ -125,6 +124,35 @@ def artifact_score(candidate: CandidatePaper, blob: str, reasons: list[str]) -> 
     return 0.0
 
 
+def source_quality_score(candidate: CandidatePaper, blob: str, reasons: list[str]) -> float:
+    source = candidate.source.lower()
+    url = candidate.url.lower()
+    source_id = candidate.source_id.lower()
+    has_arxiv = "arxiv.org" in url or source == "arxiv" or bool(source_id and source == "arxiv")
+    has_doi = "doi.org/" in url or source_id.startswith("10.")
+    has_proceedings = any(term in url for term in ["openreview.net", "proceedings.", "thecvf.com"])
+    if source == "arxiv" and has_arxiv:
+        reasons.append("source:arxiv_direct")
+        return 0.95
+    if source == "semantic_scholar" and has_arxiv:
+        reasons.append("source:semantic_scholar_arxiv")
+        return 0.8
+    if source == "openalex" and (has_arxiv or has_doi or has_proceedings):
+        reasons.append("source:openalex_resolvable")
+        return 0.75
+    if source == "google_scholar" and (has_arxiv or has_doi or has_proceedings):
+        reasons.append("source:google_scholar_resolvable")
+        return 0.55
+    if source == "google_scholar":
+        reasons.append("source:google_scholar_unverified")
+        return 0.25
+    if candidate.url:
+        reasons.append("source:url_present")
+        return 0.35
+    reasons.append("source:weak_identifier")
+    return 0.1
+
+
 def is_candidate_allowed(profile: ResearchProfile, candidate: CandidatePaper) -> bool:
     published = parse_date(candidate.published_date, candidate.year)
     if published is None:
@@ -154,11 +182,12 @@ def score_candidate(profile: ResearchProfile, candidate: CandidatePaper) -> tupl
         reasons.append("filtered:outside_recency_policy")
         return 0.0, reasons
     score = (
-        recency_score(profile, candidate, reasons) * 0.35
-        + backing_score(profile, candidate, blob, reasons) * 0.25
-        + venue_score(profile, candidate, blob, reasons) * 0.20
+        recency_score(profile, candidate, reasons) * 0.32
+        + backing_score(profile, candidate, blob, reasons) * 0.23
+        + venue_score(profile, candidate, blob, reasons) * 0.18
         + topic_score(profile, blob, reasons) * 0.15
         + artifact_score(candidate, blob, reasons) * 0.05
+        + source_quality_score(candidate, blob, reasons) * 0.07
     )
     return round(score, 4), reasons
 

@@ -1,0 +1,130 @@
+{
+  "accept_candidate_count": 0,
+  "cluster_count": 3,
+  "fact_count": 79,
+  "generated_at": "2026-06-09T12:06:14+00:00",
+  "items": [
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "method:effector-end-future-seetraceact",
+      "fact_count": 2,
+      "fact_type": "method",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/summary.md",
+          "fact_name": "",
+          "paper_key": "seetraceact",
+          "paper_title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+          "statement": "SeeTraceAct is a demo-conditioned Vision-Language-Action (VLA) framework that uses visibility-aware prediction of future end-effector traces to encourage precise spatial grounding.",
+          "year": 2026
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/seetraceact/source.tex",
+          "fact_name": "",
+          "paper_key": "seetraceact",
+          "paper_title": "SeeTraceAct: Visibility-Aware Latent Planning from Cross-Embodiment Demonstration Videos",
+          "statement": "SeeTraceAct learns a visual latent plan from a demonstration video to summarize task-relevant motion, which is decoded into future end-effector traces during training.",
+          "year": 2026
+        }
+      ],
+      "label": "Effector End Future Seetraceact",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "effector",
+        "end",
+        "future",
+        "seetraceact",
+        "traces"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "benchmark:2014-english-evaluate-task",
+      "fact_count": 2,
+      "fact_type": "benchmark",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The WMT 2014 English-to-French translation task was used to evaluate the model.",
+          "year": 2017
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The WMT 2014 English-to-German translation task was used to evaluate the model.",
+          "year": 2017
+        }
+      ],
+      "label": "2014 English Evaluate Task",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "2014",
+        "english",
+        "evaluate",
+        "task",
+        "translation"
+      ]
+    },
+    {
+      "average_confidence": 1.0,
+      "cluster_id": "claim:2014-bleu-english-task",
+      "fact_count": 2,
+      "fact_type": "claim",
+      "facts": [
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer establishes a new single-model state-of-the-art BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs.",
+          "year": 2017
+        },
+        {
+          "confidence": 1.0,
+          "evidence_source_path": "/home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/data/paperpipe/papers/1706_03762/source.tex",
+          "fact_name": "",
+          "paper_key": "1706_03762",
+          "paper_title": "Attention Is All You Need",
+          "statement": "The Transformer model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU.",
+          "year": 2017
+        }
+      ],
+      "label": "2014 Bleu English Task",
+      "paper_count": 1,
+      "rationale": "Needs review because support is narrow or confidence is below the accept threshold: 2 facts across 1 papers with average confidence 1.00.",
+      "recommended_status": "needs_review",
+      "review_notes": "",
+      "review_status": "pending",
+      "token_signature": [
+        "2014",
+        "bleu",
+        "english",
+        "task",
+        "transformer"
+      ]
+    }
+  ],
+  "mode": "semantic",
+  "needs_review_count": 3,
+  "paper_count": 11,
+  "review_item_count": 3,
+  "semantic_threshold": 0.82
+}

@@ -186,6 +186,22 @@ def test_google_scholar_provider_parses_serpapi_result(tmp_path: Path):
     assert "api_key=serp-key" in opener.requests[0].full_url
 
 
+def test_google_scholar_provider_caps_serpapi_num_at_50(tmp_path: Path):
+    db_path = tmp_path / "db.sqlite3"
+    init_db(db_path)
+    opener = RecordingOpener(google_scholar_payload())
+
+    GoogleScholarProvider(
+        db_path=db_path,
+        api_key="serp-key",
+        opener=opener,
+        monthly_limit=10,
+        cache_ttl_days=30,
+    ).search("diffusion_models", 100)
+
+    assert "num=50" in opener.requests[0].full_url
+
+
 def test_google_scholar_cache_hit_does_not_call_opener(tmp_path: Path):
     db_path = tmp_path / "db.sqlite3"
     init_db(db_path)
