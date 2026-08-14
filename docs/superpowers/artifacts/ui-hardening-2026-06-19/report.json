@@ -1,0 +1,1669 @@
+{
+  "ok": true,
+  "capturedAt": "2026-06-19T07:58:47.128Z",
+  "webBase": "http://127.0.0.1:4186/niu-secretary/",
+  "apiBase": "http://127.0.0.1:5215/niu-secretary/api",
+  "dbPath": "/tmp/niu-secretary-ui-baseline-Kw6MMz/baseline.sqlite3",
+  "results": [
+    {
+      "route": "/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-home.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3643,
+      "visibleTextChars": 1324,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-fitness.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2006,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/schedule/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-schedule.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/schedule/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1862,
+      "visibleTextChars": 449,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/leisure/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-leisure.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/leisure/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2762,
+      "visibleTextChars": 2093,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-news.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2375,
+      "visibleTextChars": 2152,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-airesearch.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1845,
+      "visibleTextChars": 1842,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-overview.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1204,
+      "visibleTextChars": 551,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/fitness/nutrition",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-fitness-nutrition.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/fitness/nutrition",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 361,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/schedule/events",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-schedule-events.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/schedule/events",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 340,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/schedule/todos",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-schedule-todos.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/schedule/todos",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 353,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/leisure/items",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-leisure-items.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/leisure/items",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 367,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/news/recommendations",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-news-recommendations.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/news/recommendations",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 1503,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国务院正式印发《实施就业优先战略\"十五五\"规划》，明确\"十五五\"时期促进高质量充分就业的思路目标和政策举措，部署强化宏观调控就业优先导向等9方面重点任务。",
+          "clientWidth": 492,
+          "scrollWidth": 1067
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国铁集团宣布7月1日零时起全国铁路实行新运行图，增开106列旅客列车。西武高铁西安东至十堰东段开通，乌鲁木齐至北京西间首次开行动车组列车。",
+          "clientWidth": 492,
+          "scrollWidth": 965
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026陆家嘴论坛于6月17日在上海开幕，央行创设境外央行回购工具、优化短端利率调控机制；证监会扩大第五套标准适用范围至AI领域，推出主动ETF等多项重磅举措。",
+          "clientWidth": 492,
+          "scrollWidth": 1078
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国内成品油价格迎来连续第二次下调，加满一箱92号汽油将少花近19元。受美伊达成协议、国际能源署下调需求预期等因素影响，国际油价持续走低。",
+          "clientWidth": 492,
+          "scrollWidth": 956
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "外交部长王毅应约同伊朗外长阿拉格齐通电话，表示中方对伊美达成第一阶段谅解备忘录表示欢迎，支持伊朗同地区国家改善关系，共同构建地区安全架构。",
+          "clientWidth": 492,
+          "scrollWidth": 990
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "AI算力浪潮席卷全球，苏州光通信产业链迎来前所未有的景气周期。光纤产品供不应求，头部企业产能已排至2027年，高速光通信芯片陆续进入量产交付阶段。",
+          "clientWidth": 492,
+          "scrollWidth": 1011
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "美伊正式签署谅解备忘录：霍尔木兹海峡恢复通航，3000亿美元重建方案出炉",
+          "clientWidth": 492,
+          "scrollWidth": 508
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "美国与伊朗正式签署《伊斯兰堡谅解备忘录》，包含14项条款，立即开放霍尔木兹海峡、伊朗承诺不发展核武器、美方30天内解除海上封锁，并推出不少于3000亿美元的伊朗经济重建方案。",
+          "clientWidth": 492,
+          "scrollWidth": 1201
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "美联储6月FOMC会议维持利率3.50%-3.75%不变，但点阵图大幅转鹰：9名官员预期加息，2026年底利率中位数升至3.8%。新任主席沃什强调稳定物价为首要目标。",
+          "clientWidth": 492,
+          "scrollWidth": 1060
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026年美加墨世界杯于6月11日开幕，首次扩军至48强。英格兰4-2战胜克罗地亚取得开门红，16家全球赞助商中中国企业占4席，赛事将持续至7月11日。",
+          "clientWidth": 492,
+          "scrollWidth": 992
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国务院正式印发《实施就业优先战略\"十五五\"规划》，明确\"十五五\"时期促进高质量充分就业的思路目标和政策举措，部署强化宏观调控就业优先导向等9方面重点任务。",
+          "right": 1850,
+          "width": 1043
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国铁集团宣布7月1日零时起全国铁路实行新运行图，增开106列旅客列车。西武高铁西安东至十堰东段开通，乌鲁木齐至北京西间首次开行动车组列车。",
+          "right": 1748,
+          "width": 941
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "2026陆家嘴论坛于6月17日在上海开幕，央行创设境外央行回购工具、优化短端利率调控机制；证监会扩大第五套标准适用范围至AI领域，推出主动ETF等多项重磅举措。",
+          "right": 1861,
+          "width": 1054
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国内成品油价格迎来连续第二次下调，加满一箱92号汽油将少花近19元。受美伊达成协议、国际能源署下调需求预期等因素影响，国际油价持续走低。",
+          "right": 1739,
+          "width": 932
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "外交部长王毅应约同伊朗外长阿拉格齐通电话，表示中方对伊美达成第一阶段谅解备忘录表示欢迎，支持伊朗同地区国家改善关系，共同构建地区安全架构。",
+          "right": 1773,
+          "width": 966
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "AI算力浪潮席卷全球，苏州光通信产业链迎来前所未有的景气周期。光纤产品供不应求，头部企业产能已排至2027年，高速光通信芯片陆续进入量产交付阶段。",
+          "right": 1794,
+          "width": 987
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "美国与伊朗正式签署《伊斯兰堡谅解备忘录》，包含14项条款，立即开放霍尔木兹海峡、伊朗承诺不发展核武器、美方30天内解除海上封锁，并推出不少于3000亿美元的伊朗经济重建方案。",
+          "right": 1984,
+          "width": 1177
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "美联储6月FOMC会议维持利率3.50%-3.75%不变，但点阵图大幅转鹰：9名官员预期加息，2026年底利率中位数升至3.8%。新任主席沃什强调稳定物价为首要目标。",
+          "right": 1843,
+          "width": 1036
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "2026年美加墨世界杯于6月11日开幕，首次扩军至48强。英格兰4-2战胜克罗地亚取得开门红，16家全球赞助商中中国企业占4席，赛事将持续至7月11日。",
+          "right": 1775,
+          "width": 968
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "联合国发布《世界海洋评估》报告，警告全球海平面上升速度已从每年1.9毫米增至4.3毫米，加勒比地区约80%珊瑚礁已消失，每年5200万吨塑料垃圾进入海洋。",
+          "right": 1814,
+          "width": 1007
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-airesearch-overview.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1233,
+      "visibleTextChars": 578,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/papers",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-airesearch-papers.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/papers",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1278,
+      "visibleTextChars": 21136,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/discovery",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-airesearch-discovery.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/discovery",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1207,
+      "visibleTextChars": 852,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/profiles",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-airesearch-profiles.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/profiles",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1081,
+      "visibleTextChars": 1607,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "clientWidth": 1078,
+          "scrollWidth": 1150
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Diffusion models for multimodal generation, unified modeling, robotics, and policies.",
+          "clientWidth": 258,
+          "scrollWidth": 617
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Embodied AI, VLA models, robot foundation models, and generalist robot policies.",
+          "clientWidth": 258,
+          "scrollWidth": 598
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "multimodal_foundation_models",
+          "clientWidth": 208,
+          "scrollWidth": 244
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Recent multimodal foundation models, VLMs, MLLMs, and omni-modal systems.",
+          "clientWidth": 258,
+          "scrollWidth": 583
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "unified_multimodal_understanding_generation",
+          "clientWidth": 208,
+          "scrollWidth": 350
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Unified models that combine multimodal understanding and generation.",
+          "clientWidth": 258,
+          "scrollWidth": 532
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "World models, physical AI, video world models, and interactive simulators for agents.",
+          "clientWidth": 258,
+          "scrollWidth": 622
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 1471,
+          "width": 180
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "DIV",
+          "className": "el-scrollbar__view",
+          "text": "diffusion_modelsDiffusion models for multimodal generation, unified modeling, robotics, and policies.diffusion modeldisc",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "TABLE",
+          "className": "el-table__body",
+          "text": "diffusion_modelsDiffusion models for multimodal generation, unified modeling, robotics, and policies.diffusion modeldisc",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 1471,
+          "width": 1150
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 1471,
+          "width": 180
+        },
+        {
+          "tag": "TBODY",
+          "className": "",
+          "text": "diffusion_modelsDiffusion models for multimodal generation, unified modeling, robotics, and policies.diffusion modeldisc",
+          "right": 1471,
+          "width": 1150
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/jobs",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/desktop-admin-airesearch-jobs.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/jobs",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1081,
+      "visibleTextChars": 758,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "deploying to nginx root",
+          "clientWidth": 169,
+          "scrollWidth": 187
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T11:50:25+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 229
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "[Errno 2] No such file or directory: 'papi'",
+          "clientWidth": 235,
+          "scrollWidth": 304
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "export-candidate-review",
+          "clientWidth": 169,
+          "scrollWidth": 195
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T08:32:43+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 229
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "interrupted by admin service restart",
+          "clientWidth": 235,
+          "scrollWidth": 279
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T08:03:49+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 229
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "interrupted by admin service restart",
+          "clientWidth": 235,
+          "scrollWidth": 279
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T08:00:00+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 229
+        }
+      ],
+      "rightOverflow": []
+    },
+    {
+      "route": "/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-home.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 6473,
+      "visibleTextChars": 1329,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-fitness.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3850,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/schedule/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-schedule.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/schedule/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2881,
+      "visibleTextChars": 449,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/leisure/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-leisure.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/leisure/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 5952,
+      "visibleTextChars": 2093,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-news.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 5211,
+      "visibleTextChars": 2152,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-airesearch.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 4687,
+      "visibleTextChars": 1842,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-overview.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2125,
+      "visibleTextChars": 551,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "research queue: 基线 多模态检索评估",
+          "clientWidth": 114,
+          "scrollWidth": 237
+        }
+      ],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/fitness/nutrition",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-fitness-nutrition.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/fitness/nutrition",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1913,
+      "visibleTextChars": 361,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "食物日期热量蛋白来源操作",
+          "clientWidth": 348,
+          "scrollWidth": 810
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "基线 牛肉面",
+          "clientWidth": 78,
+          "scrollWidth": 88
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "食物日期热量蛋白来源操作",
+          "right": 831,
+          "width": 810
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 831,
+          "width": 810
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 421,
+          "width": 100
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 551,
+          "width": 130
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 831,
+          "width": 280
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "食物日期热量蛋白来源操作",
+          "right": 831,
+          "width": 810
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "食物日期热量蛋白来源操作",
+          "right": 831,
+          "width": 810
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_4 is-leaf el-table__cell",
+          "text": "蛋白",
+          "right": 421,
+          "width": 100
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "蛋白",
+          "right": 420,
+          "width": 99
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_5 is-leaf el-table__cell",
+          "text": "来源",
+          "right": 551,
+          "width": 130
+        }
+      ]
+    },
+    {
+      "route": "/admin/schedule/events",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-schedule-events.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/schedule/events",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1913,
+      "visibleTextChars": 340,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "标题日期时间备注操作",
+          "clientWidth": 348,
+          "scrollWidth": 660
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "基线 产品复盘",
+          "clientWidth": 78,
+          "scrollWidth": 100
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "标题日期时间备注操作",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 401,
+          "width": 80
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 681,
+          "width": 280
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "标题日期时间备注操作",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "标题日期时间备注操作",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_4 is-leaf el-table__cell",
+          "text": "备注",
+          "right": 401,
+          "width": 80
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "备注",
+          "right": 400,
+          "width": 79
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_5 is-leaf el-table__cell",
+          "text": "操作",
+          "right": 681,
+          "width": 280
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "操作",
+          "right": 680,
+          "width": 279
+        }
+      ]
+    },
+    {
+      "route": "/admin/schedule/todos",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-schedule-todos.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/schedule/todos",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1913,
+      "visibleTextChars": 353,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "标题日期优先级完成操作",
+          "clientWidth": 348,
+          "scrollWidth": 680
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "基线 检查 Vue UI 精修计划",
+          "clientWidth": 78,
+          "scrollWidth": 170
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "标题日期优先级完成操作",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 421,
+          "width": 90
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 701,
+          "width": 280
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "标题日期优先级完成操作",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "标题日期优先级完成操作",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_4 is-leaf el-table__cell",
+          "text": "完成",
+          "right": 421,
+          "width": 90
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "完成",
+          "right": 420,
+          "width": 89
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_5 is-leaf el-table__cell",
+          "text": "操作",
+          "right": 701,
+          "width": 280
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "操作",
+          "right": 700,
+          "width": 279
+        }
+      ]
+    },
+    {
+      "route": "/admin/leisure/items",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-leisure-items.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/leisure/items",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1913,
+      "visibleTextChars": 367,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "标题分类来源更新操作",
+          "clientWidth": 348,
+          "scrollWidth": 680
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "基线 电影收藏",
+          "clientWidth": 78,
+          "scrollWidth": 100
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-19T15:57:30+08:00",
+          "clientWidth": 78,
+          "scrollWidth": 200
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "标题分类来源更新操作",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 421,
+          "width": 80
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 701,
+          "width": 280
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "标题分类来源更新操作",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "标题分类来源更新操作",
+          "right": 701,
+          "width": 680
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_4 is-leaf el-table__cell",
+          "text": "更新",
+          "right": 421,
+          "width": 80
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "更新",
+          "right": 420,
+          "width": 79
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_5 is-leaf el-table__cell",
+          "text": "操作",
+          "right": 701,
+          "width": 280
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "操作",
+          "right": 700,
+          "width": 279
+        }
+      ]
+    },
+    {
+      "route": "/admin/news/recommendations",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-news-recommendations.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/news/recommendations",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1940,
+      "visibleTextChars": 1503,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国务院印发就业优先战略\"十五五\"规划，部署9方面重点任务",
+          "clientWidth": 107,
+          "scrollWidth": 343
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国务院正式印发《实施就业优先战略\"十五五\"规划》，明确\"十五五\"时期促进高质量充分就业的思路目标和政策举措，部署强化宏观调控就业优先导向等9方面重点任务。",
+          "clientWidth": 107,
+          "scrollWidth": 918
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "全国铁路7月1日起调图：西武高铁新段开通，乌鲁木齐首开进京动车",
+          "clientWidth": 107,
+          "scrollWidth": 387
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国铁集团宣布7月1日零时起全国铁路实行新运行图，增开106列旅客列车。西武高铁西安东至十堰东段开通，乌鲁木齐至北京西间首次开行动车组列车。",
+          "clientWidth": 107,
+          "scrollWidth": 830
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026陆家嘴论坛开幕：央行推境外回购工具，证监会扩大AI上市通道",
+          "clientWidth": 107,
+          "scrollWidth": 390
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026陆家嘴论坛于6月17日在上海开幕，央行创设境外央行回购工具、优化短端利率调控机制；证监会扩大第五套标准适用范围至AI领域，推出主动ETF等多项重磅举措。",
+          "clientWidth": 107,
+          "scrollWidth": 927
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "成品油价迎两连降：加满一箱少花近19元，国际油价持续回落",
+          "clientWidth": 107,
+          "scrollWidth": 351
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "国内成品油价格迎来连续第二次下调，加满一箱92号汽油将少花近19元。受美伊达成协议、国际能源署下调需求预期等因素影响，国际油价持续走低。",
+          "clientWidth": 107,
+          "scrollWidth": 823
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "王毅同伊朗外长通话：中方欢迎美伊达成第一阶段谅解备忘录",
+          "clientWidth": 107,
+          "scrollWidth": 348
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "外交部长王毅应约同伊朗外长阿拉格齐通电话，表示中方对伊美达成第一阶段谅解备忘录表示欢迎，支持伊朗同地区国家改善关系，共同构建地区安全架构。",
+          "clientWidth": 107,
+          "scrollWidth": 852
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国务院正式印发《实施就业优先战略\"十五五\"规划》，明确\"十五五\"时期促进高质量充分就业的思路目标和政策举措，部署强化宏观调控就业优先导向等9方面重点任务。",
+          "right": 1036,
+          "width": 894
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "全国铁路7月1日起调图：西武高铁新段开通，乌鲁木齐首开进京动车",
+          "right": 396,
+          "width": 363
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国铁集团宣布7月1日零时起全国铁路实行新运行图，增开106列旅客列车。西武高铁西安东至十堰东段开通，乌鲁木齐至北京西间首次开行动车组列车。",
+          "right": 948,
+          "width": 806
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "2026陆家嘴论坛开幕：央行推境外回购工具，证监会扩大AI上市通道",
+          "right": 399,
+          "width": 366
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "2026陆家嘴论坛于6月17日在上海开幕，央行创设境外央行回购工具、优化短端利率调控机制；证监会扩大第五套标准适用范围至AI领域，推出主动ETF等多项重磅举措。",
+          "right": 1045,
+          "width": 903
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国内成品油价格迎来连续第二次下调，加满一箱92号汽油将少花近19元。受美伊达成协议、国际能源署下调需求预期等因素影响，国际油价持续走低。",
+          "right": 941,
+          "width": 799
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "外交部长王毅应约同伊朗外长阿拉格齐通电话，表示中方对伊美达成第一阶段谅解备忘录表示欢迎，支持伊朗同地区国家改善关系，共同构建地区安全架构。",
+          "right": 970,
+          "width": 828
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "国产光通信产业链\"爆单\"：光纤产能排至2027年，AI算力拉动景气上行",
+          "right": 410,
+          "width": 377
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "AI算力浪潮席卷全球，苏州光通信产业链迎来前所未有的景气周期。光纤产品供不应求，头部企业产能已排至2027年，高速光通信芯片陆续进入量产交付阶段。",
+          "right": 988,
+          "width": 846
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "美伊正式签署谅解备忘录：霍尔木兹海峡恢复通航，3000亿美元重建方案出炉",
+          "right": 448,
+          "width": 415
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-airesearch-overview.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2772,
+      "visibleTextChars": 578,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/papers",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-airesearch-papers.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/papers",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3184,
+      "visibleTextChars": 21136,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/discovery",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-airesearch-discovery.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/discovery",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3159,
+      "visibleTextChars": 852,
+      "clippedText": [
+        {
+          "tag": "ARTICLE",
+          "className": "airesearch-admin-panel airesearch-ingest-panel",
+          "text": "Search Ingest搜索入库从 provider 拉取候选论文，按搜索方向打分筛选，并可选择自动重建部署。选择搜索范围方向和数据源会合并为一个后台任务。搜索方向diffusion_modelsembodied_ai_vla_robot",
+          "clientWidth": 348,
+          "scrollWidth": 395
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "DIV",
+          "className": "el-checkbox-group airesearch-choice-group",
+          "text": "diffusion_modelsembodied_ai_vla_roboticsmultimodal_foundation_modelsunified_multimodal_understanding_generationworld_mod",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-checkbox-button is-checked",
+          "text": "diffusion_models",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "SPAN",
+          "className": "el-checkbox-button__inner",
+          "text": "diffusion_models",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-checkbox-button is-checked",
+          "text": "embodied_ai_vla_robotics",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "SPAN",
+          "className": "el-checkbox-button__inner",
+          "text": "embodied_ai_vla_robotics",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-checkbox-button is-checked",
+          "text": "multimodal_foundation_models",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "SPAN",
+          "className": "el-checkbox-button__inner",
+          "text": "multimodal_foundation_models",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-checkbox-button",
+          "text": "unified_multimodal_understanding_generation",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "SPAN",
+          "className": "el-checkbox-button__inner",
+          "text": "unified_multimodal_understanding_generation",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-checkbox-button",
+          "text": "world_models_physical_ai",
+          "right": 416,
+          "width": 358
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/profiles",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-airesearch-profiles.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/profiles",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1975,
+      "visibleTextChars": 1607,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "clientWidth": 308,
+          "scrollWidth": 1150
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Diffusion models for multimodal generation, unified modeling, robotics, and policies.",
+          "clientWidth": 258,
+          "scrollWidth": 533
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Embodied AI, VLA models, robot foundation models, and generalist robot policies.",
+          "clientWidth": 258,
+          "scrollWidth": 516
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "multimodal_foundation_models",
+          "clientWidth": 208,
+          "scrollWidth": 212
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Recent multimodal foundation models, VLMs, MLLMs, and omni-modal systems.",
+          "clientWidth": 258,
+          "scrollWidth": 503
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "unified_multimodal_understanding_generation",
+          "clientWidth": 208,
+          "scrollWidth": 304
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "Unified models that combine multimodal understanding and generation.",
+          "clientWidth": 258,
+          "scrollWidth": 459
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "World models, physical AI, video world models, and interactive simulators for agents.",
+          "clientWidth": 258,
+          "scrollWidth": 537
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "right": 1191,
+          "width": 1150
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 1191,
+          "width": 1150
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 511,
+          "width": 260
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 771,
+          "width": 260
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 891,
+          "width": 120
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 1011,
+          "width": 120
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 1191,
+          "width": 180
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "right": 1191,
+          "width": 1150
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "方向 Key描述关键词主搜索例外搜索操作",
+          "right": 1191,
+          "width": 1150
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_2 is-leaf el-table__cell",
+          "text": "描述",
+          "right": 511,
+          "width": 260
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/jobs",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/mobile-admin-airesearch-jobs.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/jobs",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1916,
+      "visibleTextChars": 758,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "ID任务类型状态消息当前步骤创建时间操作",
+          "clientWidth": 308,
+          "scrollWidth": 1050
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "deploying to nginx root",
+          "clientWidth": 158,
+          "scrollWidth": 164
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T11:50:25+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 200
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "[Errno 2] No such file or directory: 'papi'",
+          "clientWidth": 218,
+          "scrollWidth": 264
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "export-candidate-review",
+          "clientWidth": 158,
+          "scrollWidth": 171
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T08:32:43+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 200
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "interrupted by admin service restart",
+          "clientWidth": 218,
+          "scrollWidth": 242
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T08:03:49+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 200
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "interrupted by admin service restart",
+          "clientWidth": 218,
+          "scrollWidth": 242
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "2026-06-11T08:00:00+00:00",
+          "clientWidth": 188,
+          "scrollWidth": 200
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "DIV",
+          "className": "",
+          "text": "Admin Jobs任务中心查看研知库任务队列，排队任务可直接取消。",
+          "right": 440,
+          "width": 399
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "Admin Jobs",
+          "right": 440,
+          "width": 399
+        },
+        {
+          "tag": "H2",
+          "className": "",
+          "text": "任务中心",
+          "right": 440,
+          "width": 399
+        },
+        {
+          "tag": "P",
+          "className": "",
+          "text": "查看研知库任务队列，排队任务可直接取消。",
+          "right": 440,
+          "width": 399
+        },
+        {
+          "tag": "DIV",
+          "className": "el-segmented",
+          "text": "全部排队 0运行中 0完成 1失败 3已取消 0",
+          "right": 440,
+          "width": 399
+        },
+        {
+          "tag": "DIV",
+          "className": "el-segmented__group el-segmented--horizontal",
+          "text": "全部排队 0运行中 0完成 1失败 3已取消 0",
+          "right": 438,
+          "width": 395
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-segmented__item",
+          "text": "已取消 0",
+          "right": 438,
+          "width": 77
+        },
+        {
+          "tag": "DIV",
+          "className": "el-segmented__item-label",
+          "text": "已取消 0",
+          "right": 427,
+          "width": 55
+        },
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "ID任务类型状态消息当前步骤创建时间操作",
+          "right": 1091,
+          "width": 1050
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 1091,
+          "width": 1050
+        }
+      ]
+    }
+  ]
+}

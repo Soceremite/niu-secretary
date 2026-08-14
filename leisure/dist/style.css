@@ -189,6 +189,26 @@ h3 { font-size: clamp(18px, 3vw, 22px); font-weight: 600; }
 
 .featured-choice { display: flex; gap: 18px; align-items: flex-start; flex: 1; }
 .feature-copy { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.feature-empty {
+  width: 100%;
+  min-height: 220px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 22px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .42);
+  color: var(--muted);
+}
+.feature-empty strong {
+  color: var(--navy);
+  font-size: 18px;
+}
+.feature-empty span {
+  font-size: 14px;
+  line-height: 1.7;
+}
 
 .poster {
   flex: 0 0 280px; width: 280px; height: 380px; border-radius: 16px;
@@ -367,6 +387,45 @@ h3 { font-size: clamp(18px, 3vw, 22px); font-weight: 600; }
   box-shadow: 0 6px 16px rgba(45, 42, 37, .12);
 }
 
+/* ====== Profile review ====== */
+.profile-review-panel { margin-top: 18px; }
+.profile-review-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.profile-review-head h2 { margin: 0; }
+.profile-review-head span {
+  min-width: 30px; min-height: 30px; padding: 0 9px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--navy); color: #fffaf0; font-size: 12px; font-weight: 900;
+}
+.profile-suggestion-list {
+  display: grid; gap: 8px; margin-top: 14px;
+}
+.suggestion-item {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px; align-items: center;
+  padding: 12px; border: 1px solid var(--line-soft); border-radius: 12px;
+  background: rgba(247, 242, 233, .64);
+}
+.suggestion-item b {
+  display: block; color: var(--ink); font-size: 14px; line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.suggestion-item small {
+  display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.suggestion-item button {
+  min-width: 62px; min-height: 34px; padding: 0 12px;
+  border: 1px solid var(--blue); border-radius: 999px;
+  background: var(--blue); color: #fffaf0; font-size: 13px; font-weight: 800;
+}
+.suggestion-item button:disabled { opacity: .68; cursor: progress; }
+.suggestion-empty {
+  margin: 0; padding: 12px; border-radius: 12px;
+  background: rgba(247, 242, 233, .64); color: var(--muted); font-size: 13px;
+}
+
 /* ====== 子页面区标题 ====== */
 .section-header {
   padding: 38px 0 0;
@@ -394,13 +453,21 @@ h3 { font-size: clamp(18px, 3vw, 22px); font-weight: 600; }
 .detail-sheet h3 { font-size: 22px; font-weight: 900; margin: 0 0 8px; color: var(--ink); }
 .detail-sheet .sub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
 .detail-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-.detail-actions a {
+.detail-actions a,
+.detail-feedback {
   display: inline-flex; align-items: center; gap: 4px;
   min-height: 38px; padding: 0 16px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--page);
   color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 700;
+  cursor: pointer;
 }
 .detail-actions a.primary-link { background: var(--blue); border-color: var(--blue); color: #fffaf0; }
+.detail-feedback.danger { color: #8b3f33; border-color: rgba(139,63,51,.25); }
+.detail-feedback:disabled { opacity: .55; cursor: default; }
+.detail-feedback-status {
+  display: inline-flex; align-items: center; min-height: 38px;
+  color: var(--muted); font-size: 12px; font-weight: 700;
+}
 .detail-close {
   position: sticky; top: 0; float: right; z-index: 2;
   width: 36px; height: 36px; border-radius: 50%;
@@ -467,6 +534,8 @@ h3 { font-size: clamp(18px, 3vw, 22px); font-weight: 600; }
   .category-card { padding: 12px; gap: 12px; }
   .category-card .candidate-icon { width: 40px; height: 40px; font-size: 20px; }
   .candidate-content b { font-size: 16px; }
+  .suggestion-item { grid-template-columns: 1fr; }
+  .suggestion-item button { justify-self: start; }
   .detail-sheet { border-radius: 20px 20px 0 0; max-height: 85vh; }
   .detail-grid { grid-template-columns: 1fr; }
   .nav-menu { justify-content: center; }

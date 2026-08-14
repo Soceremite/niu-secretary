@@ -39,6 +39,47 @@ def test_connect_returns_row_mapping(tmp_path: Path):
 
     assert row["count"] == 0
 
+
+def test_knowledge_graph_edges_index_foreign_key_targets(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    init_db(db_path)
+
+    with connect(db_path) as conn:
+        indexes = {
+            row["name"]
+            for row in conn.execute("pragma index_list(kg_edges)").fetchall()
+        }
+
+    assert "idx_kg_edges_target_key" in indexes
+
+
+def test_init_db_creates_paper_archive_state(tmp_path: Path):
+    db_path = tmp_path / "airesearch.sqlite3"
+    init_db(db_path)
+
+    with connect(db_path) as conn:
+        columns = {
+            row["name"]
+            for row in conn.execute("pragma table_info(paper_archives)")
+        }
+
+    assert {
+        "paper_key",
+        "provider",
+        "remote_name",
+        "remote_path",
+        "archive_sha256",
+        "archive_size_bytes",
+        "source_manifest_json",
+        "status",
+        "verified_at",
+        "evicted_at",
+        "restored_at",
+        "last_error",
+        "pinned",
+        "updated_at",
+    } == columns
+
 def test_init_db_creates_fact_extraction_cache(tmp_path: Path):
     db_path = tmp_path / "airesearch.sqlite3"
     init_db(db_path)
@@ -63,4 +104,3 @@ def test_init_db_creates_fact_extraction_cache(tmp_path: Path):
         "created_at",
         "updated_at",
     }.issubset(columns)
-

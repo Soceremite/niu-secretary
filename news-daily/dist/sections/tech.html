@@ -1,90 +1,139 @@
-<div class="section tech" id="section-tech">
-  <div class="section-title">科技动态</div>
-  <div class="news-grid">
-
-    <a class="card-link" onclick="openDetail('t-1'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-blue">芯片</span>
-        <div class="emoji-icon">💾</div>
-        <h3>黄仁勋：存储芯片供应紧张将持续数年 英伟达与SK海力士签署多年合作协议</h3>
-        <p class="card-summary">英伟达CEO黄仁勋最新表态称HBM等存储芯片供应紧张将持续数年，同时宣布与SK海力士联合研发下一代芯片。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('t-2'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-green">航天</span>
-        <div class="emoji-icon">🛰️</div>
-        <h3>全球卫星产业2027年产值预估4470亿美元 年增长率14%</h3>
-        <p class="card-summary">TrendForce预估全球卫星产业2027年产值达4470亿美元，SpaceX推动低轨卫星从通信服务迈向AI运算服务新阶段。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('t-3'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-orange">芯片</span>
-        <div class="emoji-icon">⚡</div>
-        <h3>"安纳智芯"完成数亿元融资 高精度模拟计算芯片赛道升温</h3>
-        <p class="card-summary">高精度现代模拟计算芯片公司"安纳智芯"完成新一轮数亿元融资，经纬创投领投，讯飞创投持续加码。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('t-4'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-purple">AI制药</span>
-        <div class="emoji-icon">🧬</div>
-        <h3>英国初创PhysicsX完成3亿美元融资 英伟达参投</h3>
-        <p class="card-summary">英国AI物理仿真公司PhysicsX获淡马锡领投3亿美元，估值24亿美元，英伟达和应用材料继续跟投，预计今年营收近5000万美元。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
+<a class="card-link" onclick="openDetail('tech-1'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-blue">芯片</span>
+    <div class="emoji-icon">🤖</div>
+    <h3>英伟达推出30B开源AI模型Nemotron 3.5 Lightning</h3>
+    <p class="card-summary">IT之家报道，英伟达发布300亿参数开源AI模型Nemotron 3.5 Lightning，主打高效推理。</p>
+    <div class="expand-hint">点击查看详情 →</div>
   </div>
-</div>
-
-<template class="detail-tpl" data-id="t-1">
-  <span class="detail-tag tag-blue">芯片 · 存储</span>
-  <h2>黄仁勋：存储芯片供应紧张将持续数年 英伟达与SK海力士签署多年合作协议</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 全球 &nbsp;|&nbsp; 📡 新浪财经 / 英伟达</div>
-<p>英伟达CEO黄仁勋近日在公开场合最新表态，HBM（高带宽存储）等关键存储芯片供应紧张的局面将持续数年。他指出，随着AI大模型训练和推理需求持续爆发，存储带宽已成为GPU性能释放的核心瓶颈之一，"存储墙"问题正在成为AI基础设施扩张的关键制约。</p>
-  <p>英伟达同步宣布与韩国SK海力士签署多年期合作协议，联合研发面向下一代AI芯片的先进存储解决方案。SK海力士目前是全球HBM市场的最大供应商，其HBM3E产品已大规模供应英伟达H200/B100等旗舰产品线。两家巨头从"供需关系"升级为"联合研发"，意味着AI存储技术路线图将进入更紧密的纵向整合阶段。</p>
-  <div class="highlight-box">💾 <strong>核心信息：</strong>存储供应紧张持续数年 · 英伟达+SK海力士多年合作 · 联合研发下一代芯片 · "存储墙"成AI算力瓶颈。</div>
-  <div class="detail-quote">黄仁勋：即便股市大跌也该乐观——算力的故事才刚翻开第一章。</div>
-  <a class="external-btn" href="https://finance.sina.com.cn/stock/usstock/c/2026-06-08/doc-iniaruxw9016133.shtml" target="_blank" rel="noopener">🔗 阅读原文</a>
+</a>
+<template id="detail-tech-1">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 IT之家</span>
+    <span class="tag tag-blue">芯片</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/tech-1.png" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>英伟达推出30B开源AI模型Nemotron 3.5 Lightning</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>产品</span><strong>英伟达发布300亿参数开源模型</strong></div>
+    <div class="keypoint-card"><span>特点</span><strong>主打高效推理和快速响应</strong></div>
+    <div class="keypoint-card"><span>策略</span><strong>以开源生态推动自家GPU需求</strong></div>
+    <div class="keypoint-card"><span>竞争</span><strong>与Meta Llama、谷歌Gemma直接竞争</strong></div>
+  </div>
+  <p>英伟达正式推出开源AI模型Nemotron 3.5 Lightning，参数量为300亿（30B），主打高效推理场景。这是英伟达在开源大模型领域的又一次重要布局。</p>
+  <p>通过开源高性能模型，英伟达意在培育更广阔的AI开发生态，间接拉动其数据中心GPU的长期需求，与Meta的Llama系列和谷歌的Gemma形成直接竞争。</p>
+  <a class="external-btn" href="https://www.ithome.com/0/988/609.htm" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="t-2">
-  <span class="detail-tag tag-green">航天 · 卫星产业</span>
-  <h2>全球卫星产业2027年产值预估4470亿美元 年增长率14%</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 全球 &nbsp;|&nbsp; 📡 TrendForce集邦咨询</div>
-<p>TrendForce集邦咨询发布最新报告预估，2027年全球卫星产业产值将达到4470亿美元，年增长率达14%。报告指出，SpaceX除持续扩大星链（Starlink）卫星宽带服务版图外，还积极布局手机直连卫星、AI太空运算和太空太阳能等新兴领域。</p>
-  <p>值得关注的是，SpaceX正通过扩建自有太空AI运算芯片厂Terafab，强化垂直整合能力，推动低轨卫星产业从通信服务向运算服务新阶段转型。随着卫星网络、AI基础设施与太空应用加速融合，全球太空经济正进入新一轮成长周期——卫星不再只是"天上中转站"，而是正在成为分布式AI计算的新载体。</p>
-  <div class="highlight-box">🛰️ <strong>关键数据：</strong>2027年4470亿美元 · 年增14% · SpaceX星链+直连手机+AI太空运算 · Terafab芯片厂扩建。</div>
-  <div class="detail-quote">卫星产业的下一个大故事不是"连上网"，而是"算起来"。</div>
-  <a class="external-btn" href="https://mp.weixin.qq.com/s/zGMV4aBJNOw7YGMoomHDmg" target="_blank" rel="noopener">🔗 阅读原文</a>
+<a class="card-link" onclick="openDetail('tech-2'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-blue">科技</span>
+    <div class="emoji-icon">🔬</div>
+    <h3>我国研发投入首超美国登全球第一，科技创新跑出"加速度"</h3>
+    <p class="card-summary">IT之家报道，最新统计数据显示中国研发经费投入首次超越美国，跃居全球第一。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-tech-2">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 IT之家</span>
+    <span class="tag tag-blue">科技</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/tech-2.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>我国研发投入首超美国登全球第一，科技创新跑出"加速度"</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>数据</span><strong>中国研发经费投入首次超越美国</strong></div>
+    <div class="keypoint-card"><span>领域</span><strong>基础研究、AI、量子计算等投入加大</strong></div>
+    <div class="keypoint-card"><span>趋势</span><strong>企业研发投入占比持续提升</strong></div>
+    <div class="keypoint-card"><span>影响</span><strong>标志着中国在全球创新格局中位势提升</strong></div>
+  </div>
+  <p>根据最新统计数据，中国研发经费投入总额首次超越美国，跃居全球第一。这一里程碑标志着中国在全球科技创新格局中的地位发生了质的飞跃。</p>
+  <p>从基础研究到人工智能、量子计算、生物医药等前沿领域，中国研发投入的持续高速增长正在转化为实实在在的创新成果，企业已成为研发投入的主力军。</p>
+  <a class="external-btn" href="https://www.ithome.com/0/988/577.htm" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="t-3">
-  <span class="detail-tag tag-orange">芯片 · 融资</span>
-  <h2>"安纳智芯"完成数亿元融资 高精度模拟计算芯片赛道升温</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 中国 &nbsp;|&nbsp; 📡 36氪</div>
-<p>36氪报道，高精度现代模拟计算芯片公司"安纳智芯"宣布完成新一轮数亿元融资，由经纬创投领投，峰瑞资本、阿尔法公社跟投，老股东讯飞创投、中赢创投持续加码。</p>
-  <p>模拟计算芯片（Analog Computing）是一种利用物理电学特性直接执行计算的架构，在处理连续信号和特定数学运算（如矩阵乘法）时具有天然的高能效比优势，被认为是AI低功耗推理和边缘计算的重要技术路线之一。安纳智芯的本轮融资完成，表明资本市场对"非冯·诺依曼"计算架构的关注度正在显著提升。</p>
-  <div class="highlight-box">⚡ <strong>融资看点：</strong>数亿元 · 经纬创投领投 · 模拟计算芯片路线 · 讯飞创投持续加码 · 面向AI低功耗推理场景。</div>
-  <div class="detail-quote">当数字芯片逼近物理极限，模拟计算正在为AI芯片打开另一扇门。</div>
-  <a class="external-btn" href="https://www.36kr.com/newsflashes/3844038515296517" target="_blank" rel="noopener">🔗 阅读原文</a>
+<a class="card-link" onclick="openDetail('tech-3'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-blue">芯片</span>
+    <div class="emoji-icon">💾</div>
+    <h3>消息称长鑫拒绝苹果压价，要求内存采购价不低于三星和SK海力士</h3>
+    <p class="card-summary">IT之家报道，中国存储芯片制造商长鑫存储拒绝了苹果的压价要求，显示出国产芯片的议价能力增强。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-tech-3">
+  <div class="detail-meta">
+    <span>📅 2026-08-11</span>
+    <span>📰 IT之家</span>
+    <span class="tag tag-blue">芯片</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/tech-3.png" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>消息称长鑫拒绝苹果压价，要求内存采购价不低于三星和SK海力士</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>事件</span><strong>长鑫存储拒绝苹果压价要求</strong></div>
+    <div class="keypoint-card"><span>诉求</span><strong>坚持采购价不低于韩国同行水平</strong></div>
+    <div class="keypoint-card"><span>意义</span><strong>国产DRAM芯片获得国际话语权</strong></div>
+    <div class="keypoint-card"><span>背景</span><strong>长鑫DRAM产品已进入全球供应链</strong></div>
+  </div>
+  <p>据消息人士透露，中国存储芯片龙头长鑫存储在与苹果的采购谈判中，拒绝了对方的压价要求，坚持DRAM采购价格不低于三星电子和SK海力士的同等水平。</p>
+  <p>这一细节折射出国产芯片企业在全球供应链中话语权的显著提升。长鑫存储的DRAM产品已成功打入苹果等国际大客户的供应链体系。</p>
+  <a class="external-btn" href="https://www.ithome.com/0/986/176.htm" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="t-4">
-  <span class="detail-tag tag-purple">AI · 工业仿真</span>
-  <h2>英国初创PhysicsX完成3亿美元融资 英伟达参投</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 英国 &nbsp;|&nbsp; 📡 新浪财经</div>
-<p>英国初创公司PhysicsX在新一轮融资中筹集了3亿美元，估值约24亿美元。新加坡淡马锡领投，英伟达和半导体设备巨头应用材料等早期投资者继续参与。该公司提供的AI模型可预测物理对象的行为，使航空航天和汽车企业在设计、测试和组装流程上更为高效。</p>
-  <p>公司表示，由于客户需求积压约六个月，急需扩充团队，预计今年营收将"接近5000万美元"。PhysicsX的快速崛起代表着一个重要趋势：AI正在从"数字世界"（语言、图像、代码）向"物理世界"（流体力学、材料应力、热力学）渗透，AI+CAE（计算机辅助工程）将深刻改变高端制造业的研发范式。</p>
-  <div class="highlight-box">🧬 <strong>融资快照：</strong>3亿美元 · 估值24亿 · 淡马锡领投 · 英伟达+应用材料跟投 · 预计年营收~5000万美元。</div>
-  <div class="detail-quote">AI的下一个前沿不在聊天框里，而在风洞、引擎和车间里。</div>
-  <a class="external-btn" href="https://wap.cj.sina.cn/pc/7x24/4923040" target="_blank" rel="noopener">🔗 阅读原文</a>
+<a class="card-link" onclick="openDetail('tech-4'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-teal">硬件</span>
+    <div class="emoji-icon">💻</div>
+    <h3>大普微展示512TB级超大容量固态硬盘</h3>
+    <p class="card-summary">IT之家报道，大普微展示采用EDSFF E2外形规格的512TB级超大容量企业级固态硬盘。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-tech-4">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 IT之家</span>
+    <span class="tag tag-teal">硬件</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/tech-4.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>大普微展示512TB级超大容量固态硬盘</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>产品</span><strong>512TB级超大容量企业级SSD</strong></div>
+    <div class="keypoint-card"><span>规格</span><strong>采用新一代EDSFF E2外形设计</strong></div>
+    <div class="keypoint-card"><span>场景</span><strong>面向AI数据中心和超大规模云存储</strong></div>
+    <div class="keypoint-card"><span>趋势</span><strong>存储密度不断提升，满足AI数据需求</strong></div>
+  </div>
+  <p>大普微（DapuStor）展示了业界领先的512TB级超大容量企业级固态硬盘，采用最新的EDSFF E2外形规格。这一容量密度较当前主流企业级SSD提升了数倍。</p>
+  <p>随着AI训练数据规模的爆发式增长，数据中心对高密度存储的需求日益迫切。512TB级SSD的出现有望大幅降低数据中心的存储空间和能耗成本。</p>
+  <a class="external-btn" href="https://www.ithome.com/0/988/624.htm" target="_blank" rel="noopener">阅读原文</a>
+</template>
+
+<a class="card-link" onclick="openDetail('tech-5'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-teal">硬件</span>
+    <div class="emoji-icon">📱</div>
+    <h3>华为nova16 SE手机今日开售：麒麟8020芯片、8500mAh电池</h3>
+    <p class="card-summary">IT之家报道，华为nova16 SE正式开售，搭载麒麟8020芯片和8500mAh超大容量电池，售价2499元起。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-tech-5">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 IT之家</span>
+    <span class="tag tag-teal">硬件</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/tech-5.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>华为nova16 SE手机今日开售：麒麟8020芯片、8500mAh电池</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>产品</span><strong>华为nova16 SE正式开售2499元起</strong></div>
+    <div class="keypoint-card"><span>配置</span><strong>麒麟8020芯片+8500mAh超大电池</strong></div>
+    <div class="keypoint-card"><span>定位</span><strong>中端市场长续航实力派</strong></div>
+    <div class="keypoint-card"><span>竞争</span><strong>对标REDMI和荣耀同价位机型</strong></div>
+  </div>
+  <p>华为nova16 SE手机今日正式开售，起售价2499元。新机搭载华为自研麒麟8020芯片，配备8500mAh超大容量电池，主打中端市场的超长续航体验。</p>
+  <p>在中端手机市场竞争白热化的背景下，华为以自研芯片和大电池为差异化卖点，与REDMI K系列、荣耀数字系列等展开正面竞争，进一步丰富麒麟芯片的产品覆盖。</p>
+  <a class="external-btn" href="https://www.ithome.com/0/988/576.htm" target="_blank" rel="noopener">阅读原文</a>
 </template>

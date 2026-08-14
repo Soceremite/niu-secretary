@@ -2,12 +2,39 @@
 // fitness/src/js/features/assessment.js
 import { addAssessmentLog, listAssessmentLogs, putProfile } from '../lib/db.js';
 import { calculateBmi, calculateBmr, calculateTdee, classifyAsianBmi } from '../lib/calculator.js';
+import { createUnifiedAssessmentLog, createUnifiedBodyMetric, fetchUnifiedAssessmentLogs, updateUnifiedFitnessProfile } from '../lib/actionApi.js';
 
 export async function initAssessment() {
   const form = document.getElementById('assessment-form');
   form.elements.date.value = new Date().toISOString().slice(0, 10);
+  setupAssessmentSections(form);
   form.addEventListener('submit', saveAssessment);
   await renderHistory();
+}
+
+function setupAssessmentSections(form) {
+  const buttons = Array.from(form.querySelectorAll('[data-assessment-section-target]'));
+  const sections = Array.from(form.querySelectorAll('[data-assessment-section]'));
+  if (!buttons.length || !sections.length) return;
+
+  const showSection = (name) => {
+    sections.forEach((section) => {
+      const active = section.dataset.assessmentSection === name;
+      section.hidden = !active;
+      section.classList.toggle('active', active);
+    });
+    buttons.forEach((button) => {
+      const active = button.dataset.assessmentSectionTarget === name;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+  };
+
+  buttons.forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.classList.contains('active')));
+    button.addEventListener('click', () => showSection(button.dataset.assessmentSectionTarget));
+  });
+  showSection(buttons.find((button) => button.classList.contains('active'))?.dataset.assessmentSectionTarget || buttons[0].dataset.assessmentSectionTarget);
 }
 
 async function saveAssessment(event) {
@@ -57,15 +84,45 @@ async function saveAssessment(event) {
     trainingLimits: makeTrainingLimits(fms, postures),
     advice: makeAdvice(bmi, fms, postures)
   };
-  await addAssessmentLog(log);
+  let synced = false;
+  let serverId = '';
+  try {
+    const assessment = await createUnifiedAssessmentLog(log);
+    await createUnifiedBodyMetric({
+      date: log.date,
+      weightKg: log.weightKg,
+      waistCm: log.waistCm,
+      note: `BMI ${log.bmi} · FMS ${log.fmsTotal}/21`
+    });
+    await updateUnifiedFitnessProfile({
+      ...profile,
+      targetCalories: log.tdee,
+      notes: `最近评估：BMI ${log.bmi}，FMS ${log.fmsTotal}/21`
+    });
+    serverId = assessment?.id || '';
+    synced = true;
+  } catch (error) {
+    console.warn('[fitness] unified assessment sync failed', error);
+  }
+  await addAssessmentLog({
+    ...log,
+    serverId,
+    source: synced ? 'unified-api' : 'fitness-page',
+    syncStatus: synced ? 'synced' : 'pending'
+  });
   await putProfile(profile);
   renderResult(log);
-  document.getElementById('assessment-toast').textContent = '评估已保存到本地';
+  document.getElementById('assessment-toast').textContent = synced ? '评估已同步到统一动作接口，并保留离线缓存' : '统一动作接口暂不可用，评估已保留在本地缓存';
   await renderHistory();
 }
 
 async function renderHistory() {
-  const logs = (await listAssessmentLogs()).sort((a, b) => b.date.localeCompare(a.date));
+  const [localLogs, unified] = await Promise.all([
+    listAssessmentLogs(),
+    loadUnifiedAssessments()
+  ]);
+  const logs = mergeOfflineCache(localLogs, unified.items, unified.offline)
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
   const latest = logs[0];
   if (latest) renderResult(latest);
   const list = document.getElementById('assessment-list');
@@ -79,6 +136,29 @@ async function renderHistory() {
       <span>${escapeHtml(log.bmiCategory)}</span>
     </div>
   `).join('');
+}
+
+async function loadUnifiedAssessments() {
+  try {
+    return { items: await fetchUnifiedAssessmentLogs(), offline: false };
+  } catch {
+    return { items: [], offline: true };
+  }
+}
+
+function mergeOfflineCache(localLogs, unifiedLogs, includeLocalCache = false) {
+  const rows = [];
+  const seenServerIds = new Set();
+  const visibleLocalLogs = includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('asm_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
 }
 
 function renderResult(log) {

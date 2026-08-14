@@ -1,0 +1,65 @@
+{
+  "ok": true,
+  "capturedAt": "2026-06-19T08:27:09.318Z",
+  "webBase": "http://127.0.0.1:4188/niu-secretary/",
+  "apiBase": "http://127.0.0.1:5217/niu-secretary/api",
+  "dbPath": "/tmp/niu-secretary-ui-baseline-XEoLC5/baseline.sqlite3",
+  "results": [
+    {
+      "route": "/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-home-fitness/desktop-home.png",
+      "url": "http://127.0.0.1:4188/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3643,
+      "visibleTextChars": 1321,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-home-fitness/desktop-fitness.png",
+      "url": "http://127.0.0.1:4188/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2006,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-home-fitness/mobile-home.png",
+      "url": "http://127.0.0.1:4188/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 6431,
+      "visibleTextChars": 1326,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-home-fitness/mobile-fitness.png",
+      "url": "http://127.0.0.1:4188/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3803,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    }
+  ]
+}

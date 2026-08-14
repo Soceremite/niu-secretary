@@ -16,6 +16,26 @@ ALLOWED_LEDGER_FORMATS = {"markdown", "json", "jsonl"}
 CITE_RE = re.compile(r"\\cite[a-zA-Z*]*\s*(?:\[[^\]]*\]\s*){0,2}\{([^}]+)\}")
 HEADING_RE = re.compile(r"^\s{0,3}(#{1,6})\s+(.+?)\s*$")
 LABEL_RE = re.compile(r"^\s*([A-Za-z0-9_.:-]+)\s*:\s*(.+?)\s*$")
+LATEX_FENCE_START_RE = re.compile(r"^\s*```(?:latex|tex|math)?\s*$", re.I)
+LATEX_FENCE_END_RE = re.compile(r"^\s*```\s*$")
+GENERIC_EQUATION_HEADINGS = {"equation", "equations", "key equation", "key equations"}
+MISSING_EQUATION_SOURCE_RE = re.compile(r"^no\s+latex\s+source\s+available\.?$", re.I)
+CONTAMINATED_LATEX_MARKERS = (
+    r"\begin{document}",
+    r"\end{document}",
+    r"\maketitle",
+    r"\includegraphics",
+    r"\begin{table",
+    r"\begin{tabular",
+    r"\section{",
+)
+DISPLAY_MATH_RE = re.compile(
+    r"\\\[(?P<bracket>.*?)\\\]"
+    r"|\$\$(?P<dollar>.*?)\$\$"
+    r"|\\begin\{(?P<env>equation\*?|align\*?|gather\*?|multline\*?)\}"
+    r"(?P<environment>.*?)\\end\{(?P=env)\}",
+    re.S,
+)
 
 
 @dataclass(frozen=True)
@@ -151,10 +171,56 @@ def extract_chunks_from_text(
 
 
 def extract_equations_from_text(text: str, *, source_path: str) -> list[LedgerEquation]:
+    fenced_equations: list[LedgerEquation] = []
+    heading = ""
+    fence_heading = ""
+    fence_lines: list[str] | None = None
+
+    for line in text.splitlines():
+        if fence_lines is not None:
+            if LATEX_FENCE_END_RE.match(line):
+                latex = "\n".join(fence_lines).strip()
+                if latex:
+                    normalized_heading = re.sub(r"\s+", " ", fence_heading).strip()
+                    base_label = (
+                        ""
+                        if normalized_heading.lower() in GENERIC_EQUATION_HEADINGS
+                        else normalized_heading
+                    )
+                    for candidate_index, candidate in enumerate(_fenced_equation_candidates(latex)):
+                        label = base_label
+                        if label and candidate_index:
+                            label = f"{label} ({candidate_index + 1})"
+                        fenced_equations.append(
+                            LedgerEquation(
+                                source_path=source_path,
+                                equation_index=len(fenced_equations),
+                                label=label,
+                                latex=candidate,
+                                context=label or candidate,
+                            )
+                        )
+                fence_lines = None
+                fence_heading = ""
+                continue
+            fence_lines.append(line)
+            continue
+
+        heading_match = HEADING_RE.match(line)
+        if heading_match:
+            heading = heading_match.group(2).strip()
+            continue
+        if LATEX_FENCE_START_RE.match(line):
+            fence_heading = heading
+            fence_lines = []
+
+    if fenced_equations:
+        return fenced_equations
+
     equations: list[LedgerEquation] = []
     for line in text.splitlines():
         stripped = line.strip()
-        if not stripped or HEADING_RE.match(stripped):
+        if not stripped or HEADING_RE.match(stripped) or MISSING_EQUATION_SOURCE_RE.match(stripped):
             continue
         label = ""
         latex = stripped
@@ -172,6 +238,39 @@ def extract_equations_from_text(text: str, *, source_path: str) -> list[LedgerEq
             )
         )
     return equations
+
+
+def _fenced_equation_candidates(latex: str) -> list[str]:
+    stripped = latex.strip()
+    if not stripped or MISSING_EQUATION_SOURCE_RE.match(stripped):
+        return []
+    nonempty_lines = [line.strip() for line in stripped.splitlines() if line.strip()]
+    if nonempty_lines and all(line.startswith("%") for line in nonempty_lines):
+        return []
+    contaminated = len(stripped) > 4000 or any(marker in stripped for marker in CONTAMINATED_LATEX_MARKERS)
+    if not contaminated:
+        return [stripped]
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+    for match in DISPLAY_MATH_RE.finditer(stripped):
+        candidate = (match.group("bracket") or match.group("dollar") or match.group("environment") or "").strip()
+        environment = str(match.group("env") or "")
+        if environment.startswith("align"):
+            candidate = rf"\begin{{aligned}}{candidate}\end{{aligned}}"
+        elif environment.startswith("gather"):
+            candidate = rf"\begin{{gathered}}{candidate}\end{{gathered}}"
+        if not candidate or len(candidate) > 4000:
+            continue
+        candidate_lines = [line.strip() for line in candidate.splitlines() if line.strip()]
+        if candidate_lines and all(line.startswith("%") for line in candidate_lines):
+            continue
+        normalized = _normalize_text(candidate)
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        candidates.append(candidate)
+    return candidates
 
 
 def extract_citations_from_text(text: str, *, source_path: str) -> list[LedgerCitation]:
@@ -233,6 +332,8 @@ def extract_artifact_ledger(
         papers = _load_papers(conn, limit=limit, paper_key=paper_key)
         for paper in papers:
             key = paper["paper_key"]
+            seen_equation_latex: set[str] = set()
+            paper_equation_index = 0
             conn.execute("delete from paper_chunks where paper_key = ?", (key,))
             conn.execute("delete from paper_equations where paper_key = ?", (key,))
             conn.execute("delete from paper_citations where paper_key = ?", (key,))
@@ -269,6 +370,10 @@ def extract_artifact_ledger(
                         chunks_written += 1
                 if artifact_type == "equations":
                     for equation in extract_equations_from_text(text, source_path=source_path):
+                        normalized_latex = _normalize_text(equation.latex)
+                        if not normalized_latex or normalized_latex in seen_equation_latex:
+                            continue
+                        seen_equation_latex.add(normalized_latex)
                         conn.execute(
                             """
                             insert into paper_equations (
@@ -279,7 +384,7 @@ def extract_artifact_ledger(
                             (
                                 key,
                                 equation.source_path,
-                                equation.equation_index,
+                                paper_equation_index,
                                 equation.label,
                                 equation.latex,
                                 equation.context,
@@ -287,6 +392,7 @@ def extract_artifact_ledger(
                                 now,
                             ),
                         )
+                        paper_equation_index += 1
                         equations_written += 1
                 if artifact_type == "source_tex":
                     for citation in extract_citations_from_text(text, source_path=source_path):

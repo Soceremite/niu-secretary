@@ -80,6 +80,74 @@ def test_extractors_parse_chunks_equations_and_citations():
     ]
 
 
+def test_extract_equations_groups_multiline_latex_fences():
+    equations = extract_equations_from_text(
+        """# Key Equations
+
+## Equation 1
+```latex
+\\begin{split}
+\\mathcal{J}(\\theta) &= \\sum_{k=1}^{K} w_k \\\\
+&\\quad + \\lambda R(\\theta)
+\\end{split}
+\\label{eq:objective}
+```
+
+## Equation 2
+```tex
+R(y, g) = R_{\\text{task}}(y, g) + R_{\\text{fmt}}(y)
+```
+""",
+        source_path="/tmp/equations.md",
+    )
+
+    assert len(equations) == 2
+    assert equations[0].label == "Equation 1"
+    assert equations[0].latex.startswith(r"\begin{split}")
+    assert r"\lambda R(\theta)" in equations[0].latex
+    assert equations[0].latex.endswith(r"\label{eq:objective}")
+    assert equations[1].label == "Equation 2"
+    assert equations[1].latex == r"R(y, g) = R_{\text{task}}(y, g) + R_{\text{fmt}}(y)"
+
+
+def test_extract_equations_salvages_display_math_from_contaminated_fence():
+    equations = extract_equations_from_text(
+        r"""# Key Equations
+
+## Equation 3
+```latex
+\begin{document}
+This prose and document setup must not become a formula.
+\[
+E = mc^2
+\]
+\begin{table}
+not formula content
+\end{table}
+\[
+p(y \mid x) = \operatorname{softmax}(f_\theta(x))
+\]
+\end{document}
+```
+""",
+        source_path="/tmp/equations.md",
+    )
+
+    assert [(item.label, item.latex) for item in equations] == [
+        ("Equation 3", "E = mc^2"),
+        ("Equation 3 (2)", r"p(y \mid x) = \operatorname{softmax}(f_\theta(x))"),
+    ]
+
+
+def test_extract_equations_skips_missing_source_placeholder():
+    equations = extract_equations_from_text(
+        "# Equations\n\nNo LaTeX source available.\n",
+        source_path="/tmp/equations.md",
+    )
+
+    assert equations == []
+
+
 def test_extract_artifact_ledger_is_idempotent_and_writes_rows(tmp_path: Path):
     db_path = synced_db(tmp_path, with_citation=True)
 
@@ -102,6 +170,42 @@ def test_extract_artifact_ledger_is_idempotent_and_writes_rows(tmp_path: Path):
         "equations": first.equations_written,
         "citations": first.citations_written,
     }
+
+
+def test_extract_artifact_ledger_deduplicates_equivalent_equation_artifacts(tmp_path: Path):
+    db_path = synced_db(tmp_path)
+    duplicate_path = tmp_path / "duplicate-equations.md"
+    duplicate_path.write_text(
+        (FIXTURE_DB / "papers" / "1706_03762" / "equations.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    with connect(db_path) as conn:
+        conn.execute(
+            """
+            insert into paper_artifacts (
+                paper_key, artifact_type, path, sha256, size_bytes, updated_at
+            ) values (?, 'equations', ?, ?, ?, ?)
+            """,
+            (
+                "1706_03762",
+                str(duplicate_path),
+                "duplicate-content",
+                duplicate_path.stat().st_size,
+                "2026-08-11T00:00:00+00:00",
+            ),
+        )
+        conn.commit()
+
+    result = extract_artifact_ledger(db_path)
+
+    assert result.equations_written == 1
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            "select equation_index, latex from paper_equations order by equation_index"
+        ).fetchall()
+    assert [(row["equation_index"], row["latex"]) for row in rows] == [
+        (0, "Attention(Q, K, V) = softmax(QK^T / sqrt(d_k))V")
+    ]
 
 
 def test_export_artifact_ledger_markdown_json_and_jsonl(tmp_path: Path):

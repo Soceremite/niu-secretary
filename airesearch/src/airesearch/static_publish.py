@@ -88,6 +88,39 @@ def _content_hashes(directory: Path) -> dict[str, str]:
     return hashes
 
 
+def _publish_file_list(source_dir: Path) -> list[str] | None:
+    manifest_path = source_dir / "site-manifest.json"
+    if not manifest_path.exists():
+        return None
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("site-manifest.json must be a JSON object")
+    publish_files = payload.get("publish_files")
+    if not isinstance(publish_files, list) or not publish_files:
+        raise ValueError("site-manifest.json publish_files must be a non-empty list")
+    normalized: list[str] = []
+    for item in publish_files:
+        relative = Path(str(item))
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError(f"site publish file must be a safe relative path: {item}")
+        source_path = source_dir / relative
+        if not source_path.exists() or not source_path.is_file():
+            raise ValueError(f"site publish file is missing: {relative}")
+        normalized.append(str(relative))
+    return sorted(set(normalized))
+
+
+def _copy_publish_files(source_dir: Path, out_dir: Path, publish_files: list[str] | None) -> None:
+    if publish_files is None:
+        shutil.copytree(source_dir, out_dir, dirs_exist_ok=True)
+        return
+    for relative in publish_files:
+        source_path = source_dir / relative
+        target_path = out_dir / relative
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_path, target_path)
+
+
 def _publish_diff(previous: dict[str, str], current: dict[str, str]) -> dict[str, object]:
     previous_files = set(previous)
     current_files = set(current)
@@ -120,11 +153,12 @@ def publish_static_site(source_dir: Path, out_dir: Path, *, clean: bool = True) 
     if _is_relative_to(resolved_out, resolved_source):
         raise ValueError("publish directory cannot be inside the source site directory")
 
+    publish_files = _publish_file_list(source_dir)
     previous_hashes = _content_hashes(out_dir)
     if clean and out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(source_dir, out_dir, dirs_exist_ok=True)
+    _copy_publish_files(source_dir, out_dir, publish_files)
 
     files_before_manifest = _relative_files(out_dir)
     current_hashes = _content_hashes(out_dir)
@@ -173,6 +207,10 @@ location = {no_slash} {{
 location {normalized_base} {{
     alias {resolved_deploy_root}/;
     index index.html;
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/css application/javascript application/json image/svg+xml text/markdown;
     try_files $uri $uri/ {normalized_base}index.html;
 }}
 """

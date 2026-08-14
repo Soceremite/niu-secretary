@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sqlite3
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TextIO
 
+from airesearch.admin_server import serve_admin
 from airesearch.artifact_ledger import export_artifact_ledger, extract_artifact_ledger
+from airesearch.archive_remote import RcloneRemote
+from airesearch.archive_service import ArchiveService, ArchiveWorkflowError
 from airesearch.batch import run_batch_ingest
 from airesearch.url_normalizer import categorize_url, normalize_url_raw, normalize_manifest
 from airesearch.candidates import export_candidates, list_candidates
@@ -35,6 +40,9 @@ from airesearch.fact_extraction import (
 from airesearch.knowledge_graph import export_paper_cards, extract_paper_cards, list_paper_cards
 from airesearch.launch_ops import backup_sqlite_db, run_health_check, write_scheduled_refresh_wrapper
 from airesearch.launch_refresh import MVP_PROGRESS_STEPS, run_launch_refresh
+from airesearch.layout_evidence_graph import export_layout_evidence_graph, extract_layout_evidence_graph
+from airesearch.layout_parse import layout_detail, parse_missing_layouts, parse_paper_layout
+from airesearch.layout_parser import LayoutParserOptions
 from airesearch.mvp_pipeline import run_mvp_pipeline
 from airesearch.research_digest import DigestInputError, export_research_digest
 from airesearch.research_gap_analysis import export_gap_analysis
@@ -54,6 +62,7 @@ from airesearch.paperpipe_sync import sync_paperpipe
 from airesearch.profiles import default_profiles, seed_profiles
 from airesearch.providers import ArxivProvider, GoogleScholarProvider, OpenAlexProvider, SemanticScholarProvider
 from airesearch.static_publish import publish_static_site, serve_report_site, write_static_deploy_scripts, write_static_host_config
+from airesearch.workflow_check import dumps_check, run_full_workflow_check
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -131,14 +140,25 @@ def build_parser() -> argparse.ArgumentParser:
     card_listing.add_argument("--limit", type=int, default=20)
     card_export = subparsers.add_parser("export-paper-cards")
     card_export.add_argument("--out", type=Path, required=True)
+    graph_extract = subparsers.add_parser("extract-layout-evidence-graph")
+    graph_extract.add_argument("--paper-key")
+    graph_extract.add_argument("--limit", type=int)
+    graph_export = subparsers.add_parser("export-layout-evidence-graph")
+    graph_export.add_argument("--out", type=Path, required=True)
     fact_extract = subparsers.add_parser("extract-research-facts")
     fact_extract.add_argument("--provider", choices=["fixture", "openai-compatible"], required=True)
     fact_extract.add_argument("--fixture", type=Path)
     fact_extract.add_argument("--paper-key")
+    fact_extract.add_argument("--paper-list", type=Path, help="newline-delimited paper keys")
+    fact_extract.add_argument(
+        "--required-fact-types-file",
+        type=Path,
+        help="lines formatted as paper_key=type[,type] for targeted retries",
+    )
     fact_extract.add_argument("--limit", type=int)
     fact_extract.add_argument("--model")
     fact_extract.add_argument("--base-url")
-    fact_extract.add_argument("--api-key-env", default="OPENAI_API_KEY")
+    fact_extract.add_argument("--api-key-env", default="AIRESEARCH_FACT_API_KEY")
     fact_extract.add_argument("--dry-run", action="store_true")
     fact_extract.add_argument("--refresh-cache", action="store_true")
     fact_extract.add_argument("--max-input-chars", type=int, default=24000)
@@ -164,6 +184,34 @@ def build_parser() -> argparse.ArgumentParser:
     ledger_export.add_argument("--out", type=Path, required=True)
     ledger_export.add_argument("--format", choices=["markdown", "json", "jsonl"], default="markdown")
     subparsers.add_parser("audit-research-facts")
+    layout_parse_cmd = subparsers.add_parser("parse-layout")
+    layout_parse_cmd.add_argument("--paper-key", required=True)
+    layout_parse_cmd.add_argument("--force", action="store_true")
+    layout_parse_cmd.add_argument("--layout-output-dir", type=Path, default=settings.layout_output_dir)
+    layout_parse_cmd.add_argument("--max-pages", type=int, default=settings.layout_max_pages)
+    layout_parse_cmd.add_argument("--ocr-mode", choices=["off", "auto", "force"], default=settings.layout_ocr_mode)
+    layout_parse_cmd.add_argument("--ocr-languages", default=settings.layout_ocr_languages)
+    layout_parse_cmd.add_argument("--ocr-dpi", type=int, default=settings.layout_ocr_dpi)
+    layout_parse_cmd.add_argument("--ocr-executable", default=settings.layout_ocr_executable)
+    layout_parse_cmd.add_argument("--formula-ocr-mode", choices=["off", "auto", "force"], default=settings.layout_formula_ocr_mode)
+    layout_parse_cmd.add_argument("--formula-ocr-dpi", type=int, default=settings.layout_formula_ocr_dpi)
+    layout_parse_cmd.add_argument("--formula-ocr-min-confidence", type=float, default=settings.layout_formula_ocr_min_confidence)
+    layout_status = subparsers.add_parser("layout-status")
+    layout_status.add_argument("--paper-key", required=True)
+    layout_missing = subparsers.add_parser("parse-missing-layouts")
+    layout_missing.add_argument("--limit", type=int, default=10)
+    layout_missing.add_argument("--layout-output-dir", type=Path, default=settings.layout_output_dir)
+    layout_missing.add_argument("--max-pages", type=int, default=settings.layout_max_pages)
+    layout_missing.add_argument("--ocr-mode", choices=["off", "auto", "force"], default=settings.layout_ocr_mode)
+    layout_missing.add_argument("--ocr-languages", default=settings.layout_ocr_languages)
+    layout_missing.add_argument("--ocr-dpi", type=int, default=settings.layout_ocr_dpi)
+    layout_missing.add_argument("--ocr-executable", default=settings.layout_ocr_executable)
+    layout_missing.add_argument("--formula-ocr-mode", choices=["off", "auto", "force"], default=settings.layout_formula_ocr_mode)
+    layout_missing.add_argument("--formula-ocr-dpi", type=int, default=settings.layout_formula_ocr_dpi)
+    layout_missing.add_argument("--formula-ocr-min-confidence", type=float, default=settings.layout_formula_ocr_min_confidence)
+    workflow_check = subparsers.add_parser("workflow-check")
+    workflow_check.add_argument("--paper-key", required=True)
+    workflow_check.add_argument("--site-dir", type=Path)
     evidence_repair = subparsers.add_parser("repair-evidence-source-paths")
     evidence_repair.add_argument("--out", type=Path, required=True)
     evidence_repair.add_argument("--paper-key")
@@ -231,7 +279,7 @@ def build_parser() -> argparse.ArgumentParser:
     mvp.add_argument("--fixture", type=Path)
     mvp.add_argument("--model")
     mvp.add_argument("--base-url")
-    mvp.add_argument("--api-key-env", default="OPENAI_API_KEY")
+    mvp.add_argument("--api-key-env", default="AIRESEARCH_FACT_API_KEY")
     mvp.add_argument("--concurrency", type=int, default=5)
     mvp.add_argument("--refresh-facts", action="store_true")
     mvp.add_argument("--fact-error-policy", choices=["strict", "warn"], default="strict")
@@ -258,7 +306,7 @@ def build_parser() -> argparse.ArgumentParser:
     refresh.add_argument("--fixture", type=Path)
     refresh.add_argument("--model")
     refresh.add_argument("--base-url")
-    refresh.add_argument("--api-key-env", default="OPENAI_API_KEY")
+    refresh.add_argument("--api-key-env", default="AIRESEARCH_FACT_API_KEY")
     refresh.add_argument("--concurrency", type=int, default=5)
     refresh.add_argument("--refresh-facts", action="store_true")
     refresh.add_argument("--fact-error-policy", choices=["strict", "warn"], default="strict")
@@ -329,6 +377,24 @@ def build_parser() -> argparse.ArgumentParser:
     code_listing.add_argument("--limit", type=int, default=20)
     code_export = subparsers.add_parser("export-code-links")
     code_export.add_argument("--out", type=Path, required=True)
+    admin = subparsers.add_parser("serve-admin")
+    admin.add_argument("--host", default="127.0.0.1")
+    admin.add_argument("--port", type=int, default=8791)
+    admin.add_argument("--base-path", default="/niu-secretary/airesearch/admin/")
+    admin.add_argument("--project-dir", type=Path, default=Path("."))
+    admin.add_argument("--deploy-script", type=Path, default=Path("deploy/deploy-airesearch.sh"))
+    archive = subparsers.add_parser("archive")
+    archive_commands = archive.add_subparsers(dest="archive_command", required=True)
+    archive_plan = archive_commands.add_parser("plan")
+    archive_plan.add_argument("--paper-key", action="append")
+    archive_plan.add_argument("--record", action="store_true")
+    archive_status = archive_commands.add_parser("status")
+    archive_status.add_argument("--paper-key", action="append")
+    for name in ("upload", "verify", "evict", "restore"):
+        command = archive_commands.add_parser(name)
+        command.add_argument("--paper-key", action="append", required=True)
+        command.add_argument("--concurrency", type=int)
+    archive_commands.choices["evict"].add_argument("--apply", action="store_true")
     return parser
 
 
@@ -434,9 +500,112 @@ def launch_refresh_progress_total(*, profile_count: int, provider_count: int) ->
     return outer_steps + discovery_steps + MVP_PROGRESS_STEPS
 
 
+def build_archive_service(args, settings: Settings) -> ArchiveService:
+    if not settings.archive_remote:
+        raise ArchiveWorkflowError("configuration", "archive_remote_not_configured")
+    remote = RcloneRemote(
+        executable=settings.rclone_executable,
+        remote_root=settings.archive_remote,
+    )
+    return ArchiveService(
+        db_path=args.db,
+        paper_db_path=args.paper_db,
+        staging_path=settings.archive_staging_path,
+        remote=remote,
+        lock_root=settings.archive_staging_path / "locks",
+    )
+
+
+def build_layout_options(args) -> LayoutParserOptions:
+    return LayoutParserOptions(
+        output_dir=args.layout_output_dir,
+        max_pages=args.max_pages,
+        ocr_mode=args.ocr_mode,
+        ocr_languages=args.ocr_languages,
+        ocr_dpi=args.ocr_dpi,
+        ocr_executable=args.ocr_executable,
+        formula_ocr_mode=args.formula_ocr_mode,
+        formula_ocr_dpi=args.formula_ocr_dpi,
+        formula_ocr_min_confidence=args.formula_ocr_min_confidence,
+    )
+
+
+def run_archive_command(args, settings: Settings) -> int:
+    try:
+        service = build_archive_service(args, settings)
+        if args.archive_command == "plan":
+            result = service.plan(args.paper_key, record=args.record)
+            print(
+                f"eligible={result.eligible_count} excluded={result.excluded_count} "
+                f"reclaimable_bytes={result.reclaimable_bytes}"
+            )
+            for item in result.items:
+                print(
+                    f"paper_key={item.paper_key} status={item.status} "
+                    f"source_bytes={item.source_bytes} reason={item.reason or 'none'}"
+                )
+            for name in result.unreferenced_directories:
+                print(f"unreferenced={name}")
+            return 0
+        if args.archive_command == "status":
+            records = service.store.list_records(args.paper_key)
+            for record in records:
+                print(
+                    f"paper_key={record.paper_key} status={record.status.value} "
+                    f"remote_bytes={record.archive_size_bytes} pinned={int(record.pinned)}"
+                )
+            print(f"records={len(records)} cache_gb={settings.archive_cache_gb}")
+            return 0
+
+        concurrency = args.concurrency
+        if concurrency is None:
+            concurrency = (
+                settings.archive_workers
+                if args.archive_command in {"upload", "verify"}
+                else 1
+            )
+        if concurrency < 1:
+            raise ArchiveWorkflowError("configuration", "invalid_archive_concurrency")
+
+        def execute(paper_key: str):
+            if args.archive_command == "upload":
+                return service.upload(paper_key)
+            if args.archive_command == "verify":
+                return service.verify(paper_key)
+            if args.archive_command == "evict":
+                return service.evict(paper_key, apply=args.apply)
+            return service.restore(paper_key)
+
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            futures = [pool.submit(execute, key) for key in args.paper_key]
+            results = []
+            failed = False
+            for key, future in zip(args.paper_key, futures, strict=True):
+                try:
+                    operation = future.result()
+                    results.append(operation)
+                    print(
+                        f"paper_key={key} operation={operation.operation} "
+                        f"prior={operation.prior_status.value if operation.prior_status else 'none'} "
+                        f"status={operation.status.value} changed={int(operation.changed)} "
+                        f"source_bytes={operation.source_bytes} remote_bytes={operation.remote_bytes} "
+                        f"duration_ms={operation.duration_ms}"
+                    )
+                except ArchiveWorkflowError as exc:
+                    failed = True
+                    print(f"paper_key={key} error={exc.category}")
+            return 2 if failed else 0
+    except ArchiveWorkflowError as exc:
+        print(f"error={exc.category}")
+        return 2
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "archive":
+        return run_archive_command(args, Settings.from_env())
 
     if args.command == "init-db":
         init_db(args.db)
@@ -447,6 +616,64 @@ def main(argv: list[str] | None = None) -> int:
         result = sync_paperpipe(db_path=args.db, paper_db_path=args.paper_db)
         print(f"papers_seen={result.papers_seen} artifacts_seen={result.artifacts_seen}")
         return 0
+
+    if args.command == "parse-layout":
+        result = parse_paper_layout(
+            db_path=args.db,
+            paper_key=args.paper_key,
+            options=build_layout_options(args),
+            force=args.force,
+        )
+        graph = extract_layout_evidence_graph(args.db, paper_key=result.paper_key)
+        print(
+            "paper_key={paper_key} run_id={run_id} status={status} "
+            "artifacts={artifacts} blocks={blocks} output_dir={output_dir} "
+            "graph_facts={graph_facts} graph_evidence={graph_evidence} graph_supported={graph_supported}".format(
+                paper_key=result.paper_key,
+                run_id=result.run_id,
+                status=result.status,
+                artifacts=result.artifact_count,
+                blocks=result.block_count,
+                output_dir=result.output_dir,
+                graph_facts=graph.fact_nodes_written,
+                graph_evidence=graph.evidence_nodes_written,
+                graph_supported=graph.supported_by_edges,
+            )
+        )
+        return 0
+
+    if args.command == "layout-status":
+        print(json.dumps(layout_detail(args.db, args.paper_key), ensure_ascii=False, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "parse-missing-layouts":
+        results = parse_missing_layouts(db_path=args.db, options=build_layout_options(args), limit=args.limit)
+        graph_facts = graph_evidence = graph_supported = 0
+        for result in results:
+            graph = extract_layout_evidence_graph(args.db, paper_key=result.paper_key)
+            graph_facts += graph.fact_nodes_written
+            graph_evidence += graph.evidence_nodes_written
+            graph_supported += graph.supported_by_edges
+            print(
+                "paper_key={paper_key} run_id={run_id} status={status} "
+                "artifacts={artifacts} blocks={blocks}".format(
+                    paper_key=result.paper_key,
+                    run_id=result.run_id,
+                    status=result.status,
+                    artifacts=result.artifact_count,
+                    blocks=result.block_count,
+                )
+            )
+        print(
+            f"layout_runs={len(results)} graph_facts={graph_facts} "
+            f"graph_evidence={graph_evidence} graph_supported={graph_supported}"
+        )
+        return 0
+
+    if args.command == "workflow-check":
+        payload = run_full_workflow_check(args.db, args.paper_key, site_dir=args.site_dir)
+        print(dumps_check(payload))
+        return 0 if payload["ok"] else 2
 
     if args.command == "batch-ingest":
         result = run_batch_ingest(
@@ -628,14 +855,62 @@ def main(argv: list[str] | None = None) -> int:
         print(f"paper_cards_exported={count} out={args.out}")
         return 0
 
+    if args.command == "extract-layout-evidence-graph":
+        result = extract_layout_evidence_graph(args.db, paper_key=args.paper_key, limit=args.limit)
+        print(
+            "layout_evidence_graph_extracted papers={papers} facts={facts} evidence={evidence} "
+            "edges={edges} supported={supported} provenance={provenance}".format(
+                papers=result.papers_seen,
+                facts=result.fact_nodes_written,
+                evidence=result.evidence_nodes_written,
+                edges=result.edges_written,
+                supported=result.supported_by_edges,
+                provenance=result.provenance_written,
+            )
+        )
+        return 0
+
+    if args.command == "export-layout-evidence-graph":
+        count = export_layout_evidence_graph(args.db, args.out)
+        print(f"layout_evidence_graph_exported={count} out={args.out}")
+        return 0
+
 
     if args.command == "extract-research-facts":
         try:
+            paper_list = getattr(args, "paper_list", None)
+            if args.paper_key and paper_list:
+                raise FactValidationError("use only one of --paper-key and --paper-list")
+            selected_paper_keys = None
+            if paper_list:
+                selected_paper_keys = [
+                    line.split("#", 1)[0].strip()
+                    for line in paper_list.read_text(encoding="utf-8").splitlines()
+                    if line.split("#", 1)[0].strip()
+                ]
+                if not selected_paper_keys:
+                    raise FactValidationError("--paper-list is empty")
+            required_fact_types = {}
+            required_file = getattr(args, "required_fact_types_file", None)
+            if required_file:
+                for raw_line in required_file.read_text(encoding="utf-8").splitlines():
+                    line = raw_line.split("#", 1)[0].strip()
+                    if not line:
+                        continue
+                    if "=" not in line:
+                        raise FactValidationError("invalid required fact type line: " + line)
+                    key, raw_types = (part.strip() for part in line.split("=", 1))
+                    types = [value.strip() for value in raw_types.split(",") if value.strip()]
+                    if not key or not types or any(value not in {"method", "dataset", "benchmark", "claim", "limitation"} for value in types):
+                        raise FactValidationError("invalid required fact type line: " + line)
+                    required_fact_types[key] = types
             result = extract_research_facts(
                 args.db,
                 provider_name=args.provider,
                 fixture_path=args.fixture,
                 paper_key=args.paper_key,
+                paper_keys=selected_paper_keys,
+                required_fact_types=required_fact_types,
                 limit=args.limit,
                 model=args.model,
                 base_url=args.base_url,
@@ -649,10 +924,27 @@ def main(argv: list[str] | None = None) -> int:
         except FactValidationError as exc:
             print(str(exc))
             return 2
+        graph = None
+        if not args.dry_run:
+            graph_results = [
+                extract_layout_evidence_graph(args.db, paper_key=key, limit=1)
+                for key in (selected_paper_keys or [args.paper_key])
+            ]
+            if len(graph_results) == 1:
+                graph = graph_results[0]
+            else:
+                graph = type(graph_results[0])(
+                    papers_seen=sum(item.papers_seen for item in graph_results),
+                    fact_nodes_written=sum(item.fact_nodes_written for item in graph_results),
+                    evidence_nodes_written=sum(item.evidence_nodes_written for item in graph_results),
+                    edges_written=sum(item.edges_written for item in graph_results),
+                    supported_by_edges=sum(item.supported_by_edges for item in graph_results),
+                    provenance_written=sum(item.provenance_written for item in graph_results),
+                )
         print(
             "papers_seen={seen} facts={facts} provenance={provenance} "
             "cache_hits={cache_hits} llm_calls={llm_calls} dry_runs={dry_runs} "
-            "failed={failed}".format(
+            "failed={failed}{graph_summary}".format(
                 seen=result.papers_seen,
                 facts=result.facts_written,
                 provenance=result.provenance_written,
@@ -660,6 +952,15 @@ def main(argv: list[str] | None = None) -> int:
                 llm_calls=result.llm_calls,
                 dry_runs=result.dry_runs,
                 failed=result.failed_count,
+                graph_summary=(
+                    " graph_facts={facts} graph_evidence={evidence} graph_supported={supported}".format(
+                        facts=graph.fact_nodes_written,
+                        evidence=graph.evidence_nodes_written,
+                        supported=graph.supported_by_edges,
+                    )
+                    if graph is not None
+                    else ""
+                ),
             )
         )
         return 0
@@ -1054,12 +1355,16 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         print(
             "mvp_pipeline_completed papers={papers} cards={cards} facts={facts} fact_failures={fact_failures} repaired={repaired} "
+            "graph_facts={graph_facts} graph_evidence={graph_evidence} graph_supported={graph_supported} "
             "artifacts={artifacts} site={site}".format(
                 papers=result.papers_seen,
                 cards=result.cards_written,
                 facts=result.facts_written,
                 fact_failures=result.fact_failures,
                 repaired=result.repaired_paths,
+                graph_facts=result.graph_fact_nodes,
+                graph_evidence=result.graph_evidence_nodes,
+                graph_supported=result.graph_supported_edges,
                 artifacts=result.bundle_artifacts,
                 site=result.site_path,
             )
@@ -1325,6 +1630,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export-code-links":
         count = export_code_links(args.db, args.out)
         print(f"code_links_exported={count} out={args.out}")
+        return 0
+
+    if args.command == "serve-admin":
+        serve_admin(
+            host=args.host,
+            port=args.port,
+            base_path=args.base_path,
+            db_path=args.db,
+            paper_db_path=args.paper_db,
+            project_dir=args.project_dir,
+            deploy_script=args.deploy_script,
+            papi_executable=args.papi,
+        )
         return 0
 
     parser.error(f"unknown command: {args.command}")

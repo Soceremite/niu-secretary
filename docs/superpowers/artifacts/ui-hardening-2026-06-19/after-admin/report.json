@@ -1,0 +1,1266 @@
+{
+  "ok": true,
+  "capturedAt": "2026-06-19T08:19:26.313Z",
+  "webBase": "http://127.0.0.1:4187/niu-secretary/",
+  "apiBase": "http://127.0.0.1:5216/niu-secretary/api",
+  "dbPath": "/tmp/niu-secretary-ui-baseline-yAJ9jI/baseline.sqlite3",
+  "results": [
+    {
+      "route": "/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-home.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3643,
+      "visibleTextChars": 1317,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-fitness.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2006,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/schedule/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-schedule.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/schedule/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1862,
+      "visibleTextChars": 449,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/leisure/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-leisure.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/leisure/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2762,
+      "visibleTextChars": 2093,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-news.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2375,
+      "visibleTextChars": 2152,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-airesearch.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1845,
+      "visibleTextChars": 1842,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-overview.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1204,
+      "visibleTextChars": 551,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/fitness/nutrition",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-fitness-nutrition.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/fitness/nutrition",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 361,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/schedule/events",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-schedule-events.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/schedule/events",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 340,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/schedule/todos",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-schedule-todos.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/schedule/todos",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 353,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/leisure/items",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-leisure-items.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/leisure/items",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 367,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/news/recommendations",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-news-recommendations.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/news/recommendations",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2422,
+      "visibleTextChars": 1522,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-airesearch-overview.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1233,
+      "visibleTextChars": 578,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/papers",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-airesearch-papers.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/papers",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1278,
+      "visibleTextChars": 21136,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/discovery",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-airesearch-discovery.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/discovery",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1207,
+      "visibleTextChars": 852,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/profiles",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-airesearch-profiles.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/profiles",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1423,
+      "visibleTextChars": 1710,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/jobs",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/desktop-admin-airesearch-jobs.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/jobs",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1681,
+      "visibleTextChars": 738,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-home.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 6473,
+      "visibleTextChars": 1329,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-fitness.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3850,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/schedule/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-schedule.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/schedule/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2881,
+      "visibleTextChars": 449,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/leisure/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-leisure.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/leisure/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 5952,
+      "visibleTextChars": 2093,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-news.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 5211,
+      "visibleTextChars": 2152,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-airesearch.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 4687,
+      "visibleTextChars": 1842,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-overview.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3077,
+      "visibleTextChars": 583,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/fitness/nutrition",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-fitness-nutrition.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/fitness/nutrition",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1555,
+      "visibleTextChars": 358,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/schedule/events",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-schedule-events.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/schedule/events",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1442,
+      "visibleTextChars": 339,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "router-link-active router-link-exact-active active",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/schedule/todos",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-schedule-todos.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/schedule/todos",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1498,
+      "visibleTextChars": 354,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "router-link-active router-link-exact-active active",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/leisure/items",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-leisure-items.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/leisure/items",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1498,
+      "visibleTextChars": 368,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/news/recommendations",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-news-recommendations.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/news/recommendations",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 4201,
+      "visibleTextChars": 1541,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-airesearch-overview.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2560,
+      "visibleTextChars": 597,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/papers",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-airesearch-papers.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/papers",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2969,
+      "visibleTextChars": 21155,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/discovery",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-airesearch-discovery.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/discovery",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3025,
+      "visibleTextChars": 871,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/profiles",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-airesearch-profiles.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/profiles",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3439,
+      "visibleTextChars": 1729,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/jobs",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-admin/mobile-admin-airesearch-jobs.png",
+      "url": "http://127.0.0.1:4187/niu-secretary/admin/airesearch/jobs",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2407,
+      "visibleTextChars": 757,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆体征数据",
+          "right": 486,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "体征数据",
+          "right": 474,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "塑形馆身体评估",
+          "right": 606,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "塑形馆",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "身体评估",
+          "right": 594,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局日程",
+          "right": 726,
+          "width": 112
+        },
+        {
+          "tag": "SPAN",
+          "className": "",
+          "text": "时务局",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "STRONG",
+          "className": "",
+          "text": "日程",
+          "right": 714,
+          "width": 88
+        },
+        {
+          "tag": "A",
+          "className": "",
+          "text": "时务局待办",
+          "right": 846,
+          "width": 112
+        }
+      ]
+    }
+  ]
+}

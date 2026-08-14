@@ -1,0 +1,428 @@
+{
+  "ok": true,
+  "capturedAt": "2026-06-18T04:54:18.717Z",
+  "webBase": "http://127.0.0.1:4186/niu-secretary/",
+  "apiBase": "http://127.0.0.1:5215/niu-secretary/api",
+  "dbPath": "/tmp/niu-secretary-ui-baseline-VVwnsB/baseline.sqlite3",
+  "results": [
+    {
+      "route": "/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-home.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3687,
+      "visibleTextChars": 1311,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-fitness.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2006,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/schedule/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-schedule.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/schedule/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2309,
+      "visibleTextChars": 506,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/leisure/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-leisure.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/leisure/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1885,
+      "visibleTextChars": 1376,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-news.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2331,
+      "visibleTextChars": 1731,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-airesearch.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1561,
+      "visibleTextChars": 1779,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-admin-overview.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1204,
+      "visibleTextChars": 479,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/schedule/events",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-admin-schedule-events.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/schedule/events",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1090,
+      "visibleTextChars": 274,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/papers",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-admin-airesearch-papers.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/papers",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1205,
+      "visibleTextChars": 21017,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/discovery",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/desktop-admin-airesearch-discovery.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/discovery",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1207,
+      "visibleTextChars": 827,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-home.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 6287,
+      "visibleTextChars": 1309,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/fitness/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-fitness.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/fitness/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3840,
+      "visibleTextChars": 699,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/schedule/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-schedule.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/schedule/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3156,
+      "visibleTextChars": 506,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/leisure/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-leisure.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/leisure/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 4012,
+      "visibleTextChars": 1376,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-news.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 5263,
+      "visibleTextChars": 1731,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-airesearch.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3954,
+      "visibleTextChars": 1779,
+      "clippedText": [],
+      "rightOverflow": [
+        {
+          "tag": "BUTTON",
+          "className": "",
+          "text": "Gaps",
+          "right": 441,
+          "width": 53
+        },
+        {
+          "tag": "BUTTON",
+          "className": "",
+          "text": "Admin",
+          "right": 504,
+          "width": 60
+        }
+      ]
+    },
+    {
+      "route": "/admin/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-admin-overview.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2367,
+      "visibleTextChars": 479,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "research queue: 基线 多模态检索评估",
+          "clientWidth": 114,
+          "scrollWidth": 273
+        }
+      ],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/schedule/events",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-admin-schedule-events.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/schedule/events",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2263,
+      "visibleTextChars": 274,
+      "clippedText": [
+        {
+          "tag": "DIV",
+          "className": "el-table__header-wrapper",
+          "text": "标题日期时间备注操作",
+          "clientWidth": 348,
+          "scrollWidth": 660
+        },
+        {
+          "tag": "DIV",
+          "className": "cell el-tooltip",
+          "text": "基线 产品复盘",
+          "clientWidth": 78,
+          "scrollWidth": 112
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "TABLE",
+          "className": "el-table__header",
+          "text": "标题日期时间备注操作",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "COLGROUP",
+          "className": "",
+          "text": "",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 401,
+          "width": 80
+        },
+        {
+          "tag": "COL",
+          "className": "",
+          "text": "",
+          "right": 681,
+          "width": 280
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "text": "标题日期时间备注操作",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "text": "标题日期时间备注操作",
+          "right": 681,
+          "width": 660
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_4 is-leaf el-table__cell",
+          "text": "备注",
+          "right": 401,
+          "width": 80
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "备注",
+          "right": 400,
+          "width": 79
+        },
+        {
+          "tag": "TH",
+          "className": "el-table_1_column_5 is-leaf el-table__cell",
+          "text": "操作",
+          "right": 681,
+          "width": 280
+        },
+        {
+          "tag": "DIV",
+          "className": "cell",
+          "text": "操作",
+          "right": 680,
+          "width": 279
+        }
+      ]
+    },
+    {
+      "route": "/admin/airesearch/papers",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-admin-airesearch-papers.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/papers",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 25715,
+      "visibleTextChars": 21017,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/admin/airesearch/discovery",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-polish-baseline/2026-06-17/mobile-admin-airesearch-discovery.png",
+      "url": "http://127.0.0.1:4186/niu-secretary/admin/airesearch/discovery",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 3689,
+      "visibleTextChars": 827,
+      "clippedText": [
+        {
+          "tag": "ARTICLE",
+          "className": "airesearch-admin-panel airesearch-ingest-panel",
+          "text": "Search Ingest搜索入库从 provider 拉取候选论文，按搜索方向打分筛选，并可选择自动重建部署。选择搜索范围方向和数据源会合并为一个后台任务。搜索方向diffusion_modelsembodied_ai_vla_robot",
+          "clientWidth": 348,
+          "scrollWidth": 395
+        }
+      ],
+      "rightOverflow": [
+        {
+          "tag": "DIV",
+          "className": "el-checkbox-group airesearch-choice-group",
+          "text": "diffusion_modelsembodied_ai_vla_roboticsmultimodal_foundation_modelsunified_multimodal_understanding_generationworld_mod",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "LABEL",
+          "className": "el-checkbox-button",
+          "text": "unified_multimodal_understanding_generation",
+          "right": 416,
+          "width": 358
+        },
+        {
+          "tag": "SPAN",
+          "className": "el-checkbox-button__inner",
+          "text": "unified_multimodal_understanding_generation",
+          "right": 416,
+          "width": 358
+        }
+      ]
+    }
+  ]
+}

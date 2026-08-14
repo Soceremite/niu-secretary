@@ -25,15 +25,14 @@
     </div>
   </article>
 
-  <div class="stack">
-    <article class="glass-card priority-card">
+  <div class="dashboard-pair dashboard-pair-trends full-row">
+    <article class="glass-card priority-card paired-card">
       <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h2>趋势总览</h2>
           <p>体重以 7 日均线判断方向，避免被单日水分波动误导。</p>
         </div>
-        <button class="ghost-btn" type="button" id="seed-demo">填充示例</button>
       </div>
       <div class="metric-row">
         <div class="metric good"><b id="stat-weight">--</b><span>最新体重 kg</span></div>
@@ -46,7 +45,34 @@
       </div>
     </article>
 
-    <article class="glass-card">
+    <article class="glass-card paired-card">
+      <div class="glass-card-inner">
+      <div class="card-head">
+        <div>
+          <h3>录入体重</h3>
+          <p>写入走统一动作接口，IndexedDB 仅保留离线缓存。</p>
+        </div>
+      </div>
+      <form id="weight-form">
+        <div class="form-grid">
+          <label class="field">日期<input name="date" type="date" required></label>
+          <label class="field">体重 kg<input name="weightKg" type="number" step="0.1" min="20" max="300" required></label>
+          <label class="field">体脂 %<input name="bodyFatPercent" type="number" step="0.1" min="3" max="70"></label>
+          <label class="field">腰围 cm<input name="waistCm" type="number" step="0.1" min="40" max="220"></label>
+          <label class="field field-wide">备注<input name="note" maxlength="80" placeholder="训练日、外食、水肿等"></label>
+        </div>
+        <div class="actions">
+          <button class="primary-btn" type="submit">保存记录</button>
+          <button class="ghost-btn danger-btn" type="button" id="clear-logs">清空离线缓存</button>
+        </div>
+        <div class="toast" id="form-toast"></div>
+      </form>
+      </div>
+    </article>
+  </div>
+
+  <div class="dashboard-pair dashboard-pair-nutrition full-row">
+    <article class="glass-card paired-card">
       <div class="glass-card-inner">
       <div class="card-head">
         <div>
@@ -65,40 +91,13 @@
       </div>
       </div>
     </article>
-  </div>
 
-  <aside class="stack">
-    <article class="glass-card">
-      <div class="glass-card-inner">
-      <div class="card-head">
-        <div>
-          <h3>录入体重</h3>
-          <p>数据先写 IndexedDB，刷新和离线都可用。</p>
-        </div>
-      </div>
-      <form id="weight-form">
-        <div class="form-grid">
-          <label class="field">日期<input name="date" type="date" required></label>
-          <label class="field">体重 kg<input name="weightKg" type="number" step="0.1" min="20" max="300" required></label>
-          <label class="field">体脂 %<input name="bodyFatPercent" type="number" step="0.1" min="3" max="70"></label>
-          <label class="field">腰围 cm<input name="waistCm" type="number" step="0.1" min="40" max="220"></label>
-          <label class="field field-wide">备注<input name="note" maxlength="80" placeholder="训练日、外食、水肿等"></label>
-        </div>
-        <div class="actions">
-          <button class="primary-btn" type="submit">保存记录</button>
-          <button class="ghost-btn danger-btn" type="button" id="clear-logs">清空本地记录</button>
-        </div>
-        <div class="toast" id="form-toast"></div>
-      </form>
-      </div>
-    </article>
-
-    <article class="glass-card">
+    <article class="glass-card paired-card">
       <div class="glass-card-inner">
       <div class="card-head">
         <div>
           <h3>目标设置</h3>
-          <p>BMI/TDEE 用于首轮本地计算。</p>
+          <p>读取和保存走统一 API；离线时仅保留浏览器缓存。</p>
         </div>
       </div>
       <form id="profile-form">
@@ -114,20 +113,19 @@
         </div>
         <div class="actions">
           <button class="primary-btn" type="submit">更新目标</button>
-          <button class="ghost-btn" type="button" id="export-json">导出 JSON</button>
-          <label class="ghost-btn file-btn" for="import-json">导入 JSON<input id="import-json" type="file" accept="application/json"></label>
+          <button class="ghost-btn" type="button" id="export-json">导出离线缓存</button>
         </div>
       </form>
       </div>
     </article>
-  </aside>
+  </div>
 
   <article class="glass-card full-row history-card">
     <div class="glass-card-inner">
     <div class="card-head">
       <div>
         <h3>最近记录</h3>
-        <p>保存在浏览器本地。</p>
+        <p>在线读取统一 API；接口不可用时使用浏览器离线缓存。</p>
       </div>
     </div>
     <div class="log-list" id="log-list"></div>

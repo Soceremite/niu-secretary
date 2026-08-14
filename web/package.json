@@ -1,0 +1,39 @@
+{
+  "name": "niu-secretary-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "verify:routes": "node ../scripts/verify_vue_routes_with_playwright.mjs",
+    "verify:home-smoke": "node ../scripts/verify_vue_home_smoke_with_playwright.mjs",
+    "verify:admin-smoke": "node ../scripts/verify_vue_admin_smoke_with_playwright.mjs",
+    "verify:fitness-smoke": "node ../scripts/verify_vue_fitness_smoke_with_playwright.mjs",
+    "verify:schedule-smoke": "node ../scripts/verify_vue_schedule_smoke_with_playwright.mjs",
+    "verify:leisure-smoke": "node ../scripts/verify_vue_leisure_smoke_with_playwright.mjs",
+    "verify:news-smoke": "node ../scripts/verify_vue_news_smoke_with_playwright.mjs",
+    "verify:airesearch-smoke": "node ../scripts/verify_vue_airesearch_smoke_with_playwright.mjs",
+    "capture:ui-baseline": "node ../scripts/capture_vue_ui_baseline_with_playwright.mjs"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@vueuse/core": "^14.3.0",
+    "dayjs": "^1.11.21",
+    "echarts": "^6.1.0",
+    "element-plus": "^2.8.8",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "playwright": "^1.61.0",
+    "typescript": "^5.6.3",
+    "unplugin-auto-import": "^21.0.0",
+    "unplugin-vue-components": "^32.1.0",
+    "vite": "^5.4.10",
+    "vue-tsc": "^2.1.8"
+  }
+}

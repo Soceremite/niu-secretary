@@ -4,7 +4,7 @@ import { addNutritionLog, clearNutritionLogs, getProfile, listAssessmentLogs, li
 import { summarizeNutrition } from '../lib/nutrition.js';
 import { calculateTdee, progressPercent } from '../lib/calculator.js';
 import { estimateMealLocally, recognizeMealWithAgent } from '../lib/agentClient.js';
-import { createUnifiedNutritionLog, fetchUnifiedNutritionLogs } from '../lib/actionApi.js';
+import { createUnifiedNutritionLog, fetchUnifiedNutritionLogs, fetchUnifiedWorkoutLogs } from '../lib/actionApi.js';
 
 let selectedPhoto = null;
 let pendingMeal = null;
@@ -21,6 +21,7 @@ export async function initNutrition() {
   document.getElementById('manual-from-photo').addEventListener('click', fillManualFromPhoto);
   document.getElementById('clear-nutrition').addEventListener('click', async () => {
     await clearNutritionLogs();
+    document.getElementById('nutrition-toast').textContent = '饮食离线缓存已清空，服务器记录不受影响';
     await render();
   });
   setRecognitionState('idle', '上传照片后可以调用 Agent 识别，结果会先等待确认。');
@@ -134,7 +135,8 @@ function previewPhoto(event) {
 
 async function render() {
   const localLogs = await listNutritionLogs();
-  const logs = mergeNutritionLogs(localLogs, await loadUnifiedNutritionLogs()).sort(compareNutritionLogs);
+  const unified = await loadUnifiedNutritionLogs();
+  const logs = mergeNutritionLogs(localLogs, unified.items, { includeLocalCache: unified.offline }).sort(compareNutritionLogs);
   const today = summarizeNutrition(logs);
   currentTargets = await calculateNutritionTargets();
   const energy = await calculateEnergy(today.calories);
@@ -159,7 +161,13 @@ async function calculateNutritionTargets() {
 }
 
 async function calculateEnergy(intake) {
-  const [profile, assessments, trainingLogs] = await Promise.all([getProfile(), listAssessmentLogs(), listTrainingLogs()]);
+  const [profile, assessments, localTrainingLogs, unifiedTraining] = await Promise.all([
+    getProfile(),
+    listAssessmentLogs(),
+    listTrainingLogs(),
+    loadUnifiedWorkoutLogs()
+  ]);
+  const trainingLogs = mergeOfflineCache(localTrainingLogs, unifiedTraining.items, unifiedTraining.offline);
   const latestAssessment = assessments.sort((a, b) => b.date.localeCompare(a.date))[0];
   const baseline = latestAssessment?.tdee || (profile?.weightKg ? calculateTdee(profile, profile.weightKg) : 2300);
   const today = new Date().toISOString().slice(0, 10);
@@ -232,20 +240,33 @@ function renderList(logs) {
 
 async function loadUnifiedNutritionLogs() {
   try {
-    return await fetchUnifiedNutritionLogs();
+    return { items: await fetchUnifiedNutritionLogs(), offline: false };
   } catch (error) {
-    document.getElementById('nutrition-toast').textContent = error.message || '统一动作接口读取失败，仅显示本地记录。';
-    return [];
+    document.getElementById('nutrition-toast').textContent = error.message || '统一动作接口读取失败，使用本地离线缓存。';
+    return { items: [], offline: true };
   }
 }
 
-function mergeNutritionLogs(localLogs, unifiedLogs) {
+async function loadUnifiedWorkoutLogs() {
+  try {
+    return { items: await fetchUnifiedWorkoutLogs(), offline: false };
+  } catch {
+    return { items: [], offline: true };
+  }
+}
+
+function mergeNutritionLogs(localLogs, unifiedLogs, options = {}) {
+  return mergeOfflineCache(localLogs, unifiedLogs, options.includeLocalCache);
+}
+
+function mergeOfflineCache(localLogs, unifiedLogs, includeLocalCache = false) {
   const rows = [];
   const seenServerIds = new Set();
-  for (const log of localLogs) {
+  const visibleLocalLogs = includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
     rows.push(log);
     if (log.serverId) seenServerIds.add(log.serverId);
-    if (log.id && String(log.id).startsWith('nut_')) seenServerIds.add(log.id);
+    if (log.id && /^(nut|wo|bm|rec)_/.test(String(log.id))) seenServerIds.add(log.id);
   }
   for (const log of unifiedLogs) {
     if (!seenServerIds.has(log.id)) rows.push(log);

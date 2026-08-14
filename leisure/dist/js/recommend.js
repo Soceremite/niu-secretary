@@ -1,8 +1,13 @@
 /**
- * 牛秘书闲趣集 - 推荐渲染 + 偏好匹配
+ * 牛秘书闲趣集 - 推荐渲染
  */
 
-import Store from './store.js';
+const ACTION_API = '/niu-secretary/api/actions/execute';
+const FEEDBACK_ACTIONS = {
+  like: 'leisure.item.rate',
+  dislike: 'leisure.item.dismiss',
+  saved: 'leisure.item.save',
+};
 
 const Recommend = {
   /**
@@ -19,36 +24,8 @@ const Recommend = {
     }
   },
 
-  /**
-   * 根据偏好过滤和排序推荐
-   */
   filterByPreference(items, type) {
-    const prefs = Store.getPreferences();
-    const typePref = prefs[type] || {};
-    const ratings = Store.getRatings();
-
-    // Filter out disliked items
-    const disliked = new Set(ratings.filter(r => r.action === 'dislike').map(r => r.id));
-    let filtered = items.filter(item => !disliked.has(item.id));
-
-    // Boost items matching preferences
-    filtered = filtered.map(item => {
-      let boost = 0;
-      if (typePref.genres && item.genres) {
-        const overlap = item.genres.filter(g => typePref.genres.includes(g));
-        boost += overlap.length * 5;
-      }
-      if (typePref.moods && item.mood) {
-        const moodOverlap = (Array.isArray(item.mood) ? item.mood : [item.mood])
-          .filter(m => typePref.moods.includes(m));
-        boost += moodOverlap.length * 3;
-      }
-      return { ...item, _boost: boost, _effectiveScore: (item.matchScore || 50) + boost };
-    });
-
-    // Sort by effective score
-    filtered.sort((a, b) => b._effectiveScore - a._effectiveScore);
-    return filtered;
+    return Array.isArray(items) ? items : [];
   },
 
   /**
@@ -79,23 +56,14 @@ const Recommend = {
           <button class="rec-btn skip" data-action="dislike" title="跳过">👎</button>
           <button class="rec-btn save" data-action="saved" title="收藏">⭐</button>
         </div>
+        <div class="rec-feedback-status" data-feedback-status></div>
       `;
 
-      // Action buttons
       card.querySelectorAll('.rec-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', async (e) => {
           e.stopPropagation();
           const action = btn.dataset.action;
-          Store.addRating(item.id, type, action);
-          if (action === 'saved') {
-            Store.addToCollection(type, item);
-            btn.textContent = '✅';
-          } else if (action === 'dislike') {
-            card.style.opacity = '0.3';
-            card.style.pointerEvents = 'none';
-          } else {
-            btn.textContent = '💛';
-          }
+          await recordFeedback(item, type, action, card, btn);
         });
       });
 
@@ -103,5 +71,72 @@ const Recommend = {
     });
   }
 };
+
+async function recordFeedback(item, type, feedback, card, button) {
+  const action = FEEDBACK_ACTIONS[feedback];
+  if (!action) return;
+  const status = card.querySelector('[data-feedback-status]');
+  const input = {
+    itemId: item.id || `${type}_${item.title || item.name || Date.now()}`,
+    category: normalizeCategory(type),
+    title: item.title || item.name || '未命名条目',
+    rating: feedback === 'like' ? 5 : 0,
+    note: `from leisure ${type} list`,
+    source: 'leisure-page',
+    payload: {
+      genres: Array.isArray(item.genres) ? item.genres : [],
+      tags: Array.isArray(item.tags) ? item.tags : [],
+      mood: item.mood || '',
+      score: item.matchScore || 0,
+      platformUrl: item.platformUrl || item.doubanUrl || '',
+    },
+  };
+  button.disabled = true;
+  if (status) status.textContent = '写入中...';
+  try {
+    await postFeedbackAction(action, input);
+    if (feedback === 'saved') button.textContent = '✅';
+    else if (feedback === 'dislike') {
+      card.style.opacity = '0.3';
+      card.style.pointerEvents = 'none';
+    } else {
+      button.textContent = '💛';
+    }
+    if (status) status.textContent = '已写入后端';
+  } catch (error) {
+    cacheFeedback(action, input, feedback);
+    button.disabled = false;
+    if (status) status.textContent = '后端不可用，已离线缓存';
+  }
+}
+
+async function postFeedbackAction(action, input) {
+  const response = await fetch(ACTION_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action,
+      input,
+      context: { client: 'leisure-page', confirmed: true },
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || `反馈写入失败：${response.status}`);
+  }
+  return data;
+}
+
+function cacheFeedback(action, input, feedback) {
+  try {
+    window.LeisureOfflineFeedbackQueue.enqueue(action, input, feedback);
+  } catch (error) {
+    console.warn('[Recommend] Failed to cache feedback:', error);
+  }
+}
+
+function normalizeCategory(type) {
+  return { movies: 'movie', movie: 'movie', music: 'music', podcasts: 'podcast', podcast: 'podcast', novels: 'novel', novel: 'novel' }[type] || type;
+}
 
 export default Recommend;

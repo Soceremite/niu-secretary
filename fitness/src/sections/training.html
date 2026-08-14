@@ -7,7 +7,6 @@
         <h2>训练记录</h2>
         <p>记录组数、次数、重量和 RPE，自动计算训练容量与估算 1RM。</p>
       </div>
-      <button class="ghost-btn" type="button" id="seed-training">填充训练示例</button>
     </div>
     <form id="training-form">
       <div class="form-grid">
@@ -21,7 +20,7 @@
       </div>
       <div class="actions">
         <button class="primary-btn" type="submit">保存训练</button>
-        <button class="ghost-btn danger-btn" type="button" id="clear-training">清空训练记录</button>
+        <button class="ghost-btn danger-btn" type="button" id="clear-training">清空离线缓存</button>
       </div>
       <div class="toast" id="training-toast"></div>
     </form>
@@ -66,7 +65,7 @@
     <div class="card-head">
       <div>
         <h3>最近训练</h3>
-        <p>每条记录都进入同步队列，后续可与 JSON 文件打通。</p>
+        <p>在线读取统一 API；IndexedDB 只补充离线待同步记录。</p>
       </div>
     </div>
     <div class="log-list" id="training-list"></div>

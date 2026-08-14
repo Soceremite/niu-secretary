@@ -1,0 +1,65 @@
+{
+  "ok": true,
+  "capturedAt": "2026-06-19T08:45:02.972Z",
+  "webBase": "http://127.0.0.1:4189/niu-secretary/",
+  "apiBase": "http://127.0.0.1:5218/niu-secretary/api",
+  "dbPath": "/tmp/niu-secretary-ui-baseline-SfvgHT/baseline.sqlite3",
+  "results": [
+    {
+      "route": "/news/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-news-airesearch/desktop-news.png",
+      "url": "http://127.0.0.1:4189/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 2375,
+      "visibleTextChars": 2152,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "desktop",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-news-airesearch/desktop-airesearch.png",
+      "url": "http://127.0.0.1:4189/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 1845,
+      "visibleTextChars": 1842,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/news/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-news-airesearch/mobile-news.png",
+      "url": "http://127.0.0.1:4189/niu-secretary/news/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 5211,
+      "visibleTextChars": 2152,
+      "clippedText": [],
+      "rightOverflow": []
+    },
+    {
+      "route": "/airesearch/",
+      "viewport": "mobile",
+      "screenshot": "docs/superpowers/artifacts/ui-hardening-2026-06-19/after-news-airesearch/mobile-airesearch.png",
+      "url": "http://127.0.0.1:4189/niu-secretary/airesearch/",
+      "title": "牛秘书",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflowPx": 0,
+      "scrollHeight": 4631,
+      "visibleTextChars": 1842,
+      "clippedText": [],
+      "rightOverflow": []
+    }
+  ]
+}

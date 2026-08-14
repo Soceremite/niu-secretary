@@ -1,12 +1,10 @@
-"""牛秘书 AI v4 — 多模型池 + 推理参数控制 + 本地规则引擎
+"""牛秘书 AI v6 — 统一 OpenCode Go provider + 多模型池 + 本地规则引擎
 
-v4 改进：
-  - OpenAI 端点支持 reasoningEffort/textVerbosity/reasoningSummary 压制啰嗦推理
-  - Anthropic 端点支持 thinking.type=disabled 关闭思考链
-  - DeepSeek 端点支持 thinking.type=disabled 关闭内置 reasoning
-  - Prompt 强化「直接返回 JSON，不分析、不解释」
-  - 模型池加入 deepseek-v4-flash（thinking:disabled 模式）
-  - 统一返回字段 module（不再混用 intent）
+v6 改进（2026-07-17）：
+  - 全部迁移到 OpenCode Go 套餐
+  - 统一 OpenAI 兼容端点: https://opencode.ai/zen/go/v1
+  - 默认模型: DeepSeek V4 Pro
+  - 可用模型池: deepseek-v4-pro / kimi-k2.6 / glm-5.2 / minimax-m3 / qwen3.7-plus
 """
 
 from __future__ import annotations
@@ -33,12 +31,16 @@ PREFERENCE_KEYWORDS = (
 )
 
 # OpenCode Go 端点
-API_KEY = os.environ.get("NIU_ASSISTANT_API_KEY") or os.environ.get("OPENCODEGO_API_KEY", "")
-BASE    = os.environ.get("NIU_ASSISTANT_API_BASE", "https://opencode.ai/zen/go/v1")
-
-# DeepSeek 官方端点（支持 thinking disabled）
-DS_KEY  = os.environ.get("DEEPSEEK_API_KEY", "")
-DS_BASE = "https://api.deepseek.com/v1"
+API_KEY = os.environ.get("OPENCODE_GO_API_KEY") or os.environ.get("NIU_ASSISTANT_API_KEY", "")
+BASE = (
+    os.environ.get("OPENCODE_GO_BASE_URL")
+    or os.environ.get("NIU_ASSISTANT_API_BASE")
+    or "https://opencode.ai/zen/go/v1"
+).rstrip("/")
+for _endpoint_suffix in ("/chat/completions", "/responses"):
+    if BASE.casefold().endswith(_endpoint_suffix):
+        BASE = BASE[: -len(_endpoint_suffix)].rstrip("/")
+        break
 
 
 # ================================================================
@@ -57,7 +59,7 @@ def _post_openai(model: str, prompt: str, max_tokens: int,
         （对 Kimi 有效，MiniMax/GLM 不适用）
     """
     if not API_KEY:
-        raise ModelError("NIU_ASSISTANT_API_KEY/OPENCODEGO_API_KEY 未配置")
+        raise ModelError("NIU_ASSISTANT_API_KEY/OPENCODE_GO_API_KEY 未配置")
     body_dict = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -86,78 +88,9 @@ def _post_openai(model: str, prompt: str, max_tokens: int,
     return content
 
 
-def _post_deepseek(model: str, prompt: str, max_tokens: int,
-                   timeout_s: float = 15) -> str:
-    """DeepSeek 官方端点: 支持 thinking.type=disabled 彻底关闭推理"""
-    if not DS_KEY:
-        raise ModelError("DeepSeek API key 未配置")
-    body = json.dumps({
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": max_tokens,
-        "thinking": {"type": "disabled"},
-    }).encode()
-    req = urllib.request.Request(
-        f"{DS_BASE}/chat/completions", data=body,
-        headers={
-            "Authorization": f"Bearer {DS_KEY}",
-            "Content-Type": "application/json",
-            "User-Agent": "OpenClaw/1.0",
-            "Accept": "application/json",
-        },
-        method="POST")
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
-        payload = json.loads(resp.read().decode())
-    content = payload["choices"][0]["message"].get("content", "") or ""
-    if not content.strip():
-        raise ModelError(f"{model} 空返回")
-    return content
-
-
-def _post_anthropic(model: str, prompt: str, max_tokens: int,
-                    timeout_s: float = 15,
-                    disable_thinking: bool = True) -> str:
-    """Anthropic 兼容端点: /messages + x-api-key
-
-    v4 新增:
-      disable_thinking=True → thinking.type=disabled 关闭思考链
-    """
-    if not API_KEY:
-        raise ModelError("NIU_ASSISTANT_API_KEY/OPENCODEGO_API_KEY 未配置")
-    body_dict = {
-        "model": model,
-        "max_tokens": max_tokens,
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    if disable_thinking:
-        body_dict["thinking"] = {"type": "disabled"}
-    body = json.dumps(body_dict).encode()
-    req = urllib.request.Request(
-        f"{BASE}/messages", data=body,
-        headers={
-            "x-api-key": API_KEY,
-            "Content-Type": "application/json",
-            "User-Agent": "OpenClaw/1.0",
-            "Accept": "application/json",
-        },
-        method="POST")
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
-        payload = json.loads(resp.read().decode())
-    blocks = payload.get("content", [])
-    text = "".join(b["text"] for b in blocks if isinstance(b, dict) and b.get("type") == "text")
-    if not text.strip():
-        raise ModelError(f"{model} 空返回")
-    return text
-
-
-# ====== 模型池 v4 ======
-# 实测结论（2026-05-30）：
-#   - Kimi K2.6/K2.5: 快但天生啰嗦，OpenCode Go 端点不接受 reasoningEffort 参数，无法压制推理
-#   - Qwen3.6 Plus (+ thinking:disabled): 唯一干净输出 JSON 的模型，2.3s
-#   - Qwen3.7 Max (+ thinking:disabled): 可用，但更贵
-#   - DeepSeek V4 Flash Free: Go 端点不支持此模型
-#   - GLM 5.1: Go 端点返回空 content
-#   策略: Anthropic 端点(Qwen) 首选 → OpenAI 端点(Kimi/Minimax) 降级
+# ====== 模型池 v6 — OpenCode Go 套餐 ======
+# 2026-07-17: 默认 deepseek-v4-pro，按 OpenCode Go 支持模型降级
+#   策略: DeepSeek V4 Pro 首选 → Kimi K2.6 → GLM 5.2 → MiniMax M3 → Qwen3.7 Plus
 
 
 def classify_with_model(text: str) -> Optional[str]:
@@ -168,10 +101,11 @@ def classify_with_model(text: str) -> Optional[str]:
         f"用户:{text}"
     )
     models = [
-        ("kimi-k2.6",           _openai_thinkoff, 80, 10),  # 🔥 1.4s thinking:disabled
-        ("kimi-k2.5",           _openai_thinkoff, 80, 10),  # 1.5s
-        ("qwen3.6-plus",        _anthropic_d,     80, 12),  # 2.3s
-        ("qwen3.7-max",         _anthropic_d,     80, 12),
+        ("deepseek-v4-pro",     _openai_thinkoff, 80, 12),
+        ("kimi-k2.6",           _openai_thinkoff, 80, 10),
+        ("glm-5.2",             _openai_thinkoff, 80, 12),
+        ("minimax-m3",          _openai_thinkoff, 80, 12),
+        ("qwen3.7-plus",        _openai_thinkoff, 80, 12),
     ]
     return _try_models(models, prompt, "classify")
 
@@ -190,10 +124,11 @@ def generate_actions_with_model(text: str, module: str) -> Optional[dict]:
         f"今天:{date.today().isoformat()} 板块:{module} 用户:{text}",
     ])
     models = [
-        ("kimi-k2.6",           _openai_thinkoff, 300, 15),  # 🔥 thinking:disabled
-        ("kimi-k2.5",           _openai_thinkoff, 300, 15),
-        ("qwen3.7-max",         _anthropic_d,     300, 20),  # 中文最稳
-        ("qwen3.6-plus",        _anthropic_d,     300, 20),
+        ("deepseek-v4-pro",     _openai_thinkoff, 300, 20),
+        ("kimi-k2.6",           _openai_thinkoff, 300, 15),
+        ("glm-5.2",             _openai_thinkoff, 300, 20),
+        ("minimax-m3",          _openai_thinkoff, 300, 20),
+        ("qwen3.7-plus",        _openai_thinkoff, 300, 20),
     ]
     result = _try_models(models, prompt, "gen_actions")
     if result and isinstance(result, dict):
@@ -215,10 +150,11 @@ def classify_intent_with_model(text: str) -> Optional[dict]:
         f"用户:{text}"
     )
     models = [
+        ("deepseek-v4-pro",     _openai_thinkoff, 80, 12),
         ("kimi-k2.6",           _openai_thinkoff, 80, 10),
-        ("kimi-k2.5",           _openai_thinkoff, 80, 10),
-        ("qwen3.6-plus",        _anthropic_d,     80, 12),
-        ("qwen3.7-max",         _anthropic_d,     80, 12),
+        ("glm-5.2",             _openai_thinkoff, 80, 12),
+        ("minimax-m3",          _openai_thinkoff, 80, 12),
+        ("qwen3.7-plus",        _openai_thinkoff, 80, 12),
     ]
     return _try_models(models, prompt, "classify_intent")
 
@@ -235,10 +171,11 @@ def generate_profile_update_with_model(text: str, module: str) -> Optional[dict]
         f"用户:{text}",
     ])
     models = [
+        ("deepseek-v4-pro",     _openai_thinkoff, 300, 20),
         ("kimi-k2.6",           _openai_thinkoff, 300, 15),
-        ("kimi-k2.5",           _openai_thinkoff, 300, 15),
-        ("qwen3.7-max",         _anthropic_d,     300, 20),
-        ("qwen3.6-plus",        _anthropic_d,     300, 20),
+        ("glm-5.2",             _openai_thinkoff, 300, 20),
+        ("minimax-m3",          _openai_thinkoff, 300, 20),
+        ("qwen3.7-plus",        _openai_thinkoff, 300, 20),
     ]
     result = _try_models(models, prompt, "gen_actions")
     if result and isinstance(result, dict):
@@ -263,16 +200,8 @@ PROFILE_FIELD_HINTS = {
 # ====== 模型调用器（统一签名: (model_id, prompt, max_tokens, timeout) -> str） ======
 
 def _openai_thinkoff(model_id: str, prompt: str, max_tokens: int, timeout: float) -> str:
-    """OpenAI 端点 + thinking:disabled（对 Kimi 有效）"""
+    """OpenAI 端点 + thinking:disabled"""
     return _post_openai(model_id, prompt, max_tokens, timeout, disable_thinking=True)
-
-def _deepseek_d(model_id: str, prompt: str, max_tokens: int, timeout: float) -> str:
-    """DeepSeek 官方端点 + thinking:disabled"""
-    return _post_deepseek(model_id, prompt, max_tokens, timeout)
-
-def _anthropic_d(model_id: str, prompt: str, max_tokens: int, timeout: float) -> str:
-    """Anthropic 端点 + thinking:disabled"""
-    return _post_anthropic(model_id, prompt, max_tokens, timeout, disable_thinking=True)
 
 
 # ====== 模型尝试框架 ======
@@ -280,14 +209,38 @@ def _anthropic_d(model_id: str, prompt: str, max_tokens: int, timeout: float) ->
 def _try_models(models: list, prompt: str, task_name: str) -> Optional[any]:
     """按优先级尝试模型，成功返回结果，失败返回 None"""
     for model_id, caller, max_tokens, timeout in models:
+        t0 = time.time()
         try:
-            t0 = time.time()
             raw = caller(model_id, prompt, max_tokens, timeout)
             data = parse_json_object(raw)
             result = _parse_result(data, task_name)
-            print(f"[assistant] {model_id} {task_name}={result} in {time.time()-t0:.1f}s")
+            elapsed_ms = int((time.time() - t0) * 1000)
+            module = result.get("module", "assistant") if isinstance(result, dict) else str(result or "assistant")
+            store.record_model_call(
+                module if module in {"fitness", "schedule", "news", "leisure", "chat"} else "assistant",
+                task_name,
+                model_id,
+                prompt[:300],
+                json.dumps(data, ensure_ascii=False)[:300],
+                "passed",
+                elapsed_ms,
+            )
+            print(f"[assistant] {model_id} {task_name}={result} in {elapsed_ms/1000:.1f}s")
             return result
         except Exception as e:
+            elapsed_ms = int((time.time() - t0) * 1000)
+            try:
+                store.record_model_call(
+                    "assistant",
+                    task_name,
+                    model_id,
+                    prompt[:300],
+                    str(e)[:300],
+                    "failed",
+                    elapsed_ms,
+                )
+            except Exception:
+                pass
             print(f"[assistant] {model_id} fail: {e}")
             continue
     return None

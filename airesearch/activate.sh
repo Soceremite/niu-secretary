@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -a
-source /home/ubuntu/.openclaw/workspace/niu-secretary/airesearch/.env
+source /home/ubuntu/vibe_proj/niu-secretary/airesearch/.env
 set +a
 
 _airesearch_litellm_models() {

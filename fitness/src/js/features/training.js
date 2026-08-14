@@ -3,15 +3,16 @@
 import { addTrainingLog, clearTrainingLogs, listAssessmentLogs, listRecoveryLogs, listTrainingLogs } from '../lib/db.js';
 import { calculateSetVolume, estimateOneRepMax, summarizeTraining } from '../lib/training.js';
 import { exercises, findExercise } from './exercise-db.js';
+import { createUnifiedWorkoutLog, fetchUnifiedRecoveryLogs, fetchUnifiedWorkoutLogs } from '../lib/actionApi.js';
 
 export async function initTraining() {
   const form = document.getElementById('training-form');
   form.elements.date.value = new Date().toISOString().slice(0, 10);
   fillExercises();
   form.addEventListener('submit', saveTraining);
-  document.getElementById('seed-training').addEventListener('click', seedTraining);
   document.getElementById('clear-training').addEventListener('click', async () => {
     await clearTrainingLogs();
+    document.getElementById('training-toast').textContent = '训练离线缓存已清空，服务器记录不受影响';
     await render();
   });
   await render();
@@ -44,13 +45,37 @@ async function saveTraining(event) {
   };
   log.volume = calculateSetVolume(log);
   log.oneRepMax = estimateOneRepMax(log.weightKg, log.reps);
-  await addTrainingLog(log);
-  document.getElementById('training-toast').textContent = `已保存：${log.volume.toLocaleString()} kg 容量`;
+  let synced = false;
+  let serverId = '';
+  try {
+    const record = await createUnifiedWorkoutLog(log);
+    synced = true;
+    serverId = record?.id || '';
+  } catch (error) {
+    console.warn('[fitness] unified workout sync failed', error);
+  }
+  await addTrainingLog({
+    ...log,
+    serverId,
+    source: synced ? 'unified-api' : 'fitness-page',
+    syncStatus: synced ? 'synced' : 'pending'
+  });
+  document.getElementById('training-toast').textContent = synced
+    ? `已保存并同步：${log.volume.toLocaleString()} kg 容量`
+    : `已保存本地：${log.volume.toLocaleString()} kg 容量，统一动作接口暂不可用`;
   await render();
 }
 
 async function render() {
-  const [logs, assessments, recoveryLogs] = await Promise.all([listTrainingLogs(), listAssessmentLogs(), listRecoveryLogs()]);
+  const [localLogs, unifiedWorkouts, assessments, localRecoveryLogs, unifiedRecovery] = await Promise.all([
+    listTrainingLogs(),
+    loadUnified(fetchUnifiedWorkoutLogs),
+    listAssessmentLogs(),
+    listRecoveryLogs(),
+    loadUnified(fetchUnifiedRecoveryLogs)
+  ]);
+  const logs = mergeTrainingLogs(localLogs, unifiedWorkouts.items, { includeLocalCache: unifiedWorkouts.offline });
+  const recoveryLogs = mergeRecoveryLogs(localRecoveryLogs, unifiedRecovery.items, { includeLocalCache: unifiedRecovery.offline });
   const summary = summarizeTraining(logs);
   const latestAssessment = assessments.sort((a, b) => b.date.localeCompare(a.date))[0];
   const latestRecovery = recoveryLogs.sort((a, b) => b.date.localeCompare(a.date))[0];
@@ -61,6 +86,44 @@ async function render() {
   renderPlan(latestAssessment, latestRecovery);
   renderPatterns(summary.byPattern, summary.totalVolume);
   renderList(summary.latest, logs);
+}
+
+async function loadUnified(loader) {
+  try {
+    return { items: await loader(), offline: false };
+  } catch {
+    return { items: [], offline: true };
+  }
+}
+
+function mergeRecoveryLogs(localLogs, unifiedLogs, options = {}) {
+  const rows = [];
+  const seenServerIds = new Set();
+  const visibleLocalLogs = options.includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('rec_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
+}
+
+function mergeTrainingLogs(localLogs, unifiedLogs, options = {}) {
+  const rows = [];
+  const seenServerIds = new Set();
+  const visibleLocalLogs = options.includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('wo_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
 }
 
 function renderSuggestion(logs, assessment, recovery) {
@@ -125,39 +188,6 @@ function renderList(logs, allLogs) {
       </div>
     `;
   }).join('');
-}
-
-async function seedTraining() {
-  await clearTrainingLogs();
-  const today = new Date();
-  const sample = [
-    ['squat', 70, 6, 4, 8],
-    ['bench-press', 55, 8, 4, 8],
-    ['row', 50, 10, 4, 7.5],
-    ['romanian-deadlift', 65, 8, 3, 8],
-    ['lat-pulldown', 48, 10, 3, 7]
-  ];
-  for (let index = 0; index < sample.length; index++) {
-    const [id, weightKg, reps, sets, rpe] = sample[index];
-    const day = new Date(today);
-    day.setDate(today.getDate() - index);
-    const exercise = findExercise(id);
-    const log = {
-      date: day.toISOString().slice(0, 10),
-      exerciseId: id,
-      exerciseName: exercise.name,
-      pattern: exercise.pattern,
-      weightKg,
-      reps,
-      sets,
-      rpe,
-      note: ''
-    };
-    log.volume = calculateSetVolume(log);
-    log.oneRepMax = estimateOneRepMax(weightKg, reps);
-    await addTrainingLog(log);
-  }
-  await render();
 }
 
 function escapeHtml(value) {

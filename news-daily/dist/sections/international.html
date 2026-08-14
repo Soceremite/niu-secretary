@@ -1,116 +1,139 @@
-<div class="section international" id="section-international">
-  <div class="section-title">国际焦点</div>
-  <div class="news-grid">
-
-    <a class="card-link" onclick="openDetail('i-1'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-red">中东</span>
-        <div class="emoji-icon">💥</div>
-        <h3>以色列空袭伊朗境内目标 中东冲突再度升级</h3>
-        <p class="card-summary">以色列对伊朗发动空袭，回应伊朗此前向以色列北部发射导弹。这是4月停火以来双方首次互相攻击对方领土，美国曾劝说以色列不要报复。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('i-2'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-orange">美国政治</span>
-        <div class="emoji-icon">🗣️</div>
-        <h3>特朗普NBC采访中与女主持激烈争执后摔麦离场</h3>
-        <p class="card-summary">特朗普在NBC采访中被主持人多次追问"选举舞弊"言论，怒斥美国媒体"都是骗子"后中断录制、摔麦离场。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('i-3'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-green">灾难</span>
-        <div class="emoji-icon">🌊</div>
-        <h3>菲律宾南部发生7.8级强震 多国发布海啸预警</h3>
-        <p class="card-summary">菲律宾棉兰老岛附近海域6月8日发生7.8级强烈地震，造成至少3人死亡，多国相继发布海啸预警。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('i-4'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-blue">俄乌</span>
-        <div class="emoji-icon">🕊️</div>
-        <h3>泽连斯基欧洲盟友提出五项和谈条件</h3>
-        <p class="card-summary">在特朗普将外交重心转向伊朗之际，乌克兰总统与欧洲核心盟友会晤后发布五项和谈条件，欧洲试图建立独立的和平斡旋框架。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
-    <a class="card-link" onclick="openDetail('i-5'); return false;" href="#">
-      <div class="news-card">
-        <span class="tag tag-purple">安全</span>
-        <div class="emoji-icon">🔪</div>
-        <h3>纽约宾州车站发生持刀袭击 5人受伤</h3>
-        <p class="card-summary">纽约曼哈顿宾州车站6月8日发生持刀袭击事件致5人受伤。事发前正值特朗普计划周一赴纽约观看NBA总决赛，全市安保升级。</p>
-        <div class="expand-hint">点击查看详情 →</div>
-      </div>
-    </a>
-
+<a class="card-link" onclick="openDetail('international-1'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-red">地缘</span>
+    <div class="emoji-icon">🌍</div>
+    <h3>边境乱象持续外溢，西班牙飞地民众直呼"被抛弃"</h3>
+    <p class="card-summary">环球时报报道，西班牙在北非的飞地休达面临持续移民压力，当地民众对政府应对不力表示不满。</p>
+    <div class="expand-hint">点击查看详情 →</div>
   </div>
-</div>
-
-<template class="detail-tpl" data-id="i-1">
-  <span class="detail-tag tag-red">中东 · 安全</span>
-  <h2>以色列空袭伊朗境内目标 中东冲突再度升级</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 中东 &nbsp;|&nbsp; 📡 BBC / Al Jazeera</div>
-  <div class="detail-visual"><img src="assets/images/i-1.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
-<p>6月8日，以色列对伊朗境内目标发动空袭，回应伊朗此前向以色列北部发射的导弹。BBC报道称这是自4月美国斡旋的停火协议以来，伊朗和以色列首次互相攻击对方领土。美国总统特朗普曾多次敦促以色列不要采取报复行动。</p>
-  <p>分析人士警告，此轮冲突的升级链条极为敏感：伊朗的代理人网络遍布黎巴嫩、叙利亚和也门，以色列同时在多条战线上保持军事活跃，美国在该地区的防空系统和军事基地也被深度卷入。任何误判都可能将有限冲突推向区域战争。</p>
-  <div class="highlight-box">💥 <strong>局势要点：</strong>以色列首次空袭伊朗本土 · 打破4月停火框架 · 特朗普劝阻未果 · 伊朗可能通过代理力量反击。</div>
-  <div class="detail-quote">中东这盘棋的麻烦在于：每一枚导弹落下，都可能在另一个棋盘上点燃新的火焰。</div>
-  <a class="external-btn" href="https://www.bbc.com/news/live/clyengg72pgt" target="_blank" rel="noopener">🔗 BBC直播报道</a>
+</a>
+<template id="detail-international-1">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 环球时报</span>
+    <span class="tag tag-red">地缘</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/international-1.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>边境乱象持续外溢，西班牙飞地民众直呼"被抛弃"</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>事件</span><strong>西班牙飞地休达边境移民压力持续恶化</strong></div>
+    <div class="keypoint-card"><span>影响</span><strong>当地居民不满安全局势和政府应对</strong></div>
+    <div class="keypoint-card"><span>背景</span><strong>北非至欧洲移民路线持续活跃</strong></div>
+    <div class="keypoint-card"><span>后续</span><strong>西班牙和欧盟面临加强边境管控压力</strong></div>
+  </div>
+  <p>西班牙在北非的飞地休达近日移民压力持续升级，边境乱象不断外溢至城区，当地居民抱怨安全环境恶化，直呼"被马德里和布鲁塞尔抛弃"。</p>
+  <p>作为欧洲在非洲大陆仅存的两块飞地之一，休达长期是非洲移民进入欧洲的门户。近期移民潮再度升温，加剧了该地区的人道主义和安全双重危机。</p>
+  <a class="external-btn" href="https://news.china.com/international/1000/20260812/49669287.html" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="i-2">
-  <span class="detail-tag tag-orange">美国 · 政治</span>
-  <h2>特朗普NBC采访中与女主持激烈争执后摔麦离场</h2>
-  <div class="detail-meta">📅 2026年6月7日 &nbsp;|&nbsp; 📍 美国 &nbsp;|&nbsp; 📡 BBC / NBC</div>
-  <div class="detail-visual"><img src="assets/images/i-2.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
-<p>6月7日，特朗普在NBC《与媒体见面》节目采访中与主持人Kristen Welker发生激烈争执。Welker就"2020年选举被操控"的言论反复追问特朗普，要求他提供证据。特朗普在多次被打断后情绪爆发，怒斥美国媒体"都是骗子"，随后摘下麦克风中断录制离场。</p>
-  <p>BBC称这一场景在特朗普政治生涯中极为罕见——即便在他最为对抗性的采访中，也极少以"物理离场"方式结束。事件引发美国舆论两极反应：支持者认为主流媒体对特朗普长期存有偏见；批评者则认为总统级人物不应在媒体前失控。</p>
-  <div class="highlight-box">🗣️ <strong>事件亮点：</strong>NBC王牌节目采访 · Welker连续追问选举言论 · 特朗普怒斥"都是骗子" · 罕见摔麦中断录制。</div>
-  <div class="detail-quote">特朗普："I've had enough. All of you are liars."——然后摘下麦克风。</div>
-  <a class="external-btn" href="https://www.bbc.com/news/articles/ce8k1xx6yzjo" target="_blank" rel="noopener">🔗 BBC报道</a>
+<a class="card-link" onclick="openDetail('international-2'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-red">政治</span>
+    <div class="emoji-icon">🏛️</div>
+    <h3>意大利、丹麦领导人发表声明：反对"失控移民"</h3>
+    <p class="card-summary">环球时报报道，意大利和丹麦领导人共同发表声明，呼吁欧盟采取更强有力的措施应对非法移民问题。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-international-2">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 环球时报</span>
+    <span class="tag tag-red">政治</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/international-2.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>意大利、丹麦领导人发表声明：反对"失控移民"</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>事件</span><strong>意大利和丹麦联合声明反对失控移民</strong></div>
+    <div class="keypoint-card"><span>诉求</span><strong>呼吁欧盟加强边境管控和遣返机制</strong></div>
+    <div class="keypoint-card"><span>背景</span><strong>地中海移民路线持续活跃，多国承压</strong></div>
+    <div class="keypoint-card"><span>影响</span><strong>欧盟内部移民政策分歧再度凸显</strong></div>
+  </div>
+  <p>意大利总理和丹麦首相近日发表联合声明，明确反对他们所称的"失控移民"现象，呼吁欧盟层面采取更强有力的边境管控和遣返机制。</p>
+  <p>两国作为移民抵达欧洲的主要入境国，近年来承受了巨大的难民接收压力。这一声明凸显了欧盟内部在移民政策上长期存在的南北分歧。</p>
+  <a class="external-btn" href="https://news.china.com/international/1000/20260812/49669233.html" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="i-3">
-  <span class="detail-tag tag-green">灾难 · 地震</span>
-  <h2>菲律宾南部发生7.8级强震 多国发布海啸预警</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 菲律宾棉兰老岛 &nbsp;|&nbsp; 📡 BBC / USGS</div>
-  <div class="detail-visual"><img src="assets/images/i-3.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
-<p>6月8日，菲律宾南部棉兰老岛附近海域发生里氏7.8级强烈地震，震源深度约30公里。BBC报道称至少3人遇难，多地建筑受损。地震发生后，菲律宾、印度尼西亚、帕劳、马来西亚等多国相继发布海啸预警，沿海地区居民紧急向高地疏散。</p>
-  <p>USGS（美国地质调查局）记录显示，此次地震为浅源强震，震中位于菲律宾海沟附近——这一地区是全球地震最活跃的俯冲带之一。菲律宾地处环太平洋地震带和台风带交汇区，自然灾害风险极高，此次地震再次提醒区域防灾减灾体系的紧迫性。</p>
-  <div class="highlight-box">🌊 <strong>关键数据：</strong>震级7.8 · 震源深度30km（浅源）· 多国海啸预警 · 至少3人死亡 · 棉兰老岛及周边大范围有感。</div>
-  <div class="detail-quote">地震无法预测，但防灾可以提高每一个人的生还概率。</div>
-  <a class="external-btn" href="https://www.bbc.com/news/live/c20y4xp43ywt" target="_blank" rel="noopener">🔗 BBC直播报道</a>
+<a class="card-link" onclick="openDetail('international-3'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-orange">政策</span>
+    <div class="emoji-icon">🔫</div>
+    <h3>泰国总理下令暂停核发枪支购买许可证</h3>
+    <p class="card-summary">环球时报报道，泰国总理下令全面暂停核发新的枪支购买许可证，以遏制枪支暴力事件上升势头。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-international-3">
+  <div class="detail-meta">
+    <span>📅 2026-08-12</span>
+    <span>📰 环球时报</span>
+    <span class="tag tag-orange">政策</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/international-3.png" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>泰国总理下令暂停核发枪支购买许可证</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>事件</span><strong>泰国总理下令暂停核发新枪支购买许可证</strong></div>
+    <div class="keypoint-card"><span>原因</span><strong>遏制持续上升的枪支暴力事件</strong></div>
+    <div class="keypoint-card"><span>背景</span><strong>泰国是东南亚枪支拥有率最高的国家之一</strong></div>
+    <div class="keypoint-card"><span>措施</span><strong>同步加强非法枪支清查和收缴</strong></div>
+  </div>
+  <p>泰国总理佩通坦下令全面暂停核发新的枪支购买许可证，以应对该国持续上升的枪支暴力事件。这项行政命令同时要求执法部门加强非法枪支的清查和收缴工作。</p>
+  <p>泰国是东南亚地区枪支拥有率最高的国家之一，民间拥枪数量庞大。近年来多起恶性枪击事件引发社会对枪支管控的强烈呼声。</p>
+  <a class="external-btn" href="https://news.china.com/international/1000/20260812/49669216.html" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="i-4">
-  <span class="detail-tag tag-blue">俄乌 · 外交</span>
-  <h2>泽连斯基欧洲盟友提出五项和谈条件</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 欧洲 &nbsp;|&nbsp; 📡 BBC</div>
-  <div class="detail-visual"><img src="assets/images/i-4.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
-<p>在特朗普将外交和军事资源转向伊朗方向的背景下，乌克兰总统泽连斯基与最坚定的欧洲盟友举行紧急会晤。会后双方联合发布了五项和谈条件，涵盖安全保障、领土完整、战后重建、战犯追责和经济补偿等核心议题。</p>
-  <p>BBC分析指出，欧洲正试图在美俄伊三方博弈的缝隙中建立独立的和平斡旋框架。五项条件的发布时机和措辞都显示，欧洲不愿在乌克兰问题上被边缘化，同时也为未来可能与俄罗斯的接触设定"最低门槛"。</p>
-  <div class="highlight-box">🕊️ <strong>五项条件概要：</strong>① 安全保障机制 ② 领土完整共识 ③ 战后重建路线图 ④ 战犯司法程序 ⑤ 经济补偿框架。</div>
-  <div class="detail-quote">当美国的注意力转向中东，欧洲必须自己回答一个问题：和平的代价到底谁来付？</div>
-  <a class="external-btn" href="https://www.bbc.com/news/articles/cr7xr1g3nvvo" target="_blank" rel="noopener">🔗 BBC报道</a>
+<a class="card-link" onclick="openDetail('international-4'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-red">地缘</span>
+    <div class="emoji-icon">⚓</div>
+    <h3>特朗普称美方"百分百"控制霍尔木兹海峡</h3>
+    <p class="card-summary">新华社报道，特朗普声称美国已完全控制霍尔木兹海峡这一全球关键石油运输通道，引发国际关注。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-international-4">
+  <div class="detail-meta">
+    <span>📅 2026-08-11</span>
+    <span>📰 新华社</span>
+    <span class="tag tag-red">地缘</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/international-4.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>特朗普称美方"百分百"控制霍尔木兹海峡</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>事件</span><strong>特朗普声称美国完全控制霍尔木兹海峡</strong></div>
+    <div class="keypoint-card"><span>影响</span><strong>全球约1/5石油运输经过该海峡</strong></div>
+    <div class="keypoint-card"><span>背景</span><strong>美伊关系持续紧张，海湾局势升温</strong></div>
+    <div class="keypoint-card"><span>后续</span><strong>伊朗可能做出军事和外交回应</strong></div>
+  </div>
+  <p>特朗普近日宣称美方已"百分百"控制霍尔木兹海峡，这一表态引发国际社会高度关注。霍尔木兹海峡是全球最关键的石油运输通道，每天有约五分之一的全球石油供应经过此处。</p>
+  <p>分析人士指出，特朗普的言论可能在美伊关系持续紧张的背景下进一步加剧海湾地区的不稳定，伊朗方面预计将做出军事和外交层面的回应。</p>
+  <a class="external-btn" href="https://news.china.com/international/1000/20260811/49666776.html" target="_blank" rel="noopener">阅读原文</a>
 </template>
 
-<template class="detail-tpl" data-id="i-5">
-  <span class="detail-tag tag-purple">安全 · 美国</span>
-  <h2>纽约宾州车站发生持刀袭击 5人受伤</h2>
-  <div class="detail-meta">📅 2026年6月8日 &nbsp;|&nbsp; 📍 纽约 &nbsp;|&nbsp; 📡 BBC</div>
-  <div class="detail-visual"><img src="assets/images/i-5.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
-<p>6月8日，纽约市曼哈顿宾州车站发生一起持刀袭击事件，造成5人受伤。事发时正值特朗普计划于周一（6月9日）访问纽约观看NBA总决赛，全市已处于高度安保状态，事件进一步加剧了公众安全担忧。</p>
-  <p>据纽约警方初步通报，嫌疑人已被控制，作案动机正在调查中，暂无证据表明与恐怖主义直接相关。宾州车站是全美最繁忙的交通枢纽之一，日均客流量超过60万人次，此类事件对城市安全信心的冲击不可低估。</p>
-  <div class="highlight-box">🔪 <strong>概要：</strong>5人受伤 · 嫌疑人已被控制 · 特朗普将赴纽约观赛 · 纽约全市处于高安保级别。</div>
-  <div class="detail-quote">最繁忙的车站里，每一道警戒线背后都是公众对安全的期待。</div>
-  <a class="external-btn" href="https://www.bbc.com/news/articles/cj0g4425zmeo" target="_blank" rel="noopener">🔗 BBC报道</a>
+<a class="card-link" onclick="openDetail('international-5'); return false;" href="#">
+  <div class="news-card">
+    <span class="tag tag-red">军事</span>
+    <div class="emoji-icon">🛡️</div>
+    <h3>防卫预算申请额再创新高，日本有何图谋？</h3>
+    <p class="card-summary">新华网分析报道，日本防卫预算申请额连续多年创新高，加速军事能力扩张引发周边国家警惕。</p>
+    <div class="expand-hint">点击查看详情 →</div>
+  </div>
+</a>
+<template id="detail-international-5">
+  <div class="detail-meta">
+    <span>📅 2026-08-11</span>
+    <span>📰 新华网</span>
+    <span class="tag tag-red">军事</span>
+  </div>
+  <div class="detail-visual"><img src="assets/images/international-5.jpg" alt="" onerror="this.parentElement.style.display='none'"></div>
+<h2>防卫预算申请额再创新高，日本有何图谋？</h2>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>数据</span><strong>日本防卫预算申请额连续多年创新高</strong></div>
+    <div class="keypoint-card"><span>方向</span><strong>重点投向远程打击和反导能力建设</strong></div>
+    <div class="keypoint-card"><span>背景</span><strong>突破"专守防卫"原则引发宪政争议</strong></div>
+    <div class="keypoint-card"><span>影响</span><strong>周边国家对日本军事扩张保持警惕</strong></div>
+  </div>
+  <p>日本防卫省提交的年度预算申请额再创历史新高，重点投向远程打击能力、反导系统和网络战等新兴领域。这标志着日本军事能力建设的持续加速。</p>
+  <p>分析人士指出，日本防卫预算的快速增长已突破了战后长期坚持的"专守防卫"原则，引发东亚邻国对地区军备竞赛和安全格局变化的深切忧虑。</p>
+  <a class="external-btn" href="https://news.china.com/international/1000/20260811/49666649.html" target="_blank" rel="noopener">阅读原文</a>
 </template>

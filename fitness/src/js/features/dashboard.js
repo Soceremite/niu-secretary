@@ -1,9 +1,11 @@
 
 // fitness/src/js/features/dashboard.js
-import { addWeightLog, clearWeightLogs, countRealPending, exportAllData, getProfile, importAllData, listNutritionLogs, listRecoveryLogs, listWeightLogs, putProfile } from '../lib/db.js';
+import { addWeightLog, clearWeightLogs, countRealPending, exportAllData, getProfile, listNutritionLogs, listRecoveryLogs, listWeightLogs, putProfile } from '../lib/db.js';
 import { calculateBmi, calculateTdee, classifyAsianBmi, progressPercent, summarizeWeight } from '../lib/calculator.js';
 import { summarizeNutrition } from '../lib/nutrition.js';
-import { fetchUnifiedNutritionLogs } from '../lib/actionApi.js';
+import { createUnifiedBodyMetric, fetchUnifiedBodyMetrics, fetchUnifiedFitnessProfile, fetchUnifiedNutritionLogs, fetchUnifiedRecoveryLogs, updateUnifiedFitnessProfile } from '../lib/actionApi.js';
+
+const API_BASE = '/niu-secretary/api';
 
 const defaultProfile = {
   heightCm: 175,
@@ -19,11 +21,22 @@ const defaultProfile = {
 let profile = { ...defaultProfile };
 
 export async function initDashboard() {
-  profile = { ...defaultProfile, ...(await getProfile()) };
+  profile = await loadProfileForDashboard();
   bindForms();
   fillProfileForm();
   loadFitnessProfileAndRecommend();
   await render();
+}
+
+async function loadProfileForDashboard() {
+  try {
+    const unifiedProfile = normalizeProfile(await fetchUnifiedFitnessProfile());
+    await putProfile({ ...unifiedProfile, syncStatus: 'synced', source: 'unified-api' });
+    return unifiedProfile;
+  } catch (error) {
+    console.warn('[fitness] unified profile read failed, using offline cache', error);
+    return normalizeProfile(await getProfile());
+  }
 }
 
 async function loadFitnessProfileAndRecommend() {
@@ -38,7 +51,7 @@ async function loadFitnessProfileAndRecommend() {
 
 async function loadFitnessProfile(container) {
   try {
-    const data = await executeAction('profile.get', { module: 'fitness' });
+    const data = await getJson(`${API_BASE}/profile?module=fitness`);
     const p = data.profile;
     const fields = [
       ['目标', goalLabel(p?.goal)],
@@ -60,8 +73,8 @@ async function loadFitnessProfile(container) {
 async function loadFitnessRecommend(container) {
   const today = new Date().toISOString().slice(0, 10);
   try {
-    const data = await executeAction('fitness.recommend', { date: today });
-    const recs = data.recommendations || [];
+    const data = await getJson(`${API_BASE}/platform/today?date=${encodeURIComponent(today)}&limit=1`);
+    const recs = data.context?.fitness?.workoutRecommendations || [];
     if (!recs.length) {
       container.innerHTML = '<li class="recommend-placeholder">今日暂无推荐</li>';
       return;
@@ -82,15 +95,11 @@ function trainingLevelLabel(l) {
   return map[l] || l || '--';
 }
 
-async function executeAction(action, input) {
-  const response = await fetch('/niu-secretary/api/actions/execute', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, input, context: { client: 'fitness-page' } })
-  });
+async function getJson(url) {
+  const response = await fetch(url);
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
-    throw new Error(data.message || `动作接口失败：${response.status}`);
+    throw new Error(data.message || `读取接口失败：${response.status}`);
   }
   return data;
 }
@@ -102,16 +111,34 @@ function bindForms() {
   document.getElementById('weight-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    await addWeightLog({
+    const log = {
       date: data.date,
       weightKg: Number(data.weightKg),
       bodyFatPercent: optionalNumber(data.bodyFatPercent),
       waistCm: optionalNumber(data.waistCm),
       note: data.note.trim()
+    };
+    let synced = false;
+    let serverId = '';
+    try {
+      const record = await createUnifiedBodyMetric({
+        ...log,
+        bodyFatPct: log.bodyFatPercent
+      });
+      synced = true;
+      serverId = record?.id || '';
+    } catch (error) {
+      console.warn('[fitness] unified body metric sync failed', error);
+    }
+    await addWeightLog({
+      ...log,
+      serverId,
+      source: synced ? 'unified-api' : 'fitness-page',
+      syncStatus: synced ? 'synced' : 'pending'
     });
     event.currentTarget.reset();
     document.querySelector('#weight-form [name="date"]').value = today;
-    showToast('已保存到本地 IndexedDB');
+    showToast(synced ? '体征已同步到统一动作接口，并保留本地缓存' : '体征已保存到本地，统一动作接口暂不可用');
     await render();
   });
 
@@ -129,30 +156,41 @@ function bindForms() {
       carbsTarget: Number(data.carbsTarget),
       fatTarget: Number(data.fatTarget)
     };
-    await putProfile(profile);
+    try {
+      const savedProfile = normalizeProfile(await updateUnifiedFitnessProfile(profile));
+      profile = { ...profile, ...savedProfile };
+      await putProfile({ ...profile, syncStatus: 'synced', source: 'unified-api' });
+      showToast('画像已保存，并同步到统一动作接口');
+    } catch (error) {
+      console.warn('[fitness] unified profile sync failed', error);
+      await putProfile({ ...profile, syncStatus: 'pending', source: 'offline-cache' });
+      showToast('统一动作接口暂不可用，画像仅保留在离线缓存');
+    }
     await render();
   });
 
   document.getElementById('clear-logs').addEventListener('click', async () => {
     await clearWeightLogs();
-    showToast('本地体重记录已清空');
+    showToast('体征离线缓存已清空，服务器记录不受影响');
     await render();
   });
 
   document.getElementById('export-json').addEventListener('click', exportJson);
-  document.getElementById('import-json').addEventListener('change', importJson);
-  document.getElementById('seed-demo').addEventListener('click', seedDemo);
 }
 
 async function render() {
-  const [logs, localNutritionLogs, unifiedNutritionLogs, pending, recoveryLogs] = await Promise.all([
+  const [localWeightLogs, unifiedWeight, localNutritionLogs, unifiedNutrition, pending, localRecoveryLogs, unifiedRecovery] = await Promise.all([
     listWeightLogs(),
+    loadUnified(fetchUnifiedBodyMetrics),
     listNutritionLogs(),
-    fetchUnifiedNutritionLogs().catch(() => []),
+    loadUnified(fetchUnifiedNutritionLogs),
     countRealPending(),
-    listRecoveryLogs()
+    listRecoveryLogs(),
+    loadUnified(fetchUnifiedRecoveryLogs)
   ]);
-  const nutritionLogs = mergeNutritionLogs(localNutritionLogs, unifiedNutritionLogs);
+  const logs = mergeWeightLogs(localWeightLogs, unifiedWeight.items, { includeLocalCache: unifiedWeight.offline });
+  const nutritionLogs = mergeNutritionLogs(localNutritionLogs, unifiedNutrition.items, { includeLocalCache: unifiedNutrition.offline });
+  const recoveryLogs = mergeRecoveryLogs(localRecoveryLogs, unifiedRecovery.items, { includeLocalCache: unifiedRecovery.offline });
   const summary = summarizeWeight(logs);
   const latestWeight = summary.latest?.weightKg || profile.weightKg || 80;
   const bmi = calculateBmi(latestWeight, profile.heightCm);
@@ -183,13 +221,52 @@ async function render() {
   drawWeightChart(summary.sorted);
 }
 
-function mergeNutritionLogs(localLogs, unifiedLogs) {
+async function loadUnified(loader) {
+  try {
+    return { items: await loader(), offline: false };
+  } catch {
+    return { items: [], offline: true };
+  }
+}
+
+function mergeWeightLogs(localLogs, unifiedLogs, options = {}) {
   const rows = [];
   const seenServerIds = new Set();
-  for (const log of localLogs) {
+  const visibleLocalLogs = options.includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('bm_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
+}
+
+function mergeNutritionLogs(localLogs, unifiedLogs, options = {}) {
+  const rows = [];
+  const seenServerIds = new Set();
+  const visibleLocalLogs = options.includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
     rows.push(log);
     if (log.serverId) seenServerIds.add(log.serverId);
     if (log.id && String(log.id).startsWith('nut_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
+}
+
+function mergeRecoveryLogs(localLogs, unifiedLogs, options = {}) {
+  const rows = [];
+  const seenServerIds = new Set();
+  const visibleLocalLogs = options.includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('rec_')) seenServerIds.add(log.id);
   }
   for (const log of unifiedLogs) {
     if (!seenServerIds.has(log.id)) rows.push(log);
@@ -219,11 +296,28 @@ function updateTargets(todayNutrition, calorieTarget) {
   }
 }
 
+function normalizeProfile(value = {}) {
+  const raw = value && typeof value === 'object' ? value : {};
+  const targetCalories = Number(raw.targetCalories || raw.calorieTarget || defaultProfile.calorieTarget);
+  return {
+    ...defaultProfile,
+    ...raw,
+    calorieTarget: targetCalories,
+    proteinTarget: Number(raw.proteinTarget || defaultProfile.proteinTarget),
+    carbsTarget: Number(raw.carbsTarget || defaultProfile.carbsTarget),
+    fatTarget: Number(raw.fatTarget || defaultProfile.fatTarget),
+    heightCm: Number(raw.heightCm || defaultProfile.heightCm),
+    age: Number(raw.age || defaultProfile.age),
+    activity: Number(raw.activity || defaultProfile.activity),
+    sex: raw.sex || defaultProfile.sex
+  };
+}
+
 function renderLogList(logs) {
   const list = document.getElementById('log-list');
   const recent = [...logs].reverse().slice(0, 8);
   if (!recent.length) {
-    list.innerHTML = '<div class="empty">暂无记录。可以手动录入，或填充示例数据。</div>';
+    list.innerHTML = '<div class="empty">暂无记录。手动录入后会同步到统一 API，并保留本地缓存。</div>';
     return;
   }
   list.innerHTML = recent.map((log) => `
@@ -295,39 +389,7 @@ async function exportJson() {
   link.download = `niu-fitness-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   URL.revokeObjectURL(url);
-  showToast('JSON 已导出');
-}
-
-async function importJson(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  try {
-    await importAllData(JSON.parse(await file.text()));
-    showToast('JSON 已导入');
-    await render();
-  } catch {
-    showToast('导入失败：文件格式不对');
-  } finally {
-    event.target.value = '';
-  }
-}
-
-async function seedDemo() {
-  await clearWeightLogs();
-  const base = new Date();
-  for (let i = 11; i >= 0; i--) {
-    const day = new Date(base);
-    day.setDate(base.getDate() - i);
-    await addWeightLog({
-      date: day.toISOString().slice(0, 10),
-      weightKg: Number((82.4 - (11 - i) * 0.18 + Math.sin(i) * 0.16).toFixed(1)),
-      bodyFatPercent: Number((24.1 - (11 - i) * 0.08).toFixed(1)),
-      waistCm: Number((91.2 - (11 - i) * 0.12).toFixed(1)),
-      note: i % 3 === 0 ? '训练日' : ''
-    });
-  }
-  showToast('示例数据已写入本地');
-  await render();
+  showToast('离线缓存 JSON 已导出');
 }
 
 function fillProfileForm() {

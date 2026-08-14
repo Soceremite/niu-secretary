@@ -2,6 +2,12 @@
 
 const COLOR_MAP = { '影视': '#66848e', '音乐': '#c9975f', '播客': '#243746', '小说': '#7f8a6a' };
 const ICON_MAP = { '影视': '影', '音乐': '乐', '播客': '播', '小说': '书' };
+const LEISURE_CATEGORY_MAP = { '影视': 'movie', '音乐': 'music', '播客': 'podcast', '小说': 'novel' };
+const LEISURE_ACTION_MAP = {
+  save: 'leisure.item.save',
+  like: 'leisure.item.rate',
+  dismiss: 'leisure.item.dismiss',
+};
 
 // 详情弹窗
 function closeDetail(e) {
@@ -14,6 +20,7 @@ function closeDetail(e) {
 function showDetail(item, rawItem) {
   const overlay = document.getElementById('detail-overlay');
   const content = document.getElementById('detail-content');
+  const feedbackHtml = buildFeedbackActions(item, rawItem);
   let html = `<h3>${item.title}</h3>`;
   html += `<div class="sub">${item.reason || ''}</div>`;
 
@@ -31,6 +38,7 @@ function showDetail(item, rawItem) {
     if (rawItem.director) html += `<p style="font-size:13px;color:var(--muted);"><strong>导演：</strong>${rawItem.director}</p>`;
     html += '<div class="detail-actions">';
     if (rawItem.doubanUrl) html += `<a class="primary-link" href="${rawItem.doubanUrl}" target="_blank">📺 豆瓣详情</a>`;
+    html += feedbackHtml;
     html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
     html += '</div>';
   } else if (item.type === '音乐' && rawItem) {
@@ -45,6 +53,7 @@ function showDetail(item, rawItem) {
     html += `<p style="font-size:14px;line-height:1.7;color:var(--ink)">${rawItem.description || rawItem.reason || ''}</p>`;
     html += '<div class="detail-actions">';
     if (rawItem.platformUrl) html += `<a class="primary-link" href="${rawItem.platformUrl}" target="_blank">🎵 在线聆听</a>`;
+    html += feedbackHtml;
     html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
     html += '</div>';
   } else if (item.type === '播客' && rawItem) {
@@ -57,6 +66,7 @@ function showDetail(item, rawItem) {
     html += '</div>';
     html += '<div class="detail-actions">';
     if (rawItem.platformUrl) html += `<a class="primary-link" href="${rawItem.platformUrl}" target="_blank">🎧 喜马拉雅</a>`;
+    html += feedbackHtml;
     html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
     html += '</div>';
   } else if (item.type === '小说' && rawItem) {
@@ -70,15 +80,122 @@ function showDetail(item, rawItem) {
     html += '<div class="detail-actions">';
     html += '<a class="primary-link" href="https://www.qidian.com" target="_blank">📖 起点读书</a>';
     if (rawItem.platformUrl) html += `<a href="${rawItem.platformUrl}" target="_blank">🔗 在线阅读</a>`;
+    html += feedbackHtml;
     html += '<a href="#" onclick="closeDetail();return false">关闭</a>';
     html += '</div>';
   } else {
     html += `<p style="font-size:14px;line-height:1.7;color:var(--ink)">${item.reason || ''}</p>`;
-    html += '<div class="detail-actions"><a href="#" onclick="closeDetail();return false">关闭</a></div>';
+    html += `<div class="detail-actions">${feedbackHtml}<a href="#" onclick="closeDetail();return false">关闭</a></div>`;
   }
 
   content.innerHTML = html;
+  bindFeedbackActions(content, item, rawItem);
   overlay.classList.add('active');
+}
+
+function buildFeedbackActions(item, rawItem) {
+  if (!rawItem || !LEISURE_CATEGORY_MAP[item.type]) return '';
+  return [
+    '<button class="detail-feedback" type="button" data-leisure-feedback="save">收藏</button>',
+    '<button class="detail-feedback" type="button" data-leisure-feedback="like">喜欢</button>',
+    '<button class="detail-feedback danger" type="button" data-leisure-feedback="dismiss">不感兴趣</button>',
+    '<span class="detail-feedback-status" data-leisure-feedback-status></span>',
+  ].join('');
+}
+
+function bindFeedbackActions(content, item, rawItem) {
+  content.querySelectorAll('[data-leisure-feedback]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const feedback = button.getAttribute('data-leisure-feedback');
+      await recordLeisureFeedback(feedback, item, rawItem, content, button);
+    });
+  });
+}
+
+async function recordLeisureFeedback(feedback, item, rawItem, content, button) {
+  const status = content.querySelector('[data-leisure-feedback-status]');
+  const action = LEISURE_ACTION_MAP[feedback];
+  const category = LEISURE_CATEGORY_MAP[item.type];
+  if (!action || !category || !rawItem) return;
+  const input = {
+    itemId: rawItem.id || `${category}_${item.rawIndex || 0}`,
+    category,
+    title: rawItem.title || rawItem.name || item.title,
+    rating: feedback === 'like' ? 5 : 0,
+    note: `from leisure ${item.type} detail`,
+    source: 'leisure-page',
+    payload: {
+      genres: Array.isArray(rawItem.genres) ? rawItem.genres : (rawItem.genre ? [rawItem.genre] : []),
+      tags: Array.isArray(rawItem.tags) ? rawItem.tags : [],
+      mood: rawItem.mood || '',
+      score: rawItem.matchScore || item.score || 0,
+      platformUrl: rawItem.platformUrl || rawItem.doubanUrl || '',
+    },
+  };
+  button.disabled = true;
+  if (status) status.textContent = '写入中...';
+  try {
+    await postLeisureFeedbackAction(action, input);
+    if (status) status.textContent = '已写入后端';
+    content.querySelectorAll('[data-leisure-feedback]').forEach((btn) => {
+      btn.disabled = btn !== button;
+    });
+    if (typeof loadTasteProfile === 'function') loadTasteProfile();
+    if (typeof loadProfileSuggestions === 'function') loadProfileSuggestions();
+  } catch (error) {
+    cacheLeisureFeedback(input, feedback, action);
+    button.disabled = false;
+    if (status) status.textContent = '后端不可用，已离线缓存';
+  }
+}
+
+async function postLeisureFeedbackAction(action, input) {
+  const response = await fetch('/niu-secretary/api/actions/execute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action,
+      input,
+      context: { client: 'leisure-page', confirmed: true },
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.message || `反馈写入失败：${response.status}`);
+  }
+  return data;
+}
+
+function cacheLeisureFeedback(input, feedback, action) {
+  try {
+    window.LeisureOfflineFeedbackQueue.enqueue(action, input, feedback);
+  } catch (error) {
+    console.warn('[Leisure] Failed to cache feedback:', error);
+  }
+}
+
+async function flushPendingLeisureFeedback() {
+  const items = window.LeisureOfflineFeedbackQueue.list();
+  if (!Array.isArray(items) || !items.length) return;
+  const remaining = [];
+  for (const item of items) {
+    const action = item.action || LEISURE_ACTION_MAP[item.feedback];
+    const input = item.input || item;
+    if (!action) {
+      remaining.push(item);
+      continue;
+    }
+    try {
+      await postLeisureFeedbackAction(action, input);
+    } catch {
+      remaining.push(item);
+    }
+  }
+  try {
+    window.LeisureOfflineFeedbackQueue.replace(remaining);
+  } catch (error) {
+    console.warn('[Leisure] Failed to update pending feedback cache:', error);
+  }
 }
 
 // Scroll reveal
@@ -158,4 +275,5 @@ function highlightNav() {
 document.addEventListener('DOMContentLoaded', () => {
   highlightNav();
   initScrollReveal();
+  flushPendingLeisureFeedback();
 });

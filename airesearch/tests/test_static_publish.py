@@ -38,6 +38,46 @@ def test_publish_static_site_copies_site_and_writes_manifest(tmp_path: Path):
     assert diff["changed"] == []
 
 
+def test_publish_static_site_uses_site_manifest_publish_files(tmp_path: Path):
+    source = make_site(tmp_path)
+    (source / "assets").mkdir()
+    (source / "assets" / "site.css").write_text("body{}\n", encoding="utf-8")
+    (source / "artifact-ledger.json").write_text('{"huge": true}\n', encoding="utf-8")
+    (source / "site-manifest.json").write_text(
+        json.dumps(
+            {
+                "entrypoint": "index.html",
+                "publish_files": [
+                    "index.html",
+                    "manifest.json",
+                    "site-manifest.json",
+                    "assets/site.css",
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    out_dir = tmp_path / "site-current"
+
+    result = publish_static_site(source, out_dir)
+
+    assert result.file_count == 6
+    assert (out_dir / "index.html").exists()
+    assert (out_dir / "assets" / "site.css").exists()
+    assert not (out_dir / "report.md").exists()
+    assert not (out_dir / "artifact-ledger.json").exists()
+    manifest = json.loads((out_dir / "publish.json").read_text(encoding="utf-8"))
+    assert manifest["files"] == [
+        "assets/site.css",
+        "index.html",
+        "manifest.json",
+        "publish-diff.json",
+        "publish.json",
+        "site-manifest.json",
+    ]
+
+
 def test_publish_static_site_cleans_stale_files_by_default(tmp_path: Path):
     source = make_site(tmp_path)
     out_dir = tmp_path / "site-current"
@@ -99,6 +139,8 @@ def test_write_static_host_config_writes_nginx_config_and_manifest(tmp_path: Pat
     assert "location = /niu-secretary/airesearch" in config
     assert "location /niu-secretary/airesearch/" in config
     assert f"alias {deploy_root.resolve(strict=False)}/;" in config
+    assert "gzip on;" in config
+    assert "gzip_types text/css application/javascript application/json image/svg+xml text/markdown;" in config
     assert "try_files $uri $uri/ /niu-secretary/airesearch/index.html;" in config
     manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
     assert manifest["site_dir"] == str(site)

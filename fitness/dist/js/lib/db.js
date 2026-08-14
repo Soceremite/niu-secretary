@@ -69,11 +69,6 @@ export async function enqueueSync(type, payload) {
   }));
 }
 
-export async function countPendingSync() {
-  const all = await listRows('syncQueue');
-  return all.filter((item) => item.status === 'pending').length;
-}
-
 export async function countRealPending() {
   const db = await getDb();
   let count = 0;
@@ -93,21 +88,6 @@ export async function exportAllData() {
   return data;
 }
 
-export async function importAllData(snapshot) {
-  if (!snapshot?.stores || typeof snapshot.stores !== 'object') throw new Error('invalid-snapshot');
-  const db = await getDb();
-  const storeNames = STORES.filter((name) => Array.isArray(snapshot.stores[name]));
-  await new Promise((resolve, reject) => {
-    const transaction = db.transaction(storeNames, 'readwrite');
-    transaction.oncomplete = resolve;
-    transaction.onerror = () => reject(transaction.error);
-    for (const name of storeNames) {
-      const store = transaction.objectStore(name);
-      store.clear();
-      for (const row of snapshot.stores[name]) store.put(row);
-    }
-  });
-}
 
 async function addSynced(storeName, type, row) {
   const normalized = normalizeRecord(row);

@@ -3,14 +3,18 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import urllib.error
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from airesearch.db import connect, init_db
 from airesearch.paperpipe_sync import stable_json
+from airesearch.provider_config import responses_url
 
 
 EXTRACTOR_VERSION = "2026-06-08.1"
@@ -21,6 +25,10 @@ Return only JSON with a top-level facts array. Each fact must use one of these
 fact_type values: method, dataset, benchmark, claim, limitation. Each fact must
 include statement, evidence_quote copied from the evidence pack,
 evidence_artifact_type, confidence between 0 and 1, and metadata object.
+Cover all five fact types when the evidence pack supports them, including an
+explicit limitation grounded in the source rather than inferred by the model.
+The response must be strict JSON: escape every backslash inside JSON strings as
+a double backslash and do not emit raw LaTeX backslash escapes.
 Do not invent facts that are not supported by the evidence pack."""
 
 
@@ -61,31 +69,87 @@ class FactExtractionResult:
 
 
 class OpenAICompatibleClient:
-    def complete_json(self, *, model: str, base_url: str | None, api_key: str, prompt: str) -> dict[str, Any]:
-        import urllib.error
-        import urllib.request
+    @staticmethod
+    def _endpoint(base_url: str | None) -> tuple[str, str]:
+        value = (base_url or "https://api.openai.com/v1").rstrip("/")
+        if value.endswith("/responses"):
+            return value, "responses"
+        if value.endswith("/chat/completions"):
+            return value, "chat_completions"
+        return value + "/chat/completions", "chat_completions"
 
-        endpoint = (base_url or "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
-        body = stable_json({
-            "model": model,
-            "messages": [
-                {"role": "system", "content": FACT_EXTRACTION_SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            "temperature": 0,
-            "response_format": {"type": "json_object"},
-        }).encode("utf-8")
+    @staticmethod
+    def _response_text(payload: dict[str, Any]) -> str:
+        choices = payload.get("choices")
+        if isinstance(choices, list) and choices:
+            content = choices[0].get("message", {}).get("content")
+            if isinstance(content, str):
+                return content
+            if isinstance(content, list):
+                return "".join(
+                    str(item.get("text") or "") for item in content if isinstance(item, dict)
+                )
+        if isinstance(payload.get("output_text"), str):
+            return str(payload["output_text"])
+        output = payload.get("output")
+        if isinstance(output, list):
+            return "".join(
+                str(content.get("text") or "")
+                for item in output
+                if isinstance(item, dict)
+                for content in (item.get("content") or [])
+                if isinstance(content, dict) and content.get("type") in {"output_text", "text"}
+            )
+        return ""
+
+    def complete_json(self, *, model: str, base_url: str | None, api_key: str, prompt: str) -> dict[str, Any]:
+        endpoint, api_style = self._endpoint(base_url)
+        if api_style == "responses":
+            request_payload = {
+                "model": model,
+                "input": [
+                    {"role": "system", "content": [{"type": "input_text", "text": FACT_EXTRACTION_SYSTEM_PROMPT}]},
+                    {"role": "user", "content": [{"type": "input_text", "text": prompt}]},
+                ],
+                "max_output_tokens": 6000,
+            }
+        else:
+            request_payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": FACT_EXTRACTION_SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0,
+                "response_format": {"type": "json_object"},
+            }
+        body = stable_json(request_payload).encode("utf-8")
         request = urllib.request.Request(
             endpoint,
             data=body,
             headers={
                 "authorization": f"Bearer {api_key}",
                 "content-type": "application/json",
+                "user-agent": "OpenClaw/1.0",
+                "accept": "application/json",
             },
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=90) as response:
+            proxy_url = (
+                os.environ.get("AIRESEARCH_FACT_PROXY")
+                or os.environ.get("AIRESEARCH_FORMULA_OCR_PROXY")
+                or os.environ.get("OPENCODE_GO_PROXY")
+                or ""
+            ).strip()
+            if proxy_url:
+                opener = urllib.request.build_opener(
+                    urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
+                )
+                response_context = opener.open(request, timeout=300)
+            else:
+                response_context = urllib.request.urlopen(request, timeout=300)
+            with response_context as response:
                 payload = json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:500]
@@ -93,8 +157,13 @@ class OpenAICompatibleClient:
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
             raise FactValidationError(f"provider request failed: {exc}") from exc
         try:
-            content = payload["choices"][0]["message"]["content"]
-            return json.loads(content)
+            content = self._response_text(payload).strip()
+            content = re.sub(r"^```(?:json)?\s*", "", content, flags=re.I)
+            content = re.sub(r"\s*```$", "", content).strip()
+            result = json.loads(content)
+            if not isinstance(result, dict):
+                raise TypeError("JSON root must be an object")
+            return result
         except (json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
             raise FactValidationError(f"provider returned invalid JSON content: {exc}") from exc
 
@@ -171,7 +240,13 @@ def read_artifact_text(path_value: str, *, max_chars: int) -> str:
     return path.read_text(encoding="utf-8", errors="replace")[:max_chars]
 
 
-def build_evidence_pack(conn, paper_key: str, *, max_input_chars: int) -> EvidencePack:
+def build_evidence_pack(
+    conn,
+    paper_key: str,
+    *,
+    max_input_chars: int,
+    required_fact_types: Iterable[str] | None = None,
+) -> EvidencePack:
     paper = conn.execute("select * from papers where paper_key = ?", (paper_key,)).fetchone()
     if paper is None:
         raise FactValidationError(f"paper not found: {paper_key}")
@@ -179,6 +254,7 @@ def build_evidence_pack(conn, paper_key: str, *, max_input_chars: int) -> Eviden
     meta = parse_json(paper["meta_json"], {})
     ids = parse_json(paper["ids_json"], {})
     authors = parse_json(paper["authors_json"], [])
+    required_types = sorted({str(value).strip() for value in (required_fact_types or ()) if str(value).strip()})
     sections: list[str] = [
         f"paper_key: {paper_key}",
         f"title: {paper['title'] or ''}",
@@ -188,6 +264,13 @@ def build_evidence_pack(conn, paper_key: str, *, max_input_chars: int) -> Eviden
         f"ids: {stable_json(ids)}",
         f"metadata: {stable_json(meta)}",
     ]
+    if required_types:
+        sections.append(
+            "REQUIRED FACT TYPES FOR THIS RETRY: "
+            + ", ".join(required_types)
+            + ". Return at least one grounded fact for every listed type and retain all other grounded types. "
+            + "Do not invent a type when the evidence does not support it; quote the exact supporting evidence."
+        )
     remaining -= sum(len(section) for section in sections)
     artifact_texts: dict[str, str] = {}
     artifacts = conn.execute(
@@ -223,6 +306,7 @@ def build_evidence_pack(conn, paper_key: str, *, max_input_chars: int) -> Eviden
         "ids": ids,
         "metadata": meta,
         "artifacts": artifact_texts,
+        "required_fact_types": required_types,
     }
     prompt_text = "\n\n".join(sections)
     evidence_hash = hashlib.sha256(stable_json(prompt_json).encode("utf-8")).hexdigest()
@@ -235,7 +319,33 @@ def build_evidence_pack(conn, paper_key: str, *, max_input_chars: int) -> Eviden
     )
 
 
-def load_target_papers(conn, *, paper_key: str | None, limit: int | None):
+def load_target_papers(
+    conn,
+    *,
+    paper_key: str | None = None,
+    paper_keys: Iterable[str] | None = None,
+    limit: int | None = None,
+):
+    if paper_keys is not None:
+        requested = []
+        seen: set[str] = set()
+        for value in paper_keys:
+            key = str(value or "").strip()
+            if key and key not in seen:
+                requested.append(key)
+                seen.add(key)
+        if not requested:
+            return []
+        placeholders = ",".join("?" for _ in requested)
+        rows = conn.execute(
+            f"select paper_key from papers where paper_key in ({placeholders})",
+            requested,
+        ).fetchall()
+        present = {str(row["paper_key"]) for row in rows}
+        missing = [key for key in requested if key not in present]
+        if missing:
+            raise FactValidationError("paper list contains missing papers: " + ",".join(missing))
+        return requested[:limit] if limit is not None else requested
     sql = "select paper_key from papers"
     params: list[Any] = []
     if paper_key:
@@ -394,12 +504,44 @@ def write_facts(conn, *, paper_key: str, provider_name: str, facts: list[FactPay
     return facts_written, provenance_written
 
 
+def _required_retry_types(
+    required_fact_types: Mapping[str, Iterable[str]] | None,
+    paper_key: str,
+) -> set[str]:
+    """A targeted retry must be complete before it can replace prior facts."""
+    configured = {
+        str(value).strip()
+        for value in (required_fact_types or {}).get(paper_key, ())
+        if str(value).strip()
+    }
+    return set(ALLOWED_FACT_TYPES) if configured else set()
+
+
+def _validate_required_retry_facts(
+    facts: list[FactPayload],
+    *,
+    required_fact_types: Mapping[str, Iterable[str]] | None,
+    paper_key: str,
+) -> None:
+    required = _required_retry_types(required_fact_types, paper_key)
+    if not required:
+        return
+    returned = {fact.fact_type for fact in facts}
+    missing = sorted(required - returned)
+    if missing:
+        raise FactValidationError(
+            f"targeted retry requires all five fact types before write_facts: {','.join(missing)}"
+        )
+
+
 def extract_fixture_facts(
     db_path: Path,
     *,
     provider_name: str,
     fixture_path: Path,
     paper_key: str | None,
+    paper_keys: Iterable[str] | None = None,
+    required_fact_types: Mapping[str, Iterable[str]] | None = None,
     limit: int | None,
 ) -> FactExtractionResult:
     provider_payload = load_fixture_provider(fixture_path)
@@ -417,7 +559,9 @@ def extract_fixture_facts(
         )
         run_id = run.lastrowid
         try:
-            target_papers = load_target_papers(conn, paper_key=paper_key, limit=limit)
+            target_papers = load_target_papers(
+                conn, paper_key=paper_key, paper_keys=paper_keys, limit=limit
+            )
             facts_written = 0
             provenance_written = 0
             now = utc_now()
@@ -456,6 +600,8 @@ def extract_openai_compatible_facts(
     db_path: Path,
     *,
     paper_key: str | None,
+    paper_keys: Iterable[str] | None,
+    required_fact_types: Mapping[str, Iterable[str]] | None = None,
     limit: int | None,
     model: str | None,
     base_url: str | None,
@@ -471,7 +617,12 @@ def extract_openai_compatible_facts(
         raise ValueError("error_policy must be one of: strict, warn")
     provider_name = "openai-compatible"
     resolved_model = model or os.environ.get("AIRESEARCH_FACT_MODEL") or "gpt-4.1-mini"
-    resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+    resolved_base_url = (
+        base_url
+        or os.environ.get("AIRESEARCH_FACT_BASE_URL")
+        or responses_url(os.environ.get("OPENCODE_GO_BASE_URL"))
+        or os.environ.get("OPENAI_BASE_URL")
+    )
     init_db(db_path)
     started_at = utc_now()
     with connect(db_path) as conn:
@@ -486,10 +637,20 @@ def extract_openai_compatible_facts(
         )
         run_id = run.lastrowid
         try:
-            api_key = os.environ.get(api_key_env)
+            api_key = (
+                os.environ.get(api_key_env)
+                or os.environ.get("AIRESEARCH_FACT_API_KEY")
+                or os.environ.get("OPENCODE_GO_API_KEY")
+                or os.environ.get("OPENAI_API_KEY")
+            )
             if not api_key:
-                raise FactValidationError(f"{api_key_env} is required for openai-compatible provider")
-            target_papers = load_target_papers(conn, paper_key=paper_key, limit=limit)
+                raise FactValidationError(
+                    f"{api_key_env} is required for openai-compatible provider "
+                    "(fallbacks: AIRESEARCH_FACT_API_KEY, OPENAI_API_KEY, OPENCODE_GO_API_KEY)"
+                )
+            target_papers = load_target_papers(
+                conn, paper_key=paper_key, paper_keys=paper_keys, limit=limit
+            )
             active_client = client or OpenAICompatibleClient()
 
             # ── Phase 1: Build all evidence packs, identify workload ──
@@ -498,7 +659,12 @@ def extract_openai_compatible_facts(
             dry_run_count = 0
 
             for pk in target_papers:
-                pack = build_evidence_pack(conn, pk, max_input_chars=max_input_chars)
+                pack = build_evidence_pack(
+                    conn,
+                    pk,
+                    max_input_chars=max_input_chars,
+                    required_fact_types=_required_retry_types(required_fact_types, pk),
+                )
                 now = utc_now()
                 if dry_run:
                     existing_success = find_successful_cache(
@@ -534,6 +700,11 @@ def extract_openai_compatible_facts(
                     if cached is not None:
                         raw_response = parse_json(cached["response_json"], {})
                         facts = validate_provider_response(raw_response)
+                        _validate_required_retry_facts(
+                            facts,
+                            required_fact_types=required_fact_types,
+                            paper_key=pk,
+                        )
                         cache_results.append((pk, pack, facts))
                         continue
                 llm_queue.append((pk, pack))
@@ -559,6 +730,11 @@ def extract_openai_compatible_facts(
                         try:
                             raw_response = future.result()
                             facts = validate_provider_response(raw_response)
+                            _validate_required_retry_facts(
+                                facts,
+                                required_fact_types=required_fact_types,
+                                paper_key=pk,
+                            )
                             llm_results[pk] = facts
                         except Exception as exc:
                             llm_errors[pk] = f"{type(exc).__name__}: {exc}"
@@ -678,10 +854,12 @@ def extract_research_facts(
     provider_name: str,
     fixture_path: Path | None = None,
     paper_key: str | None = None,
+    paper_keys: Iterable[str] | None = None,
+    required_fact_types: Mapping[str, Iterable[str]] | None = None,
     limit: int | None = None,
     model: str | None = None,
     base_url: str | None = None,
-    api_key_env: str = "OPENAI_API_KEY",
+    api_key_env: str = "AIRESEARCH_FACT_API_KEY",
     dry_run: bool = False,
     refresh_cache: bool = False,
     max_input_chars: int = 24000,
@@ -697,12 +875,16 @@ def extract_research_facts(
             provider_name=provider_name,
             fixture_path=fixture_path,
             paper_key=paper_key,
+            paper_keys=paper_keys,
+            required_fact_types=required_fact_types,
             limit=limit,
         )
     if provider_name == "openai-compatible":
         return extract_openai_compatible_facts(
             db_path,
             paper_key=paper_key,
+            paper_keys=paper_keys,
+            required_fact_types=required_fact_types,
             limit=limit,
             model=model,
             base_url=base_url,

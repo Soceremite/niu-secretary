@@ -1,6 +1,7 @@
 // fitness/src/js/features/recovery.js
 import { addRecoveryLog, clearRecoveryLogs, listRecoveryLogs } from '../lib/db.js';
 import { recoveryStatus, scoreRecovery } from '../lib/recovery.js';
+import { createUnifiedRecoveryLog, fetchUnifiedRecoveryLogs } from '../lib/actionApi.js';
 
 export async function initRecovery() {
   const form = document.getElementById('recovery-form');
@@ -8,6 +9,7 @@ export async function initRecovery() {
   form.addEventListener('submit', saveRecovery);
   document.getElementById('clear-recovery').addEventListener('click', async () => {
     await clearRecoveryLogs();
+    document.getElementById('recovery-toast').textContent = '恢复离线缓存已清空，服务器记录不受影响';
     await render();
   });
   await render();
@@ -26,19 +28,67 @@ async function saveRecovery(event) {
   };
   log.score = scoreRecovery(log);
   log.status = recoveryStatus(log.score);
-  await addRecoveryLog(log);
-  document.getElementById('recovery-toast').textContent = '恢复状态已保存';
+  let saved = null;
+  let synced = false;
+  try {
+    saved = await createUnifiedRecoveryLog(log);
+    synced = true;
+  } catch (error) {
+    console.warn('Failed to sync recovery log to unified API', error);
+  }
+  await addRecoveryLog({
+    ...log,
+    serverId: saved?.id || '',
+    source: synced ? 'unified-api' : 'fitness-page',
+    syncStatus: synced ? 'synced' : 'pending'
+  });
+  document.getElementById('recovery-toast').textContent = synced
+    ? '恢复状态已同步到统一动作接口，并保留本地缓存'
+    : '统一动作接口暂不可用，恢复状态已保留在本地缓存';
   await render();
 }
 
 async function render() {
-  const logs = (await listRecoveryLogs()).sort((a, b) => b.date.localeCompare(a.date));
+  const [localLogs, unified] = await Promise.all([
+    listRecoveryLogs(),
+    loadUnifiedRecoveryLogs()
+  ]);
+  const logs = mergeRecoveryLogs(localLogs, unified.items, { includeLocalCache: unified.offline });
   if (logs[0]) renderResult(logs[0]);
   else document.getElementById('recovery-result').innerHTML = '<div class="empty">保存一次恢复状态后生成训练建议。</div>';
   document.getElementById('recovery-list').innerHTML = logs.length ? logs.slice(0, 8).map((log) => `
     <div class="log-item"><span><strong>${escapeHtml(log.date)}</strong><br>${escapeHtml(log.status.label)} · 睡眠 ${log.sleepHours}h</span><span>${log.score}/100</span></div>
   `).join('') : '<div class="empty">暂无恢复记录。</div>';
   renderTrend(logs);
+}
+
+async function loadUnifiedRecoveryLogs() {
+  try {
+    return { items: await fetchUnifiedRecoveryLogs(), offline: false };
+  } catch {
+    return { items: [], offline: true };
+  }
+}
+
+function mergeRecoveryLogs(localLogs, unifiedLogs, options = {}) {
+  const merged = new Map();
+  const visibleLocalLogs = options.includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  [...unifiedLogs, ...visibleLocalLogs].forEach((log) => {
+    const key = log.serverId || (String(log.id || '').startsWith('rec_') ? log.id : '');
+    const fallback = `${log.date}-${log.score}-${log.createdAt || ''}-${log.sleepHours || 0}`;
+    const id = key || fallback;
+    if (!merged.has(id)) {
+      merged.set(id, {
+        ...log,
+        status: log.status || { label: log.statusLabel || '未知', advice: log.statusAdvice || '' }
+      });
+    }
+  });
+  return [...merged.values()].sort((a, b) => {
+    const byDate = String(b.date || '').localeCompare(String(a.date || ''));
+    if (byDate) return byDate;
+    return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+  });
 }
 
 function renderTrend(logs) {

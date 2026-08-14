@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Noto+Serif+SC:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/niu-secretary/dist/platform-widget.css">
   <style>
     :root {
       --page: #e8ece6;
@@ -310,6 +311,16 @@
     }
 
     .task:last-child { border-bottom: 0; }
+
+    .empty-state {
+      padding: 22px 18px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .03);
+      font-size: 14px;
+      line-height: 1.7;
+    }
 
     .time {
       color: var(--sage);
@@ -640,12 +651,14 @@
         <button type="button">收进复盘</button>
       </div>
     </section>
+    <section data-platform-widget data-platform-module="schedule" aria-label="时务局运行状态"></section>
   </main>
 
   <footer class="footer">
     <p>牛秘书时务局 · <a href="/niu-secretary/">牛秘书品牌主页</a></p>
   </footer>
 
+  <script src="/niu-secretary/dist/platform-widget.js" defer></script>
   <script>
     (async function() {
       // Scroll reveal animation
@@ -675,30 +688,40 @@
       document.getElementById('today-day').textContent = now.getDate();
       document.getElementById('today-weekday').textContent = weekdays[now.getDay()];
 
-      function readJson(key) {
-        try {
-          const value = JSON.parse(localStorage.getItem(key) || '[]');
-          return Array.isArray(value) ? value : [];
-        } catch (error) {
-          return [];
+      const offlineCache = {
+        read(key) {
+          try {
+            const value = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(value) ? value : [];
+          } catch (error) {
+            return [];
+          }
+        },
+        write(key, value) {
+          try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* quota */ }
         }
-      }
+      };
 
-      function writeCache(key, value) {
-        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* quota */ }
-      }
-
-      // 后端统一动作接口；失败时回落到 localStorage 缓存
+      // 后端统一动作接口；读取失败时仅使用离线缓存
+      const API_BASE = '/niu-secretary/api';
       const ACTION_API = '/niu-secretary/api/actions/execute';
       async function executeAction(action, input) {
         const response = await fetch(ACTION_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, input, context: { client: 'schedule-page' } })
+          body: JSON.stringify({ action, input, context: { client: 'schedule-page', confirmed: true } })
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || data.ok === false) {
           throw new Error(data.message || `动作接口失败：${response.status}`);
+        }
+        return data;
+      }
+      async function getJson(path) {
+        const response = await fetch(API_BASE + path);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.ok === false) {
+          throw new Error(data.message || `读取接口失败：${response.status}`);
         }
         return data;
       }
@@ -708,25 +731,49 @@
 
       async function loadEvents() {
         try {
-          const res = await executeAction('schedule.event.list', { from: todayStr, to: rangeTo });
+          const res = await getJson(`/schedule/events?from=${encodeURIComponent(todayStr)}&to=${encodeURIComponent(rangeTo)}&limit=100`);
           const items = res.items || [];
-          writeCache('niu_schedule_events', items);
+          offlineCache.write('niu_schedule_events', items);
           return items;
         } catch (error) {
           console.warn('[时务局] 日程读取后端失败，使用本地缓存：', error.message);
-          return readJson('niu_schedule_events');
+          return offlineCache.read('niu_schedule_events');
         }
       }
 
       async function loadTodos() {
         try {
-          const res = await executeAction('schedule.todo.list', { includeDone: true });
+          const res = await getJson('/schedule/todos?includeDone=true&limit=100');
           const items = res.items || [];
-          writeCache('niu_schedule_todos', items);
+          offlineCache.write('niu_schedule_todos', items);
           return items;
         } catch (error) {
           console.warn('[时务局] 待办读取后端失败，使用本地缓存：', error.message);
-          return readJson('niu_schedule_todos');
+          return offlineCache.read('niu_schedule_todos');
+        }
+      }
+
+      async function loadImportantDates() {
+        try {
+          const res = await getJson('/schedule/important-dates?limit=100');
+          const items = res.items || [];
+          offlineCache.write('niu_schedule_dates', items);
+          return items;
+        } catch (error) {
+          console.warn('[时务局] 重要日期读取后端失败，使用本地缓存：', error.message);
+          return offlineCache.read('niu_schedule_dates');
+        }
+      }
+
+      async function loadGoals() {
+        try {
+          const res = await getJson('/schedule/goals?limit=100');
+          const items = res.items || [];
+          offlineCache.write('niu_schedule_goals', items);
+          return items;
+        } catch (error) {
+          console.warn('[时务局] 目标读取后端失败，使用本地缓存：', error.message);
+          return offlineCache.read('niu_schedule_goals');
         }
       }
 
@@ -749,7 +796,7 @@
       async function loadScheduleProfile() {
         const container = document.getElementById('schedule-profile-fields');
         try {
-          const data = await executeAction('profile.get', { module: 'schedule' });
+          const data = await getJson('/profile?module=schedule');
           const p = data.profile;
           const fields = [
             ['工作时间', p?.workHours || '--'],
@@ -771,7 +818,7 @@
       async function loadScheduleRecommend() {
         const container = document.getElementById('schedule-recommend-list');
         try {
-          const data = await executeAction('schedule.recommend', { date: todayStr });
+          const data = await getJson(`/schedule/recommend?date=${encodeURIComponent(todayStr)}`);
           const recs = data.recommendations || [];
           if (!recs.length) {
             container.innerHTML = '<li style="color:var(--muted);font-size:14px;padding:4px 0;">今日暂无建议</li>';
@@ -788,51 +835,41 @@
       // 在日期卡片旁显示日期
       document.getElementById('schedule-profile-date').textContent = todayStr;
 
-      const [events, todos] = await Promise.all([loadEvents(), loadTodos()]);
+      const [events, todos, dates, goals] = await Promise.all([
+        loadEvents(),
+        loadTodos(),
+        loadImportantDates(),
+        loadGoals()
+      ]);
 
       // 加载画像与推荐（不阻塞主内容渲染）
       Promise.allSettled([loadScheduleProfile(), loadScheduleRecommend()]);
 
-      const store = {
-        events,
-        todos,
-        // dates / goals 后端暂未建模，维持本地存储
-        dates: readJson('niu_schedule_dates'),
-        goals: readJson('niu_schedule_goals')
-      };
+      const store = { events, todos, dates, goals };
 
       const todayEvents = store.events
         .filter(event => event.date === todayStr)
         .sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
 
-      const sampleTasks = [
-        { time: '09:30', title: '晨间梳理', note: '新闻社简报、邮件、今日三件大事', type: '要务', hot: true },
-        { time: '11:00', title: '项目推进', note: '确认时务局原型、整理待发布清单', type: '工作' },
-        { time: '15:20', title: '生活代办', note: '账单、快递、晚间训练提醒', type: '生活' },
-        { time: '21:40', title: '复盘收档', note: '完成记录、明日预排、目标进度更新', type: '复盘' }
-      ];
-
-      const tasks = todayEvents.length
-        ? todayEvents.map((event, index) => ({
-            time: event.time || '全天',
-            title: event.title || event.name || '未命名日程',
-            note: event.notes || event.description || '来自你的日程记录',
-            type: event.type || (index === 0 ? '要务' : '日程'),
-            hot: index === 0
-          }))
-        : sampleTasks;
+      const tasks = todayEvents.map((event, index) => ({
+        time: event.time || '全天',
+        title: event.title || event.name || '未命名日程',
+        note: event.notes || event.description || '来自你的日程记录',
+        type: event.type || (index === 0 ? '要务' : '日程'),
+        hot: index === 0
+      }));
 
       const timeline = document.getElementById('timeline');
-      timeline.innerHTML = tasks.map(task => `
+      timeline.innerHTML = tasks.length ? tasks.map(task => `
         <div class="task">
-          <div class="time">${task.time}</div>
+          <div class="time">${h(task.time)}</div>
           <div>
-            <strong>${task.title}</strong>
-            <small>${task.note}</small>
+            <strong>${h(task.title)}</strong>
+            <small>${h(task.note)}</small>
           </div>
-          <span class="level ${task.hot ? 'hot' : ''}">${task.type}</span>
+          <span class="level ${task.hot ? 'hot' : ''}">${h(task.type)}</span>
         </div>
-      `).join('');
+      `).join('') : '<div class="empty-state">今天暂无日程。通过牛秘书 AI 或时务局待办入口新增后会显示在这里。</div>';
       document.getElementById('today-count').textContent = `${tasks.length} 项`;
 
       const pendingTodos = store.todos.filter(todo => !todo.done).length;

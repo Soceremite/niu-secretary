@@ -19,6 +19,7 @@ class DigestInputError(ValueError):
 
 @dataclass(frozen=True)
 class DigestFact:
+    fact_id: int
     fact_type: str
     name: str
     statement: str
@@ -63,7 +64,7 @@ def _fact_groups(conn, paper_key: str) -> dict[str, list[DigestFact]]:
     rows = conn.execute(
         """
         select
-            f.fact_type, f.name, f.statement, f.confidence,
+            f.id, f.fact_type, f.name, f.statement, f.confidence,
             p.evidence_quote, p.evidence_artifact_type, p.evidence_source_path
         from research_facts f
         left join research_fact_provenance p on p.fact_id = f.id
@@ -79,6 +80,7 @@ def _fact_groups(conn, paper_key: str) -> dict[str, list[DigestFact]]:
             groups[fact_type] = []
         groups[fact_type].append(
             DigestFact(
+                fact_id=int(row["id"]),
                 fact_type=fact_type,
                 name=row["name"] or "",
                 statement=row["statement"] or "",
@@ -199,6 +201,7 @@ def digest_to_dict(digest: ResearchDigest) -> dict[str, Any]:
                 "facts": {
                     fact_type: [
                         {
+                            "fact_id": fact.fact_id,
                             "fact_type": fact.fact_type,
                             "name": fact.name,
                             "statement": fact.statement,

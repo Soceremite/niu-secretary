@@ -274,6 +274,39 @@ create table if not exists paper_citations (
     unique(paper_key, source_path, citation_index, citation_key)
 );
 
+create table if not exists paper_layout_runs (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    provider text not null default 'airesearch_layout',
+    provider_version text not null default '',
+    backend text not null default '',
+    method text not null default '',
+    status text not null,
+    input_pdf_path text not null default '',
+    output_dir text not null default '',
+    artifact_json text not null default '{}',
+    stats_json text not null default '{}',
+    error text not null default '',
+    started_at text not null,
+    finished_at text,
+    unique(paper_key, provider, output_dir)
+);
+
+create table if not exists paper_layout_blocks (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    run_id integer not null references paper_layout_runs(id) on delete cascade,
+    page_index integer not null,
+    block_index integer not null,
+    block_type text not null,
+    bbox_json text not null default '[]',
+    text text not null default '',
+    asset_path text not null default '',
+    metadata_json text not null default '{}',
+    created_at text not null,
+    unique(run_id, page_index, block_index)
+);
+
 create table if not exists fact_extraction_runs (
     id integer primary key autoincrement,
     provider_name text not null,
@@ -315,6 +348,18 @@ create table if not exists research_fact_provenance (
     unique(fact_id, evidence_quote, evidence_artifact_type)
 );
 
+create table if not exists research_fact_translations (
+    id integer primary key autoincrement,
+    fact_id integer not null references research_facts(id) on delete cascade,
+    lang text not null,
+    statement text not null default '',
+    evidence_quote text not null default '',
+    model text not null default '',
+    created_at text not null,
+    updated_at text not null,
+    unique(fact_id, lang)
+);
+
 create table if not exists fact_extraction_cache (
     id integer primary key autoincrement,
     paper_key text not null references papers(paper_key) on delete cascade,
@@ -352,6 +397,135 @@ create table if not exists provider_usage (
     primary key(provider, period)
 );
 
+create table if not exists admin_paper_overrides (
+    paper_key text primary key,
+    hidden integer not null default 0,
+    paper_url text not null default '',
+    arxiv_id text not null default '',
+    github_url text not null default '',
+    updated_at text not null
+);
+
+create table if not exists admin_jobs (
+    id integer primary key autoincrement,
+    job_type text not null,
+    status text not null,
+    message text not null default '',
+    log text not null default '',
+    params_json text not null default '{}',
+    current_step text not null default '',
+    result_json text not null default '{}',
+    priority integer not null default 0,
+    created_at text,
+    started_at text not null,
+    finished_at text
+);
+
+create table if not exists admin_paper_drafts (
+    paper_key text primary key,
+    payload_json text not null default '{}',
+    updated_at text not null
+);
+
+create table if not exists paper_archives (
+    paper_key text primary key references papers(paper_key) on delete cascade,
+    provider text not null default 'rclone',
+    remote_name text not null,
+    remote_path text not null,
+    archive_sha256 text not null,
+    archive_size_bytes integer not null,
+    source_manifest_json text not null default '{}',
+    status text not null check (
+        status in ('planned', 'uploaded', 'verified', 'evicted', 'restoring', 'available', 'failed')
+    ),
+    verified_at text,
+    evicted_at text,
+    restored_at text,
+    last_error text,
+    pinned integer not null default 0 check (pinned in (0, 1)),
+    updated_at text not null
+);
+
+create table if not exists paper_blog_posts (
+    paper_key text primary key references papers(paper_key) on delete cascade,
+    current_version_id integer,
+    title text not null default '',
+    slug text not null default '',
+    status text not null default 'published' check (status in ('published', 'hidden', 'failed')),
+    target_audience text not null default 'ai_engineer',
+    language text not null default 'zh',
+    word_count integer not null default 0,
+    markdown text not null default '',
+    html text not null default '',
+    outline_json text not null default '{}',
+    image_refs_json text not null default '[]',
+    model text not null default '',
+    prompt_version text not null default '',
+    source_hash text not null default '',
+    created_at text not null,
+    updated_at text not null
+);
+
+create table if not exists paper_blog_versions (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    version_number integer not null,
+    status text not null default 'published' check (status in ('published', 'superseded', 'hidden', 'failed')),
+    title text not null default '',
+    word_count integer not null default 0,
+    markdown text not null default '',
+    html text not null default '',
+    outline_json text not null default '{}',
+    image_refs_json text not null default '[]',
+    generation_meta_json text not null default '{}',
+    model text not null default '',
+    prompt_version text not null default '',
+    source_hash text not null default '',
+    created_at text not null,
+    unique(paper_key, version_number)
+);
+
+create table if not exists paper_blog_generation_cache (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    section_key text not null,
+    source_hash text not null,
+    prompt_version text not null,
+    model text not null,
+    request_hash text not null,
+    response_json text not null default '{}',
+    markdown text not null default '',
+    token_estimate integer not null default 0,
+    created_at text not null,
+    updated_at text not null,
+    unique(paper_key, section_key, source_hash, prompt_version, model, request_hash)
+);
+
+create table if not exists paper_blog_formula_repairs (
+    id integer primary key autoincrement,
+    paper_key text not null references papers(paper_key) on delete cascade,
+    source_version_id integer not null references paper_blog_versions(id) on delete cascade,
+    applied_version_id integer references paper_blog_versions(id) on delete set null,
+    formula_locator_json text not null default '{}',
+    original_latex text not null,
+    repaired_latex text not null default '',
+    pdf_page integer,
+    bbox_json text not null default '[]',
+    crop_path text not null default '',
+    context text not null default '',
+    model text not null default '',
+    confidence real not null default 0,
+    initial_validation_status text not null default '',
+    initial_validation_error text not null default '',
+    validation_status text not null default '',
+    validation_error text not null default '',
+    repair_status text not null default 'pending',
+    input_hash text not null,
+    created_at text not null,
+    updated_at text not null,
+    unique(paper_key, source_version_id, input_hash)
+);
+
 create index if not exists idx_paper_artifacts_paper_key on paper_artifacts(paper_key);
 create index if not exists idx_ingest_items_run_id on ingest_items(run_id);
 create index if not exists idx_ingest_items_status on ingest_items(status);
@@ -371,6 +545,7 @@ create index if not exists idx_kg_nodes_type on kg_nodes(node_type);
 create index if not exists idx_kg_nodes_source_paper on kg_nodes(source_paper_key);
 create index if not exists idx_kg_edges_relation on kg_edges(relation);
 create index if not exists idx_kg_edges_source_paper on kg_edges(source_paper_key);
+create index if not exists idx_kg_edges_target_key on kg_edges(target_key);
 create index if not exists idx_kg_provenance_source on kg_provenance(source_table, source_key);
 create index if not exists idx_kg_provenance_paper on kg_provenance(source_paper_key);
 
@@ -382,12 +557,17 @@ create index if not exists idx_paper_chunks_artifact on paper_chunks(artifact_ty
 create index if not exists idx_paper_equations_paper_key on paper_equations(paper_key);
 create index if not exists idx_paper_citations_paper_key on paper_citations(paper_key);
 create index if not exists idx_paper_citations_key on paper_citations(citation_key);
+create index if not exists idx_paper_layout_runs_paper on paper_layout_runs(paper_key, id desc);
+create index if not exists idx_paper_layout_runs_status on paper_layout_runs(status);
+create index if not exists idx_paper_layout_blocks_paper_type on paper_layout_blocks(paper_key, block_type);
 
 create index if not exists idx_fact_extraction_runs_status on fact_extraction_runs(status);
 create index if not exists idx_fact_extraction_runs_started_at on fact_extraction_runs(started_at);
 create index if not exists idx_research_facts_paper_key on research_facts(paper_key);
+create index if not exists idx_paper_archives_status on paper_archives(status, pinned);
 create index if not exists idx_research_facts_type on research_facts(fact_type);
 create index if not exists idx_research_fact_provenance_artifact on research_fact_provenance(evidence_artifact_type);
+create index if not exists idx_research_fact_translations_lang on research_fact_translations(lang);
 
 create index if not exists idx_fact_extraction_cache_lookup
 on fact_extraction_cache(provider_name, model, evidence_hash, status);
@@ -395,3 +575,13 @@ on fact_extraction_cache(provider_name, model, evidence_hash, status);
 create index if not exists idx_provider_query_cache_provider_key on provider_query_cache(provider, cache_key);
 create index if not exists idx_provider_query_cache_expires_at on provider_query_cache(expires_at);
 create index if not exists idx_provider_usage_provider_period on provider_usage(provider, period);
+create index if not exists idx_admin_paper_overrides_hidden on admin_paper_overrides(hidden);
+create index if not exists idx_admin_jobs_started_at on admin_jobs(started_at desc);
+create index if not exists idx_admin_paper_drafts_updated_at on admin_paper_drafts(updated_at desc);
+create index if not exists idx_paper_blog_posts_status on paper_blog_posts(status);
+create index if not exists idx_paper_blog_versions_paper_key on paper_blog_versions(paper_key, version_number desc);
+create index if not exists idx_blog_formula_repairs_paper
+on paper_blog_formula_repairs(paper_key, source_version_id, repair_status);
+
+create index if not exists idx_paper_blog_cache_lookup
+on paper_blog_generation_cache(paper_key, section_key, source_hash, prompt_version, model, request_hash);

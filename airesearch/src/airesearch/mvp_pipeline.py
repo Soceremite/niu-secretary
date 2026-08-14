@@ -12,6 +12,7 @@ from airesearch.evidence_repair import export_evidence_source_path_repairs
 from airesearch.fact_audit import audit_research_facts
 from airesearch.fact_extraction import extract_research_facts
 from airesearch.knowledge_graph import export_paper_cards, extract_paper_cards
+from airesearch.layout_evidence_graph import extract_layout_evidence_graph
 from airesearch.paperpipe_sync import sync_paperpipe
 from airesearch.research_bundle import export_report_bundle
 from airesearch.research_cluster_review import export_cluster_review_packet
@@ -29,6 +30,9 @@ class MvpPipelineResult:
     fact_failures: int
     hard_failures: int
     repaired_paths: int
+    graph_fact_nodes: int
+    graph_evidence_nodes: int
+    graph_supported_edges: int
     bundle_artifacts: int
     steps: list[str] = field(default_factory=list)
 
@@ -41,6 +45,17 @@ def _table_count(db_path: Path, table: str) -> int:
     return int(row[0]) if row else 0
 
 
+def _delete_excluded_papers(db_path: Path, paper_keys: list[str]) -> int:
+    keys = sorted({key for key in paper_keys if key})
+    if not keys:
+        return 0
+    with connect(db_path) as conn:
+        for paper_key in keys:
+            conn.execute("delete from papers where paper_key = ?", (paper_key,))
+        conn.commit()
+    return len(keys)
+
+
 def run_mvp_pipeline(
     *,
     db_path: Path,
@@ -50,12 +65,13 @@ def run_mvp_pipeline(
     fixture_path: Path | None = None,
     model: str | None = None,
     base_url: str | None = None,
-    api_key_env: str = "OPENAI_API_KEY",
+    api_key_env: str = "AIRESEARCH_FACT_API_KEY",
     concurrency: int = 5,
     refresh_facts: bool = False,
     fact_error_policy: str = "strict",
     semantic: bool = False,
     semantic_threshold: float = 0.82,
+    excluded_paper_keys: list[str] | None = None,
     progress_callback: Callable[[str], None] | None = None,
 ) -> MvpPipelineResult:
     steps: list[str] = []
@@ -70,6 +86,10 @@ def run_mvp_pipeline(
 
     sync_result = sync_paperpipe(db_path=db_path, paper_db_path=paper_db_path)
     mark("sync-paperpipe")
+
+    excluded_count = _delete_excluded_papers(db_path, excluded_paper_keys or [])
+    if excluded_count:
+        mark(f"exclude-papers:{excluded_count}")
 
     card_result = extract_paper_cards(db_path)
     mark("extract-paper-cards")
@@ -109,6 +129,9 @@ def run_mvp_pipeline(
         apply=True,
     )
     mark("repair-evidence-source-paths")
+
+    graph = extract_layout_evidence_graph(db_path)
+    mark("extract-layout-evidence-graph")
 
     export_paper_cards(db_path, out_dir / "paper-cards.jsonl")
     mark("export-paper-cards")
@@ -150,7 +173,12 @@ def run_mvp_pipeline(
     )
     mark("generate-cluster-review")
 
-    bundle = export_report_bundle(db_path, out_dir / "bundle", review_packet_path=review_packet)
+    bundle = export_report_bundle(
+        db_path,
+        out_dir / "bundle",
+        review_packet_path=review_packet,
+        concurrency=max(1, min(concurrency, 6)),
+    )
     mark("generate-report-bundle")
 
     site = export_report_site(out_dir / "bundle")
@@ -166,6 +194,9 @@ def run_mvp_pipeline(
         fact_failures=fact_result.failed_count if fact_result is not None else 0,
         hard_failures=audit.hard_failures,
         repaired_paths=repair.applied_count,
+        graph_fact_nodes=graph.fact_nodes_written,
+        graph_evidence_nodes=graph.evidence_nodes_written,
+        graph_supported_edges=graph.supported_by_edges,
         bundle_artifacts=bundle.artifact_count + 1,
         steps=steps,
     )

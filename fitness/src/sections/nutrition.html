@@ -25,7 +25,7 @@
         <button class="primary-btn" type="submit">Agent 识别</button>
         <button class="ghost-btn" type="button" id="local-estimate">本地估算</button>
         <button class="ghost-btn" type="button" id="manual-from-photo">转手动补录</button>
-        <button class="ghost-btn danger-btn" type="button" id="clear-nutrition">清空饮食</button>
+        <button class="ghost-btn danger-btn" type="button" id="clear-nutrition">清空离线缓存</button>
       </div>
       <div class="toast" id="nutrition-toast"></div>
     </form>
@@ -75,7 +75,7 @@
 
   <article class="glass-card history-card">
     <div class="glass-card-inner">
-    <div class="card-head"><div><h3>最近饮食</h3><p>Agent、估算和手动记录都会进 IndexedDB 与同步队列。</p></div></div>
+    <div class="card-head"><div><h3>最近饮食</h3><p>在线读取统一 API；IndexedDB 只补充离线待同步记录。</p></div></div>
     <div class="log-list" id="nutrition-list"></div>
     </div>
   </article>

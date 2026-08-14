@@ -7,3 +7,33 @@ __pycache__/
 *.backup
 .superpowers/
 backups/
+
+# Local runtime state
+/data/
+/logs/
+/manifests/
+/.runtime-logs/
+
+# Local paper data and generated image assets
+/blog-assets/
+/airesearch/blog-assets/
+/fitness/data/
+/fitness/dist/data/user.json
+/leisure/dist/data/
+/leisure/dist/data/image_review.json
+/news-daily/dist/image_review.json
+/airesearch/data/
+/airesearch/logs/
+/airesearch/manifests/
+
+# Generated exports and publish snapshots
+/exports/
+/airesearch/exports/**
+/news-daily/archive/
+/news-daily/news_daily.db
+/news-daily/dist/news.json
+/news-daily/dist/assets/images/*
+
+# Vue rebuild workspace
+/web/node_modules/
+/web/dist/

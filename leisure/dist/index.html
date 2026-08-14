@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/niu-secretary/dist/platform-widget.css">
 </head>
 <body data-page="index">
 
@@ -80,6 +81,17 @@
         <button type="button" onclick="location.reload()">刷新推荐</button>
       </div>
     </section>
+
+    <section class="panel profile-review-panel">
+      <div class="panel-inner">
+        <div class="profile-review-head">
+          <h2>画像建议</h2>
+          <span id="profile-suggestion-count">--</span>
+        </div>
+        <div class="profile-suggestion-list" id="profile-suggestion-list"></div>
+      </div>
+    </section>
+    <section data-platform-widget data-platform-module="leisure" aria-label="闲趣集运行状态"></section>
   </main>
 
   <!-- 详情弹窗 -->
@@ -94,25 +106,99 @@
     <p>牛秘书闲趣集 · <a href="/niu-secretary/">牛秘书品牌主页</a></p>
   </footer>
 
+  <script src="js/offline-feedback.js"></script>
   <script src="js/nav.js"></script>
+  <script src="/niu-secretary/dist/platform-widget.js" defer></script>
   <script>
-    const LEISURE_ACTION_API = '/niu-secretary/api/actions/execute';
-    async function callLeisureAction(action, input) {
-      const res = await fetch(LEISURE_ACTION_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, input, context: { client: 'leisure-page' } })
-      });
+    const LEISURE_API_BASE = '/niu-secretary/api';
+    async function getLeisureJson(path) {
+      const res = await fetch(LEISURE_API_BASE + path);
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.ok === false) throw new Error(data.message || ('动作接口失败：' + res.status));
+      if (!res.ok || data.ok === false) throw new Error(data.message || ('读取接口失败：' + res.status));
       return data;
     }
+
+    async function executeLeisureAction(action, input, context) {
+      const res = await fetch(LEISURE_API_BASE + '/actions/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, input: input || {}, context: context || { client: 'web' } })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) throw new Error(data.message || ('执行接口失败：' + res.status));
+      return data;
+    }
+
+    function leisureEscape(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+      });
+    }
+
+    function formatPatch(patch) {
+      const parts = [];
+      if (patch.genres) {
+        Object.keys(patch.genres).forEach(function(key) {
+          const values = Array.isArray(patch.genres[key]) ? patch.genres[key] : [];
+          if (values.length) parts.push(key + ': ' + values.slice(0, 4).join('、'));
+        });
+      }
+      if (Array.isArray(patch.moods) && patch.moods.length) parts.push('moods: ' + patch.moods.slice(0, 4).join('、'));
+      if (Array.isArray(patch.avoid) && patch.avoid.length) parts.push('avoid: ' + patch.avoid.slice(0, 3).join('、'));
+      return parts.join(' · ') || '画像无新增字段';
+    }
+
+    async function loadProfileSuggestions() {
+      const listEl = document.getElementById('profile-suggestion-list');
+      const countEl = document.getElementById('profile-suggestion-count');
+      try {
+        const data = await getLeisureJson('/leisure/profile/suggestions?limit=5');
+        const items = data.items || [];
+        countEl.textContent = String(items.length);
+        if (!items.length) {
+          listEl.innerHTML = '<p class="suggestion-empty">暂无待处理建议</p>';
+          return;
+        }
+        listEl.innerHTML = items.map(function(item) {
+          const payload = item.payload || {};
+          const itemInfo = payload.item || {};
+          return `<article class="suggestion-item" data-event-id="${leisureEscape(item.id)}">
+            <div>
+              <b>${leisureEscape(itemInfo.title || item.title)}</b>
+              <small>${leisureEscape(formatPatch(payload.patch || {}))}</small>
+            </div>
+            <button type="button" data-apply-suggestion="${leisureEscape(item.id)}">应用</button>
+          </article>`;
+        }).join('');
+      } catch (error) {
+        countEl.textContent = '0';
+        listEl.innerHTML = '<p class="suggestion-empty">画像建议暂不可用</p>';
+      }
+    }
+
+    document.addEventListener('click', async function(event) {
+      const btn = event.target.closest('[data-apply-suggestion]');
+      if (!btn) return;
+      btn.disabled = true;
+      btn.textContent = '应用中';
+      try {
+        await executeLeisureAction(
+          'leisure.profile.apply_suggestion',
+          { eventId: btn.getAttribute('data-apply-suggestion') },
+          { client: 'web', confirmed: true }
+        );
+        await Promise.all([loadTasteProfile(), loadProfileSuggestions()]);
+      } catch (error) {
+        btn.disabled = false;
+        btn.textContent = '重试';
+      }
+    });
 
     // 画像驱动的口味档案（后端为权威，空则回落到静态标签）
     async function loadTasteProfile() {
       const tagsEl = document.getElementById('taste-tags');
       try {
-        const data = await callLeisureAction('profile.get', { module: 'leisure' });
+        const data = await getLeisureJson('/profile?module=leisure');
         const p = data.profile || {};
         const tags = [];
         const g = p.genres || {};
@@ -142,14 +228,14 @@
       let scheduleOk = false, fitnessOk = false;
 
       try {
-        const schedRes = await callLeisureAction('schedule.event.list', { from: todayStr, to: todayStr });
+        const schedRes = await getLeisureJson('/schedule/events?from=' + encodeURIComponent(todayStr) + '&to=' + encodeURIComponent(todayStr));
         taskCount = (schedRes.items || []).length;
         busyLevel = taskCount >= 5 ? '繁忙' : taskCount >= 3 ? '适中' : '轻松';
         scheduleOk = true;
       } catch (e) { /* 后端不可用时保持默认 */ }
 
       try {
-        const fitRes = await callLeisureAction('fitness.nutrition.list', { from: todayStr, to: todayStr });
+        const fitRes = await getLeisureJson('/fitness/nutrition?from=' + encodeURIComponent(todayStr) + '&to=' + encodeURIComponent(todayStr));
         const logs = fitRes.items || [];
         hasWorkout = logs.length > 0;
         if (hasWorkout) {
@@ -187,6 +273,7 @@
     (async function() {
       // 画像不阻塞主内容渲染
       loadTasteProfile();
+      loadProfileSuggestions();
 
       // 实时上下文（后端 API 优先，cron 静态文件补充 AI 批注）
       loadRealtimeContext();
@@ -205,15 +292,15 @@
       }
       reg('影视', moviesData); reg('音乐', musicData); reg('播客', podcastsData); reg('小说', novelsData);
 
-      // 构建精选列表：优先用画像驱动的 leisure.recommend，失败回落到默认顺序
+      // 构建精选列表：画像驱动的 leisure.recommend 是唯一推荐来源。
       const items = [];
       const CAT_TYPE = { movie: '影视', music: '音乐', podcast: '播客', novel: '小说' };
       const CAT_DATA = { movie: moviesData, music: musicData, podcast: podcastsData, novel: novelsData };
       const CAT_DUR = { movie: '45分钟', music: '30分钟', podcast: '18分钟', novel: '60分钟' };
 
-      let usedRecommend = false;
+      let recommendError = '';
       try {
-        const rec = await callLeisureAction('leisure.recommend', { limit: 2 });
+        const rec = await getLeisureJson('/leisure/recommend?limit=2');
         const groups = rec.groups || [];
         groups.forEach(function(group) {
           const type = CAT_TYPE[group.category];
@@ -226,31 +313,16 @@
             }
           });
         });
-        usedRecommend = items.length > 0;
-      } catch (e) { /* 回落 */ }
-
-      if (!usedRecommend) {
-        moviesData.slice(0, 2).forEach((item, i) => items.push(normalize(item, '影视', '#', '45分钟', i)));
-        musicData.slice(0, 1).forEach((item, i) => items.push(normalize(item, '音乐', '#', '30分钟', i)));
-        podcastsData.slice(0, 1).forEach((item, i) => items.push(normalize(item, '播客', '#', '18分钟', i)));
-        novelsData.slice(0, 1).forEach((item, i) => items.push(normalize(item, '小说', '#', '60分钟', i)));
-      }
-
-      if (items.length === 0) {
-        items.push(
-          { type: '影视', href: '#', title: '短片 / 剧集', reason: '睡前不沉重', score: 86, duration: '45分钟' },
-          { type: '音乐', href: '#', title: '音乐电台', reason: '通勤时也能听', score: 82, duration: '30分钟' },
-          { type: '播客', href: '#', title: '播客片段', reason: '只听重点', score: 80, duration: '18分钟' },
-          { type: '小说', href: '#', title: '睡前阅读', reason: '轻散文收尾', score: 78, duration: '12分钟' },
-        );
+      } catch (e) {
+        recommendError = e.message || '推荐接口暂不可用';
       }
 
       // 首推
-      const featured = items[0];
-      const featuredRaw = items.length ? allData[`${featured.type}:${featured.rawIndex || 0}`] : null;
+      const featured = items[0] || null;
+      const featuredRaw = featured ? allData[`${featured.type}:${featured.rawIndex || 0}`] : null;
 
       const posterUrl = (featuredRaw && (featuredRaw.posterUrl || featuredRaw.coverUrl)) || '';
-      const finalPoster = posterUrl || (featuredRaw && featuredRaw.id ? `data/poster-${featuredRaw.id}.jpg` : '');
+      const finalPoster = posterUrl;
 
       let metaHtml = '';
       if (featuredRaw) {
@@ -263,43 +335,52 @@
           mp.push(d);
         }
         if (featuredRaw.doubanRating) mp.push('⭐ ' + featuredRaw.doubanRating);
-        if (mp.length) metaHtml = `<div class="feature-meta">${mp.join(' · ')}</div>`;
+        if (mp.length) metaHtml = `<div class="feature-meta">${leisureEscape(mp.join(' · '))}</div>`;
         if (featuredRaw.genres && featuredRaw.genres.length) {
-          metaHtml += `<div class="feature-tags">${featuredRaw.genres.map(g => `<span>${g}</span>`).join('')}</div>`;
+          metaHtml += `<div class="feature-tags">${featuredRaw.genres.map(g => `<span>${leisureEscape(g)}</span>`).join('')}</div>`;
         }
-        if (featuredRaw.director) metaHtml += `<div class="feature-credit">导演：${featuredRaw.director}</div>`;
-        if (featuredRaw.actors) metaHtml += `<div class="feature-credit">主演：${featuredRaw.actors}</div>`;
+        if (featuredRaw.director) metaHtml += `<div class="feature-credit">导演：${leisureEscape(featuredRaw.director)}</div>`;
+        if (featuredRaw.actors) metaHtml += `<div class="feature-credit">主演：${leisureEscape(featuredRaw.actors)}</div>`;
       }
 
-      document.getElementById('featured-choice').innerHTML = `
-        <div class="poster" aria-hidden="true">
-          ${finalPoster
-            ? `<img class="poster-img" src="${finalPoster}" alt="${featured.title}" onerror="this.style.display='none'">`
-            : ''}
-          <span class="poster-label">今夜</span>
-        </div>
-        <div class="feature-copy">
-          <h3>${featured.title}</h3>
-          ${metaHtml}
-          <p class="feature-reason">${featured.reason}</p>
-          <span class="score">匹配度 ${featured.score}%</span>
-          ${featuredRaw && featuredRaw.doubanUrl ? `<a class="feature-link" href="${featuredRaw.doubanUrl}" target="_blank" rel="noopener">🔗 查看豆瓣详情</a>` : ''}
-        </div>
-      `;
+      if (featured) {
+        document.getElementById('featured-choice').innerHTML = `
+          <div class="poster" aria-hidden="true">
+            ${finalPoster
+              ? `<img class="poster-img" src="${finalPoster}" alt="${leisureEscape(featured.title)}" onerror="this.style.display='none'">`
+              : ''}
+            <span class="poster-label">今夜</span>
+          </div>
+          <div class="feature-copy">
+            <h3>${leisureEscape(featured.title)}</h3>
+            ${metaHtml}
+            <p class="feature-reason">${leisureEscape(featured.reason)}</p>
+            <span class="score">匹配度 ${Number(featured.score || 0)}%</span>
+            ${featuredRaw && featuredRaw.doubanUrl ? `<a class="feature-link" href="${leisureEscape(featuredRaw.doubanUrl)}" target="_blank" rel="noopener">🔗 查看豆瓣详情</a>` : ''}
+          </div>
+        `;
+      } else {
+        document.getElementById('featured-choice').innerHTML = `
+          <div class="feature-empty">
+            <strong>今晚首推暂不可用</strong>
+            <span>${leisureEscape(recommendError || '后端暂未返回推荐结果')}</span>
+          </div>
+        `;
+      }
 
       // 候选列表 - 按类别汇总，只显示4个类别卡片
       const categorySummary = [
-        { type: '影视', icon: '影', color: '#66848e', count: moviesData.length, desc: moviesData.slice(0, 2).map(m => m.title).join('、') || '暂无' },
-        { type: '音乐', icon: '音', color: '#8b5a3c', count: musicData.length, desc: musicData.slice(0, 2).map(m => m.title).join('、') || '暂无' },
-        { type: '播客', icon: '播', color: '#a67c52', count: podcastsData.length, desc: podcastsData.slice(0, 2).map(p => p.title || p.episode).join('、') || '暂无' },
-        { type: '小说', icon: '书', color: '#c4a57b', count: novelsData.length, desc: novelsData.slice(0, 2).map(n => n.title).join('、') || '暂无' }
+        { label: '影视', href: 'movies.html', icon: '影', color: '#66848e', count: moviesData.length, desc: moviesData.slice(0, 2).map(m => m.title).join('、') || '暂无' },
+        { label: '音乐', href: 'music.html', icon: '音', color: '#8b5a3c', count: musicData.length, desc: musicData.slice(0, 2).map(m => m.title).join('、') || '暂无' },
+        { label: '播客', href: 'podcasts.html', icon: '播', color: '#a67c52', count: podcastsData.length, desc: podcastsData.slice(0, 2).map(p => p.title || p.episode).join('、') || '暂无' },
+        { label: '小说', href: 'novels.html', icon: '书', color: '#c4a57b', count: novelsData.length, desc: novelsData.slice(0, 2).map(n => n.title).join('、') || '暂无' }
       ];
 
       document.getElementById('candidate-list').innerHTML = categorySummary.map((cat) => {
-        return `<a href="${cat.type}.html" class="candidate category-card">
+        return `<a href="${cat.href}" class="candidate category-card">
           <span class="candidate-icon" style="background:${cat.color}">${cat.icon}</span>
           <div class="candidate-content">
-            <b>${cat.type}</b>
+            <b>${cat.label}</b>
             <small>${cat.desc}</small>
           </div>
           <span class="count-badge">${cat.count}项</span>

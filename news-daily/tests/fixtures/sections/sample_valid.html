@@ -1,0 +1,27 @@
+<div class="section ai" id="section-ai">
+  <div class="section-title">人工智能</div>
+  <div class="news-grid">
+    <a class="card-link" onclick="openDetail('ai-1'); return false;" href="#">
+      <div class="news-card">
+        <span class="tag tag-red">大模型</span>
+        <div class="emoji-icon">AI</div>
+        <h3>示例 AI 新闻标题</h3>
+        <p class="card-summary">示例摘要。</p>
+        <div class="expand-hint">点击查看详情</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<template id="detail-ai-1">
+  <span class="detail-tag tag-red">大模型</span>
+  <h2>示例 AI 新闻标题</h2>
+  <div class="detail-meta">📅 2026-06-14 &nbsp;|&nbsp; 📎 示例媒体</div>
+  <div class="detail-visual"><img src="" alt="" onerror="this.parentElement.style.display='none'"></div>
+  <div class="detail-keypoints">
+    <div class="keypoint-card"><span>事件</span><strong>示例 AI 新闻发布。</strong></div>
+    <div class="keypoint-card"><span>影响</span><strong>用于验证生成端结构化关键速览。</strong></div>
+  </div>
+  <p>这是一段详情正文。</p>
+  <a class="external-btn" href="https://example.com/news/article-1" target="_blank" rel="noopener">阅读原文</a>
+</template>

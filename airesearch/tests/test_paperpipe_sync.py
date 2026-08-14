@@ -12,7 +12,7 @@ def test_sync_paperpipe_upserts_papers_and_artifacts(tmp_path: Path):
     result = sync_paperpipe(db_path=db_path, paper_db_path=fixture)
 
     assert result.papers_seen == 1
-    assert result.artifacts_seen >= 3
+    assert result.artifacts_seen >= 7
     with connect(db_path) as conn:
         paper = conn.execute(
             "select * from papers where paper_key = ?", ("1706_03762",)
@@ -23,6 +23,6 @@ def test_sync_paperpipe_upserts_papers_and_artifacts(tmp_path: Path):
         ).fetchall()
 
     assert paper["title"] == "Attention Is All You Need"
-    assert {"paper_pdf", "summary", "equations"}.issubset(
+    assert {"paper_pdf", "summary", "summary_zh", "tldr_zh", "equations", "cover", "figure"}.issubset(
         {row["artifact_type"] for row in artifacts}
     )

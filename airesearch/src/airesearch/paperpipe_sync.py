@@ -14,10 +14,14 @@ ARTIFACT_TYPES = {
     "paper.pdf": "paper_pdf",
     "source.tex": "source_tex",
     "summary.md": "summary",
+    "summary.zh.md": "summary_zh",
     "equations.md": "equations",
     "tldr.md": "tldr",
+    "tldr.zh.md": "tldr_zh",
     "notes.md": "notes",
 }
+
+FIGURE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp", ".svg")
 
 
 @dataclass(frozen=True)
@@ -132,10 +136,23 @@ def sync_paperpipe(*, db_path: Path, paper_db_path: Path) -> SyncResult:
                     (paper_key, source_type, source_value, now),
                 )
 
+            artifact_pairs: list[tuple[Path, str]] = []
             for filename, artifact_type in ARTIFACT_TYPES.items():
                 artifact_path = paper_dir / filename
-                if not artifact_path.exists():
-                    continue
+                if artifact_path.exists():
+                    artifact_pairs.append((artifact_path, artifact_type))
+            for cover_name in ("cover.webp", "cover.png", "cover.jpg", "cover.jpeg", "cover.svg"):
+                cover_path = paper_dir / cover_name
+                if cover_path.exists():
+                    artifact_pairs.append((cover_path, "cover"))
+                    break
+            figures_dir = paper_dir / "figures"
+            if figures_dir.exists():
+                for figure_path in sorted(path for path in figures_dir.iterdir() if path.suffix.lower() in FIGURE_SUFFIXES):
+                    if figure_path.is_file():
+                        artifact_pairs.append((figure_path, "figure"))
+
+            for artifact_path, artifact_type in artifact_pairs:
                 stat = artifact_path.stat()
                 conn.execute(
                     """

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>牛秘书管理台</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <section class="login-screen" data-login-screen>
+    <form class="login-card" data-login-form>
+      <a class="login-brand" href="/niu-secretary/"><span>牛</span><strong>牛秘书管理台</strong></a>
+      <h1>管理员登录</h1>
+      <p>登录后才能查看和修改模块数据。</p>
+      <label>用户名<input name="username" value="admin" autocomplete="username"></label>
+      <label>密码<input name="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit">登录</button>
+      <div class="form-message" data-login-message></div>
+    </form>
+  </section>
+
+  <section class="admin-shell" data-admin-shell hidden>
+    <aside class="admin-sidebar" aria-label="牛秘书模块导航">
+      <a class="admin-brand" href="/niu-secretary/">
+        <span class="brand-mark">牛</span>
+        <span><strong>牛秘书管理台</strong><small>Control Plane</small></span>
+      </a>
+      <nav class="admin-nav" data-admin-nav>
+        <button type="button" class="active" data-module="overview">总览</button>
+        <button type="button" data-module="news">新闻社</button>
+        <button type="button" data-module="fitness">塑形馆</button>
+        <button type="button" data-module="schedule">时务局</button>
+        <button type="button" data-module="leisure">闲趣集</button>
+        <button type="button" data-module="airesearch">研知库</button>
+      </nav>
+      <div class="sidebar-links">
+        <a href="/niu-secretary/">返回主页</a>
+        <button type="button" data-logout>退出登录</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <p class="eyebrow">Authenticated Operations</p>
+          <h1 data-admin-title>平台总览</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="status" data-admin-status>待刷新</span>
+          <button type="button" data-admin-refresh>刷新</button>
+        </div>
+      </header>
+
+      <section class="summary-grid" data-admin-summary>
+        <div class="empty">正在读取平台状态...</div>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel panel-large">
+          <div class="panel-head">
+            <div><h2 data-primary-title>模块数据</h2><p data-primary-subtitle>选择模块后可新增、编辑或删除支持的数据。</p></div>
+            <button type="button" class="primary-command" data-create-button>新增</button>
+          </div>
+          <div class="toolbar" data-admin-toolbar></div>
+          <div class="table-stack" data-admin-primary>
+            <div class="empty">请选择模块。</div>
+          </div>
+        </article>
+
+        <aside class="side-stack">
+          <article class="panel">
+            <div class="panel-head">
+              <div><h2>运行与审计</h2><p>最近运行、事件和待审核项。</p></div>
+            </div>
+            <div class="audit-list" data-admin-audit></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div><h2>当前能力边界</h2><p data-admin-boundary>写入统一走 Action Protocol。</p></div>
+            </div>
+            <div class="boundary-list" data-admin-secondary></div>
+          </article>
+        </aside>
+      </section>
+    </main>
+  </section>
+
+  <dialog class="record-dialog" data-record-dialog>
+    <form method="dialog" class="record-card" data-record-form>
+      <header>
+        <div><p class="eyebrow">Record Editor</p><h2 data-dialog-title>编辑记录</h2></div>
+        <button type="button" class="icon-button" data-dialog-close aria-label="关闭">×</button>
+      </header>
+      <div class="record-fields" data-record-fields></div>
+      <div class="form-message" data-record-message></div>
+      <footer>
+        <button type="button" class="ghost-command" data-dialog-close>取消</button>
+        <button type="submit" class="primary-command">保存</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="admin.js" defer></script>
+</body>
+</html>

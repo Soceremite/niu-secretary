@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Protocol
@@ -36,6 +37,7 @@ def run_discovery(
     profile_name: str,
     providers: list[DiscoveryProvider],
     limit: int = 50,
+    concurrency: int | None = None,
     progress_callback: Callable[[str], None] | None = None,
 ) -> DiscoveryResult:
     init_db(db_path)
@@ -48,13 +50,31 @@ def run_discovery(
     errors: list[str] = []
     seen_titles: set[str] = set()
 
-    for provider in providers:
+    max_workers = max(1, min(concurrency or len(providers) or 1, len(providers) or 1))
+
+    def search_provider(provider: DiscoveryProvider) -> tuple[DiscoveryProvider, list[CandidatePaper] | None, str | None]:
         try:
-            candidates = provider.search(profile_name, limit)
+            return provider, provider.search(profile_name, limit), None
         except Exception as exc:  # provider failures are audited without stopping other sources
-            errors.append(f"{provider.name}: {exc}")
+            return provider, None, str(exc)
+
+    provider_results: list[tuple[DiscoveryProvider, list[CandidatePaper] | None, str | None]] = []
+    if max_workers == 1:
+        provider_results = [search_provider(provider) for provider in providers]
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [pool.submit(search_provider, provider) for provider in providers]
+            for future in as_completed(futures):
+                provider_results.append(future.result())
+
+    provider_results.sort(key=lambda item: provider_names.index(item[0].name) if item[0].name in provider_names else 9999)
+    for provider, candidates, error in provider_results:
+        if error is not None:
+            errors.append(f"{provider.name}: {error}")
             if progress_callback is not None:
                 progress_callback(f"discover {profile_name}/{provider.name}")
+            continue
+        if candidates is None:
             continue
         for candidate in candidates[:limit]:
             total_seen += 1

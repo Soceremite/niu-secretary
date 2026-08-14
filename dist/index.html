@@ -748,6 +748,431 @@
       min-height: 778px;
     }
 
+    /* ========== PLATFORM OPERATIONS ========== */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .platform-panel {
+      padding: 3px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(240,213,135,.12), rgba(200,164,92,.04));
+      box-shadow: var(--shadow-tinted);
+    }
+
+    .platform-panel-inner {
+      min-height: 100%;
+      border-radius: calc(var(--radius-lg) - 3px);
+      padding: 28px;
+      background: rgba(18,16,13,.92);
+      box-shadow: var(--shadow-inner);
+    }
+
+    .platform-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .platform-panel-header h3 {
+      margin: 0;
+      font-family: "Noto Serif SC", serif;
+      font-size: 24px;
+      line-height: 1.2;
+      color: var(--gold-2);
+    }
+
+    .platform-refresh {
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid rgba(200,164,92,.22);
+      background: rgba(200,164,92,.07);
+      color: var(--gold-2);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all .3s var(--ease-out);
+    }
+
+    .platform-refresh:hover {
+      border-color: rgba(240,213,135,.48);
+      background: rgba(200,164,92,.12);
+    }
+
+    .ops-panel {
+      grid-column: 1 / -1;
+    }
+
+    .research-panel {
+      grid-column: 1 / -1;
+    }
+
+    .ops-toolbar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ops-toolbar select,
+    .ops-toolbar button {
+      min-height: 42px;
+      width: 100%;
+      border: 1px solid rgba(200,164,92,.2);
+      background: rgba(255,255,255,.035);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+    }
+
+    .ops-toolbar select {
+      padding: 0 12px;
+    }
+
+    .ops-toolbar button {
+      cursor: pointer;
+      color: var(--gold-2);
+      background: rgba(200,164,92,.07);
+    }
+
+    .ops-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ops-metric {
+      min-height: 78px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: var(--radius-sm);
+    }
+
+    .ops-metric b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--gold-2);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .ops-metric span,
+    .ops-column h4 {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .research-status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .research-status-item {
+      min-height: 88px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: var(--radius-sm);
+    }
+
+    .research-status-item b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--gold-2);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .research-status-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .research-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+      gap: 14px;
+    }
+
+    .research-list {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .research-search {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+
+    .research-search-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .research-search-form input {
+      min-width: 0;
+      height: 40px;
+      padding: 0 12px;
+      color: var(--ink);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+
+    .research-search-form input:focus {
+      border-color: rgba(200,164,92,.42);
+      box-shadow: 0 0 0 3px rgba(200,164,92,.10);
+    }
+
+    .research-search-results {
+      display: grid;
+      gap: 10px;
+      min-height: 46px;
+    }
+
+    .ops-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    .ops-column {
+      min-width: 0;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+    }
+
+    .ops-column h4 {
+      margin: 0;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .module-status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .module-status {
+      min-height: 120px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: var(--radius-md);
+    }
+
+    .module-status-top,
+    .audit-row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .module-status b,
+    .audit-row b {
+      color: var(--ink-2);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .module-pill {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      color: var(--gold-2);
+      border: 1px solid rgba(200,164,92,.16);
+      background: rgba(200,164,92,.07);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      border-radius: 999px;
+    }
+
+    .module-status span,
+    .audit-row span,
+    .today-fact span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .today-stack,
+    .audit-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .today-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .today-fact {
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: var(--radius-sm);
+    }
+
+    .today-fact b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--gold-2);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .today-news-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .today-news-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(120,184,170,.22);
+      background: rgba(69,160,145,.045);
+      border-radius: var(--radius-sm);
+    }
+
+    .today-news-item b,
+    .today-news-item span {
+      display: block;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .today-news-item b {
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .today-news-item span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .audit-row {
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: var(--radius-sm);
+    }
+
+    .audit-row.review {
+      border-color: rgba(240,213,135,.22);
+      background: rgba(200,164,92,.055);
+    }
+
+    .audit-row.work-item {
+      border-color: rgba(120,184,170,.28);
+      background: rgba(69,160,145,.065);
+    }
+
+    .audit-row.profile-change.pending {
+      border-color: rgba(240,213,135,.28);
+      background: rgba(200,164,92,.06);
+    }
+
+    .audit-row.profile-change.reviewed {
+      opacity: .82;
+    }
+
+    .profile-change-diff {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .profile-change-diff span {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.16);
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-radius: var(--radius-sm);
+    }
+
+    .profile-change-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .profile-review-button {
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid rgba(200,164,92,.28);
+      background: rgba(200,164,92,.1);
+      color: var(--gold-2);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+    }
+
+    .profile-review-button.danger {
+      border-color: rgba(218,105,87,.34);
+      background: rgba(218,105,87,.1);
+      color: #f0a08f;
+    }
+
+    .profile-review-button:disabled {
+      cursor: wait;
+      opacity: .62;
+    }
+
+    .platform-empty {
+      padding: 16px;
+      border: 1px dashed rgba(200,164,92,.24);
+      color: var(--muted);
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+    }
+
     /* ========== MATRIX (Manifesto + Roadmap) ========== */
     .matrix {
       display: grid;
@@ -868,7 +1293,15 @@
     @media (max-width: 900px) {
       .hero,
       .service-grid,
-      .matrix {
+      .matrix,
+      .platform-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ops-toolbar,
+      .ops-metrics,
+      .ops-columns,
+      .research-columns {
         grid-template-columns: 1fr;
       }
 
@@ -885,6 +1318,8 @@
       .portrait-frame { min-height: 440px; }
       .portrait-copy { padding-top: 280px; }
       .promise-grid { grid-template-columns: 1fr; }
+      .module-status-grid,
+      .today-facts { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -899,6 +1334,18 @@
       .assistant-composer { grid-template-columns: 1fr; }
       .assistant-action button,
       .assistant-composer button { width: 100%; }
+      .research-search-form {
+        grid-template-columns: 1fr;
+      }
+      .research-search-form .profile-review-button {
+        width: 100%;
+      }
+      .today-news-item {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .today-news-item .profile-review-button {
+        width: 100%;
+      }
       .portrait-board { padding: 3px; }
       .portrait-frame img { inset: 28px 28px auto; width: calc(100% - 56px); }
       .portrait-board-inner { padding: 14px; }
@@ -923,6 +1370,7 @@
       </a>
       <nav class="nav" aria-label="主导航">
         <a href="#services">服务</a>
+        <a href="#platform">平台</a>
         <a href="#method">理念</a>
         <a href="#roadmap">规划</a>
       </nav>
@@ -1057,6 +1505,145 @@
               <span class="service-link">打开闲趣集 →</span>
             </div>
           </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="platform">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="reveal">平台运行状态，可追踪。</h2>
+          <p class="reveal">首页现在直接读取统一 Action API：模块状态、今日上下文、最近运行和事件都来自后端审计表。</p>
+        </div>
+
+        <div class="platform-grid">
+          <section class="platform-panel reveal" aria-label="模块状态">
+            <div class="platform-panel-inner">
+              <div class="platform-panel-header">
+                <h3>模块状态</h3>
+                <button class="platform-refresh" type="button" data-platform-refresh>刷新</button>
+              </div>
+              <div class="module-status-grid" data-platform-modules>
+                <div class="platform-empty">正在读取模块运行状态...</div>
+              </div>
+            </div>
+          </section>
+
+          <div class="today-stack">
+            <section class="platform-panel reveal" aria-label="今日上下文">
+              <div class="platform-panel-inner">
+                <div class="platform-panel-header">
+                  <h3>今日上下文</h3>
+                  <span class="tag" data-platform-date>Today</span>
+                </div>
+                <div data-platform-today>
+                  <div class="platform-empty">正在聚合今日日程、健身、新闻和闲趣推荐...</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="platform-panel reveal" aria-label="最近审计">
+              <div class="platform-panel-inner">
+                <div class="platform-panel-header">
+                  <h3>最近审计</h3>
+                  <span class="tag">Audit Trail</span>
+                </div>
+                <div class="audit-stack" data-platform-audit>
+                  <div class="platform-empty">正在读取最近运行和事件...</div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section class="platform-panel research-panel reveal" aria-label="研知库概览">
+            <div class="platform-panel-inner">
+              <div class="platform-panel-header">
+                <h3>研知库概览</h3>
+                <span class="tag" data-platform-research-summary>AIResearch</span>
+              </div>
+              <div data-platform-research>
+                <div class="platform-empty">正在读取研知库数据库、候选评审、聚类和发布站点状态...</div>
+              </div>
+              <div class="research-search">
+                <form class="research-search-form" data-platform-research-search>
+                  <input
+                    type="search"
+                    data-platform-research-query
+                    aria-label="搜索研知库论文"
+                    placeholder="搜索论文、作者、venue"
+                    autocomplete="off"
+                  />
+                  <button class="profile-review-button" type="submit">搜索</button>
+                </form>
+                <div class="research-search-results" data-platform-research-results>
+                  <div class="platform-empty">输入关键词后检索本地论文库。</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="platform-panel ops-panel reveal" aria-label="平台运行中心">
+            <div class="platform-panel-inner">
+              <div class="platform-panel-header">
+                <h3>运行中心</h3>
+                <span class="tag" data-platform-ops-summary>Ops Center</span>
+              </div>
+              <div class="ops-toolbar" aria-label="运行中心筛选">
+                <select data-platform-module-filter aria-label="按模块筛选">
+                  <option value="">全部模块</option>
+                  <option value="news">新闻社</option>
+                  <option value="fitness">塑形馆</option>
+                  <option value="schedule">时务局</option>
+                  <option value="leisure">闲趣集</option>
+                  <option value="airesearch">研知库</option>
+                  <option value="platform">平台</option>
+                  <option value="profile">画像</option>
+                </select>
+                <select data-platform-status-filter aria-label="按状态筛选">
+                  <option value="">全部状态</option>
+                  <option value="passed">passed</option>
+                  <option value="failed">failed</option>
+                  <option value="blocked">blocked</option>
+                  <option value="running">running</option>
+                </select>
+                <select data-platform-review-filter aria-label="按审核状态筛选">
+                  <option value="">全部事件</option>
+                  <option value="true">仅待审核</option>
+                  <option value="false">无需审核</option>
+                </select>
+                <button type="button" data-platform-filter-reset>重置筛选</button>
+              </div>
+              <div class="ops-metrics" data-platform-metrics>
+                <div class="platform-empty">正在读取运行中心摘要...</div>
+              </div>
+              <div class="ops-columns">
+                <div class="ops-column">
+                  <h4>统一待办</h4>
+                  <div class="audit-stack" data-platform-work-queue>
+                    <div class="platform-empty">正在读取统一待办...</div>
+                  </div>
+                </div>
+                <div class="ops-column">
+                  <h4>待审核</h4>
+                  <div class="audit-stack" data-platform-reviews>
+                    <div class="platform-empty">正在读取待审核项...</div>
+                  </div>
+                </div>
+                <div class="ops-column">
+                  <h4>执行轨迹</h4>
+                  <div class="audit-stack" data-platform-timeline>
+                    <div class="platform-empty">正在读取执行轨迹...</div>
+                  </div>
+                </div>
+                <div class="ops-column">
+                  <h4>画像变更</h4>
+                  <div class="audit-stack" data-platform-profile-changes>
+                    <div class="platform-empty">正在读取画像变更...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </section>

@@ -22,7 +22,11 @@ def test_run_mvp_pipeline_exports_bundle_and_site(tmp_path: Path):
     assert result.facts_written == 2
     assert result.fact_failures == 0
     assert result.hard_failures == 0
+    assert result.graph_fact_nodes == 2
+    assert result.graph_evidence_nodes == 0
     assert (out_dir / "bundle" / "manifest.json").exists()
     assert result.site_path == out_dir / "bundle" / "index.html"
     assert "extract-artifact-ledger" in result.steps
+    assert result.steps.index("repair-evidence-source-paths") < result.steps.index("extract-layout-evidence-graph")
+    assert result.steps.index("extract-layout-evidence-graph") < result.steps.index("export-paper-cards")
     assert "generate-report-site" in result.steps

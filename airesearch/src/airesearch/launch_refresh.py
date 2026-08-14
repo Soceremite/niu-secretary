@@ -143,7 +143,7 @@ def run_launch_refresh(
     fixture_path: Path | None = None,
     model: str | None = None,
     base_url: str | None = None,
-    api_key_env: str = "OPENAI_API_KEY",
+    api_key_env: str = "AIRESEARCH_FACT_API_KEY",
     concurrency: int = 5,
     refresh_facts: bool = False,
     fact_error_policy: str = "strict",
@@ -182,6 +182,7 @@ def run_launch_refresh(
             profile_name=profile_name,
             providers=providers,
             limit=limit_per_profile,
+            concurrency=concurrency,
             progress_callback=progress_callback,
         )
         discovery_summaries.append(
@@ -221,6 +222,7 @@ def run_launch_refresh(
             manifest_path=approved_manifest_path,
             papi_executable=papi_executable,
             normalize_urls=True,
+            concurrency=min(4, max(1, concurrency)),
         )
         mark("batch-ingest")
     else:

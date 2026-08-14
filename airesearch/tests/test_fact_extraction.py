@@ -5,7 +5,9 @@ import pytest
 
 from airesearch.db import connect, init_db
 from airesearch.fact_extraction import (
+    ALLOWED_FACT_TYPES,
     FactValidationError,
+    OpenAICompatibleClient,
     build_evidence_pack,
     export_research_facts,
     extract_research_facts,
@@ -198,6 +200,174 @@ def test_build_evidence_pack_hash_is_deterministic(tmp_path: Path):
     assert first.evidence_hash == second.evidence_hash
     assert first.prompt_json == second.prompt_json
 
+
+def test_build_evidence_pack_records_required_fact_types(tmp_path: Path):
+    db_path = synced_fixture_db(tmp_path)
+    with connect(db_path) as conn:
+        pack = build_evidence_pack(
+            conn,
+            "1706_03762",
+            max_input_chars=4000,
+            required_fact_types=["dataset", "limitation"],
+        )
+    assert pack.prompt_json["required_fact_types"] == ["dataset", "limitation"]
+    assert "REQUIRED FACT TYPES FOR THIS RETRY" in pack.prompt_text
+
+
+def test_required_fact_types_are_forwarded_to_openai_provider_and_prompt(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    client = FakeFactClient({"facts": []})
+
+    from unittest.mock import patch
+
+    with patch("airesearch.fact_extraction.extract_openai_compatible_facts") as extractor:
+        extractor.return_value = type("Result", (), {
+            "papers_seen": 1,
+            "facts_written": 0,
+            "provenance_written": 0,
+            "cache_hits": 0,
+            "llm_calls": 0,
+            "dry_runs": 0,
+            "failed_count": 0,
+        })()
+        extract_research_facts(
+            db_path,
+            provider_name="openai-compatible",
+            paper_key="1706_03762",
+            required_fact_types={"1706_03762": ["dataset"]},
+            client=client,
+        )
+
+    assert extractor.call_args.kwargs["required_fact_types"] == {"1706_03762": ["dataset"]}
+
+
+def test_targeted_retry_requires_all_five_types_before_write(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    original = {
+        "facts": [{
+            "fact_type": "method",
+            "name": "Existing method",
+            "statement": "The existing grounded method must survive a failed retry.",
+            "evidence_quote": "Attention Is All You Need",
+            "evidence_artifact_type": "summary",
+            "confidence": 0.9,
+            "metadata": {},
+        }]
+    }
+    extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="gpt-5.6-luna",
+        client=FakeFactClient(original),
+        refresh_cache=True,
+    )
+    partial = {
+        "facts": [
+            {
+                "fact_type": fact_type,
+                "name": fact_type,
+                "statement": f"Grounded {fact_type}.",
+                "evidence_quote": "Attention Is All You Need",
+                "evidence_artifact_type": "summary",
+                "confidence": 0.9,
+                "metadata": {},
+            }
+            for fact_type in sorted(ALLOWED_FACT_TYPES - {"limitation"})
+        ]
+    }
+    client = FakeFactClient(partial)
+
+    with pytest.raises(FactValidationError, match="all five fact types"):
+        extract_research_facts(
+            db_path,
+            provider_name="openai-compatible",
+            paper_key="1706_03762",
+            required_fact_types={"1706_03762": ["dataset"]},
+            model="gpt-5.6-luna",
+            client=client,
+            refresh_cache=True,
+        )
+
+    retained = list_research_facts(db_path, paper_key="1706_03762", limit=10)
+    assert [(fact["fact_type"], fact["name"]) for fact in retained] == [
+        ("method", "Existing method")
+    ]
+    with connect(db_path) as conn:
+        cache = conn.execute(
+            "select status, error from fact_extraction_cache "
+            "where paper_key='1706_03762' order by id desc limit 1"
+        ).fetchone()
+    assert cache["status"] == "failed"
+    assert "limitation" in cache["error"]
+
+
+def test_targeted_retry_prompt_requests_all_five_fact_types(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    client = FakeFactClient({"facts": []})
+
+    with pytest.raises(FactValidationError, match="all five fact types"):
+        extract_research_facts(
+            db_path,
+            provider_name="openai-compatible",
+            paper_key="1706_03762",
+            required_fact_types={"1706_03762": ["dataset"]},
+            model="gpt-5.6-luna",
+            client=client,
+            refresh_cache=True,
+        )
+
+    prompt = client.calls[0]["prompt"]
+    assert "REQUIRED FACT TYPES FOR THIS RETRY" in prompt
+    assert all(fact_type in prompt for fact_type in ALLOWED_FACT_TYPES)
+
+
+def test_openai_compatible_can_target_an_explicit_paper_list(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    add_synthetic_paper(db_path, tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    client = PromptAwareFactClient({
+        "Attention Is All You Need": {
+            "facts": [{
+                "fact_type": "method",
+                "name": "Transformer",
+                "statement": "The paper uses a Transformer architecture.",
+                "evidence_quote": "Attention Is All You Need",
+                "evidence_artifact_type": "summary",
+                "confidence": 0.8,
+                "metadata": {},
+            }]
+        },
+        "Synthetic Control Paper": {
+            "facts": [{
+                "fact_type": "benchmark",
+                "name": "Synthetic benchmark",
+                "statement": "The paper defines a controlled benchmark.",
+                "evidence_quote": "controlled benchmark for fact extraction",
+                "evidence_artifact_type": "summary",
+                "confidence": 0.9,
+                "metadata": {},
+            }]
+        },
+    })
+
+    result = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_keys=["synthetic_control", "1706_03762"],
+        model="gpt-5.6-luna",
+        client=client,
+        concurrency=2,
+    )
+
+    assert result.papers_seen == 2
+    assert result.llm_calls == 2
+    assert any("Attention Is All You Need" in prompt for prompt in client.calls)
+    assert any("Synthetic Control Paper" in prompt for prompt in client.calls)
+
 def test_openai_compatible_dry_run_writes_cache_without_calling_client(tmp_path: Path, monkeypatch):
     db_path = synced_fixture_db(tmp_path)
     client = FakeFactClient({"facts": []})
@@ -220,6 +390,91 @@ def test_openai_compatible_dry_run_writes_cache_without_calling_client(tmp_path:
         row = conn.execute("select * from fact_extraction_cache").fetchone()
     assert row["model"] == "qwen3.7-max"
     assert row["status"] == "dry_run"
+
+
+def test_openai_compatible_client_supports_responses_endpoint(monkeypatch):
+    requests = []
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return json.dumps({
+                "output": [{
+                    "type": "message",
+                    "content": [{
+                        "type": "output_text",
+                        "text": "```json\n{\"facts\": []}\n```",
+                    }],
+                }]
+            }).encode("utf-8")
+
+    def urlopen(request, timeout):
+        requests.append((request, timeout))
+        return Response()
+
+    monkeypatch.setattr("urllib.request.urlopen", urlopen)
+
+    result = OpenAICompatibleClient().complete_json(
+        model="gpt-5.6-luna",
+        base_url="https://opencode.example/v1/responses",
+        api_key="secret",
+        prompt="paper evidence",
+    )
+
+    assert result == {"facts": []}
+    request, timeout = requests[0]
+    assert request.full_url == "https://opencode.example/v1/responses"
+    assert request.get_header("User-agent") == "OpenClaw/1.0"
+    assert request.get_header("Accept") == "application/json"
+    payload = json.loads(request.data)
+    assert payload["input"][0]["role"] == "system"
+    assert payload["input"][1]["content"][0]["text"] == "paper evidence"
+    assert payload["max_output_tokens"] == 6000
+    assert timeout == 300
+
+
+def test_openai_compatible_client_uses_configured_proxy_for_responses(monkeypatch):
+    opened = []
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"output_text":"{\\\"facts\\\": []}"}'
+
+    class Opener:
+        def open(self, request, timeout):
+            opened.append((request.full_url, timeout))
+            return Response()
+
+    handlers = []
+
+    def build_opener(handler):
+        handlers.append(handler)
+        return Opener()
+
+    monkeypatch.setenv("AIRESEARCH_FACT_PROXY", "http://127.0.0.1:7890")
+    monkeypatch.setattr("urllib.request.build_opener", build_opener)
+
+    result = OpenAICompatibleClient().complete_json(
+        model="gpt-5.6-luna",
+        base_url="https://opencode.example/v1/responses",
+        api_key="secret",
+        prompt="paper evidence",
+    )
+
+    assert result == {"facts": []}
+    assert handlers
+    assert opened == [("https://opencode.example/v1/responses", 300)]
 
 
 def test_openai_compatible_writes_facts_and_uses_cache(tmp_path: Path, monkeypatch):
@@ -272,6 +527,7 @@ def test_openai_compatible_writes_facts_and_uses_cache(tmp_path: Path, monkeypat
 def test_openai_compatible_missing_api_key_fails(tmp_path: Path, monkeypatch):
     db_path = synced_fixture_db(tmp_path)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENCODE_GO_API_KEY", raising=False)
 
     with pytest.raises(FactValidationError, match="OPENAI_API_KEY"):
         extract_research_facts(
@@ -281,6 +537,30 @@ def test_openai_compatible_missing_api_key_fails(tmp_path: Path, monkeypatch):
             model="gpt5.5",
             client=FakeFactClient({"facts": []}),
         )
+
+
+def test_openai_compatible_uses_unified_opencode_fallback(tmp_path: Path, monkeypatch):
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.delenv("AIRESEARCH_FACT_API_KEY", raising=False)
+    monkeypatch.delenv("AIRESEARCH_FACT_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
+    monkeypatch.setenv("OPENCODE_GO_API_KEY", "one-secret")
+    monkeypatch.setenv("OPENCODE_GO_BASE_URL", "https://opencode.example/v1")
+    client = FakeFactClient({"facts": []})
+
+    result = extract_research_facts(
+        db_path,
+        provider_name="openai-compatible",
+        paper_key="1706_03762",
+        model="gpt-5.6-luna",
+        client=client,
+        refresh_cache=True,
+    )
+
+    assert result.llm_calls == 1
+    assert client.calls[0]["api_key"] == "one-secret"
+    assert client.calls[0]["base_url"] == "https://opencode.example/v1/responses"
 
 
 def test_openai_compatible_invalid_response_does_not_write_partial_facts(tmp_path: Path, monkeypatch):

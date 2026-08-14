@@ -2,6 +2,7 @@
 // fitness/src/js/features/consult.js
 import { addConsultLog, listConsultLogs } from '../lib/db.js';
 import { assessConsult } from '../lib/consult.js';
+import { createUnifiedConsultLog, fetchUnifiedConsultLogs } from '../lib/actionApi.js';
 
 export async function initConsult() {
   const form = document.getElementById('consult-form');
@@ -20,18 +21,60 @@ async function saveConsult(event) {
     text: data.text.trim(),
     result
   };
-  await addConsultLog(log);
+  let synced = false;
+  let serverId = '';
+  try {
+    const record = await createUnifiedConsultLog(log);
+    serverId = record?.id || '';
+    synced = true;
+  } catch (error) {
+    console.warn('[fitness] unified consult sync failed', error);
+  }
+  await addConsultLog({
+    ...log,
+    serverId,
+    source: synced ? 'unified-api' : 'fitness-page',
+    syncStatus: synced ? 'synced' : 'pending'
+  });
   renderResult(result);
-  document.getElementById('consult-toast').textContent = '咨询记录已保存';
+  document.getElementById('consult-toast').textContent = synced ? '咨询记录已同步到统一动作接口，并保留离线缓存' : '统一动作接口暂不可用，咨询记录已保留在本地缓存';
   await render();
 }
 
 async function render() {
-  const logs = (await listConsultLogs()).sort((a, b) => b.date.localeCompare(a.date));
+  const [localLogs, unified] = await Promise.all([
+    listConsultLogs(),
+    loadUnifiedConsults()
+  ]);
+  const logs = mergeOfflineCache(localLogs, unified.items, unified.offline)
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
   if (logs[0]) renderResult(logs[0].result);
   document.getElementById('consult-list').innerHTML = logs.length ? logs.slice(0, 8).map((log) => `
     <div class="log-item"><span><strong>${escapeHtml(log.area || '未标注')}</strong><br>${escapeHtml(log.date)} · ${escapeHtml(log.text)}</span><span>${escapeHtml(log.result.title)}</span></div>
   `).join('') : '<div class="empty">暂无咨询记录。</div>';
+}
+
+async function loadUnifiedConsults() {
+  try {
+    return { items: await fetchUnifiedConsultLogs(), offline: false };
+  } catch {
+    return { items: [], offline: true };
+  }
+}
+
+function mergeOfflineCache(localLogs, unifiedLogs, includeLocalCache = false) {
+  const rows = [];
+  const seenServerIds = new Set();
+  const visibleLocalLogs = includeLocalCache ? localLogs : localLogs.filter((log) => log.syncStatus === 'pending');
+  for (const log of visibleLocalLogs) {
+    rows.push(log);
+    if (log.serverId) seenServerIds.add(log.serverId);
+    if (log.id && String(log.id).startsWith('con_')) seenServerIds.add(log.id);
+  }
+  for (const log of unifiedLogs) {
+    if (!seenServerIds.has(log.id)) rows.push(log);
+  }
+  return rows;
 }
 
 function renderResult(result) {

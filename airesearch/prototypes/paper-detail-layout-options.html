@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIResearch paper detail layout options</title>
+  <style>
+    :root {
+      --paper: #fbfaf6;
+      --paper-2: #f4f1e8;
+      --ink: #20201d;
+      --muted: #696a63;
+      --line: #ded8c8;
+      --teal: #0f7b6c;
+      --teal-soft: #e4f3ef;
+      --red: #b31b1b;
+      --blue: #2467b2;
+      --gold: #b8842c;
+      --shadow: 0 18px 52px rgba(44, 38, 24, .12);
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: "Aptos", "Segoe UI", system-ui, sans-serif;
+      --mono: "SFMono-Regular", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(15, 123, 108, .09), transparent 26rem),
+        linear-gradient(180deg, #fffdf8, var(--paper));
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+    }
+    a { color: inherit; }
+    .shell { width: min(1360px, calc(100% - 48px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(222, 216, 200, .78);
+      background: rgba(251, 250, 246, .9);
+      backdrop-filter: blur(16px);
+    }
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 64px;
+    }
+    .brand { display: flex; align-items: baseline; gap: 10px; }
+    .brand strong { font: 700 22px/1 var(--serif); }
+    .brand span { color: var(--muted); font-size: 13px; }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .jump a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, .62);
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .jump a:hover { border-color: var(--teal); color: var(--teal); background: white; }
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 32px;
+      align-items: end;
+      padding: 44px 0 28px;
+    }
+    .intro h1 {
+      max-width: 880px;
+      margin: 0 0 14px;
+      font: 700 clamp(34px, 4.4vw, 62px)/1.03 var(--serif);
+      text-wrap: balance;
+    }
+    .intro p { max-width: 760px; margin: 0; color: var(--muted); font-size: 17px; }
+    .scorecard {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,.7);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .scorecard b { display: block; margin-bottom: 8px; color: var(--teal); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .scorecard p { margin: 0; font-size: 14px; }
+    .option {
+      margin: 28px 0 54px;
+      border-top: 1px solid var(--line);
+      padding-top: 28px;
+    }
+    .option-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 360px);
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+    .kicker { margin: 0 0 7px; color: var(--teal); font: 800 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .option h2 { margin: 0 0 8px; font: 700 30px/1.1 var(--serif); }
+    .option-desc { max-width: 76ch; margin: 0; color: var(--muted); }
+    .judgement {
+      display: grid;
+      gap: 8px;
+      border-left: 3px solid var(--teal);
+      background: rgba(228, 243, 239, .58);
+      padding: 12px 14px;
+    }
+    .judgement span { color: var(--muted); font-size: 13px; }
+    .prototype {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fffdfa;
+      box-shadow: var(--shadow);
+    }
+    .mini-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 42px;
+      border-bottom: 1px solid var(--line);
+      padding: 0 18px;
+      background: rgba(255,255,255,.68);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .mini-nav strong { color: var(--ink); font-family: var(--serif); font-size: 16px; }
+    .mock {
+      min-height: 680px;
+      padding: 30px;
+    }
+    .paper-title {
+      margin: 0;
+      font: 700 30px/1.14 var(--serif);
+      text-wrap: balance;
+    }
+    .authors { color: var(--muted); font-size: 13px; }
+    .icon-row { display: inline-flex; gap: 8px; align-items: center; margin-left: 8px; }
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: var(--teal-soft);
+      color: var(--teal);
+      font: 800 12px/1 var(--mono);
+    }
+    .icon.red { background: #f9e8e6; color: var(--red); }
+    .cover {
+      width: 100%;
+      border: 1px solid #d9caa6;
+      border-radius: 7px;
+      background: white;
+      object-fit: contain;
+    }
+    .facts { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      padding: 7px 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .pill.active { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); }
+    .summary-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .summary-list li {
+      border-left: 3px solid var(--teal);
+      background: rgba(15, 123, 108, .045);
+      padding: 9px 11px;
+      color: #383934;
+      font-size: 14px;
+    }
+    .summary-list b { display: block; margin-bottom: 3px; color: var(--teal); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    .evidence-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      padding: 12px;
+    }
+    .evidence-card b { color: var(--teal); font-size: 12px; text-transform: uppercase; }
+    .evidence-card p { margin: 6px 0 0; color: #343530; font-size: 14px; }
+    .note-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .note {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .note b { display: block; color: var(--ink); }
+
+    /* Option A */
+    .reader .hero {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(300px, .65fr);
+      gap: 26px;
+      align-items: start;
+    }
+    .reader .header { margin-bottom: 18px; }
+    .reader .cover { max-height: 360px; }
+    .reader .right-brief {
+      border: 1px solid rgba(15,123,108,.22);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ffffff, #f7fbf8);
+      padding: 16px;
+    }
+    .reader .below { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 18px; margin-top: 22px; }
+    .reader .rail { border-left: 1px solid var(--line); padding-left: 16px; color: var(--muted); font-size: 13px; }
+
+    /* Option B */
+    .workbench {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr) 300px;
+      gap: 18px;
+      background: #f6f4ee;
+    }
+    .workbench .panel {
+      min-height: 620px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,.82);
+      padding: 14px;
+    }
+    .workbench .panel h3 { margin: 0 0 10px; font: 700 18px/1.15 var(--serif); }
+    .workbench .center { display: grid; gap: 14px; align-content: start; }
+    .workbench .cover { max-height: 260px; }
+    .workbench .toc { display: grid; gap: 8px; margin-top: 14px; }
+    .toc button {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: white;
+      padding: 9px 10px;
+      text-align: left;
+      color: var(--muted);
+    }
+    .toc button:first-child { border-color: var(--teal); color: var(--teal); background: var(--teal-soft); }
+
+    /* Option C */
+    .magazine {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 24px;
+      background: #fffdf7;
+    }
+    .magazine .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(280px, .65fr);
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+    .magazine .paper-title { font-size: 38px; }
+    .magazine .cover { height: 330px; }
+    .magazine .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .magazine .cards .evidence-card { min-height: 130px; }
+    .magazine aside {
+      border-left: 1px solid var(--line);
+      padding-left: 18px;
+    }
+
+    /* Option D */
+    .compact {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 18px;
+      background: #fbfbf8;
+    }
+    .compact .sidebar {
+      border-right: 1px solid var(--line);
+      padding-right: 14px;
+    }
+    .compact .cover { height: 150px; margin: 14px 0; }
+    .compact .table {
+      display: grid;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      overflow: hidden;
+      background: white;
+    }
+    .compact .row {
+      display: grid;
+      grid-template-columns: 100px 1fr 92px;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+      padding: 11px 12px;
+      font-size: 14px;
+    }
+    .compact .row:last-child { border-bottom: 0; }
+    .compact .row b { color: var(--teal); text-transform: uppercase; font-size: 11px; }
+
+    /* Option E */
+    .immersive {
+      padding: 0;
+      background: #151511;
+      color: #f8f5eb;
+    }
+    .immersive .stage {
+      position: relative;
+      min-height: 650px;
+      padding: 34px;
+      overflow: hidden;
+    }
+    .immersive .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(21,21,17,.98), rgba(21,21,17,.74) 42%, rgba(21,21,17,.2)),
+        url("../exports/site-current/paper-assets/covers/watch-remember-reason-84a184e96778.webp") center right / min(760px, 58%) auto no-repeat;
+      opacity: .95;
+    }
+    .immersive .content {
+      position: relative;
+      z-index: 1;
+      width: min(620px, 58%);
+      padding-top: 26px;
+    }
+    .immersive .paper-title {
+      color: #fff8e8;
+      font-size: 44px;
+    }
+    .immersive .authors { color: #c7c1b0; }
+    .immersive .summary-list li {
+      background: rgba(255,255,255,.08);
+      color: #f1ecdd;
+      border-left-color: #d5a84a;
+    }
+    .immersive .summary-list b { color: #d5a84a; }
+    .immersive .bottom-strip {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .immersive .bottom-strip .evidence-card {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.18);
+      color: #f5efdf;
+    }
+    .immersive .bottom-strip p { color: #efe7d2; }
+
+    @media (max-width: 980px) {
+      .shell { width: min(100% - 28px, 920px); }
+      .intro, .option-head, .reader .hero, .reader .below, .workbench, .magazine, .magazine .masthead, .compact {
+        grid-template-columns: 1fr;
+      }
+      .workbench .panel { min-height: auto; }
+      .magazine aside, .compact .sidebar { border: 0; padding: 0; }
+      .immersive .content { width: 100%; }
+      .immersive .stage::before { opacity: .25; background-size: 900px auto; }
+      .note-grid, .immersive .bottom-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand"><span>牛秘书</span><strong>AIResearch</strong><span>paper detail redesign choices</span></div>
+      <nav class="jump" aria-label="layout options">
+        <a href="#reader">A 阅读器</a>
+        <a href="#workbench">B 工作台</a>
+        <a href="#magazine">C 杂志概览</a>
+        <a href="#compact">D 紧凑库</a>
+        <a href="#immersive">E 沉浸封面</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <div>
+        <p class="kicker">Design decision prototype</p>
+        <h1>论文详情页的 5 种排版路线</h1>
+        <p>目标不是做装饰，而是把论文详情页的阅读路径理顺：先看懂论文是什么，再看图和关键总结，最后进入事实证据。下面每个方案都使用同一篇论文内容，便于判断信息架构。</p>
+      </div>
+      <aside class="scorecard">
+        <b>我的初步判断</b>
+        <p>推荐优先考虑 A 或 B。A 更像一篇可读论文卡片，适合公开浏览；B 更像研究分析工具，适合高频筛论文和查证据。</p>
+      </aside>
+    </section>
+
+    <section id="reader" class="option">
+      <div class="option-head">
+        <div>
+          <p class="kicker">Option A / 推荐</p>
+          <h2>阅读器型：左图右关键总结，下方证据</h2>
+          <p class="option-desc">把首屏分成清晰阅读路径：标题和作者在上方，主图占左侧视觉中心，右侧只放五条可扫描总结；facts tabs 放到图文摘要之后。</p>
+        </div>
+        <div class="judgement">
+          <strong>适合：论文详情页作为“读懂一篇论文”的入口</strong>
+          <span>优点：最稳、最不像后台、改造成本中等。缺点：facts 需要下移一屏。</span>
+        </div>
+      </div>
+      <div class="prototype">
+        <div class="mini-nav"><strong>AIResearch</strong><span>Papers</span><span>Digest</span><span>Clusters</span></div>
+        <div class="mock reader">
+          <div class="header">
+            <p class="kicker">watch-remember-reason · 2026</p>
+            <h3 class="paper-title">Watch, Remember, Reason: Human-View Video Understanding with MLLMs</h3>
+            <p class="authors">Jiahao Meng, Yue Tan, Qi Xu, Kuan Gao, Weisong Liu, Yanwei Li, Jason Li, Lingdong Kong <span class="icon-row"><span class="icon red">x</span><span class="icon">GH</span></span></p>
+          </div>
+          <div class="hero">
+            <img class="cover" src="../exports/site-current/paper-assets/covers/watch-remember-reason-84a184e96778.webp" alt="paper cover">
+            <aside class="right-brief">
+              <p class="kicker">Five-point brief</p>
+              <ul class="summary-list">
+                <li><b>Core idea</b>Organizes video understanding around watching, remembering, and reasoning.</li>
+                <li><b>Method</b>Defines perceptual representations, memory states, reasoning traces, and predictions.</li>
+                <li><b>Scope</b>Covers egocentric, sports, instructional, medical, and narrative videos.</li>
+                <li><b>Benchmark</b>Surveys task types, supervision formats, modalities, and capability dimensions.</li>
+                <li><b>Open problem</b>Long-video memory and faithful reasoning remain difficult.</li>
+              </ul>
+            </aside>
+          </div>
+          <div class="below">
+            <div>
+              <div class="facts"><span class="pill active">Method 3</span><span class="pill">Claim 2</span><span class="pill">Benchmark 1</span><span class="pill">Dataset 0</span></div>
+              <div class="evidence-card" style="margin-top:12px"><b>Method · 1.0</b><p>The paper presents a human-view perspective on LLM-based video understanding structured around three functional abilities.</p></div>
+            </div>
+            <aside class="rail"><b>Right rail</b><br>Short summary, related clusters, and coverage stats can stay sticky here without becoming the main reading surface.</aside>
+          </div>
+        </div>
+      </div>
+      <div class="note-grid"><div class="note"><b>信息优先级</b>标题 → 图 → 五条摘要 → facts</div><div class="note"><b>风险</b>长作者名单仍需折叠或限制两行</div><div class="note"><b>实现难度</b>中等，主要改模板和 CSS</div></div>
+    </section>
+
+    <section id="workbench" class="option">
+      <div class="option-head">
+        <div>
+          <p class="kicker">Option B</p>
+          <h2>证据工作台型：左目录，中内容，右摘要</h2>
+          <p class="option-desc">面向研究人员的高频使用：左侧是论文导航和状态，中间展示图与证据列表，右侧 sticky 显示摘要、链接、覆盖率和相关簇。</p>
+        </div>
+        <div class="judgement">
+          <strong>适合：快速筛论文、查 evidence、做研究分析</strong>
+          <span>优点：效率最高。缺点：工具感强，不如 A 有阅读感。</span>
+        </div>
+      </div>
+      <div class="prototype">
+        <div class="mini-nav"><strong>AIResearch</strong><span>Papers</span><span>Map</span><span>Gaps</span></div>
+        <div class="mock workbench">
+          <aside class="panel">
+            <p class="kicker">Paper nav</p>
+            <h3>Watch, Remember, Reason</h3>
+            <p class="authors">2026 · 15 authors <span class="icon-row"><span class="icon red">x</span><span class="icon">GH</span></span></p>
+            <div class="toc"><button>Overview</button><button>Method facts</button><button>Claims</button><button>Benchmarks</button><button>Related clusters</button></div>
+          </aside>
+          <main class="center">
+            <img class="cover" src="../exports/site-current/paper-assets/covers/watch-remember-reason-84a184e96778.webp" alt="paper cover">
+            <div class="facts"><span class="pill active">Method 3</span><span class="pill">Claim 2</span><span class="pill">Benchmark 1</span></div>
+            <div class="evidence-card"><b>Method · evidence</b><p>Watching covers fine-grained, comprehensive, audio-visual, and efficient perception.</p></div>
+            <div class="evidence-card"><b>Claim · evidence</b><p>The human-view structure provides a unified way to analyze how video MLLMs acquire evidence and preserve context.</p></div>
+          </main>
+          <aside class="panel">
+            <p class="kicker">Brief</p>
+            <ul class="summary-list">
+              <li><b>Why it matters</b>Turns a broad survey into a functional taxonomy.</li>
+              <li><b>Coverage</b>6 facts captured across method, claim, and benchmark.</li>
+              <li><b>Use next</b>Compare with long-video memory and reasoning clusters.</li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+      <div class="note-grid"><div class="note"><b>信息优先级</b>证据检索优先</div><div class="note"><b>风险</b>首屏较像后台系统</div><div class="note"><b>实现难度</b>较高，需要新增左目录和右 rail 数据组织</div></div>
+    </section>
+
+    <section id="magazine" class="option">
+      <div class="option-head">
+        <div>
+          <p class="kicker">Option C</p>
+          <h2>杂志概览型：大标题 + 摘要卡片瀑布</h2>
+          <p class="option-desc">把论文详情页做得更像一篇研究 brief。标题和图具有较强视觉吸引力，五类事实被拆成卡片，适合对外展示和分享。</p>
+        </div>
+        <div class="judgement">
+          <strong>适合：希望页面看起来更高级、更有展示感</strong>
+          <span>优点：视觉最好。缺点：facts 的严谨表格感会被弱化。</span>
+        </div>
+      </div>
+      <div class="prototype">
+        <div class="mini-nav"><strong>AIResearch</strong><span>Editorial detail</span></div>
+        <div class="mock magazine">
+          <main>
+            <div class="masthead">
+              <div>
+                <p class="kicker">Paper brief · 2026</p>
+                <h3 class="paper-title">Watch, Remember, Reason: Human-View Video Understanding with MLLMs</h3>
+                <p class="authors">Jiahao Meng, Yue Tan, Qi Xu, Kuan Gao, Weisong Liu <span class="icon-row"><span class="icon red">x</span><span class="icon">GH</span></span></p>
+              </div>
+              <img class="cover" src="../exports/site-current/paper-assets/covers/watch-remember-reason-84a184e96778.webp" alt="paper cover">
+            </div>
+            <div class="cards">
+              <div class="evidence-card"><b>Method</b><p>Three abilities define the taxonomy: watching, remembering, reasoning.</p></div>
+              <div class="evidence-card"><b>Claim</b><p>The view unifies sparse evidence, context memory, and grounded outputs.</p></div>
+              <div class="evidence-card"><b>Benchmark</b><p>Evaluation spans task type, supervision format, modality, and capability.</p></div>
+              <div class="evidence-card"><b>Limitation</b><p>Future work must improve scalable memory-aware video intelligence.</p></div>
+            </div>
+          </main>
+          <aside>
+            <p class="kicker">Narrative summary</p>
+            <p>Video understanding is shifting from short clips to longer and more knowledge-intensive scenarios. This paper frames the field through human-view abilities rather than isolated benchmarks.</p>
+            <div class="facts"><span class="pill active">Method 3</span><span class="pill">Claim 2</span><span class="pill">Benchmark 1</span></div>
+          </aside>
+        </div>
+      </div>
+      <div class="note-grid"><div class="note"><b>信息优先级</b>展示和分享优先</div><div class="note"><b>风险</b>长论文和多 facts 时页面会变长</div><div class="note"><b>实现难度</b>中等</div></div>
+    </section>
+
+    <section id="compact" class="option">
+      <div class="option-head">
+        <div>
+          <p class="kicker">Option D</p>
+          <h2>紧凑数据库型：左元信息，右事实表</h2>
+          <p class="option-desc">最大化信息密度。适合 202 篇论文这样的集合浏览，把详情页当成“可审计数据库记录”，主图缩小，facts 和证据成为主体。</p>
+        </div>
+        <div class="judgement">
+          <strong>适合：内部研究、标注核查、快速比较</strong>
+          <span>优点：密度高。缺点：不适合普通用户阅读，页面会显得冷。</span>
+        </div>
+      </div>
+      <div class="prototype">
+        <div class="mini-nav"><strong>AIResearch</strong><span>Dense record</span></div>
+        <div class="mock compact">
+          <aside class="sidebar">
+            <p class="kicker">Record</p>
+            <h3 class="paper-title" style="font-size:22px">Watch, Remember, Reason</h3>
+            <p class="authors">2026 · arXiv/code icons <span class="icon-row"><span class="icon red">x</span><span class="icon">GH</span></span></p>
+            <img class="cover" src="../exports/site-current/paper-assets/covers/watch-remember-reason-84a184e96778.webp" alt="paper cover">
+            <ul class="summary-list">
+              <li><b>TLDR</b>Human-view taxonomy for video understanding with MLLMs.</li>
+              <li><b>Coverage</b>Method 3, Claim 2, Benchmark 1.</li>
+            </ul>
+          </aside>
+          <main>
+            <div class="table">
+              <div class="row"><b>Method</b><span>Defines watching, remembering, and reasoning as functional abilities.</span><span>1.0</span></div>
+              <div class="row"><b>Method</b><span>Characterizes systems by perceptual representations, memory states, reasoning traces, and predictions.</span><span>1.0</span></div>
+              <div class="row"><b>Claim</b><span>Provides a unified structure for analyzing evidence acquisition and grounded outputs.</span><span>0.9</span></div>
+              <div class="row"><b>Benchmark</b><span>Covers task types, supervision formats, modalities, and capability dimensions.</span><span>1.0</span></div>
+            </div>
+          </main>
+        </div>
+      </div>
+      <div class="note-grid"><div class="note"><b>信息优先级</b>facts 优先</div><div class="note"><b>风险</b>对外观感一般</div><div class="note"><b>实现难度</b>低到中等</div></div>
+    </section>
+
+    <section id="immersive" class="option">
+      <div class="option-head">
+        <div>
+          <p class="kicker">Option E</p>
+          <h2>沉浸式封面型：首屏用论文图做背景</h2>
+          <p class="option-desc">把论文主图作为首屏背景，标题和摘要压在左侧，facts 下沉。更适合少量精选论文，而不是整个库的标准详情页。</p>
+        </div>
+        <div class="judgement">
+          <strong>适合：精选论文、专题页、封面故事</strong>
+          <span>优点：冲击力强。缺点：图像质量不稳定时风险最大。</span>
+        </div>
+      </div>
+      <div class="prototype immersive">
+        <div class="mini-nav" style="background:rgba(20,20,18,.8);border-color:rgba(255,255,255,.16);color:#cfc8b9"><strong style="color:white">AIResearch</strong><span>Featured paper</span></div>
+        <div class="stage">
+          <div class="content">
+            <p class="kicker" style="color:#d5a84a">Featured · 2026</p>
+            <h3 class="paper-title">Watch, Remember, Reason: Human-View Video Understanding with MLLMs</h3>
+            <p class="authors">Jiahao Meng, Yue Tan, Qi Xu, Kuan Gao, Weisong Liu <span class="icon-row"><span class="icon red">x</span><span class="icon">GH</span></span></p>
+            <ul class="summary-list" style="margin-top:26px">
+              <li><b>Frame</b>A human-view lens for video MLLM systems.</li>
+              <li><b>Signal</b>Watching, memory, and reasoning are treated as separate but connected abilities.</li>
+              <li><b>Next read</b>Move into facts and related clusters below the fold.</li>
+            </ul>
+            <div class="bottom-strip">
+              <div class="evidence-card"><b>Method 3</b><p>Functional taxonomy</p></div>
+              <div class="evidence-card"><b>Claim 2</b><p>Unified structure</p></div>
+              <div class="evidence-card"><b>Benchmark 1</b><p>Evaluation scope</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note-grid"><div class="note"><b>信息优先级</b>视觉冲击优先</div><div class="note"><b>风险</b>高度依赖封面图裁剪质量</div><div class="note"><b>实现难度</b>中等，但需要图片质量兜底</div></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -7,7 +7,7 @@ name = "airesearch"
 version = "0.1.0"
 description = "Local research paper ledger and batch ingest layer for paperpipe."
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["PyMuPDF>=1.28.0,<2"]
 
 [project.scripts]
 airesearch = "airesearch.cli:main"
@@ -16,7 +16,7 @@ airesearch = "airesearch.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-airesearch = ["schema.sql"]
+airesearch = ["schema.sql", "assets/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

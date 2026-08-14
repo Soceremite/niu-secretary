@@ -2,6 +2,7 @@
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from server.actions import ActionError, execute_action
 from server.assistant import handle_message
@@ -12,8 +13,11 @@ class NiuSecretaryApiV4Test(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory()
         os.environ["NIU_SECRETARY_DB_PATH"] = os.path.join(self.tempdir.name, "test.sqlite3")
+        self.model_patcher = mock.patch("server.assistant._try_models", return_value=None)
+        self.model_patcher.start()
 
     def tearDown(self):
+        self.model_patcher.stop()
         os.environ.pop("NIU_SECRETARY_DB_PATH", None)
         self.tempdir.cleanup()
 
@@ -142,8 +146,39 @@ class NiuSecretaryApiV4Test(unittest.TestCase):
             "schedule.todo.list",
             "schedule.todo.toggle",
             "schedule.todo.delete",
+            "schedule.important_date.create",
+            "schedule.important_date.list",
+            "schedule.goal.create",
+            "schedule.goal.list",
         ):
             self.assertIn(name, names)
+
+    def test_schedule_important_dates_and_goals_persist(self):
+        birthday = execute_action(
+            "schedule.important_date.create",
+            {"title": "生日", "date": "XXXX-06-20", "note": "提前准备", "source": "test"},
+        )
+        self.assertTrue(birthday["ok"])
+        self.assertEqual(birthday["record"]["date"], "XXXX-06-20")
+
+        goal = execute_action(
+            "schedule.goal.create",
+            {"title": "每周复盘", "cadence": "weekly", "streak": 3, "source": "test"},
+        )
+        self.assertTrue(goal["ok"])
+        self.assertEqual(goal["record"]["streak"], 3)
+
+        dates = execute_action("schedule.important_date.list", {"limit": 10})
+        goals = execute_action("schedule.goal.list", {"limit": 10})
+        self.assertEqual(dates["count"], 1)
+        self.assertEqual(goals["count"], 1)
+        self.assertEqual(dates["items"][0]["title"], "生日")
+        self.assertEqual(goals["items"][0]["title"], "每周复盘")
+
+    def test_schedule_important_date_rejects_invalid_recurring_date(self):
+        with self.assertRaises(ActionError) as raised:
+            execute_action("schedule.important_date.create", {"title": "坏日期", "date": "XXXX-02-31"})
+        self.assertEqual(raised.exception.error, "validation_failed")
 
     # ---- 用户画像 ----
     def test_profile_capabilities_registered(self):
@@ -167,7 +202,7 @@ class NiuSecretaryApiV4Test(unittest.TestCase):
     def test_profile_get_all_when_module_omitted(self):
         result = execute_action("profile.get", {})
         self.assertTrue(result["ok"])
-        self.assertEqual(set(result["profiles"].keys()), {"fitness", "schedule", "news", "leisure"})
+        self.assertEqual(set(result["profiles"].keys()), {"fitness", "schedule", "news", "leisure", "airesearch"})
 
     def test_profile_update_merges_and_records_change(self):
         result = execute_action("profile.update", {

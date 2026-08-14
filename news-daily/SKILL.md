@@ -151,13 +151,16 @@ location /niu-secretary/news/ {
 ```
 
 **配图流程（写完 section 后自动执行）：**
-1. `python3 tools/crawl_images.py` — 从每条新闻的 `external-btn` URL 爬取 `og:image` 配图
-2. `python3 tools/review_images.py`（或 AI 手动审核）— 视觉模型判断图片是否与新闻内容相关
-3. `python3 tools/update_sections.py` — 根据审核结果插入/移除 `detail-visual`
-4. 爬取失败或审核不通过的新闻不显示图片区域
+1. `PYTHONPATH=tools python3 tools/validate_news.py` — 部署前先校验结构和真实原文链接
+2. `PYTHONPATH=tools python3 tools/crawl_images.py` — 从每条新闻的 `external-btn` 原文 URL 提取候选配图，禁止使用搜索引擎图片结果
+3. `python3 tools/review_images.py`（或 AI 手动审核）— 视觉模型判断图片是否与新闻内容相关
+4. `PYTHONPATH=tools python3 tools/update_sections.py` — 根据审核结果插入/移除 `detail-visual`
+5. `PYTHONPATH=tools python3 tools/validate_news.py` — 图片回写后再次校验
+6. `PYTHONPATH=tools python3 tools/archive_news.py` — 保存当天快照并写入 SQLite，保留最近 15 天
+7. 爬取失败或审核不通过的新闻不显示图片区域
 
 **detail-visual 规则：**
-- 图片来源：新闻原文页面的 `og:image` / `twitter:image`
+- 图片来源：新闻原文页面正文图优先；36kr 等文章页优先 `p.image-wrapper img[data-img-size-val]` 这类置顶正文图，其次 `og:image` / `twitter:image`
 - 过滤：logo / icon / avatar / qrcode / 通用占位图
 - 审核通过 → 保留图片并插入 `detail-visual`
 - 审核不通过 / 爬取失败 → **删除图片 + 移除 `detail-visual` div**
@@ -170,7 +173,21 @@ location /niu-secretary/news/ {
 ```
 放在 `detail-meta` 之后、正文 `<p>` 之前。
 
-**每日更新只需重写对应的 section 文件。**
+**⚠️ 每条新闻的 `<template>` 必须包含 `detail-keypoints` 关键速览：**
+```html
+<div class="detail-keypoints">
+  <div class="keypoint-card"><span>事件</span><strong>一句话说明发生了什么</strong></div>
+  <div class="keypoint-card"><span>影响</span><strong>一句话说明影响谁或影响什么</strong></div>
+  <div class="keypoint-card"><span>数据</span><strong>一句话列出关键数字或规模</strong></div>
+  <div class="keypoint-card"><span>后续</span><strong>一句话说明接下来关注什么</strong></div>
+</div>
+```
+- 放在 `detail-meta` 之后、`detail-visual` 之前。
+- 每条新闻 3-4 个小卡片，不少于 3 个。
+- 每个 `<strong>` 控制在 28 个中文字符以内。
+- 如果某条新闻没有明确数据，第三张卡可以写「背景」或「看点」。
+
+**每日更新只需重写对应的 section 文件，但必须通过 `validate_news.py` 后才允许部署。**
 
 ---
 
@@ -215,7 +232,7 @@ location /niu-secretary/news/ {
 | 机器之心 | https://www.jiqizhixin.com/ | AI |
 | CNBC | https://www.cnbc.com/ | 财经/科技 |
 
-> **重要：** `external-btn` 的 href 必须指向实际新闻原文页面（不是首页），因为爬图脚本会从这个 URL 提取配图。
+> **重要：** `external-btn` 的 href 必须指向实际新闻原文页面（不是首页），因为爬图脚本会从这个 URL 提取配图。禁止使用百度/Bing/Google 等搜索结果页、媒体首页、`#` 或 `javascript:` 作为原文链接。找不到真实原文链接的新闻必须替换，不得上线。
 
 ### 各板块条数（弹性，每板块 ≤ 6 条）
 
@@ -276,19 +293,33 @@ location /niu-secretary/news/ {
 #    /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist/sections/domestic.html
 #    ...
 
-# 2. 从新闻原文爬取配图（优先正文大图，fallback og:image）
-python3 tools/crawl_images.py
+# 2. 部署前校验：真实原文链接、卡片/详情结构、新闻数量
+PYTHONPATH=/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools \
+python3 /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools/validate_news.py
 
-# 3. AI 审核图片相关性（视觉模型判断图片是否与新闻内容匹配，不匹配的删除）
+# 3. 从新闻原文爬取配图（优先正文大图，fallback og:image/json-ld）
+PYTHONPATH=/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools \
+python3 /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools/crawl_images.py
+
+# 4. AI 审核图片相关性（视觉模型判断图片是否与新闻内容匹配，不匹配的删除）
 python3 tools/review_images.py
 
-# 4. 根据审核结果更新 section HTML（有图加 img，无图移除 visual）
-python3 tools/update_sections.py
+# 5. 根据审核结果更新 section HTML（有图加 img，无图移除 visual）
+PYTHONPATH=/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools \
+python3 /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools/update_sections.py
 
-# 5. 同步到 nginx
+# 6. 图片回写后再次校验
+PYTHONPATH=/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools \
+python3 /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools/validate_news.py
+
+# 7. 保存当天归档（news.json + sections + images + SQLite），保留最近 15 天
+PYTHONPATH=/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools \
+python3 /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/tools/archive_news.py
+
+# 8. 同步到 nginx
 sudo rsync -av --delete /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist/ /var/www/html/niu-secretary/news/
 
-# 6. 验证
+# 9. 验证
 curl -s http://124.222.22.171/niu-secretary/news/ | head -20
 ```
 
@@ -317,7 +348,12 @@ sudo rsync -av /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist/ /
 
 - 每天 **10:00 Asia/Shanghai** 自动更新
 - Job ID: `7567c2d1-9fa9-4d79-a881-a53402d0ba2c`
-- 更新流程：搜新闻 → 写各 section HTML → 爬图 → AI 审核图片 → rsync 部署 → 推送 QQ
+- 更新流程：搜新闻 → 写各 section HTML 且每条带真实 `external-btn` → `validate_news.py` → 原文页爬图 → AI 审核图片 → 回写 section → 再校验 → `archive_news.py` 文件归档并写 SQLite → rsync 部署 → 推送 QQ
+- 校验失败时必须停止，不得 rsync 覆盖线上页面。
+- 配图只能从 `external-btn` 的原文 URL 抓取，不得使用 Bing/百度图片搜索。
+- 每天文件归档到 `news-daily/archive/YYYY-MM-DD/`，同时写入 `news-daily/news_daily.db`。
+- SQLite 表：`news_days`、`news_items`、`news_tags`、`image_candidates`。其中 `image_candidates` 记录最终候选 URL、分数、状态和本地路径，用于追踪为什么选中某张图。
+- 文件归档和 SQLite 都只保留最近 15 天。
 
 ---
 
@@ -408,7 +444,7 @@ document.addEventListener('DOMContentLoaded', loadSections);
   - 画像为空时回落「今日要闻」（按板块顺序），不报错。
 - `news` 画像字段：`topics[] / excludeTopics[] / depth(headline|brief|deep) / regions[] / notes`，定义在 `server/store.py:DEFAULT_PROFILES`。
 - 前端面板：`dist/index.html` 内联脚本 `loadFocus()`，调 `/niu-secretary/api/actions/execute`，精选条目能点开复用现有 `openDetail` 详情。
-- ⚠️ 新闻内容无独立 JSON，recommend 直接解析 section HTML（方案 A，零侵入）。若日后给 cron 加导出 `news.json`，可切到读 JSON（v1.2 备选）。
+- ⚠️ 当前推荐仍直接解析 section HTML；每日流程会额外导出 `dist/news.json` 和 `archive/YYYY-MM-DD/news.json` 作为归档与后续迁移基础。若后续切换，可让 `news.recommend` 优先读当天 JSON。
 
 ---
 

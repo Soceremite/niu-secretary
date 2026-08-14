@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from collections.abc import Callable
@@ -168,6 +169,7 @@ def run_batch_ingest(
     papi_executable: str,
     normalize_urls: bool = True,
     normalize_opener: Callable[[urllib.request.Request, float], str] | None = None,
+    concurrency: int = 4,
 ) -> BatchResult:
     init_db(db_path)
     paper_db_path.mkdir(parents=True, exist_ok=True)
@@ -175,13 +177,13 @@ def run_batch_ingest(
     items = parse_manifest(manifest_path)
     run_id = create_run(db_path, manifest_path, len(items))
 
+    jobs: list[tuple[int, str, str | None]] = []
     for item in items:
         item_id = create_item(db_path, run_id, item)
         if known_source_exists(db_path, item.raw_input):
             update_item(db_path, item_id, status="duplicate", resolved_paper_key=None)
             continue
 
-        # --- URL normalization ---
         papi_input = item.raw_input
         norm_result = None
         if normalize_urls:
@@ -199,21 +201,40 @@ def run_batch_ingest(
                 )
                 continue
 
-        before = paper_keys(db_path)
+        jobs.append((item_id, papi_input, norm_result.method if norm_result and norm_result.method else None))
+
+    def run_papi(item_id: int, papi_input: str, normalizer_method: str | None) -> tuple[int, subprocess.CompletedProcess[str], str | None]:
         env = os.environ.copy()
         env["PAPER_DB_PATH"] = str(paper_db_path)
-        completed = subprocess.run(
-            [papi_executable, "add", papi_input],
-            check=False,
-            env=env,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+        return (
+            item_id,
+            subprocess.run(
+                [papi_executable, "add", papi_input],
+                check=False,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ),
+            normalizer_method,
         )
+
+    results: list[tuple[int, subprocess.CompletedProcess[str], str | None]] = []
+    max_workers = max(1, min(concurrency, len(jobs) or 1))
+    if max_workers == 1:
+        results = [run_papi(*job) for job in jobs]
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [pool.submit(run_papi, *job) for job in jobs]
+            for future in as_completed(futures):
+                results.append(future.result())
+
+    any_success = False
+    for item_id, completed, normalizer_method in sorted(results, key=lambda item: item[0]):
         if completed.returncode != 0:
             error_parts = [completed.stderr.strip() or f"papi exited with {completed.returncode}"]
-            if norm_result and norm_result.method:
-                error_parts.insert(0, f"normalizer: {norm_result.method}")
+            if normalizer_method:
+                error_parts.insert(0, f"normalizer: {normalizer_method}")
             update_item(
                 db_path,
                 item_id,
@@ -223,18 +244,17 @@ def run_batch_ingest(
                 error=" | ".join(error_parts),
             )
             continue
-
-        sync_paperpipe(db_path=db_path, paper_db_path=paper_db_path)
-        after = paper_keys(db_path)
-        new_keys = sorted(after - before)
-        resolved = new_keys[0] if new_keys else None
+        any_success = True
         update_item(
             db_path,
             item_id,
             status="success",
-            resolved_paper_key=resolved,
+            resolved_paper_key=None,
             stdout=completed.stdout,
             stderr=completed.stderr,
         )
+
+    if any_success:
+        sync_paperpipe(db_path=db_path, paper_db_path=paper_db_path)
 
     return finish_run(db_path, run_id)

@@ -1,9 +1,13 @@
 import json
+import shutil
 from pathlib import Path
 
+from airesearch.batch import BatchResult
 from airesearch.cli import main
 from airesearch.db import connect
 from test_evidence_repair import make_repair_db
+from test_archive_remote import make_fake_rclone
+from test_layout_evidence_graph import graph_fixture_db
 
 
 def test_cli_init_db(tmp_path: Path):
@@ -33,6 +37,90 @@ def test_cli_sync_paperpipe(tmp_path: Path, capsys):
 
     assert code == 0
     assert "papers_seen=1" in capsys.readouterr().out
+
+
+def test_cli_archive_plan_upload_verify_evict_and_restore(
+    tmp_path: Path,
+    monkeypatch,
+    capsys,
+):
+    fixture = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    paper_db = tmp_path / "paperpipe"
+    shutil.copytree(fixture, paper_db)
+    db_path = tmp_path / "airesearch.sqlite3"
+    main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
+    capsys.readouterr()
+    executable = make_fake_rclone(tmp_path, monkeypatch)
+    monkeypatch.setenv("AIRESEARCH_ARCHIVE_REMOTE", "gdrive:niu-secretary/airesearch/v1")
+    monkeypatch.setenv("AIRESEARCH_RCLONE", str(executable))
+    monkeypatch.setenv("AIRESEARCH_ARCHIVE_STAGING", str(tmp_path / "staging"))
+    base = ["--db", str(db_path), "--paper-db", str(paper_db), "archive"]
+
+    assert main([*base, "plan"]) == 0
+    assert "eligible=1" in capsys.readouterr().out
+    assert main([*base, "upload", "--paper-key", "1706_03762"]) == 0
+    assert "status=uploaded" in capsys.readouterr().out
+    assert main([*base, "verify", "--paper-key", "1706_03762"]) == 0
+    assert "status=verified" in capsys.readouterr().out
+    assert main([*base, "evict", "--paper-key", "1706_03762"]) == 0
+    assert (paper_db / "papers" / "1706_03762" / "paper.pdf").exists()
+    assert main([*base, "evict", "--paper-key", "1706_03762", "--apply"]) == 0
+    assert main([*base, "restore", "--paper-key", "1706_03762"]) == 0
+    assert (paper_db / "papers" / "1706_03762" / "paper.pdf").exists()
+
+
+def test_cli_archive_requires_remote_configuration(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.delenv("AIRESEARCH_ARCHIVE_REMOTE", raising=False)
+
+    code = main(["--db", str(tmp_path / "db.sqlite3"), "archive", "status"])
+
+    assert code == 2
+    assert "archive_remote_not_configured" in capsys.readouterr().out
+
+
+def test_cli_normalize_url_outputs_normalized_arxiv_id(capsys):
+    code = main(["normalize-url", "https://arxiv.org/abs/2606.06390"])
+
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "category: arxiv" in out
+    assert "method: arxiv_id_extracted" in out
+    assert "normalized: 2606.06390" in out
+
+
+def test_cli_batch_ingest_passes_no_normalize_urls(tmp_path: Path, monkeypatch, capsys):
+    db_path = tmp_path / "airesearch.sqlite3"
+    paper_db = tmp_path / "paperpipe"
+    manifest = tmp_path / "manifest.txt"
+    manifest.write_text("https://arxiv.org/abs/2606.06390\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_batch_ingest(**kwargs):
+        captured.update(kwargs)
+        return BatchResult(total=1, success=1, failed=0, duplicate=0, skipped=0)
+
+    monkeypatch.setattr("airesearch.cli.run_batch_ingest", fake_run_batch_ingest)
+
+    code = main([
+        "--db",
+        str(db_path),
+        "--paper-db",
+        str(paper_db),
+        "--papi",
+        "papi",
+        "batch-ingest",
+        str(manifest),
+        "--no-normalize-urls",
+    ])
+
+    out = capsys.readouterr().out
+    assert code == 0
+    assert captured["db_path"] == db_path
+    assert captured["paper_db_path"] == paper_db
+    assert captured["manifest_path"] == manifest
+    assert captured["papi_executable"] == "papi"
+    assert captured["normalize_urls"] is False
+    assert "total=1 success=1 failed=0 duplicate=0 skipped=0" in out
 
 
 
@@ -330,6 +418,80 @@ def test_cli_extract_list_and_export_research_facts(tmp_path: Path, capsys):
     assert "research_facts: 2" in status_out
     payload = json.loads(out_path.read_text(encoding="utf-8").splitlines()[0])
     assert payload["evidence_quote"]
+    with connect(db_path) as conn:
+        graph_fact_count = conn.execute(
+            "select count(*) from kg_nodes where extractor_name = 'layout_evidence_graph' and node_type = 'research_fact'"
+        ).fetchone()[0]
+    assert graph_fact_count == 2
+
+
+def test_cli_extract_and_export_layout_evidence_graph(tmp_path: Path, capsys):
+    db_path, _ = graph_fixture_db(tmp_path)
+    out_path = tmp_path / "layout-evidence-graph.json"
+
+    extract_code = main([
+        "--db",
+        str(db_path),
+        "extract-layout-evidence-graph",
+        "--paper-key",
+        "paper_a",
+        "--limit",
+        "1",
+    ])
+    extract_out = capsys.readouterr().out
+    export_code = main([
+        "--db",
+        str(db_path),
+        "export-layout-evidence-graph",
+        "--out",
+        str(out_path),
+    ])
+    export_out = capsys.readouterr().out
+
+    assert extract_code == 0
+    assert "layout_evidence_graph_extracted papers=1 facts=3 evidence=3" in extract_out
+    assert export_code == 0
+    assert "layout_evidence_graph_exported=1" in export_out
+    payload = json.loads(out_path.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "evidence-graph-v1"
+    assert payload["papers"][0]["paper_key"] == "paper_a"
+
+
+def test_cli_parse_layout_refreshes_paper_graph(tmp_path: Path, monkeypatch, capsys):
+    from types import SimpleNamespace
+
+    db_path = tmp_path / "airesearch.sqlite3"
+    calls: list[tuple[Path, str | None]] = []
+    monkeypatch.setattr(
+        "airesearch.cli.parse_paper_layout",
+        lambda **kwargs: SimpleNamespace(
+            paper_key="paper_a",
+            run_id=7,
+            status="completed",
+            artifact_count=4,
+            block_count=12,
+            output_dir=tmp_path / "layout",
+        ),
+    )
+
+    def fake_extract(path: Path, paper_key: str | None = None, limit: int | None = None):
+        calls.append((path, paper_key))
+        return SimpleNamespace(
+            papers_seen=1,
+            fact_nodes_written=2,
+            evidence_nodes_written=3,
+            edges_written=7,
+            supported_by_edges=2,
+            provenance_written=10,
+        )
+
+    monkeypatch.setattr("airesearch.cli.extract_layout_evidence_graph", fake_extract)
+
+    code = main(["--db", str(db_path), "parse-layout", "--paper-key", "paper_a"])
+
+    assert code == 0
+    assert calls == [(db_path, "paper_a")]
+    assert "graph_facts=2 graph_evidence=3 graph_supported=2" in capsys.readouterr().out
 
 
 def test_cli_claim_trace_prints_markdown_and_exports_json(tmp_path: Path, capsys):
@@ -1902,6 +2064,7 @@ def test_cli_openai_compatible_dry_run(tmp_path: Path, capsys, monkeypatch):
 def test_cli_openai_compatible_missing_key_returns_2(tmp_path: Path, capsys, monkeypatch):
     db_path = tmp_path / "airesearch.sqlite3"
     paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
+    monkeypatch.delenv("AIRESEARCH_FACT_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
     capsys.readouterr()
@@ -1920,4 +2083,4 @@ def test_cli_openai_compatible_missing_key_returns_2(tmp_path: Path, capsys, mon
     out = capsys.readouterr().out
 
     assert code == 2
-    assert "OPENAI_API_KEY" in out
+    assert "AIRESEARCH_FACT_API_KEY" in out

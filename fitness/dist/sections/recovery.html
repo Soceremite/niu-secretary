@@ -2,7 +2,7 @@
 <section class="module-grid workbench-section" id="recovery">
   <article class="glass-card priority-card">
     <div class="glass-card-inner">
-      <div class="card-head"><div><h2>恢复评分</h2><p>睡眠、压力、酸痛和上次训练 RPE 会转成今日训练建议。</p></div></div>
+      <div class="card-head"><div><h2>恢复评分</h2><p>恢复评分会同步统一 API，离线时保留本地缓存。</p></div></div>
       <form id="recovery-form">
         <div class="form-grid">
           <label class="field">日期<input name="date" type="date" required></label>
@@ -12,7 +12,7 @@
           <label class="field">酸痛 1-5<input name="soreness" type="number" min="1" max="5" value="2"></label>
           <label class="field">上次 RPE<input name="lastRpe" type="number" min="1" max="10" step="0.5" value="8"></label>
         </div>
-        <div class="actions"><button class="primary-btn" type="submit">保存恢复状态</button><button class="ghost-btn danger-btn" type="button" id="clear-recovery">清空恢复</button></div>
+        <div class="actions"><button class="primary-btn" type="submit">保存恢复状态</button><button class="ghost-btn danger-btn" type="button" id="clear-recovery">清空离线缓存</button></div>
         <div class="toast" id="recovery-toast"></div>
       </form>
     </div>
@@ -35,7 +35,7 @@
 
   <article class="glass-card full-row history-card">
     <div class="glass-card-inner">
-      <div class="card-head"><div><h3>恢复历史</h3><p>绿/黄/红用于调整训练强度。</p></div></div>
+      <div class="card-head"><div><h3>恢复历史</h3><p>在线读取统一 API；接口不可用时使用浏览器离线缓存。</p></div></div>
       <div class="log-list" id="recovery-list"></div>
     </div>
   </article>

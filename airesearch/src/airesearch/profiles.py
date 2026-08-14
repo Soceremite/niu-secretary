@@ -192,14 +192,14 @@ def seed_profiles(db_path: Path) -> int:
                 )
                 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 on conflict(name) do update set
-                    description = excluded.description,
-                    keywords_json = excluded.keywords_json,
-                    preferred_venues_json = excluded.preferred_venues_json,
-                    preferred_organizations_json = excluded.preferred_organizations_json,
-                    preferred_scholars_json = excluded.preferred_scholars_json,
-                    exception_keywords_json = excluded.exception_keywords_json,
-                    primary_since = excluded.primary_since,
-                    exception_since = excluded.exception_since,
+                    description = coalesce(nullif(research_profiles.description, ''), excluded.description),
+                    keywords_json = coalesce(nullif(research_profiles.keywords_json, '[]'), excluded.keywords_json),
+                    preferred_venues_json = coalesce(nullif(research_profiles.preferred_venues_json, '[]'), excluded.preferred_venues_json),
+                    preferred_organizations_json = coalesce(nullif(research_profiles.preferred_organizations_json, '[]'), excluded.preferred_organizations_json),
+                    preferred_scholars_json = coalesce(nullif(research_profiles.preferred_scholars_json, '[]'), excluded.preferred_scholars_json),
+                    exception_keywords_json = coalesce(nullif(research_profiles.exception_keywords_json, '[]'), excluded.exception_keywords_json),
+                    primary_since = coalesce(nullif(research_profiles.primary_since, ''), excluded.primary_since),
+                    exception_since = coalesce(nullif(research_profiles.exception_since, ''), excluded.exception_since),
                     updated_at = excluded.updated_at
                 """,
                 (
