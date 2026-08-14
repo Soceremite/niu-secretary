@@ -5,12 +5,14 @@
 AIResearch 研知库已经从规划项推进到 MVP 可发布状态：本地论文库、候选发现、可审计 ingest、研究事实抽取、知识图谱、跨论文关系、研究报告、静态站点发布、健康检查、备份、刷新脚本和外部静态站点回滚脚本都已具备。
 
 平台化 schema、actions、CLI、cron 和 Web API 参考见
-`docs/architecture/2026-06-14-niu-secretary-module-platform-reference.md`。
+[`docs/airesearch-api.md`](docs/airesearch-api.md)、
+[`airesearch/DEVELOPMENT.md`](airesearch/DEVELOPMENT.md) 和
+[`airesearch/SKILL.md`](airesearch/SKILL.md)。
 
 ## 当前版本
 
 - 当前标签：`v2.1-dev`
-- 前端形态：静态 HTML/CSS/JavaScript
+- 前端形态：Vue 3 + Vite 主应用，同时保留可独立部署的模块静态资源
 - 后端形态：Python 标准库 HTTP API + SQLite
 - AIResearch：Python package + SQLite + paperpipe / papi + 静态研究报告站点
 - 部署入口：`/niu-secretary/`
@@ -233,9 +235,20 @@ v2.1-dev 同时补齐了模块业务表：
 └── SKILL.md                # 品牌、设计语言、协议理念说明
 ```
 
+## GitHub 源码与本地数据边界
+
+GitHub 的 `main` 分支发布源码、测试、文档、部署模板和前端源代码。论文库、生成站点和个人运行数据留在部署机器，不作为源码依赖提交：
+
+- `airesearch/.env`、`airesearch/data/`、`airesearch/exports/`、`airesearch/blog-assets/`
+- `airesearch/logs/`、`airesearch/manifests/`、`backups/`、`.runtime-logs/`
+- `fitness/data/`、`leisure/dist/data/` 以及本地生成的图片审核文件
+- 根目录 `data/`、`logs/`、`manifests/` 和所有真实 `.env`、SQLite 数据库
+
+这些目录被 `.gitignore` 忽略，服务器上的现有文件不会因源码同步被删除。新机器克隆后，需要先准备 `airesearch/.env`，再从论文 PDF 重新生成 layout、公式、表格、博客和 `exports/` 发布目录；需要恢复个人数据时使用独立备份，不要把备份直接加入 Git。
+
 ## 本地配置
 
-真实 API Key 不进入 Git 仓库。仓库只保存模板：
+真实 API Key 不进入 Git 仓库。仓库只保存模板；AIResearch 的模型、代理和 OCR 配置统一从被忽略的 `airesearch/.env` 读取：
 
 | 模板 | 真实配置路径 | 用途 |
 |------|------|------|
@@ -252,12 +265,25 @@ sudo chmod 600 /etc/niu-secretary-api.env /etc/niu-fitness-api.env
 
 然后编辑 `/etc/*.env`，填入本机真实 API Key。
 
+准备 AIResearch 环境：
+
+```bash
+cd airesearch
+cp .env.example .env
+chmod 600 .env
+# 编辑 .env，至少填写 OPENCODE_GO_BASE_URL 和 OPENCODE_GO_API_KEY
+# 公式 OCR 默认使用 AIRESEARCH_FORMULA_OCR_MODEL=gpt-5.6-luna
+source ./activate.sh
+```
+
+生产 API 启动脚本会在启动 Python 服务前加载同一个 `airesearch/.env`，管理员账号、密码和会话密钥仍以 `/etc/niu-secretary-api.env` 为准。
+
 ## 本地运行
 
 启动牛秘书统一 API：
 
 ```bash
-NIU_SECRETARY_API_PORT=5188 python3 server/niu_secretary_api.py
+NIU_SECRETARY_API_PORT=5188 bash scripts/run-niu-secretary-api.sh
 ```
 
 启动塑形馆图片识别 API：
@@ -604,19 +630,13 @@ cd airesearch && .venv/bin/python -m pytest -q
 curl --noproxy '*' -s http://127.0.0.1/niu-secretary/api/health
 ```
 
-平台化改造前的本地快照保存在：
-
-```text
-backups/platform-refactor-2026-06-14/
-```
-
 ## 安全约定
 
 - 不提交真实 `.env`、API Key、数据库文件和服务端私有配置。
 - `*.env` 默认被 `.gitignore` 忽略，只允许提交 `*.env.example`。
 - AI 生成的 action 必须先让用户确认，再写入数据库。
 - 服务端执行 action 前会做字段清洗、范围限制和动作白名单校验。
-- AIResearch 不提交真实 `.env`、API Key、SQLite 数据库和 `.venv`；可提交源码、测试、文档、静态发布产物和可审计 manifest。
+- AIResearch 不提交真实 `.env`、API Key、SQLite 数据库、论文数据、生成站点、图片产物、日志或 manifest；这些内容必须在本地生成或从独立备份恢复。
 - 外部静态站点部署前先生成快照；需要回滚时使用 `rollback-airesearch.sh latest` 或指定快照名。
 
 ## Git 版本
