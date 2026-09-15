@@ -27,26 +27,33 @@
             <strong>{{ scope.row.name }}</strong>
           </template>
         </el-table-column>
-        <el-table-column label="主选" min-width="230">
+        <el-table-column label="主选" min-width="250">
           <template #default="scope">
             <div class="route-primary">
               <el-select v-model="scope.row.endpoint" size="small" class="route-select"
-                :class="{ dirty: scope.row._dirty }" @change="markDirty(scope.row)">
+                :class="{ dirty: scope.row._dirty }" @change="onEndpointChange(scope.row)">
                 <el-option v-for="ep in endpoints" :key="ep.name" :value="ep.name" :label="ep.name" />
               </el-select>
-              <el-input v-model="scope.row.model" size="small" class="route-model"
-                :class="{ dirty: scope.row._dirty }" @input="markDirty(scope.row)" />
+              <el-select v-model="scope.row.model" size="small" class="route-model"
+                :class="{ dirty: scope.row._dirty }" filterable allow-create default-first-option
+                :loading="modelLoading === scope.row.name"
+                :placeholder="modelLoading === scope.row.name ? '拉取中…' : '选择或输入模型'"
+                @focus="ensureModels(scope.row.endpoint)" @change="markDirty(scope.row)">
+                <el-option v-for="m in modelOptions(endpointOf(scope.row.endpoint))" :key="m" :value="m" :label="m" />
+              </el-select>
+              <el-button size="small" text type="primary" :loading="modelLoading === scope.row.name"
+                @click="fetchModelOptions(scope.row.endpoint)" title="重新拉取模型列表">↻</el-button>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="备用链" min-width="280">
+        <el-table-column label="备用链" min-width="300">
           <template #default="scope">
             <div class="fallback-chips">
               <el-tag v-for="(fb, idx) in scope.row.fallbacks" :key="idx" size="small"
                 class="fallback-chip" closable @close="removeFallback(scope.row, idx)">
                 {{ fb.endpoint }} · {{ fb.model }}
               </el-tag>
-              <el-button size="small" text type="primary" class="fb-add" @click="addFallback(scope.row)">+ 备用</el-button>
+              <el-button size="small" text type="primary" class="fb-add" @click="openFbEditor(scope.row)">+ 备用</el-button>
             </div>
           </template>
         </el-table-column>
@@ -124,6 +131,28 @@
         <el-button @click="endpointFormVisible = false">取消</el-button>
         <el-button :loading="endpointTesting" @click="testBeforeSave">先试连通</el-button>
         <el-button type="primary" @click="saveEndpoint">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 新增备用项 -->
+    <el-dialog v-model="fbEditorVisible" width="480px" title="新增备用模型" class="llm-dialog">
+      <el-form label-width="100px" size="small">
+        <el-form-item label="渠道">
+          <el-select v-model="fbForm.endpoint" style="width:100%" @change="fetchModelOptions(fbForm.endpoint)">
+            <el-option v-for="ep in endpoints" :key="ep.name" :value="ep.name" :label="ep.name" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="模型">
+          <el-select v-model="fbForm.model" style="width:100%" filterable allow-create default-first-option
+            :loading="modelLoading === fbForm.endpoint"
+            @focus="ensureModels(fbForm.endpoint)">
+            <el-option v-for="m in modelOptions(fbForm.endpoint)" :key="m" :value="m" :label="m" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="fbEditorVisible = false">取消</el-button>
+        <el-button type="primary" @click="commitFallback">加入备用链</el-button>
       </template>
     </el-dialog>
 
@@ -206,6 +235,83 @@ async function refresh() {
 
 function markDirty(row: any) { row._dirty = true }
 
+// ── 模型目录（按 endpoint 缓存，供下拉选择） ──
+const modelCatalog = ref<Record<string, string[]>>({})
+const modelLoading = ref('')
+const modelTarget = ref('')
+
+function endpointOf(epName: string) { return epName }
+
+function modelOptions(epName: string) {
+  return modelCatalog.value[epName] || []
+}
+
+async function fetchModelOptions(epName: string) {
+  if (!epName || modelLoading.value === epName) return
+  modelLoading.value = epName
+  try {
+    const r = await executeAdminAction<any>(auth.token, 'llm.endpoint.models', { endpoint: epName })
+    if (r.ok) {
+      modelCatalog.value = { ...modelCatalog.value, [epName]: r.models || [] }
+    } else {
+      ElMessage.warning(`拉取 ${epName} 模型列表失败: ${r.error || 'unreachable'}`)
+    }
+  } catch (exc: any) {
+    ElMessage.warning(`拉取 ${epName} 模型列表失败: ${exc?.message || ''}`)
+  } finally {
+    modelLoading.value = ''
+  }
+}
+
+function ensureModels(epName: string) {
+  if (epName && !modelCatalog.value[epName]) fetchModelOptions(epName)
+}
+
+function onEndpointChange(row: any) {
+  markDirty(row)
+  ensureModels(row.endpoint)
+}
+
+// ── fallback 新增 ──
+const fbEditorVisible = ref(false)
+const fbForm = ref<{ route: string; endpoint: string; model: string }>({ route: '', endpoint: '', model: '' })
+
+function openFbEditor(row: any) {
+  fbForm.value = {
+    route: row.name,
+    endpoint: row.endpoint,
+    model: '',
+  }
+  ensureModels(fbForm.value.endpoint)
+  fbEditorVisible.value = true
+}
+
+async function commitFallback() {
+  const row = routes.value.find((r) => r.name === fbForm.value.route)
+  if (!row || !fbForm.value.model) {
+    ElMessage.warning('先选好模型')
+    return
+  }
+  row.fallbacks = [...(row.fallbacks || []), {
+    endpoint: fbForm.value.endpoint,
+    model: fbForm.value.model,
+  }]
+  fbEditorVisible.value = false
+  try {
+    await executeAdminAction(auth.token, 'llm.route.update', {
+      route: row.name,
+      endpoint: row.endpoint,
+      model: row.model,
+      fallbacks: row.fallbacks,
+    })
+    ElMessage.success('备用项已加入并生效')
+    row._dirty = false
+    await refresh()
+  } catch (exc: any) {
+    ElMessage.error(exc?.message || '保存失败')
+  }
+}
+
 async function saveRoute(row: any) {
   try {
     await executeAdminAction(auth.token, 'llm.route.update', {
@@ -222,9 +328,7 @@ async function saveRoute(row: any) {
 }
 
 async function addFallback(row: any) {
-  const ep = endpoints.value[0]?.name || 'opencode_go'
-  row.fallbacks = [...(row.fallbacks || []), { endpoint: ep, model: row.model }]
-  row._dirty = true
+  openFbEditor(row)
 }
 
 function removeFallback(row: any, idx: number) {

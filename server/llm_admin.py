@@ -282,6 +282,40 @@ def llm_probe_live_handler(payload: dict, context: dict) -> dict:
                 "error": str(exc)[:300]}
 
 
+@register_handler("llm.endpoint.models")
+def llm_endpoint_models_handler(payload: dict, context: dict) -> dict:
+    """Fetch the live model catalog for an endpoint (for select dropdowns).
+
+    Same credential resolution as llm.endpoint.test but returns only the ids,
+    trimmed/sorted for dropdown use. Not cached server-side: the payload is
+    tiny and users expect «refresh = fresh».
+    """
+    data = _config_data()
+    endpoints = data.get("endpoints") or {}
+    name = _safe_name(payload.get("endpoint") or "")
+    spec = endpoints.get(name)
+    if not spec:
+        raise ValueError(f"endpoint '{name}' 不存在")
+    api_key = payload.get("apiKey") or ""
+    api_key_env = spec.get("api_key_env") or ""
+    if not api_key:
+        if api_key_env in os.environ:
+            api_key = os.environ[api_key_env]
+        else:
+            for line in env_file(api_key_env).read_text(encoding="utf-8").splitlines():
+                if line.startswith(f"{api_key_env}="):
+                    api_key = line.split("=", 1)[1].strip().strip('"').strip("'")
+    base_url = _safe_url(payload.get("baseUrl") or spec.get("base_url") or "")
+    result = _live_probe(name, base_url, api_key,
+                         timeout=float(payload.get("timeout_s") or 10))
+    if not result.get("ok"):
+        return {"ok": False, "action": "llm.endpoint.models", "endpoint": name,
+                "error": result.get("status") or result.get("detail", "unreachable")}
+    models = sorted(result.get("models") or [])
+    return {"ok": True, "action": "llm.endpoint.models", "endpoint": name,
+            "modelCount": len(models), "models": models}
+
+
 def _patch_env_file(key: str, value: str) -> None:
     env = env_file(key)
     lines = env.read_text(encoding="utf-8").splitlines()

@@ -1634,6 +1634,21 @@ CAPABILITIES = [
             },
         },
     },
+    {
+        "name": "llm.endpoint.models",
+        "title": "拉取服务商可用模型列表",
+        "module": "platform",
+        "description": "对该 endpoint 的 /models 发请求，返回排序后的模型 id 列表（供下拉选择）。",
+        "confirmByDefault": False,
+        "inputSchema": {
+            "type": "object",
+            "required": ["endpoint"],
+            "properties": {
+                "endpoint": {"type": "string"},
+                "timeout_s": {"type": "number"},
+            },
+        },
+    },
 ]
 
 
