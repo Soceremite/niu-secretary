@@ -1,16 +1,16 @@
-"""牛秘书 AI v6 — 统一 OpenCode Go provider + 多模型池 + 本地规则引擎
+"""牛秘书 AI v6 — 统一 OpenAI-compatible provider + 本地规则引擎
 
 v6 改进（2026-07-17）：
-  - 全部迁移到 OpenCode Go 套餐
-  - 统一 OpenAI 兼容端点: https://opencode.ai/zen/go/v1
-  - 默认模型: DeepSeek V4 Pro
-  - 可用模型池: deepseek-v4-pro / kimi-k2.6 / glm-5.2 / minimax-m3 / qwen3.7-plus
+  - 全部迁移到统一 OpenAI 兼容端点
+  - 统一 OpenAI 兼容端点: http://124.222.22.171:8080/v1
+  - 默认模型: gpt-5.6-luna
 """
 
 from __future__ import annotations
 
-import json, os, re, time, urllib.error, urllib.request
+import json, os, re, sys, time, urllib.error, urllib.request
 from datetime import date, timedelta
+from pathlib import Path
 from typing import Optional
 
 from server import store
@@ -35,7 +35,7 @@ API_KEY = os.environ.get("OPENCODE_GO_API_KEY") or os.environ.get("NIU_ASSISTANT
 BASE = (
     os.environ.get("OPENCODE_GO_BASE_URL")
     or os.environ.get("NIU_ASSISTANT_API_BASE")
-    or "https://opencode.ai/zen/go/v1"
+    or "http://124.222.22.171:8080/v1"
 ).rstrip("/")
 for _endpoint_suffix in ("/chat/completions", "/responses"):
     if BASE.casefold().endswith(_endpoint_suffix):
@@ -53,60 +53,53 @@ class ModelError(Exception):
 def _post_openai(model: str, prompt: str, max_tokens: int,
                  timeout_s: float = 15,
                  disable_thinking: bool = False) -> str:
-    """OpenAI 兼容端点: /chat/completions + Bearer
+    """Unified gateway call via niu_core.llm_client (config/models.yaml).
 
+    Falls back to the legacy direct-urllib path when niu_core is unavailable.
     v4: disable_thinking=True → 传 thinking:{type:disabled}
-        （对 Kimi 有效，MiniMax/GLM 不适用）
     """
-    if not API_KEY:
-        raise ModelError("NIU_ASSISTANT_API_KEY/OPENCODE_GO_API_KEY 未配置")
-    body_dict = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": max_tokens,
-    }
-    if disable_thinking:
-        body_dict["thinking"] = {"type": "disabled"}
-    body = json.dumps(body_dict).encode()
-    req = urllib.request.Request(
-        f"{BASE}/chat/completions", data=body,
-        headers={
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json",
-            "User-Agent": "OpenClaw/1.0",
-            "Accept": "application/json",
-        },
-        method="POST")
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
-        payload = json.loads(resp.read().decode())
-    content = payload["choices"][0]["message"].get("content", "") or ""
-    rtokens = payload.get("usage", {}).get("completion_tokens_details", {}).get("reasoning_tokens", 0)
-    if rtokens > 0 and not content.strip():
-        raise ModelError(f"{model} 全reasoning({rtokens}tok)无内容")
-    if not content.strip():
-        raise ModelError(f"{model} 空返回")
-    return content
+    try:
+        import sys as _sys
+        _repo = str(Path(__file__).resolve().parents[1])
+        if _repo not in _sys.path:
+            _sys.path.insert(0, _repo)
+        from niu_core.llm_client import NiuLLM as _NiuLLM
+        if os.environ.get("NIU_ASSISTANT_DEBUG"):
+            print(f"[assistant-debug] NiuLLM assistant full_prompt={prompt!r}",
+                  file=sys.stderr, flush=True)
+        resp = _NiuLLM.load().chat(
+            "assistant", [{"role": "user", "content": prompt}],
+            max_tokens=max_tokens,
+            temperature=0,
+        )
+        if os.environ.get("NIU_ASSISTANT_DEBUG"):
+            print(f"[assistant-debug] served_by endpoint={resp.endpoint} model={resp.model} "
+                  f"text={resp.text[:80]!r}", file=sys.stderr, flush=True)
+        if not resp.text.strip():
+            raise ModelError(f"{resp.model} 空返回")
+        return resp.text
+    except ModelError:
+        raise
+    except Exception as exc:
+        _niu_failed = getattr(exc, "args", [None])
+        raise ModelError(
+            f"unified gateway call failed: {_niu_failed}"
+        ) from exc
 
 
-# ====== 模型池 v6 — OpenCode Go 套餐 ======
-# 2026-07-17: 默认 deepseek-v4-pro，按 OpenCode Go 支持模型降级
-#   策略: DeepSeek V4 Pro 首选 → Kimi K2.6 → GLM 5.2 → MiniMax M3 → Qwen3.7 Plus
+# ====== 模型池 v6 — 统一 OpenAI 兼容端点 ======
+DEFAULT_ASSISTANT_MODEL = os.environ.get("NIU_ASSISTANT_MODEL", "gpt-5.6-luna")
 
 
 def classify_with_model(text: str) -> Optional[str]:
     """用最快模型做意图分类，失败返回 None"""
     prompt = (
-        "只返回JSON不分析。{\"module\":\"fitness|schedule|news|leisure|chat\"}。"
-        "fitness=饮食营养健身 schedule=日程提醒待办 news=新闻 leisure=影视音乐 chat=纯聊天。"
-        f"用户:{text}"
+        "对用户消息分类,只输出JSON不分析:{\"module\":\"fitness|schedule|news|leisure|chat\"}。"
+        "fitness=饮食营养运动健身健康 schedule=日程提醒待办 news=新闻 leisure=影视音乐推荐 chat=其他。"
+        "用户:我吃了鸡蛋→fitness 用户:提醒我开会→schedule 用户:推荐电影→leisure"
+        f" 用户:{text}"
     )
-    models = [
-        ("deepseek-v4-pro",     _openai_thinkoff, 80, 12),
-        ("kimi-k2.6",           _openai_thinkoff, 80, 10),
-        ("glm-5.2",             _openai_thinkoff, 80, 12),
-        ("minimax-m3",          _openai_thinkoff, 80, 12),
-        ("qwen3.7-plus",        _openai_thinkoff, 80, 12),
-    ]
+    models = [(DEFAULT_ASSISTANT_MODEL, _openai_thinkoff, 150, 12)]
     return _try_models(models, prompt, "classify")
 
 
@@ -123,13 +116,7 @@ def generate_actions_with_model(text: str, module: str) -> Optional[dict]:
         "",
         f"今天:{date.today().isoformat()} 板块:{module} 用户:{text}",
     ])
-    models = [
-        ("deepseek-v4-pro",     _openai_thinkoff, 300, 20),
-        ("kimi-k2.6",           _openai_thinkoff, 300, 15),
-        ("glm-5.2",             _openai_thinkoff, 300, 20),
-        ("minimax-m3",          _openai_thinkoff, 300, 20),
-        ("qwen3.7-plus",        _openai_thinkoff, 300, 20),
-    ]
+    models = [(DEFAULT_ASSISTANT_MODEL, _openai_thinkoff, 300, 20)]
     result = _try_models(models, prompt, "gen_actions")
     if result and isinstance(result, dict):
         result["module"] = module
@@ -141,21 +128,21 @@ def classify_intent_with_model(text: str) -> Optional[dict]:
 
     intent: record(记录一次性数据) | preference(调整长期偏好) | query(询问/要推荐)
     """
-    prompt = (
-        "只返回JSON不分析。{\"module\":\"fitness|schedule|news|leisure|chat\",\"intent\":\"record|preference|query\"}\u3002"
-        "module: fitness=饮食营养健身 schedule=日程提醒待办 news=新闻 leisure=影视音乐 chat=纯聊。"
-        "intent: record=记录一次性事件(今天吃了X/几点开会) "
-        "preference=表达长期偏好或目标(我想减脂/我爱看悬疑/口味偏辣) "
-        "query=询问或让你推荐(今天吃什么好/推荐点什么)。"
-        f"用户:{text}"
-    )
-    models = [
-        ("deepseek-v4-pro",     _openai_thinkoff, 80, 12),
-        ("kimi-k2.6",           _openai_thinkoff, 80, 10),
-        ("glm-5.2",             _openai_thinkoff, 80, 12),
-        ("minimax-m3",          _openai_thinkoff, 80, 12),
-        ("qwen3.7-plus",        _openai_thinkoff, 80, 12),
-    ]
+    prompt = "\n".join([
+        "对用户消息做分类,只输出JSON: {\"module\":\"fitness|schedule|news|leisure|chat\",\"intent\":\"record|preference|query\"}",
+        "module判断(饮食/吃饭/喝/运动/体重/卡路里/健身/健康都算fitness): fitness=吃了喝了什么、营养热量、运动健身、体重健康、饮食偏好",
+        "schedule=日程安排、提醒、开会、待办、约定"
+        " news=新闻话题 leisure=电影音乐播客小说推荐 chat=寒暄或其他。",
+        "intent: record=报告一件已发生/要做的事(吃了X/几点开会/帮我记X) preference=长期偏好或目标(我想减脂/我爱看悬疑) query=求推荐求建议(今天吃什么/推荐部片子)。",
+        "示例:",
+        "用户:我早上吃了个鸡蛋 → {\"module\":\"fitness\",\"intent\":\"record\"}",
+        "用户:提醒我明天3点开会 → {\"module\":\"schedule\",\"intent\":\"record\"}",
+        "用户:推荐一部电影 → {\"module\":\"leisure\",\"intent\":\"query\"}",
+        "用户:今天跑步半小时 → {\"module\":\"fitness\",\"intent\":\"record\"}",
+        "用户:帮我把写周报加到待办 → {\"module\":\"schedule\",\"intent\":\"record\"}",
+        f"用户:{text}",
+    ])
+    models = [(DEFAULT_ASSISTANT_MODEL, _openai_thinkoff, 200, 12)]
     return _try_models(models, prompt, "classify_intent")
 
 
@@ -170,13 +157,7 @@ def generate_profile_update_with_model(text: str, module: str) -> Optional[dict]
         "只填用户明确表达的字段，不确定的不要编。数组字段返回数组。",
         f"用户:{text}",
     ])
-    models = [
-        ("deepseek-v4-pro",     _openai_thinkoff, 300, 20),
-        ("kimi-k2.6",           _openai_thinkoff, 300, 15),
-        ("glm-5.2",             _openai_thinkoff, 300, 20),
-        ("minimax-m3",          _openai_thinkoff, 300, 20),
-        ("qwen3.7-plus",        _openai_thinkoff, 300, 20),
-    ]
+    models = [(DEFAULT_ASSISTANT_MODEL, _openai_thinkoff, 300, 20)]
     result = _try_models(models, prompt, "gen_actions")
     if result and isinstance(result, dict):
         result["module"] = module
@@ -208,10 +189,15 @@ def _openai_thinkoff(model_id: str, prompt: str, max_tokens: int, timeout: float
 
 def _try_models(models: list, prompt: str, task_name: str) -> Optional[any]:
     """按优先级尝试模型，成功返回结果，失败返回 None"""
+    if os.environ.get("NIU_ASSISTANT_DEBUG"):
+        print(f"[assistant-debug] task={task_name} model={models[0][0]} "
+              f"prompt[0:120]={prompt[:120]!r}", file=sys.stderr, flush=True)
     for model_id, caller, max_tokens, timeout in models:
         t0 = time.time()
         try:
             raw = caller(model_id, prompt, max_tokens, timeout)
+            if os.environ.get("NIU_ASSISTANT_DEBUG") and task_name == "classify_intent":
+                print(f"[assistant-debug] raw_reply={raw!r}", file=sys.stderr, flush=True)
             data = parse_json_object(raw)
             result = _parse_result(data, task_name)
             elapsed_ms = int((time.time() - t0) * 1000)

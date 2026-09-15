@@ -1,5 +1,9 @@
 
 // fitness/server/nutrition-api.js
+// [DEPRECATED 2026-09-15] Legacy duplicate of nutrition_api.py, kept for
+// reference only. The live service is systemd `niu-fitness-api` running the
+// Python version (which now routes through niu_core.llm_client). No process
+// runs this file; do not wire it back up.
 import { createServer } from 'node:http';
 
 const PORT = Number(process.env.FITNESS_API_PORT || 5177);

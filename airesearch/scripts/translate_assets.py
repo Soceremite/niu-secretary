@@ -55,10 +55,18 @@ def translate_text(*, base_url: str, api_key: str, model: str, text: str) -> str
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--paper-db", type=Path, required=True)
-    parser.add_argument("--model", default=os.environ.get("TRANSLATE_MODEL", "deepseek/deepseek-v4-pro"))
+    try:
+        from niu_core.llm_client import compat as _niu_compat
+        _d_url, _d_key, _d_model = _niu_compat.resolve("translate")
+    except Exception:
+        _d_url, _d_key, _d_model = "", "", ""
+    parser.add_argument(
+        "--model",
+        default=os.environ.get("TRANSLATE_MODEL") or _d_model or "deepseek/deepseek-v4-pro",
+    )
     parser.add_argument(
         "--base-url",
-        default=os.environ.get("TRANSLATE_BASE_URL")
+        default=os.environ.get("TRANSLATE_BASE_URL") or _d_url
         or os.environ.get("OPENAI_BASE_URL")
         or "https://api.deepseek.com/v1",
     )
@@ -68,7 +76,7 @@ def main() -> int:
 
     api_key = os.environ.get(args.api_key_env, "").strip()
     if not api_key and args.api_key_env == "TRANSLATE_API_KEY":
-        api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+        api_key = _d_key or os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise SystemExit(f"missing API key in {args.api_key_env}")
 

@@ -128,19 +128,34 @@ class FormulaOCRConfig:
             timeout_seconds = max(1.0, float(timeout_raw) / 1000.0)
         except (TypeError, ValueError):
             timeout_seconds = 45.0
+        # Legacy env chain first; unified gateway (config/models.yaml) fills
+        # gaps that explicit env vars (incl. OPENCODE_GO_*) did not provide.
+        compat_base, compat_key, compat_model = "", "", ""
+        try:
+            from niu_core.llm_client import compat as _niuo_compat
+            compat_base, compat_key, compat_model = _niuo_compat.resolve("formula_ocr")
+        except Exception:
+            pass
         return cls(
             api_base=(
                 values.get("AIRESEARCH_FORMULA_OCR_API_BASE")
                 or values.get("FITNESS_VISION_API_BASE")
                 or responses_url(values.get("OPENCODE_GO_BASE_URL"))
+                or compat_base
             ).strip(),
             api_key=(
                 values.get("AIRESEARCH_FORMULA_OCR_API_KEY")
                 or values.get("FITNESS_VISION_API_KEY")
                 or values.get("OPENCODE_GO_API_KEY")
+                or compat_key
                 or ""
             ).strip(),
-            model=(values.get("AIRESEARCH_FORMULA_OCR_MODEL") or values.get("FITNESS_VISION_MODEL") or "").strip(),
+            model=(
+                values.get("AIRESEARCH_FORMULA_OCR_MODEL")
+                or values.get("FITNESS_VISION_MODEL")
+                or compat_model
+                or ""
+            ).strip(),
             timeout_seconds=timeout_seconds,
             proxy_url=(values.get("AIRESEARCH_FORMULA_OCR_PROXY") or values.get("OPENCODE_GO_PROXY") or "").strip(),
         )

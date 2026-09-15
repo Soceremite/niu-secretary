@@ -26,21 +26,31 @@ class OpenAICompatibleEmbeddingProvider:
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "OpenAICompatibleEmbeddingProvider":
-        values = os.environ if env is None else env
+        values = os.environ if env is None or env is os.environ else env
+        # Unified gateway first (config/models.yaml); legacy env chain after.
+        compat_base, compat_key, compat_model = "", "", ""
+        try:
+            from niu_core.llm_client import compat as _niue_compat
+            compat_base, compat_key, compat_model = _niue_compat.resolve("embed")
+        except Exception:
+            pass
         model = (
             values.get("AIRESEARCH_EMBEDDING_MODEL")
             or values.get("PAPERPIPE_EMBEDDING_MODEL")
             or values.get("OPENAI_EMBEDDING_MODEL")
+            or compat_model
             or ""
         ).strip()
         base_url = (
             values.get("AIRESEARCH_EMBEDDING_BASE_URL")
+            or compat_base
             or values.get("OPENAI_BASE_URL")
             or values.get("OPENAI_API_BASE")
             or None
         )
         api_key = (
             values.get("AIRESEARCH_EMBEDDING_API_KEY")
+            or compat_key
             or values.get("OPENAI_API_KEY")
             or ""
         ).strip()

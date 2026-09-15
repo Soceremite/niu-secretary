@@ -19,5 +19,5 @@ where = ["src"]
 airesearch = ["schema.sql", "assets/*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", ".."]
 testpaths = ["tests"]

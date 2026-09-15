@@ -8,6 +8,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROUTES = {
@@ -101,7 +102,10 @@ class FitnessApiHandler(BaseHTTPRequestHandler):
 
 
 def call_vision_model(photo, description):
-    url = resolve_vision_url(os.environ["FITNESS_VISION_API_BASE"])
+    """Vision meal recognition via the unified gateway (niu_core.llm_client,
+    logic model "vision" — sub2api gpt-5.6-luna primary, opencode vision-exp
+    fallback). Falls back to the legacy direct-endpoint path when the unified
+    config cannot be loaded (no models.yaml / missing key)."""
     prompt = "\n".join([
         "你是营养识别助手。识别餐食图片并估算整餐营养。不要解释推理，不要 Markdown 表格。",
         "请严格输出以下 7 行，数值只写整数，未知就写 0：",
@@ -115,6 +119,45 @@ def call_vision_model(photo, description):
         "提醒: <一句话提醒，没有就写 无>",
         f"用户补充描述：{description}" if description else "用户没有补充描述。",
     ])
+    image_base64 = base64.b64encode(photo["data"]).decode("ascii")
+    image_url = f"data:{photo['content_type']};base64,{image_base64}"
+    try:
+        _repo = str(Path(__file__).resolve().parents[2])
+        if _repo not in sys.path:
+            sys.path.insert(0, _repo)
+        from niu_core.llm_client import NiuLLM as _NiuLLM, ConfigError as _CfgErr
+        _llm = _NiuLLM.load()
+    except (_CfgErr, Exception) as _load_exc:
+        if isinstance(_load_exc, (KeyboardInterrupt, SystemExit)):
+            raise
+        return _legacy_call_vision_model(photo, prompt)
+    rsp = _llm.vision(
+        os.environ.get("FITNESS_VISION_LOGIC_MODEL", "vision"),
+        image_url, prompt)
+    content = rsp.text
+    text = strip_json_fence(content)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return parse_meal_text(text)
+
+
+def _legacy_call_vision_model(photo, description, prompt=None):
+    """Pre-unification direct-endpoint path (kept as documented fallback)."""
+    prompt = prompt or "\n".join([
+        "你是营养识别助手。识别餐食图片并估算整餐营养。不要解释推理，不要 Markdown 表格。",
+        "请严格输出以下 7 行，数值只写整数，未知就写 0：",
+        "餐食: <一句话餐食名称>",
+        "热量: <整数> kcal",
+        "蛋白: <整数> g",
+        "碳水: <整数> g",
+        "脂肪: <整数> g",
+        "置信度: <0-100整数>%",
+        "明细: <食物1 份量 热量kcal; 食物2 份量 热量kcal>",
+        "提醒: <一句话提醒，没有就写 无>",
+        f"用户补充描述：{description}" if description else "用户没有补充描述。",
+    ])
+    url = resolve_vision_url(os.environ["FITNESS_VISION_API_BASE"])
     request = urllib.request.Request(
         url,
         data=json.dumps(build_vision_payload(url, prompt, photo), ensure_ascii=False).encode("utf-8"),

@@ -14,6 +14,11 @@ from pathlib import Path
 from typing import Any, Callable
 
 from airesearch.canonical_candidates import extract_arxiv_id
+
+try:  # unified LLM gateway config (config/models.yaml) — optional, degrades gracefully
+    from niu_core.llm_client import compat as _niu_llm_compat
+except Exception:  # pragma: no cover
+    _niu_llm_compat = None  # type: ignore[assignment]
 from airesearch.db import connect, init_db
 from airesearch.formula_ocr import is_likely_formula
 from airesearch.image_selection import image_dimensions
@@ -41,8 +46,20 @@ MAX_EQUATIONS = 6
 HIGH_QUALITY_EVIDENCE_THRESHOLD = 0.72
 MIN_OUTLINE_FACT_COVERAGE = 0.5
 DEFAULT_OUTLINE_FACTS_PER_SECTION = 4
-DEFAULT_BLOG_MODEL = "deepseek-v4-pro"
-DEFAULT_BLOG_BASE_URL = "https://api.deepseek.com"
+
+
+def _default_blog_settings() -> tuple[str, str]:
+    """Resolve (model, base_url) defaults from the unified gateway config."""
+    if _niu_llm_compat is not None:
+        try:
+            base_url, _key, model = _niu_llm_compat.resolve("blog")
+            return model, base_url
+        except Exception:
+            pass
+    return "gpt-5.6-luna", os.environ.get("AIRESEARCH_BLOG_BASE_URL") or "http://124.222.22.171:8080/v1"
+
+
+DEFAULT_BLOG_MODEL, DEFAULT_BLOG_BASE_URL = _default_blog_settings()
 OUTLINE_MAX_OUTPUT_TOKENS = 4000
 SECTION_MAX_OUTPUT_TOKENS = 5000
 IMAGE_SUFFIXES = {".svg", ".png", ".jpg", ".jpeg", ".webp"}

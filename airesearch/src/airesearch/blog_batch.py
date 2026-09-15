@@ -43,6 +43,12 @@ class BlogModelArm:
     proxy_url: str = ""
 
 
+# deepseek arm's model default — used after explicit env vars.
+# Intentionally NOT paper_blog.DEFAULT_BLOG_MODEL (that now follows the unified
+# gateway config and may be a non-deepseek model).
+DEEPSEEK_ARM_DEFAULT_MODEL = "deepseek-v4-pro"
+
+
 def _utc_now() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
 
@@ -75,7 +81,7 @@ def model_arm_from_env(name: str, env: Mapping[str, str] | None = None) -> BlogM
             values,
             ("AIRESEARCH_DEEPSEEK_BLOG_MODEL", "AIRESEARCH_BLOG_MODEL"),
         )
-        model = model or paper_blog.DEFAULT_BLOG_MODEL
+        model = model or DEEPSEEK_ARM_DEFAULT_MODEL
         base_url, _base_env = _require_env_value(
             values,
             (

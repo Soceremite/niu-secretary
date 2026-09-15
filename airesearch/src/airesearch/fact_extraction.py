@@ -16,6 +16,24 @@ from airesearch.db import connect, init_db
 from airesearch.paperpipe_sync import stable_json
 from airesearch.provider_config import responses_url
 
+try:  # unified LLM gateway config (models.yaml) — optional, falls back gracefully
+    from niu_core.llm_client import compat as _niu_compat
+except Exception:  # pragma: no cover - niu_core not on path in some deploys
+    _niu_compat = None  # type: ignore[assignment]
+
+
+class _CompatProxy:
+    """Duck-typed access to compat.resolve; no-op when niu_core is absent."""
+
+    @staticmethod
+    def resolve(name: str) -> tuple[str, str, str]:
+        if _niu_compat is None:
+            raise RuntimeError("niu_core unavailable")
+        return _niu_compat.resolve(name)
+
+
+compat = _CompatProxy()
+
 
 EXTRACTOR_VERSION = "2026-06-08.1"
 ALLOWED_FACT_TYPES = {"method", "dataset", "benchmark", "claim", "limitation"}
@@ -616,12 +634,28 @@ def extract_openai_compatible_facts(
     if error_policy not in {"strict", "warn"}:
         raise ValueError("error_policy must be one of: strict, warn")
     provider_name = "openai-compatible"
-    resolved_model = model or os.environ.get("AIRESEARCH_FACT_MODEL") or "gpt-4.1-mini"
+    compat_default: tuple[str, str, str] | None = None
+    if model is None or base_url is None:
+        try:
+            compat_default = compat.resolve("fact")
+        except Exception:
+            compat_default = None
+    if compat_default is not None:
+        _compat_base_url, _compat_key, _compat_model = compat_default
+    else:
+        _compat_base_url, _compat_key, _compat_model = "", "", ""
+    resolved_model = (
+        model
+        or os.environ.get("AIRESEARCH_FACT_MODEL")
+        or _compat_model
+        or "gpt-4.1-mini"
+    )
     resolved_base_url = (
         base_url
         or os.environ.get("AIRESEARCH_FACT_BASE_URL")
         or responses_url(os.environ.get("OPENCODE_GO_BASE_URL"))
         or os.environ.get("OPENAI_BASE_URL")
+        or _compat_base_url
     )
     init_db(db_path)
     started_at = utc_now()

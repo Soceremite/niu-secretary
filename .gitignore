@@ -37,3 +37,9 @@ backups/
 # Vue rebuild workspace
 /web/node_modules/
 /web/dist/
+
+# API 统一层的产物/缓存（2026-09-15 重构）
+news-daily/dist/candidates.json
+news-daily/dist/qq_digest.txt
+leisure/dist/qq_digest.txt
+airesearch/.env.backup-*

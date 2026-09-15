@@ -14,41 +14,15 @@ RESULTS_FILE = Path("/tmp/img_crawl_results.txt")
 REVIEWED_FILE = Path("/tmp/img_reviewed_results.txt")
 
 # ====== 配置 ======
-# 视觉模型 API（通过 OpenClaw 网关或直连）
-API_BASE = os.environ.get("IMAGE_REVIEW_API_BASE", "http://localhost:9900")
-API_KEY = os.environ.get("IMAGE_REVIEW_API_KEY", "no-key")
-MODEL = os.environ.get("IMAGE_REVIEW_MODEL", "")
+# 统一网关配置（config/models.yaml）接管 —— MODEL/API_BASE 变量仅为兼容旧告警保留
+API_BASE = os.environ.get("IMAGE_REVIEW_API_BASE", "unified-gateway")
+API_KEY = os.environ.get("IMAGE_REVIEW_API_KEY", "")  # resolved by niu_core at call time
+MODEL = os.environ.get("IMAGE_REVIEW_MODEL", "") or "unified:vision"
 
 # 如果未设置 MODEL，自动检测可用模型
-if not MODEL:
-    # 尝试通过 OpenClaw 网关
-    try:
-        r = subprocess.run(
-            ["curl", "-s", f"{API_BASE}/v1/models"],
-            capture_output=True, text=True, timeout=5
-        )
-        if r.returncode == 0:
-            data = json.loads(r.stdout)
-            models = [m.get("id", "") for m in data.get("data", [])]
-            # 优先选视觉模型
-            vision_keywords = ["vision", "gemini", "claude", "gpt-4o", "multimodal"]
-            for kw in vision_keywords:
-                for m in models:
-                    if kw.lower() in m.lower():
-                        MODEL = m
-                        break
-                if MODEL:
-                    break
-            if not MODEL and models:
-                MODEL = models[0]
-    except Exception as e:
-        print(f"⚠️ 无法获取模型列表: {e}")
-
-if not MODEL:
-    print("❌ 未找到可用的视觉模型，请设置 IMAGE_REVIEW_MODEL 环境变量")
-    sys.exit(1)
-
-print(f"🤖 审核模型: {MODEL}")
+if False:  # legacy curl-based autodetect removed — model resolution lives in config/models.yaml
+    pass
+print(f"🤖 审核模型: {MODEL} (统一网关 vision 逻辑模型)")
 print()
 
 # ====== 读取爬取结果 ======
@@ -73,8 +47,8 @@ def get_news_context(detail_id):
     """提取对应新闻的标题和正文内容作为审核上下文"""
     for section_file in sorted((DIST / "sections").glob("*.html")):
         content = section_file.read_text(encoding="utf-8")
-        # 找到对应 template
-        pattern = rf'<template[^>]*data-id="{re.escape(detail_id)}"[^>]*>(.*?)</template>'
+        # 找到对应 template（新版模板用 id="detail-xxx"，旧版用 data-id）
+        pattern = rf'<template[^>]*(?:data-id=)?["\']?{re.escape(detail_id)}["\']?[^>]*>(.*?)</template>'
         m = re.search(pattern, content, re.DOTALL)
         if m:
             tpl = m.group(1)
@@ -144,28 +118,23 @@ def review_image(img_path, context):
     }
 
     try:
-        r = subprocess.run(
-            ["curl", "-s", f"{API_BASE}/v1/chat/completions",
-             "-H", f"Authorization: Bearer {API_KEY}",
-             "-H", "Content-Type: application/json",
-             "-d", json.dumps(payload)],
-            capture_output=True, text=True, timeout=60
+        # Unified gateway (config/models.yaml, logic model "vision"):
+        # base64 data-URL goes through as an ordinary chat call.
+        import sys as _sys
+        _repo = Path(__file__).resolve().parents[2]
+        if str(_repo) not in _sys.path:
+            _sys.path.insert(0, str(_repo))
+        from niu_core.llm_client import NiuLLM as _NiuLLM
+
+        _llm = _NiuLLM.load()
+        rsp = _llm.vision(
+            os.environ.get("IMAGE_REVIEW_LOGIC_MODEL", "vision"),
+            f"data:{mime_type};base64,{img_b64}",
+            prompt,
         )
-        if r.returncode != 0:
-            print(f"    ⚠️ API 调用失败: {r.stderr[:200]}")
-            return False, "API 错误"
-
-        result = json.loads(r.stdout)
-        if "choices" not in result or not result["choices"]:
-            print(f"    ⚠️ API 返回异常: {json.dumps(result, ensure_ascii=False)[:300]}")
-            return False, "API 返回异常"
-
-        answer = result["choices"][0]["message"]["content"].strip().upper()
+        answer = rsp.text.strip().upper()
         passed = "PASS" in answer
         return passed, answer
-    except json.JSONDecodeError as e:
-        print(f"    ⚠️ JSON 解析失败: {r.stdout[:300]}")
-        return False, "JSON 解析错误"
     except Exception as e:
         print(f"    ⚠️ 审核失败: {e}")
         return False, str(e)

@@ -22,12 +22,15 @@ _niu_admin_password_sha256="${NIU_SECRETARY_ADMIN_PASSWORD_SHA256-}"
 _niu_admin_session_secret_set="${NIU_SECRETARY_ADMIN_SESSION_SECRET+x}"
 _niu_admin_session_secret="${NIU_SECRETARY_ADMIN_SESSION_SECRET-}"
 
+# systemd loads administrator authentication from /etc/niu-secretary-api.env.
+# Keep those values authoritative even if the project AI environment contains
+# an accidental same-named variable.
+# Unified gateway key also comes from config/.env (loaded after airesearch/.env
+# so it wins); both are needed by niu_core.llm_client.
 set -a
+source "$ROOT/config/.env"
 source "$ENV_FILE"
 set +a
-
-# The AIResearch .env is shared with this process, but it must never override
-# the service's administrator identity or session signing key.
 if [[ "$_niu_admin_user_set" == x ]]; then
   export NIU_SECRETARY_ADMIN_USER="$_niu_admin_user"
 else

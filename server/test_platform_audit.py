@@ -131,6 +131,45 @@ class PlatformAuditTest(unittest.TestCase):
             {"paperKey": "paper-1", "force": True, "maxPages": 12},
         )
 
+    def test_airesearch_admin_state_initializes_runtime_once(self):
+        from pathlib import Path
+        from types import SimpleNamespace
+
+        calls = []
+        db_path = Path(self.tempdir.name) / "airesearch.sqlite3"
+
+        class AdminModule:
+            @staticmethod
+            def AdminConfig(**kwargs):
+                return SimpleNamespace(**kwargs)
+
+            @staticmethod
+            def _mark_interrupted_jobs(path):
+                calls.append(("mark", path))
+
+            @staticmethod
+            def _ensure_worker(config):
+                calls.append(("worker", config.db_path))
+
+            @staticmethod
+            def list_state(path):
+                calls.append(("state", path))
+                return {"jobs": []}
+
+        action_handlers._AIRESEARCH_ADMIN_RUNTIME_INITIALIZED.clear()
+        try:
+            with mock.patch.object(action_handlers, "_airesearch_admin_module", return_value=AdminModule), mock.patch.object(
+                action_handlers, "_airesearch_db_path", return_value=db_path
+            ):
+                first = action_handlers.airesearch_admin_state({}, {})
+                second = action_handlers.airesearch_admin_state({}, {})
+        finally:
+            action_handlers._AIRESEARCH_ADMIN_RUNTIME_INITIALIZED.clear()
+
+        self.assertTrue(first["ok"])
+        self.assertTrue(second["ok"])
+        self.assertEqual(calls, [("mark", db_path), ("worker", db_path), ("state", db_path), ("state", db_path)])
+
     def test_generic_job_action_rejects_paper_layout_parse(self):
         with self.assertRaises(ActionError) as caught:
             action_handlers.airesearch_admin_job_start(
@@ -1968,8 +2007,8 @@ class PlatformAuditTest(unittest.TestCase):
         self.assertIn("try_files $uri /niu-secretary/index.html;", config)
         self.assertIn("Deliberately do not include $uri/", config)
         self.assertIn("direct legacy file URLs", config)
-        self.assertIn('rsync -av "$WEB_DIST"/ "$DEPLOY_ROOT"/', deploy)
-        self.assertNotIn("--delete", deploy)
+        self.assertIn('rsync -av "$WEB_DIST/index.html" "$DEPLOY_ROOT/index.html"', deploy)
+        self.assertIn('rsync -av --delete "$WEB_DIST/assets"/ "$DEPLOY_ROOT/assets"/', deploy)
         self.assertIn(".niu-secretary-vue-snapshots", deploy)
         self.assertIn("vue-deploy-manifest.json", deploy)
         self.assertIn("rollback-vue-web.sh latest", readme)
