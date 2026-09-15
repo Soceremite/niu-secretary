@@ -132,6 +132,13 @@ fitness/
 
 > **蛋白质恒定不变，只调整碳水和脂肪。**
 
+### Module 3.5: 拍照识别服务 `nutrition_api`（2026-09-15 已接统一 LLM 层）
+
+- systemd `niu-fitness-api`（端口 5177），**ExecStart 已指向本仓库** `fitness/server/nutrition_api.py`
+- 餐食照片 → NiuLLM("vision")（统一网关，路由 `config/models.yaml`）→ 7 行营养估算
+- 旧直连路径（FITNESS_VISION_API_BASE/minimax）保留为 `_legacy_call_vision_model` fallback，仅在统一配置缺失时触发
+- `fitness/server/nutrition-api.js` 已 DEPRECATED（零引用的死代码，勿接线）
+
 ### Module 4: 恢复管理 `recovery`
 
 决定计划能否长期执行。

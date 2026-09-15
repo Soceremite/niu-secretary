@@ -3,7 +3,7 @@ name: niu-secretary
 description: "牛秘书品牌体系——品牌定位、视觉规范、技术架构与功能矩阵。用于统一品牌调性，指导各子产品（新闻社、塑形馆、时务局、闲趣集、AIResearch 研知库）的设计与开发。"
 risk: safe
 date_added: "2026-05-28"
-last_updated: "2026-06-10"
+last_updated: "2026-09-15"
 ---
 
 # 牛秘书品牌体系
@@ -300,6 +300,31 @@ sudo deploy/rollback-airesearch.sh latest
 - 📅 [时务局 SKILL.md](schedule/SKILL.md)
 - 🎬 [闲趣集 SKILL.md](leisure/SKILL.md)
 - 🧠 [AIResearch 研知库 SKILL.md](airesearch/SKILL.md)
+
+---
+
+## 统一 LLM 网关层（2026-09-15 重构完成）
+
+全家族所有 LLM 调用收敛到 **`niu_core/llm_client`** 一层：
+
+- **路由表**：`config/models.yaml` — 逻辑模型名（content / vision / fact / blog / translate / formula_ocr / embed / assistant / flash）→ endpoint + 真实 model + fallback 链
+- **key 只在 env**：yaml 只写 `api_key_env` 变量名；永远不把 key 写进 yaml/代码/日志
+- **优先级**：显式 env > 统一 config 默认；测试用 `tests/conftest.py` fixture 隔离
+- **渠道四件**：sub2api 本地网关 / OpenCode Go 订阅 / DeepSeek 按量 / DashScope 向量
+- **管理台可视化**：管理台 →「AI 渠道」→ 路由表可改可试跑；服务商可测连通拉模型列表、模型下拉选择、白名单过滤
+- **探活命令**：`airesearch/.venv/bin/python -m niu_core.llm_client doctor [逻辑名]`
+
+### 服务接线现状
+
+| 服务 | LLM 用途 | 现状 |
+|------|---------|------|
+| niu-secretary-api 对话 | assistant | opencode glm-5.3-flash（11 模型评测冠军，1.7s，订阅内零成本） |
+| niu-fitness-api 拍照识别 | vision | sub2api gpt-5.6-luna |
+| 新闻社 cron（10:00 生成 / 10:45 部署） | content + vision | no_agent 管线，QQ 防日志双层交付 |
+| 闲趣集 cron（11:00 更新 / 11:30 部署） | content + vision | 同上模式 |
+| 研知库（fact/blog/translate/formula_ocr/embeddings） | 各自逻辑名 | 8 调用点全走 compat |
+
+**规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
 
 ---
 

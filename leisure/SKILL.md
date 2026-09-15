@@ -232,4 +232,18 @@ location /niu-secretary/leisure/ {
 - `leisure` 画像字段：`genres{movie,music,podcast,novel} / moods[] / avoid[] / notes`，定义在 `server/store.py:DEFAULT_PROFILES`。
 - 前端：`dist/index.html` 内联脚本 `loadTasteProfile()` + `leisure.recommend` 融合候选（按 id 回原数据复用 `showDetail`）；本模块无 build，`dist/` 即唯一源。
 
-last_updated: 2026-05-30
+## Cron 管线（2026-09-15 已收编为 no_agent 统一管线）
+
+- Job `9b50d06ee811`（11:00 闲趣集·每日更新）— **no_agent 模式**，脚本 `bash run_pipeline.sh`：
+  1. `tools/fetch_leisure_candidates.py` — 直抓豆瓣新片榜/网易热歌榜 API/豆瓣新书（无 LLM，海报 URL 顺带拿到）
+  2. `tools/recommend_leisure_llm.py` — NiuLLM("content") 写推荐理由/matchScore/mood → 写 movies/music/podcasts/novels/context.json + `dist/qq_digest.txt`
+  3. `niu_secretary.leisure_validation` 数据校验（errors 非零即失败）
+  4. `tools/review_posters.py` — NiuLLM("vision") 真实审核海报 → image_review.json
+  5. 末行 `{"wakeAgent": false}` — 静默完成
+- Job `c6e3ee3ec66c`（11:30 闲趣集部署，deliver=qqbot）— stdout 只含推荐正文：
+  剔除 fail 海报 → quality gate → rsync → HTTP 验证 → `cat dist/qq_digest.txt`
+- 暂停的 job：`126551b6494c` 图片审核（提前并入管线）
+- **LLM 调用**：全部走 `niu_core/llm_client`（content / vision），路由见 `config/models.yaml`，禁止硬编码 key/base_url。
+- 海报拉取注意：豆瓣 CDN 需要 Chrome UA + `Referer: https://movie.douban.com/` 否则 418。
+
+last_updated: 2026-09-15

@@ -284,6 +284,8 @@ Paper Card、Research Digest、Research Map、Gap Analysis 必须分层标注：
 
 深度解读 provider 支持两种 OpenAI-compatible 协议：`chat_completions` 向 API root 追加 `/chat/completions`；`responses` 接受 API root 或完整 `/responses` endpoint，并统一解析字符串或结构化 `output_text`。服务端通过 `AIRESEARCH_BLOG_API_STYLE`、`AIRESEARCH_BLOG_BASE_URL`、`AIRESEARCH_BLOG_MODEL`、`AIRESEARCH_BLOG_API_KEY`、`AIRESEARCH_BLOG_PROXY` 配置，其中 proxy 只作用于 Responses；管理端请求不得覆盖 endpoint、proxy 或密钥。未显式指定协议时，`/responses` endpoint 自动选择 Responses，其余默认 Chat Completions。
 
+**[2026-09-15] 统一 LLM 层已接入**：上述 env 链的全部默认值现在由 `niu_core/llm_client`（`config/models.yaml`）提供——fact/blog/translate/formula_ocr/embeddings 的模型、base_url 在 yaml 里统一定义；显式 env 仍优先于 config 默认（顺序不变）。新增 `NIU_LLM_<NAME>_BASE_URL/_API_KEY/_MODEL` 三元组可单独重定向某用途。`DEFAULT_BLOG_MODEL/BASE_URL` 不再硬编码，import 时从统一配置解析；`DEEPSEEK_ARM_DEFAULT_MODEL`（deepseek arm 专用）与 blog 默认解耦。管理台「AI 渠道」页可视化这些路由。
+
 已发布博客的坏公式使用局部修复链路，不重新生成整篇深度解读。`blog_formula_repair.py` 先用 MathJax v3 逐式编译；只有编译确认失败的公式才携带失败 LaTeX、局部正文和 PDF page/bbox crop 调用 `AIRESEARCH_FORMULA_OCR_*` 配置的 `gpt-5.6-luna`。Luna 返回值必须再次通过确定性规范化和 MathJax 编译，且达到置信度门槛，才会按公式 locator 精确替换并发布新版本。编译器、证据或 API 不可用、候选仍无法编译、置信度不足时都不得写博客。审计表 `paper_blog_formula_repairs` 记录原/修后 LaTeX、版本定位、PDF 证据、上下文、模型、置信度、首次和二次验证、时间戳及应用版本；唯一 input hash 保证重复执行幂等，失败重试必须显式使用 `--force-retry`。命令与字段说明见 `../docs/airesearch-api.md`。
 
 通用深度解读 provider 的三类配置不能混写为一条回退链。模型顺序是“显式参数 -> `AIRESEARCH_BLOG_MODEL` -> `NIU_ASSISTANT_MODEL` -> `deepseek-v4-pro`”；base URL 顺序是“显式参数 -> `AIRESEARCH_BLOG_BASE_URL` -> `TRANSLATE_BASE_URL` -> `OPENAI_BASE_URL` -> `NIU_ASSISTANT_API_BASE` -> DeepSeek 默认地址”；API key 顺序是“`AIRESEARCH_BLOG_API_KEY` -> 调用方指定的 key 环境变量 -> `OPENAI_API_KEY` -> `TRANSLATE_API_KEY` -> `NIU_ASSISTANT_API_KEY`”。

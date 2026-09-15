@@ -211,6 +211,10 @@ location /niu-secretary/news/ {
 | 新浪网 | https://news.sina.com.cn/ | 国内/国际/财经 |
 | 新华网 | https://www.news.cn/ | 国内/时政 |
 | 人民网 | https://www.people.com.cn/ | 国内/时政 |
+| 中国新闻网 | https://www.chinanews.com.cn/ | 国内/国际/财经 |
+| 澎湃新闻 | https://www.thepaper.cn/ | 国内/财经/科技 |
+| 财联社 | https://www.cls.cn/ | 财经/科技 |
+| 证券时报 | https://www.stcn.com/ | 财经 |
 
 **国际新闻源：**
 | 媒体 | 网址 | 适用板块 |
@@ -228,11 +232,32 @@ location /niu-secretary/news/ {
 | TechCrunch | https://techcrunch.com/ | 科技/AI |
 | The Verge | https://www.theverge.com/ | 科技/AI |
 | Ars Technica | https://arstechnica.com/ | 科技 |
+| MIT Technology Review | https://www.technologyreview.com/ | 科技/AI |
+| VentureBeat | https://venturebeat.com/ | AI/科技 |
 | 36氪 | https://36kr.com/ | 科技/AI/财经 |
+| IT之家 | https://www.ithome.com/ | 科技/AI |
+| 量子位 | https://www.qbitai.com/ | AI |
+| 雷峰网 | https://www.leiphone.com/ | AI/科技 |
+| 晚点 LatePost | https://www.latepost.com/ | 科技/财经 |
 | 机器之心 | https://www.jiqizhixin.com/ | AI |
+| Hugging Face Blog | https://huggingface.co/blog | AI/开源 |
+| arXiv | https://arxiv.org/ | AI/论文 |
+| Papers with Code | https://paperswithcode.com/ | AI/论文 |
 | CNBC | https://www.cnbc.com/ | 财经/科技 |
 
 > **重要：** `external-btn` 的 href 必须指向实际新闻原文页面（不是首页），因为爬图脚本会从这个 URL 提取配图。禁止使用百度/Bing/Google 等搜索结果页、媒体首页、`#` 或 `javascript:` 作为原文链接。找不到真实原文链接的新闻必须替换，不得上线。
+
+### 跨板块去重（必须执行）
+
+- 五个板块不得复用同一个新闻事件，即使标题不同、来源不同，也只能保留在一个最合适的板块。
+- 科技/AI 最容易重复：同一模型发布、同一公司 AI 基建、同一开源项目，只保留一条。
+- 板块归属优先级：
+  - 纯模型、Agent、论文、开源项目、AI 产品发布 → 人工智能
+  - 航天、芯片、通信、新能源、硬件、基础科研突破 → 科技动态
+  - AI 公司财报、股价、融资、裁员、产业链订单 → 财经快讯
+  - 国家政策、监管、公共安全、国内民生事件 → 国内要闻
+  - 国际冲突、外交、海外选举、全球公共事件 → 国际焦点
+- 发布前必须运行 `PYTHONPATH=tools python3 tools/audit_news_sources.py --dist dist --no-network`；若出现 `cross-section similar event`，必须替换低优先级板块里的新闻。
 
 ### 各板块条数（弹性，每板块 ≤ 6 条）
 
@@ -344,16 +369,25 @@ sudo rsync -av /home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist/ /
 
 ---
 
-## Cron 约定
+## Cron 约定（2026-09-15 已收编为 no_agent 统一管线）
 
 - 每天 **10:00 Asia/Shanghai** 自动更新
-- Job ID: `7567c2d1-9fa9-4d79-a881-a53402d0ba2c`
-- 更新流程：搜新闻 → 写各 section HTML 且每条带真实 `external-btn` → `validate_news.py` → 原文页爬图 → AI 审核图片 → 回写 section → 再校验 → `archive_news.py` 文件归档并写 SQLite → rsync 部署 → 推送 QQ
+- Job `94f85806c890`（新闻社·内容生成）— **no_agent 模式**，脚本 `bash run_pipeline.sh`：
+  1. `tools/fetch_news_candidates.py` — RSS 直抓官方媒体（无 LLM）
+  2. `tools/summarize_news_llm.py` — NiuLLM("content") 写摘要 → 渲染 section HTML
+  3. `tools/validate_news.py` → `crawl_images.py` → `tools/review_images.py`（NiuLLM("vision") 真实审核）
+  4. `tools/update_sections.py` 回写图片引用
+  5. `tools/build_qq_digest.py` 生成 QQ briefing → `dist/qq_digest.txt`
+  6. 末行输出 `{"wakeAgent": false}` — 本 job **静默完成**，stdout 不打扰 QQ
+- Job `7939a11e048c`（10:45 新闻社部署，deliver=qqbot）— stdout 只含最终 briefing 正文：
+  终检 validate → archive → rsync → HTTP 验证 → `cat dist/qq_digest.txt`
+- 暂停的 job：`222fdc42c679` 后处理（并入管线）、`fb57b11ea956` 图片管线（审核并入管线）
 - 校验失败时必须停止，不得 rsync 覆盖线上页面。
-- 配图只能从 `external-btn` 的原文 URL 抓取，不得使用 Bing/百度图片搜索。
+- 配图只能从原文 URL 抓取，不得使用搜索引擎图片结果。
 - 每天文件归档到 `news-daily/archive/YYYY-MM-DD/`，同时写入 `news-daily/news_daily.db`。
-- SQLite 表：`news_days`、`news_items`、`news_tags`、`image_candidates`。其中 `image_candidates` 记录最终候选 URL、分数、状态和本地路径，用于追踪为什么选中某张图。
+- SQLite 表：`news_days`、`news_items`、`news_tags`、`image_candidates`。
 - 文件归档和 SQLite 都只保留最近 15 天。
+- **LLM 调用**：全部走 `niu_core/llm_client`（逻辑模型 content / vision），路由见 `config/models.yaml`，禁止在脚本里硬编码 key 或 base_url。
 
 ---
 
