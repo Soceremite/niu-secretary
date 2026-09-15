@@ -229,6 +229,7 @@ def _job_message(db_path: Path, job_id: int, message: str) -> None:
 def _mark_interrupted_jobs(db_path: Path) -> None:
     ensure_admin_schema(db_path)
     with connect(db_path) as conn:
+        now = _admin_now()
         conn.execute(
             """
             update admin_jobs
@@ -237,8 +238,65 @@ def _mark_interrupted_jobs(db_path: Path) -> None:
                 finished_at = ?
             where status = 'running'
             """,
-            (_admin_now(),),
+            (now,),
         )
+        tables = {
+            str(row["name"])
+            for row in conn.execute("select name from sqlite_master where type = 'table'").fetchall()
+        }
+        if {"ingest_runs", "ingest_items"}.issubset(tables):
+            conn.execute(
+                """
+                update ingest_items
+                set status = 'failed',
+                    error = case
+                        when error is null or error = '' then 'interrupted by admin service restart'
+                        else error
+                    end,
+                    finished_at = ?
+                where status = 'running'
+                """,
+                (now,),
+            )
+            running_runs = [
+                int(row["id"])
+                for row in conn.execute("select id from ingest_runs where status = 'running'").fetchall()
+            ]
+            for run_id in running_runs:
+                counts = {
+                    row["status"]: int(row["count"])
+                    for row in conn.execute(
+                        """
+                        select status, count(*) as count
+                        from ingest_items
+                        where run_id = ?
+                        group by status
+                        """,
+                        (run_id,),
+                    ).fetchall()
+                }
+                failed = counts.get("failed", 0)
+                conn.execute(
+                    """
+                    update ingest_runs
+                    set success_count = ?,
+                        failed_count = ?,
+                        duplicate_count = ?,
+                        skipped_count = ?,
+                        finished_at = ?,
+                        status = ?
+                    where id = ?
+                    """,
+                    (
+                        counts.get("success", 0),
+                        failed,
+                        counts.get("duplicate", 0),
+                        counts.get("skipped", 0),
+                        now,
+                        "partial_failure" if failed else "failed",
+                        run_id,
+                    ),
+                )
         conn.commit()
 
 
@@ -1135,6 +1193,32 @@ def delete_paper(db_path: Path, paper_db_path: Path, paper_key: str) -> dict[str
 
 
 def search_arxiv_title(query: str, limit: int = 10) -> list[dict[str, Any]]:
+    """Search arXiv by free text; falls back to the public search page when the export API is limited."""
+    try:
+        return _search_arxiv_api(query, limit)
+    except Exception as api_error:
+        from airesearch.providers import search_arxiv_website
+
+        try:
+            papers = search_arxiv_website(query, limit)
+        except Exception as website_error:
+            raise RuntimeError(
+                f"arXiv search failed — api: {api_error}; website: {website_error}"
+            ) from website_error
+        return [
+            {
+                "arxiv_id": paper.source_id,
+                "title": paper.title,
+                "authors": list(paper.authors),
+                "published": paper.published_date or "",
+                "abstract": (paper.abstract or "")[:600],
+                "url": paper.url or f"https://arxiv.org/abs/{paper.source_id}",
+            }
+            for paper in papers
+        ]
+
+
+def _search_arxiv_api(query: str, limit: int = 10) -> list[dict[str, Any]]:
     import urllib.request as arxiv_request
     import xml.etree.ElementTree as ET_lib
 
@@ -1148,7 +1232,7 @@ def search_arxiv_title(query: str, limit: int = 10) -> list[dict[str, Any]]:
     url = "https://export.arxiv.org/api/query?" + urllib.parse.urlencode(params)
     try:
         req_obj = arxiv_request.Request(url, headers={"User-Agent": "airesearch/0.1"})
-        with arxiv_request.urlopen(req_obj, timeout=15) as resp:
+        with arxiv_request.urlopen(req_obj, timeout=25) as resp:
             xml_text = resp.read().decode("utf-8")
     except Exception as exc:
         raise RuntimeError(f"arXiv API request failed: {exc}") from exc
@@ -1230,19 +1314,46 @@ def ingest_single_paper(
 
     env = os.environ.copy()
     env["PAPER_DB_PATH"] = str(paper_db_path)
+
+    def _run_papi(command: list[str], timeout: int) -> subprocess.CompletedProcess[str]:
+        try:
+            return subprocess.run(
+                command,
+                check=False,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired as exc:
+            def _as_text(value: object) -> str:
+                if isinstance(value, bytes):
+                    return value.decode("utf-8", "ignore")
+                return str(value or "")
+
+            return subprocess.CompletedProcess(
+                command,
+                124,
+                stdout=_as_text(exc.stdout),
+                stderr=f"papi timed out after {timeout}s",
+            )
+
     add_command = [papi_executable, "add", normalized_input]
     pdf_title = _title_from_pdf_url(normalized_input)
     if URL_RE.match(normalized_input) and pdf_title:
         add_command = [papi_executable, "add", "--pdf", normalized_input, "--title", pdf_title]
-    completed = subprocess.run(
-        add_command,
-        check=False,
-        env=env,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        timeout=120,
-    )
+    completed = _run_papi(add_command, timeout=120)
+    used_fallback = False
+    if completed.returncode != 0:
+        # The arXiv export API rate-limits often enough that `papi add <id>` fails out
+        # of hand; retry through the public PDF endpoint, which stays reachable.
+        from airesearch.providers import arxiv_pdf_fallback_command
+
+        fallback_command = arxiv_pdf_fallback_command(papi_executable, normalized_input)
+        if fallback_command is not None:
+            completed = _run_papi(fallback_command, timeout=300)
+            used_fallback = completed.returncode == 0
     stdout_text = (completed.stdout or "").strip()
     stderr_text = (completed.stderr or "").strip()
     combined = stdout_text + "\n" + stderr_text
@@ -1277,6 +1388,7 @@ def ingest_single_paper(
         "paper_key": paper_key,
         "stdout": stdout_text,
         "synced": sync_result.papers_seen > 0,
+        "used_fallback": used_fallback,
         "layout_job_id": layout_job.get("job_id"),
         "layout_job_status": layout_job.get("status"),
         "layout_job_reason": layout_job.get("reason", ""),
@@ -1559,17 +1671,17 @@ ADMIN_HTML = r"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AIResearch Admin</title>
 <style>
-:root{color-scheme:light;--bg:#eee9df;--rail:#201f1b;--rail2:#2d2b25;--panel:#fffdf8;--ink:#24211c;--muted:#706a60;--line:#d7cec0;--soft:#eef4ef;--accent:#0f6b5f;--accent2:#b56a2b;--danger:#b42318;--ok:#167356}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,textarea,select{font:inherit}button{border:1px solid var(--line);background:#fffaf2;color:var(--ink);padding:9px 12px;border-radius:7px;cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:white}button.warning{background:#fff2df;border-color:#e2ba84;color:#804713}button.danger{color:var(--danger);border-color:#e2aaa5}button:disabled{opacity:.55;cursor:not-allowed}
+:root{color-scheme:light;--bg:#fbf7ea;--rail:#fffdf8;--rail2:#f7f6f3;--panel:#fffdf8;--ink:#1a1a1a;--muted:#6b6b6b;--line:#e8e7e4;--soft:#e6f4f1;--accent:#0f7b6c;--accent2:#ffd166;--danger:#b42318;--ok:#167356}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#ffffff 0,#fbf7ea 38rem,var(--bg) 100%);color:var(--ink);font-family:"Noto Sans SC","Aptos",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit}button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 12px;border-radius:6px;cursor:pointer;box-shadow:2px 2px 0 rgba(47,47,47,.05)}button.primary{background:var(--accent);border-color:var(--accent);color:#fff}button.warning{background:var(--accent2);border-color:#2f2f2f;color:#1a1a1a}button.danger{background:#fff1ef;color:var(--danger);border-color:#e2aaa5}button:disabled{opacity:.55;cursor:not-allowed}
 input,textarea,select{width:100%;border:1px solid var(--line);border-radius:7px;background:white;padding:9px}textarea{min-height:86px;resize:vertical}label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}.check{display:flex;gap:8px;align-items:center;margin-top:12px}.check input{width:auto}
-.shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100dvh}.sidebar{background:linear-gradient(180deg,var(--rail),var(--rail2));color:#f7efe3;padding:20px 16px;position:sticky;top:0;height:100dvh}.brand{font-size:18px;font-weight:700;margin-bottom:6px}.brand-sub{font-size:12px;color:#bfb6a6;margin-bottom:24px}.nav{display:grid;gap:7px}.nav button{width:100%;text-align:left;border:0;background:transparent;color:#d8d0c3;padding:11px 12px;border-radius:7px}.nav button.active,.nav button:hover{background:rgba(255,255,255,.1);color:#fff}.sidebar-meta{position:absolute;left:16px;right:16px;bottom:18px;font-size:12px;color:#bfb6a6;line-height:1.6}
-.workspace{min-width:0;padding:18px 22px 30px}.topline{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:16px}.topline h1{font-size:22px;margin:0}.topline-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}.home-link{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:#fffaf2;color:var(--ink);text-decoration:none;white-space:nowrap}.home-link:hover{border-color:#b8a992;background:#fff}.notice{font-size:13px;color:var(--muted);min-height:20px}.notice.bad{color:var(--danger)}
-.view{display:none}.view.active{display:block}.grid{display:grid;gap:14px}.grid.two{grid-template-columns:minmax(0,1fr) minmax(320px,420px)}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:15px;min-width:0}.card h2,.card h3{margin:0 0 10px}.metric{font-size:26px;font-weight:750}.muted{color:var(--muted)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px}.chip input{width:auto;margin-right:5px}
-.job-list{display:grid;gap:10px}.job{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.job-head{display:flex;justify-content:space-between;gap:10px}.badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#eee}.badge.queued{background:#efe6d4}.badge.running{background:#ddecff}.badge.completed{background:#dff3e8;color:var(--ok)}.badge.failed{background:#fae1de;color:var(--danger)}.badge.canceled{background:#eee}.job small{display:block;color:var(--muted);margin-top:5px}.job pre{max-height:180px;overflow:auto;background:#27241f;color:#fff6ea;border-radius:7px;padding:10px;white-space:pre-wrap}
-.paper-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:14px}.paper-sidebar-card,.paper-editor{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}.paper-sidebar-card{padding:12px}.paper-search{display:grid;gap:8px}.paper-list{max-height:calc(100dvh - 230px);overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:10px}.paper-item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee4d7;border-radius:0;background:#fff;padding:12px 13px}.paper-item:hover,.paper-item.active{background:var(--soft)}.paper-item strong{display:block;font-size:13px;line-height:1.35}.paper-item small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}.paper-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.mini-tag{font-size:11px;border:1px solid #d9cbbc;background:#fff8eb;color:#6b4f2b;border-radius:999px;padding:2px 6px}.mini-tag.draft{background:#e9f2ee;color:#17453d;border-color:#c0d9ce}.mini-tag.hidden-tag{background:#fae1de;color:var(--danger);border-color:#e8b8b2}.hidden{opacity:.55}.paper-editor{padding:0;overflow:hidden}.paper-empty{padding:34px;text-align:center;color:var(--muted)}.paper-edit-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:16px;border-bottom:1px solid var(--line);background:#fffaf2}.paper-edit-title{min-width:0}.paper-edit-title h2{font-size:19px;margin:0;line-height:1.25;overflow-wrap:anywhere}.paper-edit-title small{display:block;margin-top:6px;color:var(--muted);overflow-wrap:anywhere}.paper-status{display:grid;gap:8px;justify-items:end;min-width:260px}.paper-status-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.paper-top-actions{margin-top:0;justify-content:flex-end}.paper-edit-body{display:grid;grid-template-columns:minmax(260px,320px) minmax(440px,1fr);gap:14px;padding:14px}.paper-panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:13px;min-width:0}.paper-panel h3{font-size:15px;margin:0 0 10px}.paper-dirty{font-size:12px;color:var(--accent2)}.paper-dirty.clean{color:var(--muted)}.fact{border:1px solid var(--line);border-radius:8px;padding:12px;margin:10px 0;background:#fff}.fact-head{display:grid;grid-template-columns:130px minmax(120px,1fr) 86px;gap:8px}.fact-toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center}.fact-type-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.status-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.status-tabs button.active{background:var(--accent);color:white;border-color:var(--accent)}
-.profile-shell{display:grid;grid-template-columns:310px minmax(0,1fr);gap:14px}.profile-rail{background:#f6f0e6;border:1px solid var(--line);border-radius:8px;padding:12px}.profile-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}.profile-list{display:grid;gap:8px;margin-top:12px;max-height:calc(100dvh - 290px);overflow:auto}.profile-pill{width:100%;text-align:left;background:#fff;border:1px solid #e4d8c8;border-radius:8px;padding:11px}.profile-pill.active{background:#1f3d37;color:#fff;border-color:#1f3d37}.profile-pill strong{display:block;font-size:13px;overflow-wrap:anywhere}.profile-pill small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}.profile-pill.active small{color:#d7e5df}.profile-editor{background:#fffdf8;border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}.profile-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}.profile-head .danger{white-space:nowrap;min-width:82px;text-align:center}.profile-title{min-width:0}.profile-title h2{margin:0;font-size:20px;overflow-wrap:anywhere}.profile-title p{margin:6px 0 0;color:var(--muted);font-size:13px}.keyword-board{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px}.keyword-list{display:flex;flex-wrap:wrap;gap:8px;min-height:42px}.keyword-token{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:7px 9px;border-radius:999px;background:#e9f2ee;border:1px solid #c6ddd3;color:#173d35;font-size:12px}.keyword-token span{overflow-wrap:anywhere}.keyword-token button{border:0;background:transparent;padding:0;color:#406a60;line-height:1}.keyword-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:10px}.profile-empty{border:1px dashed var(--line);border-radius:8px;padding:34px;text-align:center;background:#fff;color:var(--muted)}.danger-zone{margin-top:14px;padding-top:12px;border-top:1px solid #eaded0}
+.shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100dvh}.sidebar{background:linear-gradient(180deg,var(--rail),var(--rail2));color:var(--ink);padding:20px 16px;position:sticky;top:0;height:100dvh;border-right:1px solid var(--line)}.brand{font-size:18px;font-weight:700;margin-bottom:6px}.brand-sub{font-size:12px;color:var(--muted);margin-bottom:24px}.nav{display:grid;gap:7px}.nav button{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:var(--muted);padding:11px 12px;border-radius:6px}.nav button.active,.nav button:hover{background:var(--soft);color:var(--accent);border-color:rgba(15,123,108,.16)}.sidebar-meta{position:absolute;left:16px;right:16px;bottom:18px;font-size:12px;color:var(--muted);line-height:1.6}
+.workspace{min-width:0;padding:18px 22px 30px}.topline{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:16px}.topline h1{font-size:22px;margin:0}.topline-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}.home-link{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;white-space:nowrap;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.home-link:hover{border-color:var(--accent);background:var(--soft);color:var(--accent)}.notice{font-size:13px;color:var(--muted);min-height:20px}.notice.bad{color:var(--danger)}
+.view{display:none}.view.active{display:block}.grid{display:grid;gap:14px}.grid.two{grid-template-columns:minmax(0,1fr) minmax(320px,420px)}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:15px;min-width:0;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.card h2,.card h3{margin:0 0 10px}.metric{font-size:26px;font-weight:750}.muted{color:var(--muted)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px}.chip input{width:auto;margin-right:5px}
+.job-list{display:grid;gap:10px}.job{border:1px solid var(--line);border-radius:6px;background:#fff;padding:12px;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.job-head{display:flex;justify-content:space-between;gap:10px}.badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#eee}.badge.queued{background:#efe6d4}.badge.running{background:#ddecff}.badge.completed{background:#dff3e8;color:var(--ok)}.badge.failed{background:#fae1de;color:var(--danger)}.badge.canceled{background:#eee}.job small{display:block;color:var(--muted);margin-top:5px}.job pre{max-height:180px;overflow:auto;background:#27241f;color:#fff6ea;border-radius:7px;padding:10px;white-space:pre-wrap}
+.paper-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:14px}.paper-sidebar-card,.paper-editor{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.paper-sidebar-card{padding:12px}.paper-search{display:grid;gap:8px}.paper-list{max-height:calc(100dvh - 230px);overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:10px}.paper-item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee4d7;border-radius:0;background:#fff;padding:12px 13px}.paper-item:hover,.paper-item.active{background:var(--soft)}.paper-item strong{display:block;font-size:13px;line-height:1.35}.paper-item small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}.paper-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.mini-tag{font-size:11px;border:1px solid #d9cbbc;background:#fff8eb;color:#6b4f2b;border-radius:999px;padding:2px 6px}.mini-tag.draft{background:#e9f2ee;color:#17453d;border-color:#c0d9ce}.mini-tag.hidden-tag{background:#fae1de;color:var(--danger);border-color:#e8b8b2}.hidden{opacity:.55}.paper-editor{padding:0;overflow:hidden}.paper-empty{padding:34px;text-align:center;color:var(--muted)}.paper-edit-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:16px;border-bottom:1px solid var(--line);background:#fffaf2}.paper-edit-title{min-width:0}.paper-edit-title h2{font-size:19px;margin:0;line-height:1.25;overflow-wrap:anywhere}.paper-edit-title small{display:block;margin-top:6px;color:var(--muted);overflow-wrap:anywhere}.paper-status{display:grid;gap:8px;justify-items:end;min-width:260px}.paper-status-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.paper-top-actions{margin-top:0;justify-content:flex-end}.paper-edit-body{display:grid;grid-template-columns:minmax(260px,320px) minmax(440px,1fr);gap:14px;padding:14px}.paper-panel{background:#fff;border:1px solid var(--line);border-radius:6px;padding:13px;min-width:0;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.paper-panel h3{font-size:15px;margin:0 0 10px}.paper-dirty{font-size:12px;color:var(--accent2)}.paper-dirty.clean{color:var(--muted)}.fact{border:1px solid var(--line);border-radius:6px;padding:12px;margin:10px 0;background:#fff;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.fact-head{display:grid;grid-template-columns:130px minmax(120px,1fr) 86px;gap:8px}.fact-toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center}.fact-type-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.status-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.status-tabs button.active{background:var(--soft);color:var(--accent);border-color:rgba(15,123,108,.22)}
+.profile-shell{display:grid;grid-template-columns:310px minmax(0,1fr);gap:14px}.profile-rail{background:#fffdf8;border:1px solid var(--line);border-radius:6px;padding:12px;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.profile-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}.profile-list{display:grid;gap:8px;margin-top:12px;max-height:calc(100dvh - 290px);overflow:auto}.profile-pill{width:100%;text-align:left;background:#fff;border:1px solid #e4d8c8;border-radius:6px;padding:11px;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.profile-pill.active{background:var(--soft);color:var(--accent);border-color:rgba(15,123,108,.2)}.profile-pill strong{display:block;font-size:13px;overflow-wrap:anywhere}.profile-pill small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}.profile-pill.active small{color:var(--accent)}.profile-editor{background:#fffdf8;border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0;box-shadow:2px 2px 0 rgba(47,47,47,.05)}.profile-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}.profile-head .danger{white-space:nowrap;min-width:82px;text-align:center}.profile-title{min-width:0}.profile-title h2{margin:0;font-size:20px;overflow-wrap:anywhere}.profile-title p{margin:6px 0 0;color:var(--muted);font-size:13px}.keyword-board{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px}.keyword-list{display:flex;flex-wrap:wrap;gap:8px;min-height:42px}.keyword-token{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:7px 9px;border-radius:999px;background:#e9f2ee;border:1px solid #c6ddd3;color:#173d35;font-size:12px}.keyword-token span{overflow-wrap:anywhere}.keyword-token button{border:0;background:transparent;padding:0;color:#406a60;line-height:1}.keyword-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:10px}.profile-empty{border:1px dashed var(--line);border-radius:8px;padding:34px;text-align:center;background:#fff;color:var(--muted)}.danger-zone{margin-top:14px;padding-top:12px;border-top:1px solid #eaded0}
 @media(max-width:1100px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.sidebar-meta{position:static;margin-top:18px}.grid.two,.grid.three,.paper-layout,.paper-edit-body{grid-template-columns:1fr}.paper-list{max-height:none}}
 @media(max-width:1100px){.profile-shell{grid-template-columns:1fr}.profile-list{max-height:none}}
 .single-ingest-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:15px;margin-bottom:14px}.ingest-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px}.ingest-input-row input{width:100%}.ingest-results{margin-top:12px;max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px}.ingest-result{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px;border-bottom:1px solid #eee4d7;background:#fff}.ingest-result:last-child{border-bottom:0}.ingest-result-info{min-width:0}.ingest-result-info strong{display:block;font-size:13px;line-height:1.35;overflow-wrap:anywhere}.ingest-result-info small{display:block;color:var(--muted);margin-top:5px;line-height:1.4;overflow-wrap:anywhere}.ingest-result-info .arxiv-id{font-size:11px;color:var(--accent);margin-top:3px}.ingest-result-actions{display:flex;gap:6px;align-items:center;white-space:nowrap}.ingest-spinner{display:inline-block;width:14px;height:14px;border:2px solid #ccc;border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}

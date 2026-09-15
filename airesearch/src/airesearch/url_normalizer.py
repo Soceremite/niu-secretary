@@ -286,7 +286,11 @@ def resolve_doi_via_openalex(
 def search_arxiv_by_title(
     title: str, *, opener: HttpOpener
 ) -> str | None:
-    """Search arXiv API for *title*; return best-match arxiv ID or None."""
+    """Search arXiv for *title*; return best-match arxiv ID or None.
+
+    Prefers the export API; when it is rate-limited (HTTP 429 "Rate exceeded")
+    the public search page is used instead.
+    """
     import xml.etree.ElementTree as ET
 
     query = " AND ".join(f'ti:"{word}"' for word in title.split() if len(word) > 2)
@@ -302,17 +306,17 @@ def search_arxiv_by_title(
     try:
         xml_text = _fetch_page(api_url, opener, timeout=25.0)
     except Exception:
-        return None
+        return _search_arxiv_id_via_website(title, opener)
 
     ns = {"atom": "http://www.w3.org/2005/Atom"}
     try:
         root = ET.fromstring(xml_text)
     except ET.ParseError:
-        return None
+        return _search_arxiv_id_via_website(title, opener)
 
     entries = root.findall("atom:entry", ns)
     if not entries:
-        return None
+        return _search_arxiv_id_via_website(title, opener)
 
     # Pick the first (best-match) entry
     raw_id = " ".join(
@@ -322,6 +326,31 @@ def search_arxiv_by_title(
     if m:
         return m.group(1)
     return None
+
+
+def _search_arxiv_id_via_website(title: str, opener: HttpOpener) -> str | None:
+    """Resolve a title to an arXiv id through the public search page (no export API)."""
+    try:
+        from airesearch.providers import search_arxiv_website
+    except Exception:
+        return None
+    try:
+        papers = search_arxiv_website(title, 5, opener=opener)
+    except Exception:
+        return None
+    wanted = {word.lower() for word in re.findall(r"[A-Za-z0-9]+", title) if len(word) > 2}
+    if not wanted:
+        return None
+    best_id = ""
+    best_score = 0.0
+    for paper in papers:
+        found = {word.lower() for word in re.findall(r"[A-Za-z0-9]+", paper.title or "") if len(word) > 2}
+        if not found:
+            continue
+        score = len(wanted & found) / len(wanted)
+        if score > best_score:
+            best_id, best_score = paper.source_id, score
+    return best_id if best_id and best_score >= 0.6 else None
 
 
 # ---------------------------------------------------------------------------

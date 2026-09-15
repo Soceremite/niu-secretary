@@ -1,4 +1,5 @@
 import json
+import urllib.error
 from io import BytesIO
 from pathlib import Path
 
@@ -6,7 +7,16 @@ import pytest
 
 from airesearch.db import init_db
 from airesearch.provider_cache import cache_key, increment_usage, put_cached_response
-from airesearch.providers import ArxivProvider, GoogleScholarProvider, OpenAlexProvider, SemanticScholarProvider
+from airesearch.providers import (
+    ArxivProvider,
+    GoogleScholarProvider,
+    OpenAlexProvider,
+    SemanticScholarProvider,
+    arxiv_id_from_input,
+    arxiv_pdf_fallback_command,
+    fetch_arxiv_website_metadata,
+    parse_arxiv_search_html,
+)
 
 
 class FakeResponse(BytesIO):
@@ -24,6 +34,22 @@ class RecordingOpener:
 
     def __call__(self, request, timeout=0):
         self.requests.append(request)
+        return FakeResponse(self.payload)
+
+
+class FailFirstThenPayloadOpener:
+    """Fails the first call (simulating the rate-limited export API), then serves payload."""
+
+    def __init__(self, payload: str):
+        self.payload = payload.encode("utf-8")
+        self.requests = []
+        self.calls = 0
+
+    def __call__(self, request, timeout=0):
+        self.requests.append(request)
+        self.calls += 1
+        if self.calls == 1:
+            raise urllib.error.URLError("HTTP Error 429: Rate exceeded")
         return FakeResponse(self.payload)
 
 
@@ -95,6 +121,133 @@ def test_arxiv_provider_parses_atom_result():
     assert papers[0].authors == ["Jane Doe"]
     assert papers[0].published_date == "2026-01-10"
     assert papers[0].venue == "arXiv cs.CV"
+
+
+ARXIV_SEARCH_PAGE_HTML = """
+<li class="arxiv-result">
+    <div class="is-marginless">
+      <p class="list-title is-inline-block"><a href="https://arxiv.org/abs/2609.15903">arXiv:2609.15903</a></p>
+      <div class="tags is-inline-block">
+        <span class="tag is-small is-link tooltip is-tooltip-top" data-tooltip="Machine Learning">cs.LG</span>
+      </div>
+    </div>
+    <p class="title is-5 mathjax">
+        Discrete Beckmann Transport <span class="search-hit mathjax">Models</span> for One-Step <span class="search-hit mathjax">Language</span> <span class="search-hit mathjax">Modeling</span>
+    </p>
+    <p class="authors">
+      <span class="has-text-black-bis has-text-weight-semibold">Authors:</span>
+      <a href="/search/?searchtype=author&amp;query=Tang%2C+S">Sophia Tang</a>,
+      <a href="/search/?searchtype=author&amp;query=Wang%2C+S">Shiyi Wang</a>
+    </p>
+    <p class="abstract mathjax">
+      <span class="search-hit">Abstract</span>:
+      <span class="abstract-short has-text-grey-dark mathjax">Discrete &hellip; <a class="is-size-7">&#9661; More</a></span>
+      <span class="abstract-full has-text-grey-dark mathjax">Discrete <span class="search-hit mathjax">diffusion</span> and flow models are promising alternatives.</span>
+    </p>
+    <p class="is-size-7"><span class="has-text-black-bis has-text-weight-semibold">Submitted</span> 14 September, 2026; <span class="has-text-black-bis has-text-weight-semibold">originally announced</span> September 2026.</p>
+</li>
+<li class="arxiv-result">
+    <div class="is-marginless">
+      <p class="list-title is-inline-block"><a href="https://arxiv.org/abs/2508.02193v2">arXiv:2508.02193v2</a></p>
+      <div class="tags is-inline-block">
+        <span class="tag is-small is-link tooltip is-tooltip-top" data-tooltip="Computation and Language">cs.CL</span>
+      </div>
+    </div>
+    <p class="title is-5 mathjax">Seed Diffusion: A Large-Scale Diffusion Language Model with High-Speed</p>
+    <p class="authors">
+      <span class="has-text-black-bis has-text-weight-semibold">Authors:</span>
+      <a href="/search/?searchtype=author&amp;query=Yang%2C+Z">Zed Yang</a>
+    </p>
+    <p class="abstract mathjax">
+      <span class="search-hit">Abstract</span>:
+      <span class="abstract-short has-text-grey-dark mathjax">We introduce Seed Diffusion &hellip; <a class="is-size-7">&#9661; More</a></span>
+      <span class="abstract-full has-text-grey-dark mathjax">We introduce Seed Diffusion, a full-size diffusion language model.</span>
+    </p>
+    <p class="is-size-7"><span class="has-text-black-bis has-text-weight-semibold">Submitted</span> 4 August, 2025; <span class="has-text-black-bis has-text-weight-semibold">originally announced</span> August 2025.</p>
+</li>
+"""
+
+
+def test_arxiv_provider_falls_back_to_site_when_export_api_rate_limited():
+    opener = FailFirstThenPayloadOpener(ARXIV_SEARCH_PAGE_HTML)
+
+    papers = ArxivProvider(opener=opener).search("language_foundation_models", 5)
+
+    assert len(opener.requests) == 2
+    assert "export.arxiv.org" in opener.requests[0].full_url
+    assert "arxiv.org/search" in opener.requests[1].full_url
+    assert "searchtype=all" in opener.requests[1].full_url
+    assert papers[0].source == "arxiv"
+    assert papers[0].source_id == "2609.15903"
+    assert papers[0].title == "Discrete Beckmann Transport Models for One-Step Language Modeling"
+    assert papers[0].authors == ["Sophia Tang", "Shiyi Wang"]
+    assert papers[0].published_date == "2026-09-14"
+    assert papers[0].venue == "arXiv cs.LG"
+    assert papers[0].abstract == "Discrete diffusion and flow models are promising alternatives."
+    assert papers[0].artifact_links == ["https://arxiv.org/pdf/2609.15903"]
+    assert papers[1].source_id == "2508.02193"
+    assert papers[1].published_date == "2025-08-04"
+    assert papers[1].venue == "arXiv cs.CL"
+
+
+def test_parse_arxiv_search_html_returns_empty_when_no_results():
+    assert parse_arxiv_search_html("<html><body><p>Sorry, your query returned no results</p></body></html>") == []
+
+
+ARXIV_ABS_PAGE_HTML = """
+<html><head>
+<meta name="citation_title" content="DA-DLM: Explicitly Modeling Token Dependencies in Diffusion Language Models" />
+<meta name="citation_author" content="Ji, Pengyu" />
+<meta name="citation_author" content="Zhang, Zichen" />
+<meta name="citation_date" content="2026/09/14" />
+<meta name="citation_pdf_url" content="https://arxiv.org/pdf/2609.15070" />
+</head><body>
+<blockquote class="abstract mathjax">
+  <span class="descriptor">Abstract:</span>Diffusion Language Models generate text by denoising.
+</blockquote>
+</body></html>
+"""
+
+
+def test_arxiv_id_from_input_variants():
+    assert arxiv_id_from_input("2609.15070") == "2609.15070"
+    assert arxiv_id_from_input("arXiv:2609.15070v2") == "2609.15070"
+    assert arxiv_id_from_input("https://arxiv.org/abs/2609.15070") == "2609.15070"
+    assert arxiv_id_from_input("https://arxiv.org/pdf/2609.15070v1") == "2609.15070"
+    assert arxiv_id_from_input("Attention Is All You Need") == ""
+    assert arxiv_id_from_input("https://github.com/a/b/blob/main/paper.pdf") == ""
+
+
+def test_fetch_arxiv_website_metadata_reads_abs_page():
+    opener = RecordingOpener(ARXIV_ABS_PAGE_HTML)
+
+    meta = fetch_arxiv_website_metadata("2609.15070", opener=opener)
+
+    assert meta["title"] == "DA-DLM: Explicitly Modeling Token Dependencies in Diffusion Language Models"
+    assert meta["authors"] == ["Ji, Pengyu", "Zhang, Zichen"]
+    assert meta["published_date"] == "2026-09-14"
+    assert meta["year"] == 2026
+    assert meta["abstract"] == "Diffusion Language Models generate text by denoising."
+    assert meta["pdf_url"] == "https://arxiv.org/pdf/2609.15070"
+    assert "arxiv.org/abs/2609.15070" in opener.requests[0].full_url
+
+
+def test_arxiv_pdf_fallback_command_builds_papi_pdf_command():
+    opener = RecordingOpener(ARXIV_ABS_PAGE_HTML)
+
+    command = arxiv_pdf_fallback_command("papi", "https://arxiv.org/abs/2609.15070", opener=opener)
+
+    assert command is not None
+    assert command[:5] == ["papi", "add", "--pdf", "https://arxiv.org/pdf/2609.15070", "--title"]
+    assert command[5] == "DA-DLM: Explicitly Modeling Token Dependencies in Diffusion Language Models"
+    assert "Ji, Pengyu; Zhang, Zichen" in command
+    assert "--year" in command and "2026" in command
+    assert "--url" in command and "https://arxiv.org/abs/2609.15070" in command
+
+
+def test_arxiv_pdf_fallback_command_ignores_non_arxiv_input():
+    assert arxiv_pdf_fallback_command("papi", "https://example.org/paper.pdf") is None
+    assert arxiv_pdf_fallback_command("papi", "Attention Is All You Need") is None
 
 
 def test_semantic_scholar_provider_parses_search_result_and_api_key_header():

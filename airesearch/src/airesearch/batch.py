@@ -10,6 +10,7 @@ import urllib.request
 
 from airesearch.db import connect, init_db
 from airesearch.paperpipe_sync import sync_paperpipe, utc_now
+from airesearch.providers import arxiv_id_from_input, arxiv_pdf_fallback_command
 from airesearch.url_normalizer import (
     NormalizeCategory,
     normalize_url_raw,
@@ -21,6 +22,11 @@ from airesearch.url_normalizer import (
 class ManifestItem:
     raw_input: str
     line_number: int
+
+
+# A stalled download or LLM call inside papi must not wedge the whole ingest run.
+PAPI_PRIMARY_TIMEOUT_S = 180
+PAPI_FALLBACK_TIMEOUT_S = 600
 
 
 @dataclass(frozen=True)
@@ -49,6 +55,29 @@ def known_source_exists(db_path: Path, raw_input: str) -> bool:
         row = conn.execute(
             "select 1 from paper_sources where source_value = ? limit 1",
             (raw_input,),
+        ).fetchone()
+    return row is not None
+
+
+def known_arxiv_id_exists(db_path: Path, arxiv_id: str) -> bool:
+    """True when the arXiv id is already in paper sources or in a paper's ids/url.
+
+    Sources store bare ids ("2407.21243", sometimes with a version suffix) while the
+    approved manifest lists abs URLs, so an exact source match alone never dedupes.
+    """
+    if not arxiv_id or not db_path.exists():
+        return False
+    pattern = f"%{arxiv_id}%"
+    with connect(db_path) as conn:
+        row = conn.execute(
+            "select 1 from paper_sources where source_value = ? or source_value like ? limit 1",
+            (arxiv_id, pattern),
+        ).fetchone()
+        if row is not None:
+            return True
+        row = conn.execute(
+            "select 1 from papers where ids_json like ? limit 1",
+            (pattern,),
         ).fetchone()
     return row is not None
 
@@ -180,7 +209,9 @@ def run_batch_ingest(
     jobs: list[tuple[int, str, str | None]] = []
     for item in items:
         item_id = create_item(db_path, run_id, item)
-        if known_source_exists(db_path, item.raw_input):
+        if known_source_exists(db_path, item.raw_input) or known_arxiv_id_exists(
+            db_path, arxiv_id_from_input(item.raw_input)
+        ):
             update_item(db_path, item_id, status="duplicate", resolved_paper_key=None)
             continue
 
@@ -203,23 +234,47 @@ def run_batch_ingest(
 
         jobs.append((item_id, papi_input, norm_result.method if norm_result and norm_result.method else None))
 
-    def run_papi(item_id: int, papi_input: str, normalizer_method: str | None) -> tuple[int, subprocess.CompletedProcess[str], str | None]:
+    def run_papi(item_id: int, papi_input: str, normalizer_method: str | None) -> tuple[int, subprocess.CompletedProcess[str], str | None, bool]:
         env = os.environ.copy()
         env["PAPER_DB_PATH"] = str(paper_db_path)
-        return (
-            item_id,
-            subprocess.run(
-                [papi_executable, "add", papi_input],
-                check=False,
-                env=env,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            ),
-            normalizer_method,
-        )
 
-    results: list[tuple[int, subprocess.CompletedProcess[str], str | None]] = []
+        def _run(command: list[str], timeout: int) -> subprocess.CompletedProcess[str]:
+            try:
+                return subprocess.run(
+                    command,
+                    check=False,
+                    env=env,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=timeout,
+                )
+            except subprocess.TimeoutExpired as exc:
+                # A stalled download or LLM call inside papi must not wedge the whole run.
+                def _as_text(value: object) -> str:
+                    if isinstance(value, bytes):
+                        return value.decode("utf-8", "ignore")
+                    return str(value or "")
+
+                return subprocess.CompletedProcess(
+                    command,
+                    124,
+                    stdout=_as_text(exc.stdout),
+                    stderr=f"papi timed out after {timeout}s",
+                )
+
+        completed = _run([papi_executable, "add", papi_input], PAPI_PRIMARY_TIMEOUT_S)
+        used_fallback = False
+        if completed.returncode != 0:
+            # arXiv export API is rate-limited often enough that `papi add <id>` fails
+            # outright; retry through the public PDF endpoint, which stays reachable.
+            fallback_command = arxiv_pdf_fallback_command(papi_executable, papi_input)
+            if fallback_command is not None:
+                completed = _run(fallback_command, PAPI_FALLBACK_TIMEOUT_S)
+                used_fallback = completed.returncode == 0
+        return (item_id, completed, normalizer_method, used_fallback)
+
+    results: list[tuple[int, subprocess.CompletedProcess[str], str | None, bool]] = []
     max_workers = max(1, min(concurrency, len(jobs) or 1))
     if max_workers == 1:
         results = [run_papi(*job) for job in jobs]
@@ -230,7 +285,10 @@ def run_batch_ingest(
                 results.append(future.result())
 
     any_success = False
-    for item_id, completed, normalizer_method in sorted(results, key=lambda item: item[0]):
+    for item_id, completed, normalizer_method, used_fallback in sorted(results, key=lambda item: item[0]):
+        stdout = completed.stdout or ""
+        if used_fallback:
+            stdout += "\n[arxiv-pdf-fallback] export API unavailable; ingested via papi add --pdf"
         if completed.returncode != 0:
             error_parts = [completed.stderr.strip() or f"papi exited with {completed.returncode}"]
             if normalizer_method:
@@ -239,7 +297,7 @@ def run_batch_ingest(
                 db_path,
                 item_id,
                 status="failed",
-                stdout=completed.stdout,
+                stdout=stdout,
                 stderr=completed.stderr,
                 error=" | ".join(error_parts),
             )
@@ -250,7 +308,7 @@ def run_batch_ingest(
             item_id,
             status="success",
             resolved_paper_key=None,
-            stdout=completed.stdout,
+            stdout=stdout,
             stderr=completed.stderr,
         )
 

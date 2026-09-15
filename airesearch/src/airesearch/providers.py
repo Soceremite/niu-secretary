@@ -5,6 +5,7 @@ import os
 import re
 import hashlib
 from datetime import date
+from html import unescape as html_unescape
 from pathlib import Path
 import urllib.parse
 import urllib.request
@@ -26,7 +27,19 @@ from airesearch.profiles import default_profiles
 
 HttpOpener = Callable[[urllib.request.Request, float], Any]
 
+ARXIV_SEARCH_URL = "https://arxiv.org/search/"
+ARXIV_ABS_URL = "https://arxiv.org/abs/"
+ARXIV_PDF_URL = "https://arxiv.org/pdf/"
+ARXIV_USER_AGENT = "NiuSecretary-AIResearch/1.0 (+https://github.com/Soceremite/niu-secretary)"
+
 PROFILE_QUERY = {
+    "language_foundation_models": (
+        '"language foundation model" OR "large language model" OR LLM OR '
+        '"diffusion language model" OR "latent language model" OR '
+        '"continuous token generation" OR "embedded language flows" OR '
+        '"non-autoregressive language model" OR "text diffusion model" OR '
+        '"flow matching language model"'
+    ),
     "multimodal_foundation_models": (
         '"multimodal foundation model" OR "large multimodal model" OR '
         '"vision language model" OR "vision-language model" OR MLLM OR VLM OR omni-modal'
@@ -214,6 +227,216 @@ class OpenAlexProvider:
         )
 
 
+_MONTH_NUMBERS = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+}
+
+
+def _strip_markup(fragment: str) -> str:
+    return compact_text(html_unescape(re.sub(r"<[^>]+>", "", fragment)))
+
+
+def _arxiv_website_date(block: str) -> str:
+    match = re.search(
+        r"Submitted</span>\s*([0-9]{1,2})\s+([A-Za-z]+),?\s+([0-9]{4})", block
+    )
+    if not match:
+        return ""
+    day, month_name, year = match.groups()
+    month = _MONTH_NUMBERS.get(month_name.lower())
+    if not month:
+        return ""
+    return f"{int(year):04d}-{month:02d}-{int(day):02d}"
+
+
+def _arxiv_website_abstract(block: str) -> str:
+    for marker in ('<span class="abstract-full', '<span class="abstract-short'):
+        index = block.find(marker)
+        if index == -1:
+            continue
+        tail = block[index:]
+        paragraph_end = tail.find("</p>")
+        if paragraph_end != -1:
+            tail = tail[:paragraph_end]
+        open_end = tail.find(">")
+        if open_end == -1:
+            continue
+        content = tail[open_end + 1 :]
+        wrapper_close = content.rfind("</span>")
+        if wrapper_close != -1:
+            content = content[:wrapper_close]
+        content = re.sub(r'<a class="is-size-7".*?</a>', " ", content, flags=re.S)
+        text = _strip_markup(content)
+        if text:
+            return text
+    return ""
+
+
+def parse_arxiv_search_html(markup: str) -> list[dict[str, Any]]:
+    """Parse an arxiv.org/search results page into neutral row dicts.
+
+    Used when the export API is rate-limited or unreachable; the public search
+    page stays available and carries the same metadata (id, title, authors,
+    abstract, submission date, categories).
+    """
+    rows: list[dict[str, Any]] = []
+    for block in markup.split('<li class="arxiv-result">')[1:]:
+        block = block.split("</li>", 1)[0]
+        id_match = re.search(r"arxiv\.org/abs/([^\"'#?]+)", block)
+        arxiv_id = arxiv_id_from_url(id_match.group(1)) if id_match else ""
+        title_match = re.search(r'<p class="title is-5 mathjax">(.*?)</p>', block, flags=re.S)
+        title = _strip_markup(title_match.group(1)) if title_match else ""
+        if not title or not arxiv_id:
+            continue
+        authors_match = re.search(r'<p class="authors">(.*?)</p>', block, flags=re.S)
+        authors: list[str] = []
+        if authors_match:
+            authors = [
+                compact_text(html_unescape(name))
+                for name in re.findall(r"<a [^>]*>([^<]+)</a>", authors_match.group(1))
+            ]
+        categories = [
+            compact_text(html_unescape(term))
+            for term in re.findall(r'<span class="tag[^"]*"[^>]*>([^<]+)</span>', block)
+        ]
+        rows.append(
+            {
+                "arxiv_id": arxiv_id,
+                "title": title,
+                "authors": [author for author in authors if author],
+                "abstract": _arxiv_website_abstract(block),
+                "published_date": _arxiv_website_date(block),
+                "categories": [category for category in categories if category],
+            }
+        )
+    return rows
+
+
+def search_arxiv_website(
+    query: str,
+    limit: int = 10,
+    *,
+    opener: HttpOpener = default_opener,
+) -> list[CandidatePaper]:
+    """Search arXiv via the public arxiv.org search page — the fallback path.
+
+    The export API (export.arxiv.org) applies aggressive rate limiting; this
+    keeps discovery and the admin single-paper search working when it trips.
+    """
+    size = next((page for page in (25, 50, 100, 200) if page >= min(limit, 200)), 200)
+    params = {"searchtype": "all", "query": query, "start": "0", "size": str(size)}
+    url = ARXIV_SEARCH_URL + "?" + urllib.parse.urlencode(params)
+    markup = fetch_text(url, opener=opener, headers={"User-Agent": ARXIV_USER_AGENT}, timeout=45.0)
+    papers: list[CandidatePaper] = []
+    for row in parse_arxiv_search_html(markup)[:limit]:
+        arxiv_id = row["arxiv_id"]
+        categories = row["categories"]
+        papers.append(
+            CandidatePaper(
+                source="arxiv",
+                source_id=arxiv_id,
+                title=row["title"],
+                url=f"https://arxiv.org/abs/{arxiv_id}",
+                authors=row["authors"],
+                venue="arXiv " + ", ".join(categories) if categories else "arXiv",
+                published_date=row["published_date"],
+                year=year_from_date(row["published_date"]),
+                abstract=row["abstract"],
+                artifact_links=[f"https://arxiv.org/pdf/{arxiv_id}"],
+            )
+        )
+    return papers
+
+
+_ARXIV_BARE_ID = re.compile(r"^(?:arxiv:)?\s*(\d{4}\.\d{4,5})(?:v\d+)?$", re.IGNORECASE)
+_ARXIV_OLD_ID = re.compile(r"^(?:arxiv:)?\s*([a-z\-]+(?:\.[A-Za-z]{2})?/\d{7})(?:v\d+)?$", re.IGNORECASE)
+_ARXIV_URL_ID = re.compile(r"arxiv\.org/(?:abs|pdf)/([A-Za-z0-9.\-/]+)", re.IGNORECASE)
+
+
+def arxiv_id_from_input(value: str) -> str:
+    """Extract an arXiv id from a bare id, 'arXiv:ID', or an abs/pdf URL; '' when not an arXiv reference."""
+    text = (value or "").strip()
+    if not text:
+        return ""
+    match = _ARXIV_URL_ID.search(text)
+    if match:
+        return arxiv_id_from_url(match.group(1))
+    match = _ARXIV_BARE_ID.match(text) or _ARXIV_OLD_ID.match(text)
+    if match:
+        return match.group(1)
+    return ""
+
+
+def _meta_content(markup: str, name: str) -> str:
+    match = re.search(rf'<meta\s+name="{re.escape(name)}"\s+content="([^"]*)"', markup)
+    return compact_text(html_unescape(match.group(1))) if match else ""
+
+
+def fetch_arxiv_website_metadata(arxiv_id: str, *, opener: HttpOpener = default_opener) -> dict[str, Any]:
+    """Read title/authors/date/abstract from the public abs page — no export API involved."""
+    resolved = arxiv_id_from_input(arxiv_id) or arxiv_id
+    abs_url = ARXIV_ABS_URL + resolved
+    markup = fetch_text(abs_url, opener=opener, headers={"User-Agent": ARXIV_USER_AGENT}, timeout=45.0)
+    title = _meta_content(markup, "citation_title")
+    if not title:
+        heading = re.search(r'<h1 class="title mathjax">(.*?)</h1>', markup, flags=re.S)
+        if heading:
+            title = _strip_markup(re.sub(r'<span class="descriptor">.*?</span>', "", heading.group(1), flags=re.S))
+    authors = [
+        compact_text(html_unescape(author))
+        for author in re.findall(r'<meta name="citation_author" content="([^"]*)"', markup)
+    ]
+    raw_date = _meta_content(markup, "citation_date")
+    published_date = raw_date.replace("/", "-") if re.fullmatch(r"\d{4}/\d{2}/\d{2}", raw_date) else ""
+    abstract = ""
+    blockquote = re.search(r'<blockquote class="abstract mathjax">(.*?)</blockquote>', markup, flags=re.S)
+    if blockquote:
+        abstract = re.sub(r"^Abstract:\s*", "", _strip_markup(blockquote.group(1)))
+    return {
+        "arxiv_id": resolved,
+        "title": title,
+        "authors": [author for author in authors if author],
+        "abstract": abstract,
+        "published_date": published_date,
+        "year": year_from_date(published_date),
+        "pdf_url": _meta_content(markup, "citation_pdf_url") or (ARXIV_PDF_URL + resolved),
+        "abs_url": abs_url,
+    }
+
+
+def arxiv_pdf_fallback_command(
+    papi_executable: str,
+    value: str,
+    *,
+    opener: HttpOpener = default_opener,
+) -> list[str] | None:
+    """Build a `papi add --pdf ...` command for an arXiv reference, bypassing the export API.
+
+    The export API rate-limits aggressively (HTTP 429 "Rate exceeded"), which blocks
+    both `papi add <id>` and `papi add <abs-url>`. The PDF and the metadata both come
+    from arxiv.org itself, which stays reachable.
+    """
+    arxiv_id = arxiv_id_from_input(value)
+    if not arxiv_id:
+        return None
+    try:
+        meta = fetch_arxiv_website_metadata(arxiv_id, opener=opener)
+    except Exception:
+        return None
+    if not meta["title"]:
+        return None
+    command = [papi_executable, "add", "--pdf", meta["pdf_url"], "--title", meta["title"]]
+    if meta["authors"]:
+        command += ["--authors", "; ".join(meta["authors"])]
+    if meta["abstract"]:
+        command += ["--abstract", meta["abstract"]]
+    if meta["year"]:
+        command += ["--year", str(meta["year"])]
+    command += ["--url", meta["abs_url"]]
+    return command
+
+
 class ArxivProvider:
     name = "arxiv"
 
@@ -230,8 +453,17 @@ class ArxivProvider:
             "sortOrder": "descending",
         }
         url = "https://export.arxiv.org/api/query?" + urllib.parse.urlencode(params)
-        xml_text = fetch_text(url, opener=self.opener, headers={"User-Agent": "airesearch/0.1"})
-        return self._parse_feed(xml_text)
+        try:
+            xml_text = fetch_text(
+                url,
+                opener=self.opener,
+                headers={"User-Agent": ARXIV_USER_AGENT},
+                timeout=20.0,
+            )
+            return self._parse_feed(xml_text)
+        except Exception:
+            # export API is rate-limited or unreachable — use the public search page
+            return search_arxiv_website(query, limit, opener=self.opener)
 
     def _parse_feed(self, xml_text: str) -> list[CandidatePaper]:
         ns = {"atom": "http://www.w3.org/2005/Atom"}
