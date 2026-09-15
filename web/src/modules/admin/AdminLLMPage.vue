@@ -88,9 +88,16 @@
           </template>
         </el-table-column>
         <el-table-column prop="style" label="风格" width="150" />
-        <el-table-column label="操作" width="240" fixed="right">
+        <el-table-column label="可用模型" width="110">
+          <template #default="scope">
+            <el-tag size="small" v-if="!scope.row.allowedModels?.length">全部放行</el-tag>
+            <el-tag v-else size="small" type="warning">{{ scope.row.allowedModels.length }} 个白名单</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="310" fixed="right">
           <template #default="scope">
             <el-button size="small" :loading="testing === scope.row.name" @click="runTestEndpoint(scope.row)">测连通</el-button>
+            <el-button size="small" text @click="openWhitelist(scope.row)">模型白名单</el-button>
             <el-button size="small" text @click="editEndpoint(scope.row)">编辑</el-button>
             <el-button size="small" text type="danger" @click="deleteEndpoint(scope.row)">删除</el-button>
           </template>
@@ -131,6 +138,37 @@
         <el-button @click="endpointFormVisible = false">取消</el-button>
         <el-button :loading="endpointTesting" @click="testBeforeSave">先试连通</el-button>
         <el-button type="primary" @click="saveEndpoint">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 模型白名单 -->
+    <el-dialog v-model="wlVisible" :title="`模型白名单 — ${wlName}`" width="620px" class="llm-dialog">
+      <div class="wl-hint">
+        勾选的模型才会出现在「逻辑模型路由」的下拉里。什么都不选 = 全部放行。
+        <el-button size="small" text type="primary" :loading="modelLoading === wlName"
+          @click="fetchModelOptions(wlName)" style="margin-left:8px">↻ 重新拉取全目录</el-button>
+      </div>
+      <el-input v-model="wlFilter" placeholder="搜索模型…" size="small" clearable style="margin:10px 0" />
+      <div class="wl-actions">
+        <el-button size="small" @click="wlSelectAll">全选（过滤结果）</el-button>
+        <el-button size="small" @click="wlClear">清空白名单（全部放行）</el-button>
+        <span class="wl-count">已选 {{ wlSelected.length }} / 目录 {{ (modelCatalog[wlName] || []).length }}</span>
+      </div>
+      <div class="wl-list-box">
+        <el-checkbox-group v-model="wlSelected" v-if="wlSelectedReady">
+          <label v-for="m in filteredWlCatalog" :key="m" class="wl-item"
+            :class="{ picked: wlSelected.includes(m) }">
+            <el-checkbox :value="m">{{ '' }}</el-checkbox>
+            <span class="wl-model-id">{{ m }}</span>
+          </label>
+        </el-checkbox-group>
+        <div v-if="!filteredWlCatalog.length" class="wl-empty">
+          目录为空 — 点上方「↻ 重新拉取全目录」
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="wlVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveWhitelist">保存白名单</el-button>
       </template>
     </el-dialog>
 
@@ -242,7 +280,18 @@ const modelTarget = ref('')
 
 function endpointOf(epName: string) { return epName }
 
+/** 白名单内的模型（无白名单 = 全目录） */
 function modelOptions(epName: string) {
+  const ep = endpoints.value.find((e) => e.name === epName)
+  const allowed = ep?.allowedModels || []
+  if (ep && allowed.length) {
+    // 只暴露白名单内且真实存在于目录中的模型
+    return allowed.filter((m: string) => (modelCatalog.value[epName] || []).includes(m))
+  }
+  return modelCatalog.value[epName] || []
+}
+
+function fullCatalog(epName: string) {
   return modelCatalog.value[epName] || []
 }
 
@@ -270,6 +319,54 @@ function ensureModels(epName: string) {
 function onEndpointChange(row: any) {
   markDirty(row)
   ensureModels(row.endpoint)
+}
+
+// ── 模型白名单 ──
+const wlVisible = ref(false)
+const wlName = ref('')
+const wlFilter = ref('')
+const wlSelected = ref<string[]>([])
+const wlSelectedReady = ref(false)
+
+const filteredWlCatalog = computed(() => {
+  const q = (wlFilter.value || '').toLowerCase()
+  const list = fullCatalog(wlName.value)
+  return q ? list.filter((m) => m.toLowerCase().includes(q)) : list
+})
+
+function openWhitelist(row: any) {
+  wlName.value = row.name
+  wlFilter.value = ''
+  // 预选现有白名单；无白名单则空选 = 全部放行
+  wlSelected.value = [...(row.allowedModels || [])]
+  wlSelectedReady.value = true
+  wlVisible.value = true
+  ensureModels(row.name)
+}
+
+function wlSelectAll() {
+  filteredWlCatalog.value.forEach((m) => {
+    if (!wlSelected.value.includes(m)) wlSelected.value = [...wlSelected.value, m]
+  })
+}
+
+function wlClear() {
+  wlSelected.value = []
+  wlFilter.value = ''
+}
+
+async function saveWhitelist() {
+  try {
+    await executeAdminAction(auth.token, 'llm.endpoint.whitelist', {
+      endpoint: wlName.value,
+      models: wlSelected.value.length ? wlSelected.value : [],
+    })
+    wlVisible.value = false
+    ElMessage.success(wlSelected.value.length ? `白名单 ${wlSelected.value.length} 个模型已生效` : '已清空白名单，全部放行')
+    await refresh()
+  } catch (exc: any) {
+    ElMessage.error(exc?.message || '保存失败')
+  }
 }
 
 // ── fallback 新增 ──
@@ -576,5 +673,64 @@ onBeforeUnmount(() => off?.())
   border-radius: 12px !important;
   box-shadow: 10px 10px 0 #262015;
   background: #fff8e7;
+}
+
+.wl-hint {
+  font-size: 13px;
+  color: #6b5742;
+  padding: 10px 12px;
+  border: 2px solid #262015;
+  border-radius: 8px;
+  background: #f6e8be;
+}
+
+.wl-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.wl-count {
+  color: #765f43;
+  font-size: 12.5px;
+  margin-left: auto;
+}
+
+.wl-list-box {
+  max-height: 320px;
+  overflow: auto;
+  border: 2px solid #262015;
+  border-radius: 8px;
+  background: #fff8e7;
+  box-shadow: 3px 3px 0 #262015;
+  padding: 6px;
+}
+
+.wl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.wl-item:hover { background: #fff1c3; }
+.wl-item.picked { background: #f8d75a; }
+
+.wl-model-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  color: #2a2118;
+  overflow-wrap: anywhere;
+}
+
+.wl-empty {
+  padding: 26px;
+  text-align: center;
+  color: #9b8a72;
+  font-size: 13px;
 }
 </style>

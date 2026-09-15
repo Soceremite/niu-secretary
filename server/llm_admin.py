@@ -94,6 +94,7 @@ def _routes_payload(data: dict) -> dict:
             "api_key_env": env_name,
             "apiKeySet": key_present,
             "timeout": spec.get("timeout_s", 120),
+            "allowedModels": spec.get("allowed_models") or [],
         })
     items = []
     for name, spec in logic.items():
@@ -180,6 +181,35 @@ def llm_endpoint_test_handler(payload: dict, context: dict) -> dict:
                          timeout=float(payload.get("timeout_s") or 10))
     return {"ok": True, "action": "llm.endpoint.test", "endpoint": name,
             "baseUrl": base_url, **result}
+
+
+@register_handler("llm.endpoint.whitelist")
+def llm_endpoint_whitelist_handler(payload: dict, context: dict) -> dict:
+    """Set the exposed-model whitelist for an endpoint.
+
+    Empty/absent list = expose everything (passthrough). Stored in
+    models.yaml as endpoint.allowed_models. Route dropdowns honour this.
+    """
+    data = _config_data()
+    endpoints = data.get("endpoints") or {}
+    name = _safe_name(payload.get("endpoint") or "")
+    if name not in endpoints:
+        raise ValueError(f"endpoint '{name}' 不存在")
+    raw = payload.get("models")
+    if raw is None or raw == "":
+        endpoints[name].pop("allowed_models", None)
+    else:
+        if not isinstance(raw, list):
+            raise ValueError("models 需要数组")
+        cleaned = []
+        for m in raw:
+            m = str(m).strip()[:80]
+            if m and m not in cleaned:
+                cleaned.append(m)
+        endpoints[name]["allowed_models"] = cleaned
+    _write_config(data)
+    return {"ok": True, "action": "llm.endpoint.whitelist", "endpoint": name,
+            "allowedModels": endpoints[name].get("allowed_models") or []}
 
 
 @register_handler("llm.endpoint.upsert")

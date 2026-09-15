@@ -1649,6 +1649,22 @@ CAPABILITIES = [
             },
         },
     },
+    {
+        "name": "llm.endpoint.whitelist",
+        "title": "设置服务商模型白名单",
+        "module": "platform",
+        "description": "只暴露所选模型给逻辑路由下拉；空列表 = 全部可用。存为 endpoint.allowed_models。",
+        "confirmByDefault": True,
+        "inputSchema": {
+            "type": "object",
+            "required": ["endpoint"],
+            "properties": {
+                "endpoint": {"type": "string"},
+                "models": {"type": "array", "items": {"type": "string"},
+                           "description": "空数组/缺省 = 全部放行"},
+            },
+        },
+    },
 ]
 
 
