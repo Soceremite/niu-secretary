@@ -1543,6 +1543,97 @@ CAPABILITIES = [
             "properties": {},
         },
     },
+    # ── LLM 渠道管理（管理台可视化/测试/拉模型列表） ──
+    {
+        "name": "llm.routes.list",
+        "title": "LLM 路由列表",
+        "module": "platform",
+        "description": "列出全部逻辑模型路由和 endpoint（key 只返回环境变量名）。",
+        "confirmByDefault": False,
+        "inputSchema": {"type": "object", "required": [], "properties": {}},
+    },
+    {
+        "name": "llm.endpoint.test",
+        "title": "测试渠道连通+拉模型列表",
+        "module": "platform",
+        "description": "对指定 endpoint 发起 /models 拉取，返回可达性、延迟和模型清单。",
+        "confirmByDefault": False,
+        "inputSchema": {
+            "type": "object",
+            "required": [],
+            "properties": {
+                "endpoint": {"type": "string"},
+                "baseUrl": {"type": "string"},
+                "apiKeyEnv": {"type": "string"},
+                "apiKey": {"type": "string", "description": "临时测试用 key，绝不入库"},
+                "timeout_s": {"type": "number"},
+            },
+        },
+    },
+    {
+        "name": "llm.endpoint.upsert",
+        "title": "新增/更新第三方 API 渠道",
+        "module": "platform",
+        "description": "写入 config/models.yaml endpoints 段；key 写入指定环境变量文件（不回显）。",
+        "confirmByDefault": True,
+        "inputSchema": {
+            "type": "object",
+            "required": ["endpoint", "baseUrl"],
+            "properties": {
+                "endpoint": {"type": "string"},
+                "baseUrl": {"type": "string"},
+                "apiKeyEnv": {"type": "string"},
+                "apiKey": {"type": "string"},
+                "style": {"type": "string"},
+                "timeout_s": {"type": "number"},
+            },
+        },
+    },
+    {
+        "name": "llm.endpoint.delete",
+        "title": "删除 API 渠道",
+        "module": "platform",
+        "description": "删除 endpoint；若有逻辑模型还在引用会拒绝。",
+        "confirmByDefault": True,
+        "inputSchema": {
+            "type": "object",
+            "required": ["endpoint"],
+            "properties": {"endpoint": {"type": "string"}},
+        },
+    },
+    {
+        "name": "llm.route.update",
+        "title": "更新逻辑模型路由",
+        "module": "platform",
+        "description": "改某逻辑模型的主选 endpoint/model/style 或 fallback 链。",
+        "confirmByDefault": True,
+        "inputSchema": {
+            "type": "object",
+            "required": ["route", "endpoint"],
+            "properties": {
+                "route": {"type": "string"},
+                "endpoint": {"type": "string"},
+                "model": {"type": "string"},
+                "style": {"type": "string"},
+                "fallbacks": {"type": "array"},
+            },
+        },
+    },
+    {
+        "name": "llm.probe.live",
+        "title": "真实小请求试某逻辑模型",
+        "module": "platform",
+        "description": "向某逻辑模型真实发送 ping 请求，返回 endpoint/model/延迟/回复内容。",
+        "confirmByDefault": False,
+        "inputSchema": {
+            "type": "object",
+            "required": ["route"],
+            "properties": {
+                "route": {"type": "string"},
+                "prompt": {"type": "string"},
+            },
+        },
+    },
 ]
 
 

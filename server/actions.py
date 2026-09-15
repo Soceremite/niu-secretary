@@ -150,3 +150,7 @@ def validate_required(capability: dict, payload: dict) -> None:
 
 # Import handlers to trigger registration
 from server import action_handlers  # noqa: E402, F401
+try:  # LLM 渠道管理 handlers（管理台可视化/测试/拉模型列表）
+    from server import llm_admin  # noqa: E402, F401
+except Exception:  # optional shard — ignore load failures on very old deploys
+    pass

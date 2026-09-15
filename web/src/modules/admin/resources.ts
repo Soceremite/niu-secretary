@@ -343,6 +343,13 @@ export const adminMenu = [
       { title: '任务中心', path: '/admin/airesearch/tasks' },
       { title: '重建部署', path: '/admin/airesearch/publish' }
     ]
+  },
+  {
+    title: 'AI 渠道',
+    path: '/admin/llm/',
+    items: [
+      { title: '模型路由 & 服务商', path: '/admin/llm/' }
+    ]
   }
 ]
 
