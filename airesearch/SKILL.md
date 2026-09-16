@@ -331,6 +331,39 @@ curl -s http://127.0.0.1/niu-secretary/airesearch/papers/colavla.html | grep 'pa
 - `api_cache`: OpenAlex/S2/embedding/extraction 缓存。
 - `jobs`: 长任务状态。
 
+## LLM 路由与调用记录（2026-09-16）
+
+研知库的 8 个调用点全部走 `compat.resolve("<逻辑路由>")`，路由表唯一来源是仓库根 `config/models.yaml`（管理台「AI 渠道」页改的就是它）。**优先级**：显式参数 → 路由专属 env（`AIRESEARCH_FACT_*` / `BLOG_*` / `FORMULA_OCR_*`，逃生舱）→ `config/models.yaml` → 历史通用 env → 硬编码。
+
+- 当前映射：`fact` / `blog` / `formula_ocr` → `opencode_go/deepseek-v4.1-flash`；`translate` → `opencode_go/mimo-v2.5`；`embed` → dashscope `text-embedding-v4`；全部保留 sub2api gpt-5.6-luna 作 fallback
+- ⚠️ **坑**：`airesearch/.env` 里若留着 `AIRESEARCH_FACT_MODEL` / `AIRESEARCH_FACT_BASE_URL` / `TRANSLATE_BASE_URL` 之类显式变量，会**压过 yaml** —— 这就是「改了 yaml 不生效」的根因；2026-09-16 已把这些指到 opencode 新模型，并注释掉 `OPENCODE_GO_PROXY`（该变量指向不存在的代理路径，曾让事实抽取每请求干等 300s）
+- ⚠️ **自建 urllib 客户端必须带两个头**：正常 `User-Agent`（Cloudflare 拦默认 UA → `403 error code: 1010`）+ `x-opencode-session`（缺失 → `400 MissingSessionID`）。`fact_extraction.py` / `formula_ocr.py` / 两个翻译脚本都已补
+- **调用记录**：统一层在 `NiuLLM.chat()` 收口；自建客户端用 `@call_log.tracked("fact", endpoint_param="base_url")` 埋点。库 `data/llm_calls.sqlite3`，管理台「AI 渠道 → API 用量」可看。papi 内部走 litellm，由 `papi_hooks/sitecustomize.py` 挂钩记录（详见 `niu_core/llm_client/README.md`）
+- 改路由后的验收：真实跑一遍（探活 + 实际抽取），并可用「期间 sub2api `/v1/responses` 请求数 = 0」反证确实走了 opencode
+
+## 站点发布与「最近上新」（2026-09-16）
+
+产物与部署：`exports/site-current/` → `sudo rsync -av exports/site-current/ /var/www/html/niu-secretary/airesearch/`（**必须包含 `paper-assets/`、不加 `--delete`**，并把权限归一为目录 755 / 文件 644，否则 nginx 403）。
+
+- 首页「最近上新」区块 + 每篇 `NEW` 标 + 双日期标签（arXiv 首发日 / 入库日）+ 时段筛选（近 7 天 / 30 天 / 全部）
+- 实现：`research_digest.py`（算 updated_at / 热度）+ `research_site.py`（渲染）；`api/papers.json` 每篇必须带日期字段
+- 验收口径：312 篇 **100% 带日期**，HTTP 200/200/200/200 + 一个预期 404，首页控件存在于 DOM
+- 铁律：**改代码 → 重启 `niu-secretary-api` → 再 rebuild_site**，否则站点还是旧数据
+
+## 会议论文 PDF 映射（2026-09-15）
+
+arXiv/会议页 → PDF 的兜底在 `providers.py`。CVPR 用页内相对链接 `..._paper.pdf`；NeurIPS/ICLR 走 `hash/<x>-Abstract-Conference.html` → `file/<x>-Paper-Conference.pdf`；AAAI 是 JS 壳页、无解（历史遗留 1 条）。
+
+- ⚠️ 兜底判断必须用**原始 URL**：归一化后的 URL 若是标题串，`is_conference_page()` 会返回 False，静默漏掉
+- 补历史欠账时用**显式 `--paper-list` + 每批 3 篇**小批跑，别一把梭
+
+## 数据库备份（2026-09-16）
+
+`scripts/backup-airesearch-db.sh` + ubuntu crontab 每日 03:20（本地）/ 周日（WebDAV）。库 650MB → zstd 95MB，本地留 30 份 + `.sha256`；远端 rclone `niu:` → `webdav/airesearch/`，上传后**回读算哈希**校验。
+
+- 恢复演练已验证：解压 2.3s、`integrity=ok`、**38 张表计数与线上库全部一致**
+- 完整方法论见 skill `service-data-backup`（含 WebDAV/Seafile 配方、配额换算、`pkill -f` 自杀坑）
+
 ## 质量与安全约束
 
 - 不把本地 PDF、notes、SQLite DB 上传到未知远程服务。

@@ -271,10 +271,14 @@ sudo chmod 600 /etc/niu-secretary-api.env /etc/niu-fitness-api.env
 cd airesearch
 cp .env.example .env
 chmod 600 .env
-# 编辑 .env，至少填写 OPENCODE_GO_BASE_URL 和 OPENCODE_GO_API_KEY
-# 公式 OCR 默认使用 AIRESEARCH_FORMULA_OCR_MODEL=gpt-5.6-luna
+# 研知库专属变量放 airesearch/.env（AIRESEARCH_EMBEDDING_API_KEY / SERPAPI_API_KEY 等）
+# 共享渠道 key 放仓库根 config/.env（OPENCODE_SUBSCRIPTION_KEY / NIU_GATEWAY_API_KEY / DEEPSEEK_API_KEY）
+# ⚠️ 路由（模型/端点）不要写进 env —— 唯一来源是 config/models.yaml，
+#    在管理台「AI 渠道」页改即时生效；env 里残留的显式路由变量会压过 yaml（改 yaml 不生效的根因）
 source ./activate.sh
 ```
+
+公式 OCR 走 `config/models.yaml` 的 `formula_ocr` 路由（当前 `opencode_go/deepseek-v4.1-flash`），不再是写死的 `gpt-5.6-luna`。
 
 生产 API 启动脚本会在启动 Python 服务前加载同一个 `airesearch/.env`，管理员账号、密码和会话密钥仍以 `/etc/niu-secretary-api.env` 为准。
 
@@ -634,6 +638,11 @@ curl --noproxy '*' -s http://127.0.0.1/niu-secretary/api/health
 
 - 不提交真实 `.env`、API Key、数据库文件和服务端私有配置。
 - `*.env` 默认被 `.gitignore` 忽略，只允许提交 `*.env.example`。
+- **提交闸门（2026-09-16）**：`scripts/scan-secrets.py` 三道防线 —— ①隐私文件名 ②密钥形态 ③**线上真实密钥值反查**（从 `config/.env` / `airesearch/.env` / `/etc/niu-secretary-api.env` 读当前有效值比对，零假阳性）。已装成 git 钩子：`pre-commit` 扫暂存区、`pre-push` 扫全历史。被拦时改成 env 引用，或在行尾写 `secrets-scan:ignore` 并注明原因。
+- ⚠️ 换机器 / 重新 clone 后要跑一次：`python3 scripts/scan-secrets.py --install-hook`（钩子存在 `.git/hooks/`，不进版本库）。
+- ⚠️ **不要用 `git -c core.hooksPath=/dev/null` 提交** —— 它会把这道闸门（以及任何别人的钩子）静默关掉。
+- **凭据已经进了对话/仓库怎么办**：本机用 `scripts/scrub-secret-trace.py --rclone <远端名>` 抹落点（Hermes 消息库含 `reasoning` 列 / 两套 FTS 影子索引 / WAL / `agent.log` / `.hermes_history`）；但**轮换密钥才是唯一真修复** —— 提示词那条副本收不回来。方法论见 skill `credential-hygiene`。
+- **数据备份**：研知库库（650MB）曾长期单副本 → `scripts/backup-airesearch-db.sh`，ubuntu crontab 每日 03:20 本地 + 周日 WebDAV，恢复演练已验证（38 张表计数与线上库一致）。方法论见 skill `service-data-backup`。
 - AI 生成的 action 必须先让用户确认，再写入数据库。
 - 服务端执行 action 前会做字段清洗、范围限制和动作白名单校验。
 - AIResearch 不提交真实 `.env`、API Key、SQLite 数据库、论文数据、生成站点、图片产物、日志或 manifest；这些内容必须在本地生成或从独立备份恢复。
