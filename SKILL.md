@@ -179,6 +179,17 @@ sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
 
 两者可以指向同一个模型，例如 `qwen3.6-plus`；也可以以后拆成"文本强模型 + 视觉强模型"。
 
+### 统一管理台前端（Vue SPA，2026-09-16 补记）
+
+- 源码 `web/src/`（页面在 `web/src/modules/admin/`；「AI 渠道」页 = `AdminLLMPage.vue`）
+- 构建：`cd web && npm run build`（产物 `web/dist/`）
+- 部署：`bash deploy/deploy-vue-web.sh` —— 先快照到 `/var/www/html/.niu-secretary-vue-snapshots/<UTC 戳>/`，再 `rsync --delete` 到 `/var/www/html/niu-secretary/{index.html,assets/}`（**必须 --delete**：旧 hashed chunk 留着会撞动态 import）
+- ⚠️ 快照目录必须归 `ubuntu`：属主是 root 时脚本会在第 16 行 `mkdir` 直接 exit 1（2026-09-16 修，已 `chown ubuntu:ubuntu`）
+- ⚠️ 端点列表项与表单字段**不同名**，编辑保存必须显式映射：`name → endpoint`、`api_key_env → apiKeyEnv`、`timeout → timeout_s`。直接 `{...row}` 会让表单 `endpoint` 为空 → 保存静默失败（用户反馈「点保存没反应」）。回归测试：`server/test_platform_audit.py::test_llm_admin_endpoint_edit_maps_row_fields_and_probe_uses_status_contract`
+- ⚠️ `llm.endpoint.test` 返回的是 **status 字符串**（`reachable` / `auth_or_url_error` / `unreachable` / `missing_key`）+ `http` 状态码，**没有布尔 `reachable` 字段**。前端曾读 `probeResult.reachable`（恒 undefined）→ 无论真实结果都显示「不可达」，与同屏的 HTTP 200 自相矛盾（2026-09-16 修，现按 status 显示「可达 / 认证地址错误 / 网络不可达 / 缺少 API key」并在下方显示 detail）
+- 写入类动作（`llm.endpoint.upsert` / `llm.route.update` / `llm.endpoint.whitelist`）需 `context.confirmed = true`（前端 `executeAdminAction` 已带）；`llm.endpoint.upsert` 是**合并写回**（保留 `allowed_models` 白名单等未在表单里的键）
+- 保存的 key 写入 `config/.env`，但**运行中的服务进程 env 已固定** → 新 key 立即对「测试/探活」生效（探活读文件），对**路由调用**要重启 `niu-secretary-api` 后才生效（前端保存提示已注明）
+
 ### 核心接口
 
 | 接口 | 说明 |
@@ -319,10 +330,12 @@ sudo deploy/rollback-airesearch.sh latest
 | 服务 | LLM 用途 | 现状 |
 |------|---------|------|
 | niu-secretary-api 对话 | assistant | opencode glm-5.3-flash（11 模型评测冠军，1.7s，订阅内零成本） |
-| niu-fitness-api 拍照识别 | vision | sub2api gpt-5.6-luna |
+| niu-fitness-api 拍照识别 | vision | **opencode_go deepseek-v4.1-flash**（2026-09-16 起；备用 sub2api gpt-5.6-luna）|
 | 新闻社 cron（10:00 生成 / 10:45 部署） | content + vision | no_agent 管线，QQ 防日志双层交付 |
 | 闲趣集 cron（11:00 更新 / 11:30 部署） | content + vision | 同上模式 |
-| 研知库（fact/blog/translate/formula_ocr/embeddings） | 各自逻辑名 | 8 调用点全走 compat |
+| 研知库（fact/blog/formula_ocr/embeddings） | 各自逻辑名 | **fact/blog → opencode_go/deepseek-v4.1-flash；formula_ocr → 同款（视觉）；embed → dashscope**（2026-09-16 切换） |
+
+**⚠️ 研知库的路由由两层决定，改 yaml 不够（2026-09-16 踩过）**：代码里 **env > config/models.yaml**（`tests/conftest.py` 有注记 + 3 个测试锁住该语义），而 `airesearch/.env` 里带着 `AIRESEARCH_FACT_MODEL/BASE_URL`、`AIRESEARCH_BLOG_*`、`AIRESEARCH_FORMULA_OCR_MODEL` 等显式变量 → **只改 yaml 完全不生效**（实测：网关计数照涨、formula_ocr 仍显示旧模型）。改研知库路由必须**同时**改：① `config/models.yaml` ② `airesearch/.env` 的对应显式变量（base 用 `https://opencode.ai/zen/go/v1`，key 用 `OPENCODE_SUBSCRIPTION_KEY` 的值）。想在管理台改一处就生效，需要先做「清掉散落变量」那步（会动 3 个优先级测试）。
 
 **规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
 
