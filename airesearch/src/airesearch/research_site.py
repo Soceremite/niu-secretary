@@ -5,6 +5,7 @@ import json
 import re
 import shutil
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
@@ -1041,8 +1042,10 @@ def export_report_site(bundle_dir: Path, out_path: Path | None = None) -> Report
 
 
 FACT_TYPES = ("method", "claim", "limitation", "dataset", "benchmark")
+# 「最近上新」判定窗口：入库时间在该天数内 → 卡片打 NEW 标
+NEW_PAPER_WINDOW_DAYS = 14
 SITE_MANIFEST_FILE = "site-manifest.json"
-SITE_ASSET_VERSION = "20260621-blog-index"
+SITE_ASSET_VERSION = "20260815-yantao-public-theme-v1"
 D3_ASSET_PATH = Path(__file__).with_name("assets") / "d3.v7.min.js"
 D3_LICENSE_PATH = Path(__file__).with_name("assets") / "d3.LICENSE"
 
@@ -1333,6 +1336,20 @@ def _paper_summary(paper: dict[str, Any]) -> dict[str, Any]:
         cover_score = float(paper.get("cover_score") or 0)
     except (TypeError, ValueError):
         cover_score = 0.0
+    # 日期标签：入库时间（added_at）+ 发表时间（published_date），ISO 串截前 10 位成 YYYY-MM-DD
+    published_day = _compact_string(paper.get("published_date"))[:10]
+    added_day = _compact_string(paper.get("added_at"))[:10]
+    is_new = False
+    if added_day:
+        try:
+            is_new = datetime.fromisoformat(added_day).replace(tzinfo=UTC) >= datetime.now(UTC) - timedelta(days=NEW_PAPER_WINDOW_DAYS)
+        except ValueError:
+            is_new = False
+    date_parts = []
+    if added_day:
+        date_parts.append(f"入库 {added_day}")
+    if published_day:
+        date_parts.append(f"发表 {published_day}")
     return {
         "paper_key": paper_key,
         "slug": _slug(paper_key),
@@ -1340,6 +1357,10 @@ def _paper_summary(paper: dict[str, Any]) -> dict[str, Any]:
         "authors": [_compact_string(author) for author in authors if _compact_string(author)],
         "year": int(paper.get("year") or 0),
         "venue": _compact_string(paper.get("venue")),
+        "published_date": published_day,
+        "added_at": added_day,
+        "date_label": " · ".join(date_parts),
+        "is_new": is_new,
         "tldr": _snippet(tldr, limit=220),
         "tldr_zh": _snippet(tldr_zh, limit=220),
         "summary_en": _snippet(_compact_string(paper.get("summary_en") or paper.get("summary")), limit=640),
@@ -1762,7 +1783,7 @@ def _page_shell(*, title: str, body: str, current: str, depth: int = 0, extra_sc
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <header class="topbar">
+  <header class="topbar theme-topbar">
     <a class="brand" href="{prefix}index.html"><span>牛秘书</span><strong>AIResearch</strong></a>
     <nav aria-label="AIResearch sections">{nav}</nav>
     <div class="topbar-actions">
@@ -1776,7 +1797,7 @@ def _page_shell(*, title: str, body: str, current: str, depth: int = 0, extra_sc
     </div>
   </header>
   <main id="main">{body}</main>
-  <footer class="site-footer">
+  <footer class="site-footer theme-footer">
     <span>AIResearch 研知库</span>
     <a href="{prefix}manifest.json">Bundle manifest</a>
     <a href="{prefix}{SITE_MANIFEST_FILE}">Site manifest</a>
@@ -1819,19 +1840,23 @@ def _paper_card(summary: dict[str, Any], *, prefix: str = "") -> str:
         for fact_type, count in summary["fact_counts"].items()
         if count
     )
-    cover = '<div class="paper-cover-wrap paper-cover-empty" aria-hidden="true"></div>'
+    cover = '<div class="paper-cover-wrap paper-card-media paper-cover-empty" aria-hidden="true"></div>'
     if summary.get("cover_path"):
         cover = (
-            '<div class="paper-cover-wrap">'
+            '<div class="paper-cover-wrap paper-card-media">'
             f'<img class="paper-cover" src="{prefix}{html.escape(summary["cover_path"])}" alt="{html.escape(summary["title"])} cover" loading="lazy">'
             "</div>"
         )
+    new_badge = '<span class="new-badge">NEW</span>' if summary.get("is_new") else ""
+    date_label = _compact_string(summary.get("date_label"))
+    dates_html = f'<p class="paper-dates">📅 {html.escape(date_label)}</p>' if date_label else ""
     return f"""
-    <article class="paper-card reveal" data-year="{summary['year']}" data-fact-count="{summary['fact_count']}">
+    <article class="paper-card paper-post-card reveal" data-year="{summary['year']}" data-added="{html.escape(summary.get('added_at') or '')}" data-published="{html.escape(summary.get('published_date') or '')}" data-fact-count="{summary['fact_count']}">
       {cover}
-      <div class="paper-card-body">
+      <div class="paper-card-body paper-card-content">
         <a class="paper-title" href="{prefix}{html.escape(summary['detail_path'])}">{html.escape(summary['title'])}</a>
-        <p class="paper-meta">{html.escape(authors)} · {html.escape(str(summary['year'] or 'n.d.'))} · {html.escape(summary['paper_key'])}</p>
+        <p class="paper-meta">{new_badge}{html.escape(authors)} · {html.escape(str(summary['year'] or 'n.d.'))} · {html.escape(summary['paper_key'])}</p>
+        {dates_html}
         {_lang_paragraph(summary['tldr'] or 'No short summary available yet.', summary.get('tldr_zh') or summary['tldr'])}
         <div class="chip-row">{badges or '<span class="fact-chip">no facts</span>'}</div>
       </div>
@@ -1860,7 +1885,13 @@ def _dashboard_page(payloads: dict[str, Any], papers: list[dict[str, Any]], clus
             _metric_card("Reports", stats["report_count"], "static research artifacts"),
         ]
     )
-    recent = "\n".join(_paper_card(summary) for summary in summaries[:5])
+    # 「最近上新」= 按入库时间倒序（不是按发表年份），让最新收进来的工作排在最前
+    newest = sorted(
+        summaries,
+        key=lambda item: (item.get("added_at") or "", item.get("paper_key") or ""),
+        reverse=True,
+    )
+    recent = "\n".join(_paper_card(summary) for summary in newest[:5])
     top_clusters = "\n".join(_cluster_card(summary) for summary in cluster_summaries[:5])
     low_coverage = stats.get("low_coverage_fact_types", [])
     gap_items = "\n".join(
@@ -1892,7 +1923,7 @@ def _dashboard_page(payloads: dict[str, Any], papers: list[dict[str, Any]], clus
     <section class="metrics-grid" aria-label="Corpus metrics">{metrics}</section>
     <section class="dashboard-grid">
       <div>
-        <div class="section-title"><h2>Recent papers</h2><a href="papers/index.html">View all</a></div>
+        <div class="section-title"><h2>最近上新 · Recently added</h2><a href="papers/index.html">View all</a></div>
         <div class="stack">{recent}</div>
       </div>
       <aside>
@@ -1925,6 +1956,19 @@ def _papers_page(papers: list[dict[str, Any]]) -> str:
       <select id="year-filter" aria-label="Filter by year"><option value="all">All years</option>{year_options}</select>
       <select id="type-filter" aria-label="Filter by fact type"><option value="all">All fact types</option>{''.join(f'<option value="{t}">{t}</option>' for t in FACT_TYPES)}</select>
       <select id="author-filter" aria-label="Filter by author"><option value="all">All authors</option>{author_options}</select>
+      <select id="sort-order" aria-label="Sort papers">
+        <option value="added">最新入库</option>
+        <option value="published">最新发表</option>
+        <option value="year">发表年份</option>
+        <option value="title">标题</option>
+      </select>
+      <select id="date-basis" aria-label="日期口径">
+        <option value="added">按入库时间</option>
+        <option value="published">按发表时间</option>
+      </select>
+      <input type="date" id="date-from" aria-label="起始日期">
+      <input type="date" id="date-to" aria-label="结束日期">
+      <button type="button" id="recent-30" class="ghost-button">近 30 天上新</button>
       <span id="paper-count" class="result-count">{len(summaries)} papers</span>
     </section>
     <section class="paper-list" data-page-size="20" data-papers-source="../api/papers.json">
@@ -1962,15 +2006,15 @@ def _blog_index_card(item: dict[str, Any]) -> str:
         _compact_string(item.get("blog_updated_at")),
     ]
     meta = " · ".join(part for part in meta_parts if part)
-    cover = '<div class="blog-card-cover blog-card-cover-empty" aria-hidden="true"></div>'
+    cover = '<div class="blog-card-cover blog-card-media blog-card-cover-empty" aria-hidden="true"></div>'
     if item.get("cover_path"):
         cover = (
-            '<div class="blog-card-cover">'
+            '<div class="blog-card-cover blog-card-media">'
             f'<img src="../{html.escape(item["cover_path"], quote=True)}" alt="{html.escape(item["title"], quote=True)} cover" loading="lazy">'
             "</div>"
         )
     return f"""
-    <article class="blog-card reveal">
+    <article class="blog-card blog-post-card reveal">
       {cover}
       <div class="blog-card-body">
         <p class="eyebrow">深度解读</p>
@@ -2108,6 +2152,22 @@ def _paper_blog_equation(lines: list[str]) -> str:
     )
 
 
+def _paper_blog_code_block(lines: list[str], language: str) -> str:
+    safe_language = re.sub(r"[^a-zA-Z0-9_+-]", "", language)[:32] or "text"
+    language_attr = f' class="language-{html.escape(safe_language, quote=True)}"'
+    return (
+        '<div class="paper-blog-code-block" data-paper-blog-code>\n'
+        '  <div class="paper-blog-code-bar">\n'
+        '    <span class="paper-blog-code-dots" aria-hidden="true">'
+        '<i></i><i></i><i></i></span>\n'
+        f'    <span class="paper-blog-code-language">{html.escape(safe_language)}</span>\n'
+        '    <button class="paper-blog-code-copy" type="button" data-paper-blog-copy>复制</button>\n'
+        '  </div>\n'
+        f'  <pre><code{language_attr}>{html.escape(chr(10).join(lines))}</code></pre>\n'
+        '</div>'
+    )
+
+
 def _paper_blog_markdown(blog: dict[str, Any]) -> str:
     markdown = _multiline_string(blog.get("markdown"))
     image_refs = [
@@ -2191,8 +2251,7 @@ def _paper_blog_markdown(blog: dict[str, Any]) -> str:
             flush_paragraph()
             flush_list()
             if in_code:
-                language_attr = f' class="language-{html.escape(code_language, quote=True)}"' if code_language else ""
-                blocks.append(f"<pre><code{language_attr}>{html.escape(chr(10).join(code_lines))}</code></pre>")
+                blocks.append(_paper_blog_code_block(code_lines, code_language))
                 code_lines.clear()
                 code_language = ""
                 in_code = False
@@ -2257,8 +2316,7 @@ def _paper_blog_markdown(blog: dict[str, Any]) -> str:
         paragraph.append(stripped)
 
     if in_code:
-        language_attr = f' class="language-{html.escape(code_language, quote=True)}"' if code_language else ""
-        blocks.append(f"<pre><code{language_attr}>{html.escape(chr(10).join(code_lines))}</code></pre>")
+        blocks.append(_paper_blog_code_block(code_lines, code_language))
     if in_math:
         blocks.append(_paper_blog_equation(math_lines))
     flush_paragraph()
@@ -2328,7 +2386,31 @@ def _number_blog_headings(article_html: str) -> BlogArticleRender:
     return BlogArticleRender(rendered, toc)
 
 
-def _paper_blog_toc(toc: list[BlogTocItem]) -> str:
+def _paper_blog_info(blog: dict[str, Any]) -> str:
+    word_count = int(blog.get("word_count") or 0)
+    minutes = max(1, round(word_count / 500)) if word_count else 1
+    rows = [
+        ("预计阅读", f"{minutes} 分钟"),
+        ("文章字数", f"{word_count:,} 字" if word_count else "未统计"),
+        ("生成模型", _compact_string(blog.get("model")) or "未记录"),
+        ("更新时间", _compact_string(blog.get("updated_at")) or "未记录"),
+    ]
+    items = "\n".join(
+        "<div>"
+        f"<dt>{html.escape(label)}</dt>"
+        f"<dd>{html.escape(value)}</dd>"
+        "</div>"
+        for label, value in rows
+    )
+    return f"""
+      <section class="paper-blog-info" aria-label="文章信息">
+        <h3>文章信息</h3>
+        <dl>{items}</dl>
+      </section>
+    """
+
+
+def _paper_blog_toc(toc: list[BlogTocItem], *, info_html: str = "") -> str:
     if not toc:
         return ""
     list_id = "paper-blog-toc-list"
@@ -2343,17 +2425,85 @@ def _paper_blog_toc(toc: list[BlogTocItem]) -> str:
         for item in toc
     )
     return f"""
+      <aside class="article-aside paper-blog-aside">
       <nav class="paper-blog-toc" aria-label="深度解读目录" data-paper-blog-toc>
         <button class="paper-blog-toc-toggle" type="button" aria-expanded="true" aria-controls="{list_id}" data-paper-blog-toc-toggle>
           <span class="paper-blog-toc-toggle-icon" aria-hidden="true"></span>
-          <strong>目录</strong>
+          <strong>文章目录</strong>
         </button>
         <div id="{list_id}" class="paper-blog-toc-list" data-paper-blog-toc-list>{items}</div>
       </nav>
+      {info_html}
+      </aside>
     """
 
 
-def _paper_blog_section(detail: dict[str, Any]) -> str:
+def _paper_blog_neighbor_card(label: str, paper: dict[str, Any] | None) -> str:
+    if not paper:
+        return (
+            '<div class="neighbor-card paper-blog-neighbor is-empty">'
+            f'<span class="paper-blog-neighbor-label">{html.escape(label)}</span>'
+            '<span class="paper-blog-neighbor-empty">没有更多解读</span>'
+            '</div>'
+        )
+    paper_key = _compact_string(paper.get("paper_key"))
+    slug = _compact_string(paper.get("slug")) or _slug(paper_key)
+    title = _compact_string(paper.get("title")) or paper_key or "下一篇解读"
+    return (
+        '<div class="neighbor-card paper-blog-neighbor">'
+        f'<span class="paper-blog-neighbor-label">{html.escape(label)}</span>'
+        f'<a href="{html.escape(slug, quote=True)}.html#deep-reading">{html.escape(title)}</a>'
+        '</div>'
+    )
+
+
+def _paper_blog_footer(
+    detail: dict[str, Any],
+    previous: dict[str, Any] | None,
+    next_paper: dict[str, Any] | None,
+) -> str:
+    fact_counts = detail.get("fact_counts") if isinstance(detail.get("fact_counts"), dict) else {}
+    tags = ["深度解读"]
+    for fact_type in FACT_TYPES:
+        if int(fact_counts.get(fact_type) or 0) > 0:
+            tags.append(FACT_TYPE_LABELS.get(fact_type, (fact_type.title(), fact_type))[1])
+    tag_html = "".join(
+        f'<span class="paper-blog-tag{" paper-blog-tag-accent" if index == 0 else ""}">{html.escape(tag)}</span>'
+        for index, tag in enumerate(tags[:6])
+    )
+    return f"""
+      <footer class="article-footer paper-blog-footer">
+        <div class="article-tags paper-blog-tags">
+          <span class="meta-label paper-blog-footer-label">标签</span>
+          <div class="paper-blog-tag-list">{tag_html}</div>
+        </div>
+        <nav class="article-neighbors paper-blog-neighbors" aria-label="深度解读文章导航">
+          {_paper_blog_neighbor_card("上一篇", previous)}
+          {_paper_blog_neighbor_card("下一篇", next_paper)}
+        </nav>
+        <section class="comments paper-blog-comments" id="comments" aria-labelledby="paper-blog-comments-title">
+          <div class="paper-blog-comments-head">
+            <div>
+              <p class="paper-blog-comments-kicker">COMMENTS</p>
+              <h3 id="paper-blog-comments-title">读者评论</h3>
+            </div>
+            <span class="paper-blog-comments-count">0</span>
+          </div>
+          <div class="paper-blog-comments-empty">
+            <strong>暂无评论</strong>
+            <span>这篇解读还没有评论。</span>
+          </div>
+        </section>
+      </footer>
+    """
+
+
+def _paper_blog_section(
+    detail: dict[str, Any],
+    *,
+    previous: dict[str, Any] | None = None,
+    next_paper: dict[str, Any] | None = None,
+) -> str:
     blog = detail.get("blog") if isinstance(detail.get("blog"), dict) else None
     if not blog:
         return ""
@@ -2370,16 +2520,17 @@ def _paper_blog_section(detail: dict[str, Any]) -> str:
     <section class="paper-blog-section" data-paper-blog-section>
       <div class="paper-blog-meta">
         <p class="eyebrow">深度解读</p>
-        <h2>{html.escape(title)}</h2>
+        <h1 class="paper-blog-title">{html.escape(title)}</h1>
         <div class="paper-blog-meta-row">
           <p>{html.escape(meta)}</p>
           <a class="paper-blog-detail-link" href="{detail_href}">论文详情</a>
         </div>
       </div>
-      <div class="paper-blog-layout">
-        {_paper_blog_toc(article.toc)}
-        <article class="paper-blog-prose">{article.html}</article>
+      <div class="article-layout paper-blog-layout">
+        <article class="article-main paper-blog-prose">{article.html}</article>
+        {_paper_blog_toc(article.toc, info_html=_paper_blog_info(blog))}
       </div>
+      {_paper_blog_footer(detail, previous, next_paper)}
     </section>
     """
 
@@ -2837,7 +2988,12 @@ def _paper_layout_compact_html(detail: dict[str, Any]) -> str:
     )
 
 
-def _paper_detail_page(paper: dict[str, Any]) -> str:
+def _paper_detail_page(
+    paper: dict[str, Any],
+    *,
+    previous: dict[str, Any] | None = None,
+    next_paper: dict[str, Any] | None = None,
+) -> str:
     detail = _paper_detail_payload(paper)
     authors = ", ".join(detail["authors"]) or "Unknown authors"
     arxiv = ""
@@ -2874,6 +3030,9 @@ def _paper_detail_page(paper: dict[str, Any]) -> str:
     meta_html = html.escape(authors)
     if meta_icons:
         meta_html += '<span class="meta-icon-group">' + "".join(meta_icons) + "</span>"
+    detail_date_label = _compact_string(detail.get("date_label"))
+    if detail_date_label:
+        meta_html += f' · <span class="paper-dates">📅 {html.escape(detail_date_label)}</span>'
     def fact_sections_html(anchor_prefix: str) -> str:
         sections = []
         for index, fact_type in enumerate(FACT_TYPES):
@@ -2923,7 +3082,7 @@ def _paper_detail_page(paper: dict[str, Any]) -> str:
             f'{_lang_markdown(detail.get("summary_full_en") or detail["tldr"] or "No summary available yet.", detail.get("summary_full_zh") or detail.get("tldr_full_zh") or detail.get("summary_full_en") or detail["tldr"], cls="paper-summary-prose", strip_paper_structure=True)}'
             "</section>"
         )
-    blog_section = _paper_blog_section(detail)
+    blog_section = _paper_blog_section(detail, previous=previous, next_paper=next_paper)
     blog_tab = (
         '<button id="paper-tab-deep-reading" type="button" role="tab" data-paper-mode-button="deep-reading" '
         'aria-controls="paper-deep-reading" aria-selected="false" aria-pressed="false" tabindex="-1">深度解读</button>'
@@ -3592,7 +3751,12 @@ def _digest_page(papers: list[dict[str, Any]], clusters: list[dict[str, Any]]) -
         </li>
         """
 
-    latest = "\n".join(digest_paper_item(summary) for summary in summaries[:8])
+    newest = sorted(
+        summaries,
+        key=lambda item: (item.get("added_at") or "", item.get("paper_key") or ""),
+        reverse=True,
+    )
+    latest = "\n".join(digest_paper_item(summary) for summary in newest[:8])
     top_clusters = "\n".join(cluster_item(summary) for summary in cluster_summaries[:12])
     findings = "\n".join(finding_item(item) for item in high_confidence)
     year_counts: dict[int, int] = {}
@@ -4100,6 +4264,10 @@ input, select {
 .search-results { display: grid; gap: 8px; margin-top: 10px; }
 .search-hit { display: block; padding: 8px; border-radius: 6px; background: var(--bg-sunken); }
 .search-hit small, .paper-meta, .result-count { color: var(--ink-secondary); font-size: 13px; }
+.new-badge { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 999px; background: #c0392b; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .05em; vertical-align: 1px; }
+.paper-dates { color: var(--ink-secondary); font-size: 12px; letter-spacing: .01em; }
+.ghost-button { padding: 6px 12px; border: 1px solid var(--line, #d8d2c4); border-radius: 999px; background: transparent; color: var(--ink-secondary); font-size: 12px; cursor: pointer; }
+.ghost-button:hover { border-color: var(--accent); color: var(--accent); }
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0 24px; }
 .metric-card, .paper-card, .cluster-card, .gap-panel, .related-panel {
   border: 1px solid var(--border);
@@ -4293,6 +4461,11 @@ input, select {
 .paper-detail:has(#paper-deep-reading:target) .paper-mode-toggle {
   display: none;
 }
+.paper-detail.is-deep-reading-only .paper-blog-detail-link,
+.paper-detail:has(#deep-reading:target) .paper-blog-detail-link,
+.paper-detail:has(#paper-deep-reading:target) .paper-blog-detail-link {
+  display: none;
+}
 .paper-detail.is-deep-reading-only .paper-detail-deep-reading-bar,
 .paper-detail:has(#deep-reading:target) .paper-detail-deep-reading-bar,
 .paper-detail:has(#paper-deep-reading:target) .paper-detail-deep-reading-bar {
@@ -4334,15 +4507,15 @@ input, select {
 }
 .paper-mode[hidden] { display: none !important; }
 .paper-mode-deep-reading {
-  --paper-blog-toc-width: 270px;
-  width: min(960px, 100%);
+  --paper-blog-toc-width: 250px;
+  width: min(1220px, 100%);
   margin: 0 auto;
   min-width: 0;
   max-width: 100%;
 }
 .paper-detail.is-deep-reading-only .paper-mode-deep-reading {
-  width: min(1180px, calc(100vw - 28px));
-  margin-left: 0;
+  width: min(1220px, calc(100vw - 28px));
+  margin-left: auto;
   margin-right: auto;
 }
 .paper-detail-layout {
@@ -4903,6 +5076,12 @@ input, select {
   font-size: 22px;
   line-height: 1.18;
 }
+.paper-blog-meta h1.paper-blog-title {
+  margin: 4px 0 10px;
+  max-width: 780px;
+  font-size: clamp(28px, 3.3vw, 44px);
+  line-height: 1.1;
+}
 .paper-blog-meta p:last-child {
   margin: 0;
   color: var(--ink-secondary);
@@ -4934,71 +5113,64 @@ input, select {
   min-width: 0;
   width: 100%;
   gap: 10px;
-  max-width: 860px;
+  max-width: 780px;
   line-height: 1.82;
 }
 .paper-detail.is-deep-reading-only .paper-blog-prose {
-  width: min(100%, 760px);
-  max-width: 760px;
+  width: min(100%, 780px);
+  max-width: 780px;
 }
 .paper-blog-layout {
   display: grid;
   min-width: 0;
   max-width: 100%;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, var(--paper-blog-toc-width));
+  gap: clamp(28px, 4vw, 68px);
   align-items: start;
 }
+.paper-blog-layout:not(:has(.paper-blog-toc)) {
+  grid-template-columns: minmax(0, 780px);
+}
 .paper-detail.is-deep-reading-only .paper-blog-layout {
-  grid-template-columns: minmax(184px, 220px) minmax(0, 760px);
-  gap: clamp(22px, 3vw, 44px);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, var(--paper-blog-toc-width));
+  gap: clamp(28px, 4vw, 68px);
   align-items: start;
 }
 .paper-detail.is-deep-reading-only .paper-blog-layout:has(.paper-blog-toc.is-collapsed) {
-  grid-template-columns: 46px minmax(0, 760px);
+  grid-template-columns: minmax(0, 1fr) 48px;
   gap: 24px;
 }
 .paper-blog-toc {
-  position: fixed;
-  top: 86px;
-  left: max(16px, calc((100vw - 1460px) / 2 + 16px));
+  position: sticky;
+  top: 88px;
+  grid-column: 2;
+  grid-row: 1;
   z-index: 4;
   display: grid;
   gap: 10px;
-  width: var(--paper-blog-toc-width, 238px);
-  max-height: calc(100vh - 112px);
+  width: 100%;
+  max-height: calc(100vh - 120px);
   overflow: auto;
-  padding: 12px;
+  padding: 16px 14px 16px 18px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: rgba(248, 250, 247, 0.88);
-  box-shadow: 0 16px 42px rgba(31, 41, 55, 0.12);
-  backdrop-filter: blur(14px);
-  transition: width .18s ease, padding .18s ease, box-shadow .18s ease;
+  border-radius: 8px;
+  background: rgba(247, 246, 243, 0.82);
+  box-shadow: 0 12px 28px rgba(31, 41, 55, 0.08);
+  backdrop-filter: blur(12px);
+  transition: width .18s ease, padding .18s ease, box-shadow .18s ease, background .18s ease;
 }
 .paper-detail.is-deep-reading-only .paper-blog-toc {
-  position: sticky;
-  top: 82px;
-  left: auto;
-  z-index: 2;
-  align-self: start;
-  width: 100%;
-  max-height: calc(100vh - 108px);
-  padding: 10px 0 10px 2px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
+  top: 88px;
 }
 .paper-blog-toc.is-collapsed {
-  width: 42px;
-  padding: 8px;
+  width: 48px;
+  padding: 10px 8px;
   overflow: visible;
+  background: var(--bg-sidebar);
 }
 .paper-detail.is-deep-reading-only .paper-blog-toc.is-collapsed {
-  width: 42px;
-  padding: 8px 0 8px 2px;
+  width: 48px;
+  padding: 10px 8px;
 }
 .paper-blog-toc-toggle {
   display: grid;
@@ -5016,7 +5188,7 @@ input, select {
   text-align: left;
 }
 .paper-detail.is-deep-reading-only .paper-blog-toc-toggle {
-  padding: 4px 0;
+  padding: 4px 6px;
 }
 .paper-blog-toc-toggle:hover,
 .paper-blog-toc-toggle:focus-visible {
@@ -5083,6 +5255,15 @@ input, select {
   color: var(--accent-hover);
   outline: none;
 }
+.paper-blog-toc-link.is-active {
+  color: var(--accent-hover);
+}
+.paper-blog-toc-link.is-active span {
+  font-weight: 850;
+}
+.paper-blog-toc-link.is-active b {
+  font-weight: 800;
+}
 .paper-blog-toc-link span {
   color: var(--accent);
   font-family: var(--font-mono);
@@ -5142,6 +5323,62 @@ input, select {
   padding: 0;
   color: inherit;
 }
+.paper-blog-code-block {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(31, 41, 55, 0.18);
+  border-radius: 8px;
+  background: #202522;
+  box-shadow: 0 8px 20px rgba(31, 41, 55, 0.08);
+}
+.paper-blog-code-bar {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  gap: 10px;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  background: #29332f;
+  color: #cbd8d1;
+  font: 700 11px/1.2 var(--font-mono);
+}
+.paper-blog-code-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.paper-blog-code-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8caaa0;
+}
+.paper-blog-code-language {
+  color: #dbe9e1;
+  text-transform: lowercase;
+}
+.paper-blog-code-copy {
+  margin-left: auto;
+  border: 1px solid rgba(219, 233, 225, 0.24);
+  border-radius: 4px;
+  padding: 4px 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #dbe9e1;
+  cursor: pointer;
+  font: inherit;
+}
+.paper-blog-code-copy:hover,
+.paper-blog-code-copy:focus-visible {
+  border-color: rgba(219, 233, 225, 0.55);
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+.paper-blog-code-block pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
 .paper-blog-equation {
   margin: 8px 0;
   min-width: 0;
@@ -5184,6 +5421,120 @@ input, select {
   color: var(--ink-secondary);
   font-size: 13px;
 }
+.paper-blog-prose > h1:first-child {
+  display: none;
+}
+.paper-blog-footer {
+  display: grid;
+  gap: 22px;
+  margin-top: 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.paper-blog-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.paper-blog-footer-label,
+.paper-blog-neighbor-label {
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+.paper-blog-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.paper-blog-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.paper-blog-tag-accent {
+  border-color: rgba(15, 123, 108, 0.3);
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+.paper-blog-neighbors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.paper-blog-neighbor {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  min-height: 72px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-sunken);
+}
+.paper-blog-neighbor a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink-primary);
+  font-weight: 750;
+  line-height: 1.4;
+}
+.paper-blog-neighbor a:hover { color: var(--accent-hover); }
+.paper-blog-neighbor-empty {
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+.paper-blog-comments {
+  display: grid;
+  gap: 14px;
+  padding-top: 4px;
+}
+.paper-blog-comments-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.paper-blog-comments-kicker {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font: 800 11px/1.2 var(--font-mono);
+  letter-spacing: .08em;
+}
+.paper-blog-comments h3 {
+  margin: 0;
+  color: var(--ink-primary);
+  font-size: 20px;
+}
+.paper-blog-comments-count {
+  display: inline-grid;
+  min-width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--ink-secondary);
+  font: 700 12px/1 var(--font-mono);
+}
+.paper-blog-comments-empty {
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  background: rgba(248, 250, 247, 0.72);
+  color: var(--ink-secondary);
+}
+.paper-blog-comments-empty strong { color: var(--ink-primary); }
 .paper-mode-immersive {
   overflow: hidden;
   border-radius: 12px;
@@ -5235,6 +5586,1370 @@ input, select {
 .paper-mode-immersive .paper-fact-stat[aria-pressed="true"] {
   border-color: rgba(255,255,255,.42);
   background: rgba(255,255,255,.14);
+}
+
+/* ============ Yantao-style theme overrides ============ */
+:root {
+  --bg-base: #fafaf8;
+  --bg-surface: #ffffff;
+  --bg-sunken: #f3f2ef;
+  --bg-sidebar: #f7f6f3;
+  --ink-primary: #1a1a1a;
+  --ink-body: #37352f;
+  --ink-secondary: #6b6b6b;
+  --ink-muted: #9b9b9b;
+  --accent: #0f7b6c;
+  --accent-light: #e6f4f1;
+  --accent-hover: #0a5d52;
+  --border: #e8e7e4;
+  --border-strong: #d4d3cf;
+  --shadow-sm: 0 1px 3px rgba(15, 45, 40, 0.05);
+  --shadow-md: 0 10px 24px rgba(15, 45, 40, 0.09);
+  --font-heading: "Noto Serif SC", "Source Serif 4", Georgia, serif;
+  --font-body: "Noto Sans SC", "Aptos", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+body {
+  color: var(--ink-body);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(15, 123, 108, 0.06), transparent 26rem),
+    linear-gradient(180deg, #ffffff 0, var(--bg-base) 34rem);
+  font: 15px/1.6 var(--font-body);
+}
+body::before {
+  opacity: 0.22;
+  background-image:
+    linear-gradient(rgba(26,26,26,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26,26,26,0.022) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+main {
+  width: min(1240px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 26px 0 54px;
+}
+.topbar {
+  min-height: 58px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(250, 250, 248, 0.88);
+  backdrop-filter: blur(10px);
+}
+.brand strong {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  letter-spacing: 0;
+}
+.topbar nav { gap: 6px; }
+.topbar nav a {
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--ink-secondary);
+}
+.topbar nav a[aria-current="page"],
+.topbar nav a:hover {
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+.home-link,
+.lang-toggle,
+.paper-detail-deep-reading-back,
+.paper-blog-detail-link,
+.pager button {
+  border-radius: 6px;
+}
+.home-link {
+  border-color: var(--border);
+  background: #fff;
+}
+.lang-toggle {
+  background: #f4f3f0;
+  color: #111;
+}
+.lang-toggle[aria-pressed="true"] {
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+.site-footer {
+  width: min(1240px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 20px 0 34px;
+  border-top: 1px solid var(--border);
+  color: var(--ink-secondary);
+}
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(34px, 4.8vw, 60px); }
+h2 { font-size: 24px; }
+h3 { font-size: 18px; }
+.hero,
+.page-heading {
+  padding: 28px 0 18px;
+}
+.hero {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 28px;
+}
+.hero p,
+.page-heading p,
+.lead {
+  max-width: 65ch;
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.global-search,
+.toolbar,
+.metric-card,
+.paper-card,
+.cluster-card,
+.blog-card,
+.gap-panel,
+.related-panel,
+.paper-layout-panel,
+.paper-summary-block,
+.paper-layout-code-card,
+.paper-layout-table-wrap,
+.paper-layout-formula,
+.paper-layout-data-table {
+  border-radius: 6px;
+  box-shadow: none;
+}
+.global-search,
+.toolbar,
+.metric-card,
+.paper-card,
+.cluster-card,
+.blog-card,
+.gap-panel,
+.related-panel,
+.paper-layout-panel,
+.paper-summary-block,
+.paper-layout-code-card,
+.paper-layout-table-wrap {
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.global-search,
+.toolbar {
+  padding: 14px;
+}
+.metrics-grid {
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+.metric-card {
+  padding: 14px 16px;
+}
+.metric-card strong {
+  font: 700 28px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.paper-card,
+.cluster-card {
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.paper-card:hover,
+.cluster-card:hover,
+.blog-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+.blog-card {
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  box-shadow: none;
+}
+.blog-card-body {
+  padding: 18px;
+}
+.blog-card-body h2 {
+  font-size: 22px;
+}
+.blog-card-cover {
+  border-right: 1px solid var(--border);
+}
+.paper-detail {
+  width: min(1240px, calc(100vw - 32px));
+  margin: 0 auto;
+  transform: none;
+  padding: 22px 0 44px;
+}
+.paper-detail-topbar {
+  margin-bottom: 16px;
+}
+.paper-mode-toggle {
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.82);
+}
+.paper-mode-toggle button {
+  border-radius: 6px;
+}
+.paper-mode-toggle button[aria-pressed="true"] {
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+.paper-detail-layout {
+  grid-template-columns: minmax(0, 700px) minmax(240px, 260px);
+  gap: 28px;
+}
+.paper-detail-aside {
+  top: 92px;
+}
+.paper-mode-deep-reading {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+.paper-detail.is-deep-reading-only .paper-mode-deep-reading {
+  width: min(1240px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+.paper-detail.is-deep-reading-only .paper-blog-section {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.paper-detail.is-deep-reading-only .paper-blog-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 260px);
+  gap: 32px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-layout:has(.paper-blog-toc.is-collapsed) {
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 24px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose {
+  width: 100%;
+  max-width: 780px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc {
+  top: 92px;
+  padding: 14px 12px 14px 16px;
+  border-radius: 6px;
+  background: rgba(247, 246, 243, 0.92);
+  box-shadow: 0 12px 28px rgba(31, 41, 55, 0.08);
+}
+.paper-blog-section {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.paper-blog-meta {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.paper-blog-title {
+  margin: 4px 0 10px;
+  max-width: 880px;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.12;
+}
+.paper-blog-meta-row {
+  align-items: flex-start;
+  gap: 10px;
+}
+.paper-blog-meta-row p {
+  color: var(--ink-secondary);
+  font-size: 13px;
+}
+.paper-blog-detail-link {
+  padding: 5px 10px;
+  border: 1px solid var(--border-strong);
+  background: #fff;
+  color: var(--ink-primary);
+  font-weight: 700;
+}
+.article-layout,
+.paper-blog-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 260px);
+  gap: 32px;
+  align-items: start;
+}
+.article-aside,
+.paper-blog-aside {
+  position: sticky;
+  top: 92px;
+  align-self: start;
+}
+.article-main,
+.paper-blog-prose {
+  min-width: 0;
+  width: 100%;
+  max-width: 780px;
+  line-height: 1.82;
+}
+.paper-blog-prose > h1:first-child {
+  display: none;
+}
+.paper-blog-prose h1,
+.paper-blog-prose h2,
+.paper-blog-prose h3 {
+  scroll-margin-top: 92px;
+  margin: 10px 0 2px;
+  color: var(--ink-primary);
+  line-height: 1.26;
+}
+.paper-blog-prose h1 { font-size: 24px; }
+.paper-blog-prose h2 { font-size: 20px; }
+.paper-blog-prose h3 { font-size: 17px; }
+.paper-blog-prose p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.paper-blog-prose ul,
+.paper-blog-prose ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 24px;
+}
+.paper-blog-prose code {
+  border-radius: 4px;
+  background: var(--bg-sunken);
+  padding: 2px 5px;
+  font: 0.92em/1.5 var(--font-mono);
+}
+.paper-blog-prose pre {
+  margin: 2px 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #202522;
+  padding: 16px;
+  color: #eef4ef;
+}
+.paper-blog-code-block {
+  overflow: hidden;
+  border: 1px solid rgba(31, 41, 55, 0.18);
+  border-radius: 6px;
+  background: #202522;
+  box-shadow: none;
+}
+.paper-blog-code-bar {
+  min-height: 34px;
+  padding: 5px 10px;
+  background: #29332f;
+  color: #cbd8d1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+.paper-blog-code-language {
+  color: #dbe9e1;
+}
+.paper-blog-code-copy {
+  border-radius: 4px;
+  color: #dbe9e1;
+}
+.paper-blog-image {
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.paper-blog-image img {
+  max-width: min(100%, 640px);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+}
+.paper-blog-footer,
+.article-footer {
+  display: grid;
+  gap: 20px;
+  margin-top: 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.article-tags,
+.paper-blog-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.paper-blog-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.paper-blog-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-sunken);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.paper-blog-tag-accent {
+  border-color: rgba(15, 123, 108, 0.3);
+  background: var(--accent-light);
+  color: var(--accent-hover);
+}
+.article-neighbors,
+.paper-blog-neighbors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.neighbor-card,
+.paper-blog-neighbor {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-sunken);
+}
+.neighbor-card a,
+.paper-blog-neighbor a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink-primary);
+  font-weight: 700;
+  line-height: 1.42;
+}
+.paper-blog-neighbor-empty {
+  color: var(--ink-secondary);
+  font-size: 13px;
+}
+.comments,
+.paper-blog-comments {
+  display: grid;
+  gap: 14px;
+}
+.paper-blog-comments-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.paper-blog-comments-kicker {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font: 800 11px/1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+}
+.paper-blog-comments h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.paper-blog-comments-count {
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--ink-secondary);
+  font: 700 12px/1 var(--font-mono);
+}
+.paper-blog-comments-empty {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.78);
+  color: var(--ink-secondary);
+}
+.paper-blog-comments-empty strong {
+  color: var(--ink-primary);
+}
+.paper-blog-toc {
+  position: sticky;
+  top: 92px;
+  z-index: 4;
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-height: calc(100vh - 126px);
+  overflow: auto;
+  padding: 14px 12px 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(247, 246, 243, 0.92);
+  box-shadow: 0 12px 28px rgba(31, 41, 55, 0.08);
+}
+.paper-blog-toc-toggle {
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  min-height: 32px;
+  border-radius: 6px;
+}
+.paper-blog-toc-toggle:hover,
+.paper-blog-toc-toggle:focus-visible {
+  background: var(--accent-light);
+}
+.paper-blog-toc-toggle-icon {
+  border: 1px solid rgba(15, 123, 108, 0.38);
+  border-radius: 4px;
+  background: #fff;
+}
+.paper-blog-toc-toggle-icon::before,
+.paper-blog-toc-toggle-icon::after {
+  background: var(--accent);
+}
+.paper-blog-toc strong {
+  color: var(--ink-primary);
+  font-size: 15px;
+}
+.paper-blog-toc-list {
+  gap: 2px;
+  padding-top: 8px;
+}
+.paper-blog-toc-link {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 0;
+  color: var(--ink-secondary);
+}
+.paper-blog-toc-link:hover,
+.paper-blog-toc-link:focus-visible,
+.paper-blog-toc-link.is-active {
+  color: var(--accent-hover);
+}
+.paper-blog-toc-link span {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.paper-blog-toc-link b {
+  font-size: 14px;
+  line-height: 1.35;
+}
+.paper-blog-toc-link.level-3 {
+  grid-template-columns: 48px minmax(0, 1fr);
+  padding-left: 12px;
+}
+.paper-layout-panel h2 {
+  font-size: 18px;
+}
+.paper-summary-block {
+  padding: 16px 16px 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,247,0.96)),
+    var(--bg-surface);
+}
+.paper-summary-block h2 {
+  margin: 4px 0 12px;
+  font-size: 22px;
+}
+.paper-summary-prose p {
+  margin: 0;
+  color: var(--ink-primary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.paper-layout-code-card {
+  padding: 10px;
+  background: var(--bg-sunken);
+}
+.paper-layout-code-card pre {
+  max-height: 260px;
+  margin: 0;
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  border-radius: 4px;
+  background: #202522;
+  padding: 10px;
+  color: #eef4ef;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.paper-layout-formula {
+  min-height: 64px;
+  padding: 14px 10px;
+  border: 1px solid rgba(31, 41, 55, 0.1);
+  background: #fff;
+}
+.paper-layout-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(31, 41, 55, 0.12);
+  background: #fff;
+}
+.paper-layout-data-table {
+  width: max-content;
+  min-width: 100%;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.paper-layout-data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #eaf4f0;
+  color: #173f37;
+  font-weight: 850;
+}
+.paper-layout-data-table th,
+.paper-layout-data-table td {
+  min-width: 104px;
+  max-width: 240px;
+  padding: 8px 10px;
+  border-right: 1px solid rgba(31, 41, 55, 0.1);
+  border-bottom: 1px solid rgba(31, 41, 55, 0.1);
+}
+.paper-layout-data-table tr:last-child td { border-bottom: 0; }
+.paper-layout-data-table th:last-child,
+.paper-layout-data-table td:last-child { border-right: 0; }
+.paper-layout-preview-note {
+  color: var(--ink-secondary) !important;
+  font-size: 11px !important;
+}
+.paper-layout-quality.good {
+  border-color: #17705f;
+  background: #dff3ec;
+  color: #0b4d40;
+}
+.paper-layout-quality.review {
+  border-color: #9b6816;
+  background: #fff1c9;
+  color: #684407;
+}
+.paper-layout-quality.fallback {
+  border-color: #a64b45;
+  background: #fce4e1;
+  color: #762d28;
+}
+
+/* ============ Yantao-style Memphis article finish ============ */
+:root {
+  --theme-ink: #111;
+  --theme-cream: #fff9ee;
+  --theme-paper: #fff;
+  --theme-yellow: #f7d358;
+  --theme-pink: #ff71ce;
+  --theme-teal: #86ccca;
+  --theme-blue: #5d8bd8;
+  --theme-red: #ef476f;
+  --theme-shadow-black: 6px 6px 0 #111;
+  --memphis-border: #2f2f2f;
+  --memphis-shadow: 5px 5px 0 rgba(47, 47, 47, 0.16);
+  --memphis-soft-shadow: 3px 3px 0 rgba(47, 47, 47, 0.06);
+  --accent-warm: #ffd166;
+}
+body {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(15, 123, 108, 0.06), transparent 26rem),
+    linear-gradient(180deg, #ffffff 0, #fbf7ea 38rem, var(--bg-base) 100%);
+}
+body::before {
+  opacity: 0.32;
+  background-size: 20px 20px;
+}
+.theme-card,
+.theme-panel {
+  border: 3px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-paper);
+  box-shadow: var(--theme-shadow-black);
+}
+.theme-control {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-paper);
+  color: var(--theme-ink);
+}
+.theme-topbar {
+  min-height: 78px;
+  padding: 0 36px;
+  border-bottom: 3px solid var(--theme-ink);
+  background: var(--theme-cream);
+  box-shadow: 0 4px 0 rgba(17, 17, 17, 0.1);
+  backdrop-filter: none;
+}
+.theme-topbar .brand strong {
+  color: var(--theme-ink);
+  font-family: "Archivo Black", "Noto Sans SC", system-ui, sans-serif;
+}
+.theme-topbar .brand span {
+  color: #665b4b;
+  font-weight: 700;
+}
+.theme-topbar nav a {
+  border: 2px solid transparent;
+  border-radius: 0;
+}
+.theme-topbar nav a[aria-current="page"] {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-yellow);
+  color: var(--theme-ink);
+  box-shadow: 3px 3px 0 rgba(17, 17, 17, 0.18);
+}
+.theme-topbar nav a:hover {
+  border-color: var(--theme-ink);
+  background: var(--theme-teal);
+  color: var(--theme-ink);
+}
+.home-link,
+.lang-toggle {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: #fff;
+  color: var(--theme-ink);
+}
+.home-link:hover,
+.lang-toggle:hover,
+.lang-toggle[aria-pressed="true"] {
+  background: var(--theme-pink);
+  color: var(--theme-ink);
+}
+.theme-footer {
+  padding: 18px 20px;
+  border: 3px solid var(--theme-ink);
+  border-width: 3px 0 0;
+  background: var(--theme-cream);
+}
+.hero .eyebrow,
+.page-heading .eyebrow,
+.paper-blog-meta .eyebrow {
+  display: inline-block;
+  width: fit-content;
+  padding: 3px 8px;
+  border: 1px solid rgba(47, 47, 47, 0.36);
+  border-radius: 3px;
+  background: var(--accent-warm);
+  color: var(--ink-primary);
+  box-shadow: 2px 2px 0 rgba(47, 47, 47, 0.12);
+}
+.topbar nav a[aria-current="page"] {
+  border: 1px solid rgba(15, 123, 108, 0.16);
+}
+.global-search,
+.toolbar,
+.metric-card,
+.paper-card,
+.cluster-card,
+.blog-card,
+.gap-panel,
+.related-panel,
+.paper-layout-panel,
+.paper-summary-block {
+  border-color: rgba(47, 47, 47, 0.14);
+  box-shadow: var(--memphis-soft-shadow);
+}
+.paper-card:hover,
+.cluster-card:hover,
+.blog-card:hover {
+  box-shadow: 4px 4px 0 rgba(47, 47, 47, 0.12);
+}
+.metric-card,
+.cluster-card,
+.gap-panel,
+.related-panel,
+.global-search,
+.toolbar {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-paper);
+  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.18);
+}
+.metric-card:nth-child(2n) { box-shadow: 5px 5px 0 var(--theme-yellow); }
+.metric-card:nth-child(3n) { box-shadow: 5px 5px 0 var(--theme-teal); }
+.toolbar input,
+.toolbar select,
+.global-search input,
+.global-search select,
+.pager button {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: #fff;
+}
+.pager button:hover,
+.pager button:focus-visible {
+  background: var(--theme-yellow);
+  color: var(--theme-ink);
+}
+.fact-chip {
+  border: 1px solid rgba(17, 17, 17, 0.52);
+  border-radius: 0;
+}
+.fact-chip.method {
+  background: var(--theme-blue);
+  color: #fff;
+}
+.paper-layout-panel,
+.paper-summary-block,
+.paper-layout-code-card,
+.paper-layout-table-wrap,
+.paper-layout-formula,
+.paper-layout-data-table,
+.paper-evidence-graph {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-paper);
+  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.13);
+  transform: none;
+}
+.paper-layout-table-wrap,
+.paper-layout-code-card,
+.paper-layout-formula {
+  overflow-x: auto;
+}
+.paper-layout-data-table th {
+  background: var(--theme-yellow);
+  color: var(--theme-ink);
+}
+.map-shell,
+.starmap-shell {
+  border: 3px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-paper);
+  box-shadow: 6px 6px 0 var(--theme-blue);
+}
+.map-sidebar,
+.starmap-sidebar {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-cream);
+}
+.map-controls,
+.starmap-controls,
+.map-legend,
+.starmap-legend {
+  border: 2px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-cream);
+}
+.report-prose,
+.digest-prose,
+.synthesis-prose,
+.narrative-prose {
+  border: 3px solid var(--theme-ink);
+  border-left: 8px solid var(--theme-yellow);
+  border-radius: 0;
+  background: var(--theme-paper);
+  box-shadow: 5px 5px 0 rgba(17, 17, 17, 0.14);
+}
+
+/* Yantao home post-stack treatment for research paper cards. */
+.paper-list {
+  width: min(850px, 100%);
+  gap: 18px;
+}
+.paper-post-card.reveal {
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 20px;
+  min-height: 172px;
+  padding: 18px;
+  border: 3px solid #111;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 8px 8px 0 #222;
+  transform: rotate(-0.8deg);
+  transform-origin: center;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.paper-post-card.reveal:nth-child(2n) {
+  box-shadow: 8px 8px 0 #ff71ce;
+  transform: rotate(0.7deg);
+}
+.paper-post-card.reveal:nth-child(3n) {
+  box-shadow: 8px 8px 0 #86ccca;
+}
+.paper-post-card.reveal:hover {
+  border-color: #111;
+  box-shadow: 8px 11px 0 #222;
+  transform: rotate(0) translateY(-4px);
+}
+.paper-post-card.reveal:nth-child(2n):hover {
+  box-shadow: 8px 11px 0 #ff71ce;
+}
+.paper-post-card.reveal:nth-child(3n):hover {
+  box-shadow: 8px 11px 0 #86ccca;
+}
+.paper-post-card .paper-card-media {
+  align-self: center;
+  width: 170px;
+  max-width: 170px;
+  min-height: 124px;
+  aspect-ratio: 4 / 3;
+  border: 1px solid #111;
+  border-radius: 12px;
+  background: #f6ecd9;
+}
+.paper-post-card .paper-cover {
+  max-height: none;
+}
+.paper-post-card .paper-cover-empty::after {
+  color: #45413b;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+.paper-post-card .paper-card-content {
+  min-height: 132px;
+  gap: 7px;
+}
+.paper-post-card .paper-title {
+  color: #171717;
+  font-family: "Archivo Black", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.16;
+  letter-spacing: 0;
+  -webkit-line-clamp: 2;
+}
+.paper-post-card .paper-title:hover {
+  color: #0f7b6c;
+  text-decoration-color: #f7d358;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.paper-post-card .paper-meta {
+  margin: 0;
+  color: #655d52;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.paper-post-card .paper-card-body > p[data-lang] {
+  margin: 1px 0 0;
+  color: #3d3933;
+  font-size: 13px;
+  line-height: 1.52;
+  -webkit-line-clamp: 2;
+}
+.paper-post-card .chip-row {
+  align-self: end;
+  margin-top: 2px;
+}
+.paper-post-card .fact-chip {
+  min-height: 19px;
+  border: 1px solid rgba(17, 17, 17, 0.22);
+  border-radius: 0;
+  font-size: 10px;
+}
+.blog-index-list {
+  width: min(850px, 100%);
+  gap: 18px;
+}
+.blog-post-card.reveal {
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 20px;
+  padding: 18px;
+  overflow: visible;
+  border: 3px solid var(--theme-ink);
+  border-radius: 0;
+  background: var(--theme-paper);
+  box-shadow: 8px 8px 0 var(--theme-ink);
+  transform: rotate(-0.7deg);
+}
+.blog-post-card.reveal:nth-child(2n) {
+  box-shadow: 8px 8px 0 var(--theme-pink);
+  transform: rotate(0.7deg);
+}
+.blog-post-card.reveal:nth-child(3n) {
+  box-shadow: 8px 8px 0 var(--theme-teal);
+}
+.blog-post-card.reveal:hover {
+  border-color: var(--theme-ink);
+  box-shadow: 8px 11px 0 var(--theme-ink);
+  transform: rotate(0) translateY(-4px);
+}
+.blog-post-card .blog-card-media {
+  min-height: 128px;
+  border: 1px solid var(--theme-ink);
+  border-radius: 12px;
+  background: #f6ecd9;
+  overflow: hidden;
+}
+.blog-post-card .blog-card-body {
+  padding: 0;
+}
+.blog-post-card h2 {
+  margin-top: 0;
+  font-family: "Archivo Black", "Noto Sans SC", system-ui, sans-serif;
+  font-size: 20px;
+  line-height: 1.15;
+}
+.paper-blog-prose {
+  padding: clamp(22px, 3vw, 38px);
+  border: 2px solid var(--memphis-border);
+  border-radius: 4px;
+  background: #fffdf8;
+  box-shadow: var(--memphis-shadow);
+}
+.paper-blog-prose h2 {
+  position: relative;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+}
+.paper-blog-prose h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 58px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent-warm);
+}
+.paper-blog-prose h3 {
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+}
+.paper-blog-toc,
+.paper-detail.is-deep-reading-only .paper-blog-toc {
+  border: 2px solid var(--memphis-border);
+  border-radius: 4px;
+  background: #fffdf8;
+  box-shadow: 4px 4px 0 rgba(47, 47, 47, 0.14);
+}
+.paper-blog-toc.is-collapsed,
+.paper-detail.is-deep-reading-only .paper-blog-toc.is-collapsed {
+  box-shadow: 3px 3px 0 rgba(47, 47, 47, 0.12);
+}
+.paper-blog-tag {
+  border-color: rgba(47, 47, 47, 0.36);
+}
+.paper-blog-tag-accent {
+  border-color: var(--memphis-border);
+  background: var(--accent-warm);
+  color: var(--ink-primary);
+}
+.neighbor-card,
+.paper-blog-neighbor,
+.paper-blog-comments-empty {
+  border-color: rgba(47, 47, 47, 0.34);
+  background: #fffdf8;
+  box-shadow: 2px 2px 0 rgba(47, 47, 47, 0.08);
+}
+
+/* ============ Yantao article layout match ============ */
+.paper-detail.is-deep-reading-only {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 56px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(91, 74, 49, 0.12) 1px, transparent 0) 0 0 / 18px 18px,
+    #fff9ee;
+}
+.paper-detail.is-deep-reading-only .paper-detail-topbar {
+  width: min(1180px, calc(100vw - 64px));
+  margin: 0 auto;
+  padding: 18px 0 10px;
+  border: 0;
+  background: transparent;
+}
+.paper-detail.is-deep-reading-only .paper-detail-deep-reading-bar {
+  border: 1px solid rgba(47, 47, 47, 0.22);
+  border-radius: 3px;
+  background: #fffdf8;
+  box-shadow: 2px 2px 0 rgba(47, 47, 47, 0.08);
+}
+.paper-detail.is-deep-reading-only .paper-mode-deep-reading {
+  --paper-blog-toc-width: 260px;
+  width: min(1180px, calc(100vw - 64px));
+  max-width: none;
+  margin-left: 30px;
+  margin-right: auto;
+}
+.paper-detail.is-deep-reading-only .paper-blog-section {
+  gap: 28px;
+  padding: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-meta {
+  width: 880px;
+  max-width: calc(100vw - 64px);
+  min-height: 174px;
+  display: grid;
+  align-content: end;
+  gap: 10px;
+  margin: 0;
+  padding: 34px 0 28px;
+  border: 0;
+  background:
+    linear-gradient(90deg, rgba(229, 239, 247, 0.86), rgba(255, 249, 238, 0.08));
+}
+.paper-detail.is-deep-reading-only .paper-blog-meta .eyebrow {
+  margin: 0;
+  border-color: rgba(47, 47, 47, 0.32);
+  background: #f7d358;
+  color: #1b1b1b;
+}
+.paper-detail.is-deep-reading-only .paper-blog-meta h1.paper-blog-title {
+  max-width: 760px;
+  margin: 0;
+  color: #1b1b1b;
+  font-family: "Archivo Black", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  font-size: clamp(31px, 3.2vw, 44px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-meta-row {
+  justify-content: flex-start;
+  gap: 16px;
+  color: #61584b;
+}
+.paper-detail.is-deep-reading-only .paper-blog-layout {
+  width: min(1180px, calc(100vw - 64px));
+  max-width: none;
+  grid-template-columns: 880px 260px;
+  gap: 40px;
+  align-items: start;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose,
+.paper-detail.is-deep-reading-only .article-main.paper-blog-prose {
+  width: 880px;
+  max-width: 880px;
+  gap: 12px;
+  padding: 44px 54px 50px;
+  border: 2px solid #2f2f2f;
+  border-radius: 0;
+  background: #fffdf8;
+  box-shadow: 5px 5px 0 rgba(47, 47, 47, 0.18);
+  color: #1b1b1b;
+  font-family: "DM Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.9;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose h1 {
+  font-family: "Archivo Black", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose h2 {
+  margin: 34px 0 14px;
+  padding-bottom: 10px;
+  font-size: 24px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose h3 {
+  margin: 24px 0 10px;
+  padding-left: 12px;
+  border-left: 4px solid #f7d358;
+  color: #1b1b1b;
+  font-size: 18px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose p,
+.paper-detail.is-deep-reading-only .paper-blog-prose li {
+  color: #2f2a23;
+  font-size: 16px;
+  line-height: 1.92;
+}
+.paper-detail.is-deep-reading-only .paper-blog-prose blockquote {
+  margin: 14px 0;
+  padding: 12px 16px;
+  border-left: 4px solid #f7d358;
+  background: #fff7dd;
+  color: #3c3428;
+}
+.paper-detail.is-deep-reading-only .paper-blog-image {
+  margin: 18px 0 22px;
+  justify-items: stretch;
+}
+.paper-detail.is-deep-reading-only .paper-blog-image img {
+  width: auto;
+  max-width: 100%;
+  max-height: none;
+  border: 1px solid rgba(47, 47, 47, 0.34);
+  border-radius: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-image figcaption {
+  max-width: 100%;
+  color: #695f50;
+  font-size: 13px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-code-block,
+.paper-detail.is-deep-reading-only .paper-blog-prose pre {
+  border: 2px solid #2f2f2f;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 rgba(47, 47, 47, 0.14);
+}
+.paper-detail.is-deep-reading-only .paper-blog-aside {
+  position: fixed;
+  top: 96px;
+  left: min(calc(100vw - 292px), calc(50vw + 330px));
+  width: 260px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+  gap: 18px;
+  z-index: 8;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc {
+  position: static;
+  grid-column: 1;
+  grid-row: auto;
+  width: 260px;
+  max-height: calc(100vh - 124px);
+  padding: 18px 18px 20px;
+  border: 2px solid #2f2f2f;
+  border-radius: 0;
+  background: #fffdf8;
+  box-shadow: 4px 4px 0 rgba(47, 47, 47, 0.18);
+  backdrop-filter: none;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc.is-collapsed {
+  width: 260px;
+  max-height: calc(100vh - 124px);
+  padding: 18px 18px 20px;
+  overflow: auto;
+  background: #fffdf8;
+  box-shadow: 4px 4px 0 rgba(47, 47, 47, 0.18);
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc.is-collapsed .paper-blog-toc-list {
+  display: grid;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc.is-collapsed .paper-blog-toc-toggle strong {
+  display: block;
+}
+.paper-detail.is-deep-reading-only .paper-blog-info {
+  grid-column: 1;
+  grid-row: auto;
+  width: 260px;
+  padding: 18px;
+  border: 2px solid #2f2f2f;
+  border-radius: 0;
+  background: #fffdf8;
+  box-shadow: 4px 4px 0 rgba(47, 47, 47, 0.18);
+}
+.paper-detail.is-deep-reading-only .paper-blog-info h3 {
+  margin: 0 0 14px;
+  color: #1b1b1b;
+  font-size: 16px;
+  line-height: 1.25;
+}
+.paper-detail.is-deep-reading-only .paper-blog-info dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-info div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding-top: 10px;
+  border-top: 1px solid rgba(47, 47, 47, 0.16);
+}
+.paper-detail.is-deep-reading-only .paper-blog-info div:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-info dt {
+  color: #6b6257;
+  font-size: 12px;
+  font-weight: 800;
+}
+.paper-detail.is-deep-reading-only .paper-blog-info dd {
+  min-width: 0;
+  margin: 0;
+  color: #1b1b1b;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc-toggle {
+  min-height: auto;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(47, 47, 47, 0.18);
+  border-radius: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc strong {
+  color: #1b1b1b;
+  font-size: 16px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc-list {
+  gap: 0;
+  padding-top: 10px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc-link {
+  grid-template-columns: 44px minmax(0, 1fr);
+  min-height: 30px;
+  padding: 6px 0;
+  color: #4f473d;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc-link span {
+  color: #0f7b6c;
+  font-size: 12px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc-link b {
+  font-size: 13px;
+  line-height: 1.35;
+}
+.paper-detail.is-deep-reading-only .paper-blog-toc-link.is-active,
+.paper-detail.is-deep-reading-only .paper-blog-toc-link:hover,
+.paper-detail.is-deep-reading-only .paper-blog-toc-link:focus-visible {
+  color: #1e66c1;
+}
+.paper-detail.is-deep-reading-only .article-footer.paper-blog-footer {
+  width: 880px;
+  max-width: calc(100vw - 64px);
+  margin-top: 48px;
+  padding-top: 0;
+  border-top: 0;
+}
+.paper-detail.is-deep-reading-only .paper-blog-tags {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 2px solid #2f2f2f;
+  background: #fffdf8;
+  box-shadow: 3px 3px 0 rgba(47, 47, 47, 0.12);
+  justify-content: flex-start;
+}
+.paper-detail.is-deep-reading-only .paper-blog-footer-label,
+.paper-detail.is-deep-reading-only .paper-blog-neighbor-label {
+  color: #6b6257;
+  font-size: 12px;
+  font-weight: 850;
+}
+.paper-detail.is-deep-reading-only .paper-blog-tag {
+  border: 2px solid rgba(47, 47, 47, 0.72);
+  border-radius: 0;
+  background: #fff9ee;
+  color: #1b1b1b;
+}
+.paper-detail.is-deep-reading-only .paper-blog-tag-accent {
+  background: #ffce5c;
+}
+.paper-detail.is-deep-reading-only .paper-blog-neighbors {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-neighbor,
+.paper-detail.is-deep-reading-only .paper-blog-comments-empty {
+  border: 2px solid #2f2f2f;
+  border-radius: 0;
+  background: #fffdf8;
+  box-shadow: 3px 3px 0 rgba(47, 47, 47, 0.12);
+}
+.paper-detail.is-deep-reading-only .paper-blog-neighbor {
+  min-height: 86px;
+  padding: 16px 18px;
+}
+.paper-detail.is-deep-reading-only .paper-blog-neighbor a {
+  color: #1b1b1b;
+}
+.paper-detail.is-deep-reading-only .paper-blog-neighbor a:hover,
+.paper-detail.is-deep-reading-only .paper-blog-neighbor a:focus-visible {
+  color: #1e66c1;
+}
+.paper-detail.is-deep-reading-only .paper-blog-comments {
+  margin-top: 20px;
+  padding: 22px 0 0;
+  border-top: 2px solid rgba(47, 47, 47, 0.22);
 }
 .paper-immersive-evidence {
   display: grid;
@@ -5831,6 +7546,31 @@ code { font-family: var(--font-mono); color: var(--ink-secondary); overflow-wrap
   .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .toolbar { grid-template-columns: 1fr; }
   .paper-card { grid-template-columns: 1fr; }
+  .paper-list { width: 100%; }
+  .paper-post-card.reveal,
+  .paper-post-card.reveal:nth-child(2n) {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-height: 0;
+    padding: 14px;
+    transform: none;
+  }
+  .paper-post-card.reveal:hover,
+  .paper-post-card.reveal:nth-child(2n):hover,
+  .paper-post-card.reveal:nth-child(3n):hover {
+    transform: translateY(-2px);
+  }
+  .paper-post-card .paper-card-media {
+    width: min(100%, 280px);
+    max-width: 280px;
+    min-height: 0;
+  }
+  .blog-post-card.reveal,
+  .blog-post-card.reveal:nth-child(2n) {
+    grid-template-columns: 1fr;
+    transform: none;
+  }
+  .blog-post-card.reveal:hover { transform: translateY(-2px); }
   .blog-index-stats, .blog-card-footer { align-items: flex-start; flex-direction: column; }
   .blog-card { grid-template-columns: 1fr; }
   .blog-card-cover { min-height: 150px; border-right: 0; border-bottom: 1px solid var(--border); }
@@ -5840,23 +7580,25 @@ code { font-family: var(--font-mono); color: var(--ink-secondary); overflow-wrap
   .paper-detail-topbar { align-items: flex-start; flex-direction: column; }
   .paper-mode-deep-reading { width: 100%; }
   .paper-detail.is-deep-reading-only .paper-mode-deep-reading { width: 100%; margin-left: 0; }
-  .paper-detail.is-deep-reading-only .paper-blog-section { padding: clamp(16px, 4vw, 22px); }
+  .paper-blog-aside { position: static; }
   .paper-blog-layout { grid-template-columns: 1fr; gap: 16px; }
   .paper-detail.is-deep-reading-only .paper-blog-layout,
   .paper-detail.is-deep-reading-only .paper-blog-layout:has(.paper-blog-toc.is-collapsed) {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  .paper-detail.is-deep-reading-only .paper-blog-prose { width: 100%; max-width: 100%; }
+  .paper-detail.is-deep-reading-only .paper-blog-prose,
+  .paper-blog-prose { width: 100%; max-width: 100%; }
   .paper-blog-toc {
+    position: fixed;
     top: auto;
     bottom: 16px;
-    left: 16px;
+    left: auto;
     right: 16px;
-    width: auto;
-    max-height: min(62vh, 460px);
+    width: min(340px, calc(100vw - 32px));
+    max-height: min(54vh, 420px);
     padding: 14px;
-    background: rgba(248, 250, 247, 0.78);
+    background: rgba(248, 250, 247, 0.92);
     box-shadow: 0 20px 56px rgba(31, 41, 55, 0.2);
     backdrop-filter: blur(18px);
   }
@@ -5864,35 +7606,37 @@ code { font-family: var(--font-mono); color: var(--ink-secondary); overflow-wrap
     position: fixed;
     top: auto;
     bottom: 16px;
-    left: 16px;
+    left: auto;
     right: 16px;
-    width: auto;
-    max-height: min(62vh, 460px);
+    width: min(340px, calc(100vw - 32px));
+    max-height: min(54vh, 420px);
     padding: 14px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: rgba(248, 250, 247, 0.78);
+    background: rgba(248, 250, 247, 0.92);
     box-shadow: 0 20px 56px rgba(31, 41, 55, 0.2);
     backdrop-filter: blur(18px);
   }
   .paper-blog-toc.is-collapsed {
-    right: auto;
-    width: 42px;
+    right: 16px;
+    width: 46px;
     padding: 8px;
     max-height: 48px;
-    background: rgba(248, 250, 247, 0.84);
+    background: rgba(248, 250, 247, 0.94);
   }
   .paper-detail.is-deep-reading-only .paper-blog-toc.is-collapsed {
-    right: auto;
-    width: 42px;
+    right: 16px;
+    width: 46px;
     padding: 8px;
     max-height: 48px;
-    background: rgba(248, 250, 247, 0.84);
+    background: rgba(248, 250, 247, 0.94);
   }
   .paper-detail.is-deep-reading-only .paper-blog-toc-toggle { padding: 4px 6px; }
-  .paper-blog-toc-list { grid-template-columns: 1fr; }
+  .paper-blog-toc-list { grid-template-columns: 1fr; max-height: min(42vh, 330px); overflow: auto; }
   .paper-blog-toc-link,
   .paper-blog-toc-link.level-3 { grid-template-columns: 38px minmax(0, 1fr); padding-left: 0; }
+  .paper-blog-info { display: none; }
+  .paper-blog-neighbors { grid-template-columns: 1fr; }
   .paper-mode-workbench, .paper-immersive-evidence { grid-template-columns: 1fr; }
   .paper-workbench-sidebar, .paper-workbench-aside { position: static; padding-right: 0; border-right: 0; }
   .paper-workbench-aside .paper-summary-block { max-height: none; overflow: hidden; }
@@ -6053,6 +7797,9 @@ SITE_JS = """
       const initial = modeFromHash() || (available.has(stored) ? stored : 'workbench');
       const apply = (modeName, options = {}) => {
         const selected = available.has(modeName) ? modeName : 'workbench';
+        if (options.updateHash && selected === 'deep-reading' && window.location.hash !== '#deep-reading') {
+          history.replaceState(null, '', '#deep-reading');
+        }
         const deepReadingOnly = selected === 'deep-reading' && (window.location.hash === '#deep-reading' || window.location.hash === '#paper-deep-reading');
         root.classList.toggle('is-deep-reading-only', deepReadingOnly);
         modes.forEach((mode) => { mode.hidden = mode.dataset.paperMode !== selected; });
@@ -6063,9 +7810,6 @@ SITE_JS = """
           button.tabIndex = active ? 0 : -1;
         });
         try { localStorage.setItem(storageKey, selected); } catch (_error) {}
-        if (options.updateHash && selected === 'deep-reading' && window.location.hash !== '#deep-reading') {
-          history.replaceState(null, '', '#deep-reading');
-        }
       };
       buttons.forEach((button) => button.addEventListener('click', () => apply(button.dataset.paperModeButton, { updateHash: true })));
       buttons.forEach((button, index) => button.addEventListener('keydown', (event) => {
@@ -6093,8 +7837,26 @@ SITE_JS = """
     document.querySelectorAll('[data-paper-blog-toc]').forEach((toc, index) => {
       const toggle = toc.querySelector('[data-paper-blog-toc-toggle]');
       const links = Array.from(toc.querySelectorAll('.paper-blog-toc-link'));
+      const section = toc.closest('[data-paper-blog-section]') || document;
+      const headings = Array.from(section.querySelectorAll('h1, h2, h3'));
+      const headingById = new Map(
+        links
+          .map((link) => {
+            const id = decodeURIComponent((link.getAttribute('href') || '').replace(/^#/, ''));
+            return [id, headings.find((heading) => heading.id === id)];
+          })
+          .filter(([, heading]) => heading)
+      );
       if (!toggle) return;
       const storageKey = `airesearch.paperBlogToc.${index}`;
+      const setActive = (activeLink) => {
+        links.forEach((link) => {
+          const active = link === activeLink;
+          link.classList.toggle('is-active', active);
+          if (active) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      };
       const setCollapsed = (collapsed, persist) => {
         toc.classList.toggle('is-collapsed', collapsed);
         toggle.setAttribute('aria-expanded', String(!collapsed));
@@ -6111,9 +7873,25 @@ SITE_JS = """
       toggle.addEventListener('click', () => setCollapsed(!toc.classList.contains('is-collapsed'), true));
       links.forEach((link) => {
         link.addEventListener('click', () => {
+          setActive(link);
           if (mobileQuery.matches) setCollapsed(true, false);
         });
       });
+      const initialHash = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+      const initialLink = links.find((link) => link.getAttribute('href') === `#${initialHash}`) || links[0];
+      setActive(initialLink);
+      if (typeof window.IntersectionObserver === 'function' && headingById.size) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (!visible.length) return;
+          const activeHeading = visible[0].target;
+          const activeLink = links.find((link) => link.getAttribute('href') === `#${activeHeading.id}`);
+          if (activeLink) setActive(activeLink);
+        }, { rootMargin: '-96px 0px -62% 0px', threshold: [0, 1] });
+        headingById.forEach((heading) => observer.observe(heading));
+      }
       if (typeof mobileQuery.addEventListener === 'function') {
         mobileQuery.addEventListener('change', (event) => {
           if (event.matches) {
@@ -6128,6 +7906,40 @@ SITE_JS = """
     });
   };
 
+  const setupPaperBlogCode = () => {
+    const copyText = async (value) => {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+      if (!copied) throw new Error('copy failed');
+    };
+    document.querySelectorAll('[data-paper-blog-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const block = button.closest('[data-paper-blog-code]');
+        const code = block ? block.querySelector('pre code') : null;
+        if (!code) return;
+        const original = button.textContent || '复制';
+        try {
+          await copyText(code.textContent || '');
+          button.textContent = '已复制';
+        } catch (_error) {
+          button.textContent = '复制失败';
+        }
+        window.setTimeout(() => { button.textContent = original; }, 1400);
+      });
+    });
+  };
+
   const setupPaperPagination = () => {
     const list = document.querySelector('.paper-list');
     const input = document.getElementById('paper-filter');
@@ -6138,6 +7950,12 @@ SITE_JS = """
     const prev = document.getElementById('prev-page');
     const next = document.getElementById('next-page');
     const label = document.getElementById('page-label');
+    // 日期筛选/排序控件（可能不存在于旧页面，全部按可选处理）
+    const sortOrder = document.getElementById('sort-order');
+    const dateBasis = document.getElementById('date-basis');
+    const dateFrom = document.getElementById('date-from');
+    const dateTo = document.getElementById('date-to');
+    const recent30 = document.getElementById('recent-30');
     if (!list || !input || !year || !type || !author || !count || !prev || !next || !label) return;
     let cards = Array.from(list.querySelectorAll('.paper-card'));
     const pageSize = Number(list.dataset.pageSize || 20);
@@ -6147,12 +7965,23 @@ SITE_JS = """
       const selectedYear = year.value;
       const selectedType = type.value;
       const selectedAuthor = author.value;
+      const fromValue = dateFrom ? dateFrom.value : '';
+      const toValue = dateTo ? dateTo.value : '';
+      const basis = dateBasis && dateBasis.value === 'published' ? 'published' : 'added';
+      const cardDate = (card) => (basis === 'published'
+        ? (card.dataset.published || card.dataset.added || '')
+        : (card.dataset.added || card.dataset.published || ''));
       const visible = cards.filter((card) => {
         const text = card.textContent.toLowerCase();
         const yearMatches = selectedYear === 'all' || card.dataset.year === selectedYear;
         const typeMatches = selectedType === 'all' || text.includes(selectedType);
         const authorMatches = selectedAuthor === 'all' || (card.dataset.authors || '').includes(selectedAuthor);
-        return (!query || text.includes(query)) && yearMatches && typeMatches && authorMatches;
+        let dateMatches = true;
+        if (fromValue || toValue) {
+          const value = cardDate(card);
+          dateMatches = Boolean(value) && (!fromValue || value >= fromValue) && (!toValue || value <= toValue);
+        }
+        return (!query || text.includes(query)) && yearMatches && typeMatches && authorMatches && dateMatches;
       });
       const maxPage = Math.max(0, Math.ceil(visible.length / pageSize) - 1);
       page = Math.min(page, maxPage);
@@ -6163,8 +7992,22 @@ SITE_JS = """
       prev.disabled = page === 0;
       next.disabled = page === maxPage;
     };
+    let allPapers = [];
     const renderCards = (papers) => {
+      allPapers = papers.slice();
+      const order = sortOrder ? sortOrder.value : 'added';
       const sorted = papers.slice().sort((a, b) => {
+        if (order === 'added' || order === 'published') {
+          const field = order === 'added' ? 'added_at' : 'published_date';
+          const secondary = order === 'added' ? 'published_date' : 'added_at';
+          const delta = String(b[field] || '').localeCompare(String(a[field] || ''));
+          if (delta) return delta;
+          const delta2 = String(b[secondary] || '').localeCompare(String(a[secondary] || ''));
+          if (delta2) return delta2;
+        } else if (order === 'title') {
+          const titleDelta = String(a.title || '').localeCompare(String(b.title || ''));
+          if (titleDelta) return titleDelta;
+        }
         const yearDelta = Number(b.year || 0) - Number(a.year || 0);
         if (yearDelta) return yearDelta;
         return String(b.paper_key || '').localeCompare(String(a.paper_key || ''));
@@ -6183,16 +8026,25 @@ SITE_JS = """
         const yearValue = Number(paper.year || 0);
         const coverPath = paper.cover_path ? escapeHtml(paper.cover_path) : '';
         const cover = coverPath
-          ? `<div class="paper-cover-wrap"><img class="paper-cover" src="../${coverPath}" alt="${title} cover" loading="lazy"></div>`
-          : '<div class="paper-cover-wrap paper-cover-empty" aria-hidden="true"></div>';
+          ? `<div class="paper-cover-wrap paper-card-media"><img class="paper-cover" src="../${coverPath}" alt="${title} cover" loading="lazy"></div>`
+          : '<div class="paper-cover-wrap paper-card-media paper-cover-empty" aria-hidden="true"></div>';
         const summaryEn = escapeHtml(paper.tldr || 'No short summary available yet.');
         const summaryZh = escapeHtml(paper.tldr_zh || paper.tldr || '暂无短摘要。');
+        // 日期标签（入库 / 发表）+ NEW 标记
+        const addedDay = String(paper.added_at || '').slice(0, 10);
+        const publishedDay = String(paper.published_date || '').slice(0, 10);
+        const dateParts = [];
+        if (addedDay) dateParts.push(`入库 ${addedDay}`);
+        if (publishedDay) dateParts.push(`发表 ${publishedDay}`);
+        const dateLine = dateParts.length ? `<p class="paper-dates">📅 ${escapeHtml(dateParts.join(' · '))}</p>` : '';
+        const newBadge = paper.is_new ? '<span class="new-badge">NEW</span>' : '';
         return `
-          <article class="paper-card reveal" data-year="${yearValue || ''}" data-authors="${escapeHtml(authorTerms)}" data-fact-count="${Number(paper.fact_count || 0)}">
+          <article class="paper-card paper-post-card reveal" data-year="${yearValue || ''}" data-added="${escapeHtml(addedDay)}" data-published="${escapeHtml(publishedDay)}" data-authors="${escapeHtml(authorTerms)}" data-fact-count="${Number(paper.fact_count || 0)}">
             ${cover}
-            <div class="paper-card-body">
+            <div class="paper-card-body paper-card-content">
               <a class="paper-title" href="../${detailPath}">${title}</a>
-              <p class="paper-meta">${escapeHtml(authors)} · ${escapeHtml(yearValue ? String(yearValue) : 'n.d.')} · ${escapeHtml(paper.paper_key || '')}</p>
+              <p class="paper-meta">${newBadge}${escapeHtml(authors)} · ${escapeHtml(yearValue ? String(yearValue) : 'n.d.')} · ${escapeHtml(paper.paper_key || '')}</p>
+              ${dateLine}
               <p data-lang="en">${summaryEn}</p>
               <p data-lang="zh">${summaryZh}</p>
               <div class="chip-row">${badges}</div>
@@ -6203,7 +8055,24 @@ SITE_JS = """
       cards = Array.from(list.querySelectorAll('.paper-card'));
       apply();
     };
-    [input, year, type, author].forEach((control) => control.addEventListener('input', () => { page = 0; apply(); }));
+    [input, year, type, author, dateBasis, dateFrom, dateTo].forEach((control) => {
+      if (control) control.addEventListener('input', () => { page = 0; apply(); });
+    });
+    if (sortOrder) sortOrder.addEventListener('change', () => {
+      page = 0;
+      if (allPapers.length) renderCards(allPapers);
+      else apply();
+    });
+    if (recent30) recent30.addEventListener('click', () => {
+      const today = new Date();
+      const past = new Date();
+      past.setDate(past.getDate() - 30);
+      if (dateBasis) dateBasis.value = 'added';
+      if (dateFrom) dateFrom.value = past.toISOString().slice(0, 10);
+      if (dateTo) dateTo.value = today.toISOString().slice(0, 10);
+      page = 0;
+      apply();
+    });
     prev.addEventListener('click', () => { page = Math.max(0, page - 1); apply(); });
     next.addEventListener('click', () => { page += 1; apply(); });
     if (list.dataset.papersSource) {
@@ -6649,6 +8518,7 @@ SITE_JS = """
   setupPaperFactPanels();
   setupPaperDetailMode();
   setupPaperBlogToc();
+  setupPaperBlogCode();
   setupPaperPagination();
   setupResearchMap();
   setupStarmap();
@@ -6730,9 +8600,27 @@ def export_report_site(bundle_dir: Path, out_path: Path | None = None) -> Report
 
     written.append(_write_text(site_root / "papers" / "index.html", _papers_page(papers)))
     written.append(_write_text(site_root / "blogs" / "index.html", _blogs_page(papers)))
+    blog_papers = [
+        paper
+        for paper in papers
+        if isinstance(paper.get("blog"), dict) and paper["blog"].get("status") == "published"
+    ]
+    blog_navigation: dict[str, tuple[dict[str, Any] | None, dict[str, Any] | None]] = {}
+    for index, blog_paper in enumerate(blog_papers):
+        paper_key = _compact_string(blog_paper.get("paper_key"))
+        blog_navigation[paper_key] = (
+            blog_papers[index - 1] if index > 0 else None,
+            blog_papers[index + 1] if index + 1 < len(blog_papers) else None,
+        )
     for paper in papers:
         detail = _paper_detail_payload(paper)
-        written.append(_write_text(site_root / "papers" / f"{detail['slug']}.html", _paper_detail_page(paper)))
+        previous, next_paper = blog_navigation.get(detail["paper_key"], (None, None))
+        written.append(
+            _write_text(
+                site_root / "papers" / f"{detail['slug']}.html",
+                _paper_detail_page(paper, previous=previous, next_paper=next_paper),
+            )
+        )
         written.append(_write_json(site_root / "api" / "papers" / f"{detail['slug']}.json", detail))
 
     written.append(_write_text(site_root / "clusters" / "index.html", _clusters_page(clusters)))

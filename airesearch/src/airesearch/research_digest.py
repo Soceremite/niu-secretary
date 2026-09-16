@@ -40,6 +40,9 @@ class DigestPaper:
     artifact_types: list[str]
     code_links: list[dict[str, str]]
     facts: dict[str, list[DigestFact]]
+    # 日期标签：published = 论文发表时间（papi meta），added_at = 入库时间（缺失时退回 created_at）
+    published_date: str = ""
+    added_at: str = ""
 
 
 @dataclass(frozen=True)
@@ -106,6 +109,19 @@ def build_research_digest(db_path: Path) -> ResearchDigest:
             raise DigestInputError("paper_cards is empty; run extract-paper-cards before generating a digest")
 
         papers: list[DigestPaper] = []
+        # 日期标签来源：papers.meta_json 的 published/added，added 缺失时退回 papers.created_at
+        date_lookup: dict[str, dict[str, str]] = {}
+        for date_row in conn.execute("select paper_key, created_at, meta_json from papers").fetchall():
+            meta = parse_json(date_row["meta_json"], {})
+            published = ""
+            added = ""
+            if isinstance(meta, dict):
+                published = str(meta.get("published") or "").strip()
+                added = str(meta.get("added") or "").strip()
+            date_lookup[str(date_row["paper_key"])] = {
+                "published_date": published,
+                "added_at": added or str(date_row["created_at"] or "").strip(),
+            }
         for row in card_rows:
             authors = parse_json(row["authors_json"], [])
             if not isinstance(authors, list):
@@ -116,6 +132,7 @@ def build_research_digest(db_path: Path) -> ResearchDigest:
             artifact_types = parse_json(row["artifact_types_json"], [])
             if not isinstance(artifact_types, list):
                 artifact_types = []
+            dates = date_lookup.get(str(row["paper_key"]), {})
             papers.append(
                 DigestPaper(
                     paper_key=row["paper_key"],
@@ -127,6 +144,8 @@ def build_research_digest(db_path: Path) -> ResearchDigest:
                     artifact_types=[str(item) for item in artifact_types],
                     code_links=code_link_payloads(conn, row["paper_key"]),
                     facts=_fact_groups(conn, row["paper_key"]),
+                    published_date=dates.get("published_date", ""),
+                    added_at=dates.get("added_at", ""),
                 )
             )
     return ResearchDigest(generated_at=utc_now(), papers=papers)
@@ -195,6 +214,8 @@ def digest_to_dict(digest: ResearchDigest) -> dict[str, Any]:
                 "authors": paper.authors,
                 "year": paper.year,
                 "venue": paper.venue,
+                "published_date": paper.published_date,
+                "added_at": paper.added_at,
                 "ids": paper.ids,
                 "artifact_types": paper.artifact_types,
                 "code_links": paper.code_links,

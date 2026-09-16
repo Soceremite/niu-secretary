@@ -144,6 +144,23 @@ def _publish_diff(previous: dict[str, str], current: dict[str, str]) -> dict[str
     }
 
 
+def _normalize_permissions(root: Path) -> None:
+    """站点产物必须 world-readable。
+
+    生成/复制时进程 umask 可能产出 700/600 权限；直接 rsync 到 nginx 会让 www-data
+    读不到，表现为站点首页 403、论文页 404（2026-09-16 实测踩过）。
+    这里只做「加读权限」，不剥夺已有位。
+    """
+    targets = [root]
+    targets.extend(root.rglob("*"))
+    for path in targets:
+        try:
+            mode = path.stat().st_mode
+            path.chmod(mode | (0o755 if path.is_dir() else 0o644))
+        except OSError:
+            continue
+
+
 def publish_static_site(source_dir: Path, out_dir: Path, *, clean: bool = True) -> StaticPublishResult:
     _validate_source_dir(source_dir)
     resolved_source = _resolve(source_dir)
@@ -159,6 +176,7 @@ def publish_static_site(source_dir: Path, out_dir: Path, *, clean: bool = True) 
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     _copy_publish_files(source_dir, out_dir, publish_files)
+    _normalize_permissions(out_dir)
 
     files_before_manifest = _relative_files(out_dir)
     current_hashes = _content_hashes(out_dir)

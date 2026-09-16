@@ -829,11 +829,22 @@ def test_paper_detail_renders_single_deep_reading_tab_with_inline_local_images(t
     assert "paper-detail.is-deep-reading-only .paper-mode-workbench" in site_css
     assert "paper-detail.is-deep-reading-only .paper-mode-immersive" in site_css
     assert ".paper-detail.is-deep-reading-only .paper-mode-deep-reading" in site_css
-    assert "grid-template-columns: minmax(184px, 220px) minmax(0, 760px)" in site_css
+    assert "grid-template-columns: minmax(0, 1fr) minmax(220px, var(--paper-blog-toc-width))" in site_css
     assert ".paper-detail.is-deep-reading-only .paper-blog-toc" in site_css
+    assert "paper-detail.is-deep-reading-only .paper-blog-section" in site_css
+    assert "paper-detail.is-deep-reading-only .paper-blog-layout" in site_css
+    assert "article-layout" in site_css
+    assert "article-aside" in site_css
+    assert "article-footer" in site_css
+    assert "Noto Serif SC" in site_css
+    assert "--memphis-border" in site_css
+    assert "--accent-warm: #ffd166;" in site_css
     assert "max-width: min(100%, 680px)" in site_css
     assert "width: auto" in site_css
     assert html_text.count('data-paper-blog-section') == 1
+    assert 'class="article-layout paper-blog-layout"' in html_text
+    assert 'class="article-main paper-blog-prose"' in html_text
+    assert 'class="article-aside paper-blog-aside"' in html_text
     assert html_text.count("工程长文正文") == 1
     assert "Attention Is All You Need 深度解读" in html_text
     assert 'class="paper-blog-equation" data-paper-blog-equation' in html_text
@@ -878,27 +889,98 @@ def test_paper_detail_renders_single_deep_reading_tab_with_inline_local_images(t
     assert 'data-paper-blog-toc' in html_text
     assert 'data-paper-blog-toc-toggle' in html_text
     assert 'aria-controls="paper-blog-toc-list"' in html_text
+    assert 'class="paper-blog-code-block" data-paper-blog-code' in html_text
+    assert 'data-paper-blog-copy>复制</button>' in html_text
+    assert 'class="comments paper-blog-comments" id="comments"' in html_text
+    assert 'class="article-neighbors paper-blog-neighbors"' in html_text
+    assert "没有更多解读" in html_text
+    assert html_text.index('class="article-main paper-blog-prose"') < html_text.index('class="paper-blog-toc"')
     assert paper_payload["blog"]["paper_key"] == "1706_03762"
     assert paper_payload["blog"]["status"] == "published"
 
     css = (site.out_path.parent / "assets" / "site.css").read_text(encoding="utf-8")
     js = (site.out_path.parent / "assets" / "site.js").read_text(encoding="utf-8")
-    assert ".paper-blog-toc {\n  position: fixed;" in css
+    assert ".paper-blog-toc {\n  position: sticky;" in css
+    assert "grid-column: 2;" in css
     assert ".paper-blog-toc.is-collapsed" in css
     assert ".paper-blog-prose {\n  display: grid;\n  min-width: 0;" in css
-    assert "grid-template-columns: minmax(0, 1fr);" in css
+    assert "grid-template-columns: 1fr;" in css
     assert "max-width: 100%;\n  overflow-x: auto;" in css
     assert ".paper-blog-prose > p:has(mjx-container)" in css
     assert ".paper-mode-deep-reading:has(.paper-blog-toc)" not in css
-    assert "--paper-blog-toc-width: 270px;" in css
+    assert "--paper-blog-toc-width: 250px;" in css
+    assert ".paper-detail.is-deep-reading-only .paper-blog-section {\n  padding: 0;" in css
+    assert ".paper-detail.is-deep-reading-only .paper-blog-layout {\n  grid-template-columns: minmax(0, 1fr) minmax(230px, 260px);" in css
+    assert ".article-layout,\n.paper-blog-layout {" in css
+    assert ".article-aside,\n.paper-blog-aside {" in css
+    assert ".article-neighbors,\n.paper-blog-neighbors {" in css
+    assert ".paper-blog-prose h2::after" in css
     assert "font-size: 14px;" in css
-    assert "background: rgba(248, 250, 247, 0.78);" in css
+    assert "background: rgba(248, 250, 247, 0.92);" in css
     assert "bottom: 16px;" in css
+    assert ".paper-blog-code-block" in css
+    assert ".paper-blog-comments" in css
+    assert ".paper-blog-neighbor" in css
+    assert ".paper-layout-panel,\n.paper-summary-block,\n.paper-layout-code-card,\n.paper-layout-table-wrap,\n.paper-layout-formula,\n.paper-layout-data-table,\n.paper-evidence-graph" in css
+    assert ".paper-layout-data-table th {\n  background: var(--theme-yellow);" in css
     assert "setupPaperBlogToc" in js
+    assert "setupPaperBlogCode" in js
+    assert "IntersectionObserver" in js
+    assert ".paper-blog-toc-link.is-active" in css
     assert "window.matchMedia('(max-width: 880px)')" in js
     assert "document.body.appendChild(toc)" not in js
     assert "if (mobileQuery.matches) return true;" in js
     assert "展开目录" in js
+
+
+def test_paper_blog_navigation_links_only_published_neighbors(tmp_path: Path):
+    bundle_dir = make_bundle(tmp_path)
+    digest = json.loads((bundle_dir / "digest.json").read_text(encoding="utf-8"))
+    digest["papers"].append(
+        {
+            "paper_key": "paper_b",
+            "title": "Paper B",
+            "authors": ["Author B"],
+            "year": 2026,
+            "facts": {},
+        }
+    )
+    (bundle_dir / "digest.json").write_text(json.dumps(digest) + "\n", encoding="utf-8")
+    (bundle_dir / "paper-blogs.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-06-19T00:00:00+00:00",
+                "blog_count": 2,
+                "blogs": [
+                    {
+                        "paper_key": "1706_03762",
+                        "title": "First deep reading",
+                        "status": "published",
+                        "word_count": 120,
+                        "markdown": "# First\n\n## Introduction\n\nFirst post.",
+                    },
+                    {
+                        "paper_key": "paper_b",
+                        "title": "Second deep reading",
+                        "status": "published",
+                        "word_count": 120,
+                        "markdown": "# Second\n\n## Introduction\n\nSecond post.",
+                    },
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    site = export_report_site(bundle_dir)
+    first_html = (site.out_path.parent / "papers" / "1706_03762.html").read_text(encoding="utf-8")
+    second_html = (site.out_path.parent / "papers" / "paper_b.html").read_text(encoding="utf-8")
+
+    assert 'href="paper_b.html#deep-reading">Paper B</a>' in first_html
+    assert 'href="1706_03762.html#deep-reading">Attention Is All You Need</a>' in second_html
+    assert first_html.count("没有更多解读") == 1
+    assert second_html.count("没有更多解读") == 1
 
 
 def test_blog_index_lists_published_deep_reading_posts(tmp_path: Path):
@@ -944,6 +1026,8 @@ def test_blog_index_lists_published_deep_reading_posts(tmp_path: Path):
     assert "深度解读博客" in blogs_html
     assert "Attention Is All You Need 深度解读" in blogs_html
     assert "Attention Is All You Need" in blogs_html
+    assert 'class="blog-card blog-post-card reveal"' in blogs_html
+    assert "blog-card-media" in blogs_html
     assert "3600 字" in blogs_html
     assert 'href="../papers/1706_03762.html#deep-reading"' in blogs_html
     assert 'href="../papers/1706_03762.html"' in blogs_html
@@ -980,6 +1064,28 @@ def test_report_site_acceptance_budgets(tmp_path: Path):
     assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in index_html
     assert "@media (max-width: 880px)" in css
     assert "data-papers-source" in papers_html
+    assert "--theme-ink: #111;" in css
+    assert "--theme-cream: #fff9ee;" in css
+    assert ".theme-card" in css
+    assert ".theme-panel" in css
+    assert ".theme-control" in css
+    assert 'class="topbar theme-topbar"' in index_html
+    assert 'class="site-footer theme-footer"' in index_html
+    assert ".theme-topbar" in css
+    assert ".theme-footer" in css
+    assert "border-bottom: 3px solid var(--theme-ink);" in css
+    assert "box-shadow: 5px 5px 0 var(--theme-yellow);" in css
+    assert ".toolbar input," in css
+    assert ".pager button {" in css
+    assert ".fact-chip.method" in css
+    assert ".map-shell,\n.starmap-shell" in css
+    assert ".map-sidebar,\n.starmap-sidebar" in css
+    assert ".report-prose,\n.digest-prose,\n.synthesis-prose,\n.narrative-prose" in css
+    assert "paper-post-card" in css
+    assert "paper-card-media" in css
+    assert "box-shadow: 8px 8px 0 #ff71ce;" in css
+    assert 'class="paper-card paper-post-card reveal"' in (bundle_dir / "index.html").read_text(encoding="utf-8")
+    assert 'class="paper-card paper-post-card reveal"' in (bundle_dir / "assets" / "site.js").read_text(encoding="utf-8")
     assert len(papers_html.encode("utf-8")) < 30_000
 
     started = perf_counter()

@@ -1,92 +1,86 @@
-# 牛秘书统一 LLM 网关配置
-# 所有板块共用：逻辑模型名 -> endpoint + 真实 model
-# key 一律通过 api_key_env 引用环境变量，绝不写在这里
 default_endpoint: sub2api
-
 endpoints:
   sub2api:
     base_url: http://124.222.22.171:8080/v1
     api_key_env: NIU_GATEWAY_API_KEY
-    style: chat_completions      # chat_completions | responses
+    style: chat_completions
     timeout_s: 120
-
   dashscope:
     base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
     api_key_env: AIRESEARCH_EMBEDDING_API_KEY
     style: chat_completions
     timeout_s: 30
-
-  # OpenCode Go 订阅（$10/月套餐）— 数据面直接打官方端点；key 来自订阅
-  # 注：airesearch/.env 里另有一份指向 sub2api 网关的 OPENCODE_GO_* 变量，两者并存
   opencode_go:
     base_url: https://opencode.ai/zen/go/v1
     api_key_env: OPENCODE_SUBSCRIPTION_KEY
     style: chat_completions
     timeout_s: 180
-
-  # DeepSeek 官方按量付费
   deepseek:
     base_url: https://api.deepseek.com/v1
     api_key_env: DEEPSEEK_API_KEY
     style: chat_completions
-    timeout_s: 120
-
+    timeout_s: 120.0
 logic_models:
-  # —— 内容生成（新闻社 / 闲趣集 cron 收编后用）——
-  # 主选 deepseek 官方按量；订阅兜底 opencode_go（套餐内不计费）；OpenAI 系再兜底
   content:
     endpoint: deepseek
     model: deepseek-v4-pro
     max_retries: 3
     fallback:
-      - { endpoint: opencode_go, model: deepseek-v4-pro }
-      - { endpoint: sub2api, model: gpt-5.6-luna }
-
-  # —— 图片审核（vision）——
+    - endpoint: opencode_go
+      model: deepseek-v4-pro
+    - endpoint: sub2api
+      model: gpt-5.6-luna
   vision:
-    endpoint: sub2api
-    model: gpt-5.6-luna
+    endpoint: opencode_go
+    model: deepseek-v4.1-flash
     max_retries: 2
     fallback:
-      - { endpoint: opencode_go, model: deepseek-v4-flash-vision-exp }
-
-  # —— 研知库：事实抽取 / 博客 / 翻译 / 公式 OCR ——
+    - endpoint: sub2api
+      model: gpt-5.6-luna
+    - endpoint: opencode_go
+      model: deepseek-v4-flash-vision-exp
   fact:
-    endpoint: sub2api
-    model: gpt-5.6-luna
-    style: responses
-
-  blog:
-    endpoint: sub2api
-    model: gpt-5.6-luna
-    style: responses
-
-  translate:
-    endpoint: sub2api
-    model: gpt-5.6-luna
-
-  formula_ocr:
-    endpoint: sub2api
-    model: gpt-5.6-luna
+    endpoint: opencode_go
+    model: deepseek-v4.1-flash
     max_retries: 2
-
+    fallback:
+    - endpoint: sub2api
+      model: gpt-5.6-luna
+  blog:
+    endpoint: opencode_go
+    model: deepseek-v4.1-flash
+    max_retries: 2
+    fallback:
+    - endpoint: sub2api
+      model: gpt-5.6-luna
+  translate:
+    endpoint: opencode_go
+    model: mimo-v2.5
+    max_retries: 2
+    fallback:
+    - endpoint: opencode_go
+      model: deepseek-v4.1-flash
+    - endpoint: sub2api
+      model: gpt-5.6-luna
+  formula_ocr:
+    endpoint: opencode_go
+    model: deepseek-v4.1-flash
+    max_retries: 2
+    fallback:
+    - endpoint: sub2api
+      model: gpt-5.6-luna
   embed:
     endpoint: dashscope
     model: text-embedding-v4
     max_retries: 2
-
-  # —— 牛秘书 server 对话：意图分类/动作生成 ——
-  # 实测 (2026-09-15, 4 分类用例×11 模型)：opencode glm-5.3-flash 4/4 全对且 1.7s 最快；
-  # deepseek 系 2-3/4 且常有空输出；deepseek-v4-pro 稳定误判。订阅内不计费，成本 0。
   assistant:
     endpoint: opencode_go
     model: glm-5.3-flash
     max_retries: 2
     fallback:
-      - { endpoint: sub2api, model: gpt-5.6-sol }
-
-  # —— 快速小任务（flash 档）——
+    - endpoint: sub2api
+      model: gpt-5.6-sol
   flash:
-    endpoint: sub2api
-    model: gpt-5.6-luna
+    endpoint: opencode_go
+    model: mimo-v2.5
     timeout_s: 30

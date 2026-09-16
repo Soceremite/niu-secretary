@@ -148,8 +148,11 @@ class OpenAICompatibleClient:
             headers={
                 "authorization": f"Bearer {api_key}",
                 "content-type": "application/json",
-                "user-agent": "OpenClaw/1.0",
+                # OpenCode relay 硬要求（2026-09-16）：正常 UA + x-opencode-session 路由亲和头，
+                # 否则返回 400 {"type":"MissingSessionID"}；niu_core 内置同款，自建请求需自带。
+                "user-agent": "NiuSecretary-LLM/1.0 (AIResearch)",
                 "accept": "application/json",
+                "x-opencode-session": "niu-airesearch-fact",
             },
             method="POST",
         )

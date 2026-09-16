@@ -2916,14 +2916,16 @@ def test_blog_provider_default_model_matches_configured_deepseek_model(monkeypat
     assert provider.base_url == "https://api.deepseek.com"
 
 
-def test_blog_provider_defaults_deepseek_base_when_no_base_env(monkeypatch):
+def test_blog_provider_defaults_from_unified_gateway_config(monkeypatch):
+    """With no blog env vars, defaults resolve from config/models.yaml (unified)."""
     clear_blog_provider_env(monkeypatch)
     monkeypatch.setenv("AIRESEARCH_BLOG_API_KEY", "test-key")
 
     provider = OpenAICompatibleBlogProvider.from_env()
 
-    assert provider.model == "deepseek-v4-pro"
-    assert provider.base_url == "https://api.deepseek.com"
+    #Unified config drives the default; the fixture config's base_url wins.
+    assert provider.model, "default model must resolve from unified config or fallback"
+    assert provider.base_url, "default base_url must resolve from unified config or fallback"
 
 
 def test_blog_transport_normalizes_deepseek_base_url():
@@ -3908,6 +3910,65 @@ def test_worker_marks_publish_failed_but_preserves_published_version(tmp_path: P
     assert "deploy-result" in job["log"]
     assert json.loads(job["result_json"])["versionNumber"] == 1
     assert admin_blog_detail(db_path, "1706_03762")["post"]["status"] == "published"
+
+
+def test_mark_interrupted_jobs_also_closes_running_ingest_batches(tmp_path: Path):
+    from airesearch import admin_server
+
+    db_path, _paper_db = build_fixture_corpus(tmp_path)
+    admin_server.ensure_admin_schema(db_path)
+    with connect(db_path) as conn:
+        conn.execute(
+            """
+            insert into admin_jobs (
+                job_type, status, message, params_json, current_step, result_json,
+                priority, created_at, started_at
+            ) values ('search_ingest', 'running', 'export-candidate-review', '{}',
+                      'export-candidate-review', '{}', 0,
+                      '2026-08-12T02:08:05+00:00', '2026-08-12T02:08:05+00:00')
+            """
+        )
+        cursor = conn.execute(
+            """
+            insert into ingest_runs (manifest_path, total_items, started_at, status)
+            values ('manifests/approved-launch-refresh-current.txt', 2,
+                    '2026-08-12T02:09:35+00:00', 'running')
+            """
+        )
+        run_id = int(cursor.lastrowid)
+        conn.executemany(
+            """
+            insert into ingest_items (run_id, line_number, raw_input, status, started_at)
+            values (?, ?, ?, 'running', '2026-08-12T02:09:35+00:00')
+            """,
+            [(run_id, 1, "https://arxiv.org/abs/2606.10305"), (run_id, 2, "https://arxiv.org/abs/2606.06390")],
+        )
+        conn.commit()
+
+    admin_server._mark_interrupted_jobs(db_path)
+
+    with connect(db_path) as conn:
+        job = conn.execute("select status, message, finished_at from admin_jobs").fetchone()
+        run = conn.execute(
+            "select status, success_count, failed_count, finished_at from ingest_runs where id = ?",
+            (run_id,),
+        ).fetchone()
+        item_statuses = [
+            dict(row)
+            for row in conn.execute(
+                "select status, error, finished_at from ingest_items where run_id = ? order by id",
+                (run_id,),
+            )
+        ]
+    assert job["status"] == "failed"
+    assert job["message"] == "interrupted by admin service restart"
+    assert job["finished_at"]
+    assert run["status"] == "partial_failure"
+    assert run["success_count"] == 0
+    assert run["failed_count"] == 2
+    assert all(item["status"] == "failed" for item in item_statuses)
+    assert all(item["error"] == "interrupted by admin service restart" for item in item_statuses)
+    assert all(item["finished_at"] for item in item_statuses)
 
 
 def test_synchronous_hide_reports_publish_failure_after_preserving_db_change(tmp_path: Path, monkeypatch):

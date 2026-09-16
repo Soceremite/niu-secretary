@@ -437,6 +437,137 @@ def arxiv_pdf_fallback_command(
     return command
 
 
+# ------------------------------------------------------------ conference fallback
+# 会议论文（CVPR/NeurIPS/ICLR/AAAI）常年没有 arXiv 版：discovery 抓到的是会议落地页，
+# 「标题 → arXiv 搜索」必然落空，整类长期积压。但这些落地页直接给出 PDF 直链，
+# 可走 `papi add --pdf` 真正入库。2026-09-16 实测：
+#   ① CVPR openaccess 页内 href 指向 ..._paper.pdf（相对路径，需 urljoin）
+#   ② NeurIPS/ICLR：hash/<x>-Abstract-Conference.html → file/<x>-Paper-Conference.pdf（推导）
+# 两类均 HTTP 200 + application/pdf + %PDF- 魔数。
+CONFERENCE_PAGE_HOSTS = (
+    "openaccess.thecvf.com",
+    "proceedings.neurips.cc",
+    "proceedings.iclr.cc",
+    "proceedings.mlr.press",
+    "ojs.aaai.org",
+)
+
+
+def is_conference_page(value: str) -> bool:
+    """会议论文落地页判定（按 host，不猜）"""
+    text = (value or "").strip().lower()
+    if not text.startswith(("http://", "https://")):
+        return False
+    return any(host in text for host in CONFERENCE_PAGE_HOSTS)
+
+
+def _conference_pdf_href(markup: str, page_url: str) -> str:
+    """页内主论文 PDF（跳过 supplemental）"""
+    for href in re.findall(r'href="([^"]+\.pdf)"', markup, flags=re.I):
+        if "supplement" in href.lower():
+            continue
+        return urllib.parse.urljoin(page_url, html_unescape(href))
+    return ""
+
+
+def _proceedings_derived_pdf(page_url: str) -> str:
+    """NeurIPS / ICLR proceedings 的确定性推导（页内无 href 时用）"""
+    if "-Abstract-Conference.html" not in page_url:
+        return ""
+    return page_url.replace("/hash/", "/file/").replace(
+        "-Abstract-Conference.html", "-Paper-Conference.pdf"
+    )
+
+
+def _conference_year(page_url: str, markup: str) -> int | None:
+    raw = _meta_content(markup, "citation_publication_date") or _meta_content(markup, "citation_date")
+    if raw:
+        year = year_from_text(raw)
+        if year:
+            return year
+    match = re.search(r"/(20\d{2})/", page_url)
+    return int(match.group(1)) if match else None
+
+
+def fetch_conference_metadata(page_url: str, *, opener: HttpOpener = default_opener) -> dict[str, Any]:
+    """会议落地页 → PDF 直链 + 元数据（citation_* meta 优先，缺失时退回 <title> / 页内 abstract 块）"""
+    markup = fetch_text(page_url, opener=opener, headers={"User-Agent": ARXIV_USER_AGENT}, timeout=45.0)
+    pdf_url = (
+        _meta_content(markup, "citation_pdf_url")
+        or _conference_pdf_href(markup, page_url)
+        or _proceedings_derived_pdf(page_url)
+    )
+    title = _meta_content(markup, "citation_title")
+    if not title:
+        title_tag = re.search(r"<title[^>]*>(.*?)</title>", markup, flags=re.S)
+        title = _strip_markup(title_tag.group(1)) if title_tag else ""
+    authors = [
+        compact_text(html_unescape(author))
+        for author in re.findall(r'<meta name="citation_author" content="([^"]*)"', markup)
+    ]
+    abstract = ""
+    block = re.search(
+        r'<(?:div|section)[^>]*(?:id|class)="[^"]*abstract[^"]*"[^>]*>(.*?)</(?:div|section)>',
+        markup,
+        flags=re.S | re.I,
+    )
+    if not block:
+        # NeurIPS / ICLR 用 <p class="paper-abstract"><p>…</p></section>
+        block = re.search(
+            r'<p[^>]*class="[^"]*abstract[^"]*"[^>]*>(.*?)</section>',
+            markup,
+            flags=re.S | re.I,
+        )
+    if block:
+        abstract = compact_text(re.sub(r"^Abstract[:\s]*", "", _strip_markup(block.group(1))))
+    return {
+        "title": title,
+        "authors": [author for author in authors if author],
+        "abstract": abstract,
+        "year": _conference_year(page_url, markup),
+        "pdf_url": pdf_url,
+        "page_url": page_url,
+    }
+
+
+def conference_pdf_fallback_command(
+    papi_executable: str,
+    value: str,
+    *,
+    opener: HttpOpener = default_opener,
+) -> list[str] | None:
+    """会议落地页 → `papi add --pdf ...`：没有 arXiv 版的会议论文的唯一入库通道"""
+    if not is_conference_page(value):
+        return None
+    try:
+        meta = fetch_conference_metadata(value, opener=opener)
+    except Exception:
+        return None
+    if not meta["title"] or not meta["pdf_url"]:
+        return None
+    command = [papi_executable, "add", "--pdf", meta["pdf_url"], "--title", meta["title"]]
+    if meta["authors"]:
+        command += ["--authors", "; ".join(meta["authors"])]
+    if meta["abstract"]:
+        command += ["--abstract", meta["abstract"]]
+    if meta["year"]:
+        command += ["--year", str(meta["year"])]
+    command += ["--url", value]
+    return command
+
+
+def pdf_fallback_command(
+    papi_executable: str,
+    value: str,
+    *,
+    opener: HttpOpener = default_opener,
+) -> list[str] | None:
+    """统一 PDF 兜底入口：arXiv（走 abs 页）优先，其次会议落地页（走 page → pdf）"""
+    return arxiv_pdf_fallback_command(papi_executable, value, opener=opener) or conference_pdf_fallback_command(
+        papi_executable, value, opener=opener
+    )
+
+
 class ArxivProvider:
     name = "arxiv"
 

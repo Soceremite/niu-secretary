@@ -71,8 +71,10 @@ def test_openai_formula_ocr_payload_and_result():
     url, headers, payload, timeout = requests[0]
     assert url.endswith("/chat/completions")
     assert headers["Authorization"] == "Bearer secret"
-    assert headers["User-Agent"] == "OpenClaw/1.0"
+    # OpenCode relay 硬要求：正常 UA + x-opencode-session 路由亲和头，缺失会被 400 MissingSessionID 拒绝
+    assert headers["User-Agent"] == "NiuSecretary-LLM/1.0 (AIResearch)"
     assert headers["Accept"] == "application/json"
+    assert headers["x-opencode-session"] == "niu-airesearch-formula-ocr"
     image_url = payload["messages"][0]["content"][1]["image_url"]["url"]
     assert image_url == "data:image/png;base64," + base64.b64encode(b"formula-png").decode("ascii")
     assert timeout == 30

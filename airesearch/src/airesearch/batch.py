@@ -10,7 +10,7 @@ import urllib.request
 
 from airesearch.db import connect, init_db
 from airesearch.paperpipe_sync import sync_paperpipe, utc_now
-from airesearch.providers import arxiv_id_from_input, arxiv_pdf_fallback_command
+from airesearch.providers import arxiv_id_from_input, is_conference_page, pdf_fallback_command
 from airesearch.url_normalizer import (
     NormalizeCategory,
     normalize_url_raw,
@@ -206,7 +206,7 @@ def run_batch_ingest(
     items = parse_manifest(manifest_path)
     run_id = create_run(db_path, manifest_path, len(items))
 
-    jobs: list[tuple[int, str, str | None]] = []
+    jobs: list[tuple[int, str, str | None, str]] = []
     for item in items:
         item_id = create_item(db_path, run_id, item)
         if known_source_exists(db_path, item.raw_input) or known_arxiv_id_exists(
@@ -232,9 +232,18 @@ def run_batch_ingest(
                 )
                 continue
 
-        jobs.append((item_id, papi_input, norm_result.method if norm_result and norm_result.method else None))
+        jobs.append(
+            (
+                item_id,
+                papi_input,
+                norm_result.method if norm_result and norm_result.method else None,
+                item.raw_input,
+            )
+        )
 
-    def run_papi(item_id: int, papi_input: str, normalizer_method: str | None) -> tuple[int, subprocess.CompletedProcess[str], str | None, bool]:
+    def run_papi(
+        item_id: int, papi_input: str, normalizer_method: str | None, raw_input: str
+    ) -> tuple[int, subprocess.CompletedProcess[str], str | None, bool]:
         env = os.environ.copy()
         env["PAPER_DB_PATH"] = str(paper_db_path)
 
@@ -268,7 +277,11 @@ def run_batch_ingest(
         if completed.returncode != 0:
             # arXiv export API is rate-limited often enough that `papi add <id>` fails
             # outright; retry through the public PDF endpoint, which stays reachable.
-            fallback_command = arxiv_pdf_fallback_command(papi_executable, papi_input)
+            # Conference landing pages (CVPR/NeurIPS/ICLR/AAAI) have no arXiv version at
+            # all — the unified fallback also maps their page → PDF (2026-09-16).
+            # 会议页归一化后 papi_input 会是「抽出来的标题」，兜底必须拿原始 URL 才能 page→pdf
+            fallback_value = raw_input if is_conference_page(raw_input) else papi_input
+            fallback_command = pdf_fallback_command(papi_executable, fallback_value)
             if fallback_command is not None:
                 completed = _run(fallback_command, PAPI_FALLBACK_TIMEOUT_S)
                 used_fallback = completed.returncode == 0

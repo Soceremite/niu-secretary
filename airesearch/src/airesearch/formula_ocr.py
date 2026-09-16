@@ -291,8 +291,11 @@ class OpenAICompatibleFormulaOCRProvider:
         return {
             "Authorization": f"Bearer {self.config.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "OpenClaw/1.0",
+            # OpenCode relay 硬要求（2026-09-16）：正常 UA + x-opencode-session 路由亲和头，
+            # 缺失时返回 400 MissingSessionID；niu_core 内置同款，自建请求需自带。
+            "User-Agent": "NiuSecretary-LLM/1.0 (AIResearch)",
             "Accept": "application/json",
+            "x-opencode-session": "niu-airesearch-formula-ocr",
         }
 
     def _payload(

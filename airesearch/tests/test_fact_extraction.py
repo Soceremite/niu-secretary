@@ -429,7 +429,9 @@ def test_openai_compatible_client_supports_responses_endpoint(monkeypatch):
     assert result == {"facts": []}
     request, timeout = requests[0]
     assert request.full_url == "https://opencode.example/v1/responses"
-    assert request.get_header("User-agent") == "OpenClaw/1.0"
+    # OpenCode relay 硬要求：正常 UA + x-opencode-session 路由亲和头（缺失会被 400 MissingSessionID 拒绝）
+    assert request.get_header("User-agent") == "NiuSecretary-LLM/1.0 (AIResearch)"
+    assert request.get_header("X-opencode-session") == "niu-airesearch-fact"
     assert request.get_header("Accept") == "application/json"
     payload = json.loads(request.data)
     assert payload["input"][0]["role"] == "system"

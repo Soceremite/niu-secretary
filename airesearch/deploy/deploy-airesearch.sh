@@ -22,7 +22,7 @@ else
 fi
 
 mkdir -p "$DEPLOY_ROOT"
-rsync -a --delete "$SITE_DIR"/ "$DEPLOY_ROOT"/
+rsync -a --delete --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r "$SITE_DIR"/ "$DEPLOY_ROOT"/
 cat > "$DEPLOY_ROOT/deploy-manifest.json" <<EOF
 {"snapshot":"$SNAPSHOT_DIR","site_dir":"$SITE_DIR","deploy_root":"$DEPLOY_ROOT","deployed_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
 EOF

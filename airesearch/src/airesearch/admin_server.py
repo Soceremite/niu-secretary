@@ -1348,9 +1348,13 @@ def ingest_single_paper(
     if completed.returncode != 0:
         # The arXiv export API rate-limits often enough that `papi add <id>` fails out
         # of hand; retry through the public PDF endpoint, which stays reachable.
-        from airesearch.providers import arxiv_pdf_fallback_command
+        # Unified entry also covers conference landing pages (CVPR/NeurIPS/ICLR/AAAI),
+        # which never have an arXiv version — see providers.pdf_fallback_command.
+        from airesearch.providers import is_conference_page, pdf_fallback_command
 
-        fallback_command = arxiv_pdf_fallback_command(papi_executable, normalized_input)
+        # 会议页归一化后 normalized_input 是「抽出来的标题」；兜底必须用原始 URL 才能 page→pdf
+        fallback_value = paper_input if is_conference_page(paper_input) else normalized_input
+        fallback_command = pdf_fallback_command(papi_executable, fallback_value)
         if fallback_command is not None:
             completed = _run_papi(fallback_command, timeout=300)
             used_fallback = completed.returncode == 0
