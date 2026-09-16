@@ -42,4 +42,8 @@ def pytest_configure(config):
     cfg_file = cfg_dir / "models.yaml"
     cfg_file.write_text(FIXTURE_MODELS_YAML, encoding="utf-8")
     os.environ["NIU_LLM_CONFIG"] = str(cfg_file)
+    # 调用记账隔离（2026-09-16）：测试产生的假调用不得写进真实 data/llm_calls.sqlite3
+    log_dir = Path(tempfile.mkdtemp(prefix="niu-test-llmlog-"))
+    os.environ["NIU_LLM_LOG_DB"] = str(log_dir / "llm_calls.sqlite3")
+    os.environ["NIU_LLM_CALLER"] = "pytest-airesearch"
     os.environ["TEST_NIU_GATEWAY_KEY"] = "sk-test-fixture"

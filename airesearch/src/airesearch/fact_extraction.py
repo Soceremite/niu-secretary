@@ -21,6 +21,16 @@ try:  # unified LLM gateway config (models.yaml) — optional, falls back gracef
 except Exception:  # pragma: no cover - niu_core not on path in some deploys
     _niu_compat = None  # type: ignore[assignment]
 
+try:  # 调用记账（2026-09-16）：统一层之外的「自建 HTTP」需要自带埋点
+    from niu_core.llm_client import call_log as _call_log
+except Exception:  # pragma: no cover - 同上，缺失时退化为不记账
+    class _NullCallLog:
+        @staticmethod
+        def tracked(*_args, **_kwargs):
+            return lambda func: func
+
+    _call_log = _NullCallLog()  # type: ignore[assignment]
+
 
 class _CompatProxy:
     """Duck-typed access to compat.resolve; no-op when niu_core is absent."""
@@ -120,6 +130,7 @@ class OpenAICompatibleClient:
             )
         return ""
 
+    @_call_log.tracked("fact", endpoint_param="base_url")
     def complete_json(self, *, model: str, base_url: str | None, api_key: str, prompt: str) -> dict[str, Any]:
         endpoint, api_style = self._endpoint(base_url)
         if api_style == "responses":

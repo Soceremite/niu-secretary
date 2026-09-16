@@ -12,6 +12,7 @@ import urllib.error
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence
 
+from . import call_log
 from .config import LLMConfig, EndpointConfig, LogicModel, FallbackEntry
 from .errors import (
     AuthenticationError,
@@ -20,6 +21,20 @@ from .errors import (
     RateLimitError,
     TimeoutError as LLMTimeoutError,
 )
+
+
+def _messages_chars(messages: Sequence[Dict[str, Any]]) -> int:
+    """估算 prompt 体量（只记字符数，不记正文）。兼容 vision 的 content 数组。"""
+    total = 0
+    for message in messages or []:
+        content = message.get("content") if isinstance(message, dict) else None
+        if isinstance(content, str):
+            total += len(content)
+        elif isinstance(content, list):
+            for part in content:
+                if isinstance(part, dict) and isinstance(part.get("text"), str):
+                    total += len(part["text"])
+    return total
 
 
 @dataclass(frozen=True)
@@ -131,21 +146,44 @@ class NiuLLM:
         attempts += [(self._fallback_to_spec(fb), True) for fb in lm.fallback]
 
         last_error: Optional[Exception] = None
-        for spec, is_fallback in attempts:
+        prompt_chars = _messages_chars(messages)
+        for attempt_no, (spec, is_fallback) in enumerate(attempts, start=1):
             endpoint = self.config.endpoint_for(spec)
+            started = time.monotonic()
+
+            def _log(status: str, *, resp: Optional[LLMResponse] = None,
+                     error: Optional[BaseException] = None) -> None:
+                """记一次尝试（主选/备选/跳过）。记的是元信息，不含 prompt 正文。"""
+                usage = (resp.usage if resp else None) or {}
+                call_log.record(
+                    logic_model=logic_name, status=status, endpoint=endpoint.name,
+                    model=(resp.model if resp else spec.model), attempt=attempt_no,
+                    is_fallback=is_fallback, style=spec.style,
+                    latency_ms=int((time.monotonic() - started) * 1000),
+                    prompt_chars=prompt_chars, reply_chars=len(resp.text) if resp else 0,
+                    input_tokens=usage.get("prompt_tokens"),
+                    output_tokens=usage.get("completion_tokens"),
+                    error=error,
+                )
+
             try:
                 self.config.resolve_key(endpoint)
             except Exception as exc:
                 last_error = exc
+                _log("skipped_no_key", error=exc)
                 continue
             if self.pool.in_cooldown(endpoint.name):
                 last_error = LLMError(f"endpoint '{endpoint.name}' is cooling down")
+                _log("skipped_cooldown", error=last_error)
                 continue
             try:
-                return self._call_chat(endpoint, spec.model, messages, spec.timeout_s,
+                resp = self._call_chat(endpoint, spec.model, messages, spec.timeout_s,
                                        spec.style, lm.max_retries, is_fallback, **overrides)
+                _log("ok", resp=resp)
+                return resp
             except (RateLimitError, LLMError, AuthenticationError) as exc:
                 last_error = exc
+                _log("error", error=exc)
                 continue
         raise last_error or LLMError(f"no usable endpoint for logic model '{logic_name}'")
 
@@ -162,12 +200,32 @@ class NiuLLM:
         endpoint = self.config.endpoint_for(lm)
         api_key = self.config.resolve_key(endpoint)
         payload = {"model": lm.model, "input": list(texts)}
-        status, data = self._request(
-            endpoint, f"{endpoint.base_url}/embeddings", payload, api_key, lm.timeout_s
-        )
+        started = time.monotonic()
+        prompt_chars = sum(len(t) for t in texts)
+
+        def _log(status: str, *, error: Optional[BaseException] = None, n_texts: int = 0,
+                 tokens: Optional[int] = None) -> None:
+            call_log.record(logic_model=logic_name, status=status, endpoint=endpoint.name,
+                            model=lm.model, style=lm.style,
+                            latency_ms=int((time.monotonic() - started) * 1000),
+                            prompt_chars=prompt_chars, reply_chars=n_texts,
+                            input_tokens=tokens, error=error)
+
+        try:
+            status, data = self._request(
+                endpoint, f"{endpoint.base_url}/embeddings", payload, api_key, lm.timeout_s
+            )
+        except Exception as exc:
+            _log("error", error=exc)
+            raise
         rows = data.get("data") or []
         if not rows or not all("embedding" in r for r in rows):
-            raise BadResponseError(f"{endpoint.name}: embedding response missing 'data[].embedding'")
+            err = BadResponseError(f"{endpoint.name}: embedding response missing 'data[].embedding'")
+            _log("error", error=err)
+            raise err
+        usage = data.get("usage") or {}
+        _log("ok", n_texts=len(rows),
+             tokens=usage.get("prompt_tokens") or usage.get("total_tokens"))
         return [r["embedding"] for r in rows]
 
     # --------------------------------------------------------------- vision

@@ -19,6 +19,16 @@ try:  # unified LLM gateway config (config/models.yaml) — optional, degrades g
     from niu_core.llm_client import compat as _niu_llm_compat
 except Exception:  # pragma: no cover
     _niu_llm_compat = None  # type: ignore[assignment]
+
+try:  # 调用记账（2026-09-16）：blog provider 是自建 HTTP，需自带埋点
+    from niu_core.llm_client import call_log as _call_log
+except Exception:  # pragma: no cover
+    class _NullCallLog:
+        @staticmethod
+        def tracked(*_args, **_kwargs):
+            return lambda func: func
+
+    _call_log = _NullCallLog()  # type: ignore[assignment]
 from airesearch.db import connect, init_db
 from airesearch.formula_ocr import is_likely_formula
 from airesearch.image_selection import image_dimensions
@@ -2021,6 +2031,7 @@ class OpenAICompatibleBlogTransport:
             payload["thinking"] = {"type": "disabled"}
         return payload
 
+    @_call_log.tracked("blog", endpoint_param="base_url", prompt_param="messages")
     def complete_json(
         self,
         *,
@@ -2147,6 +2158,7 @@ class OpenAIResponsesBlogTransport:
             raise RuntimeError("provider response must be a JSON object")
         return decoded
 
+    @_call_log.tracked("blog", endpoint_param="base_url", prompt_param="messages")
     def complete_json(
         self,
         *,

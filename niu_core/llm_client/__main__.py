@@ -1,4 +1,4 @@
-"""Command-line entry: python -m niu_core.llm_client doctor [logic_name]"""
+"""Command-line entry: python -m niu_core.llm_client doctor|report [logic_name]"""
 from __future__ import annotations
 
 import argparse
@@ -17,7 +17,17 @@ def main(argv: list[str] | None = None) -> int:
     doctor.add_argument("logic", nargs="?", default=None,
                         help="optionally send a tiny live chat to this logic model")
 
+    report = sub.add_parser("report", help="show LLM call-log summary (usage / failure rate)")
+    report.add_argument("--days", type=int, default=7)
+    report.add_argument("--limit", type=int, default=20)
+
     args = parser.parse_args(argv)
+
+    if args.cmd == "report":
+        from . import call_log
+
+        print(call_log.report(days=args.days, limit=args.limit))
+        return 0
 
     try:
         llm = NiuLLM.load()
