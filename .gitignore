@@ -36,6 +36,16 @@ backups/
 
 # Vue rebuild workspace
 /web/node_modules/
+
+# 本地数据 / 日志 / 备份（2026-09-16 补：这些曾以未跟踪状态暴露在 git status 里）
+# 注意 /airesearch/data 是符号链接 → 规则不能带结尾斜杠（带斜杠只匹配目录）
+/airesearch/data
+/airesearch/deploy-snapshots/
+/news-daily/logs/
+/leisure/logs/
+/news-daily/news_data.json
+*.env.bak*
+*.env.*.bak*
 /web/dist/
 
 # API 统一层的产物/缓存（2026-09-15 重构）
