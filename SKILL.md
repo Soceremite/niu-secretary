@@ -348,6 +348,17 @@ sudo deploy/rollback-airesearch.sh latest
 
 **⚠️ 动 `airesearch/.env` 的铁律（2026-09-16 血案）**：服务的启动脚本是 `set -euo pipefail`，`.env` 里若有**引用已被注释变量的行**（例如 `export OPENCODE_GO_API_KEY="$AIRESEARCH_FACT_API_KEY"`）会在 `unbound variable` 下直接退出 → 服务崩溃重启循环（本次实测重启计数冲到 12）、站点全挂。所以：① 注释任何变量前先 `grep -n '\$那变量' .env` 查引用；② 改完**必须先 `bash -u` 干跑**（`bash -u -c 'set -euo pipefail; set -a; source config/.env; source airesearch/.env; set +a; : "${OPENCODE_GO_API_KEY:?}"'`）；③ 再 `systemctl restart` 并用 `systemctl is-active` + `journalctl | grep -c "unbound variable"` 确认。
 
+**📊 LLM 调用记录（2026-09-16 新增）**：统一层 `niu_core.llm_client` 现在给每次调用记一行（`data/llm_calls.sqlite3`，只记元信息不记正文）。查看：
+
+```bash
+python3 -m niu_core.llm_client report --days 7      # 按路由/端点/模型 + 按调用方聚合
+python3 -m niu_core.llm_client report --days 1
+```
+
+字段：`ts / caller / logic_model / attempt / is_fallback / endpoint / model / style / status / error_* / latency_ms / prompt_chars / reply_chars / input_tokens / output_tokens`。`status` 有 `ok / error / skipped_no_key / skipped_cooldown` —— **"备选被用上了" 和 "端点缺 key 被跳过" 都能一眼看到**，这正是 2026-09-16 那类「悄悄落回网关/模型没换」问题的探针。`NIU_LLM_LOG=0` 可关，`NIU_LLM_LOG_DB` 可改落点；自建 HTTP 的调用方用 `call_log.tracked("route", endpoint_param=...)` 装饰器埋点（fact 客户端、blog 两种 transport 已接）。
+
+**papi（paperpipe）的 LLM 配置**：`airesearch/activate.sh` 的 `_airesearch_litellm_models()` 已改为**从 config/models.yaml 生成**（blog 路由做 summary/tldr/tags，embed 路由做向量）。此前它依赖 `AIRESEARCH_LLM_BASE_URL/_API_KEY`，而这两个变量在 `.env` 里从来没有值 → 生成的 litellm 配置是空的，papi 的摘要能力长期不可用且完全绕开管理台。注意 litellm 必须显式带 OpenCode 两个头（UA + `x-opencode-session`），否则 400 MissingSessionID —— 已在配置里内置。**限制**：papi 经 litellm 直连，不经过 `niu_core`，所以它的调用**不会**出现在调用记录里（后续若要覆盖，需让它改走统一层或加 litellm 回调）。
+
 **规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
 
 ---
