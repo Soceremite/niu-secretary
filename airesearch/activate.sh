@@ -3,6 +3,12 @@ set -a
 source /home/ubuntu/vibe_proj/niu-secretary/airesearch/.env
 set +a
 
+# litellm 调用记账（2026-09-16）：papi/paperpipe 内部直接用 litellm、不经过 niu_core，
+# 通过 sitecustomize 把回调挂上，使其调用也出现在管理台「API 用量」页。
+# 只在看起来是 papi 调用时生效（否则会给每条 python 命令加 litellm 启动开销）。
+_AIRESEARCH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH="$_AIRESEARCH_DIR/tools:$_AIRESEARCH_DIR/papi_hooks:${PYTHONPATH:-}"
+
 _airesearch_litellm_models() {
   # 2026-09-16：papi 的 LLM/embedding 配置改由 config/models.yaml（管理台可改）决定。
   # 原先依赖 AIRESEARCH_LLM_BASE_URL / AIRESEARCH_LLM_API_KEY，这两个变量在 .env 里
