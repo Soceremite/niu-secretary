@@ -139,21 +139,24 @@ class FormulaOCRConfig:
         return cls(
             api_base=(
                 values.get("AIRESEARCH_FORMULA_OCR_API_BASE")
+                # compat（config/models.yaml 路由）优先于历史通用变量：
+                # FITNESS_VISION_API_BASE / OPENCODE_GO_BASE_URL 指向本地网关，优先会压掉 yaml（2026-09-16）
+                or compat_base
                 or values.get("FITNESS_VISION_API_BASE")
                 or responses_url(values.get("OPENCODE_GO_BASE_URL"))
-                or compat_base
             ).strip(),
             api_key=(
                 values.get("AIRESEARCH_FORMULA_OCR_API_KEY")
+                # 同理：compat_key 是 yaml 端点自己的 key；排在通用 key 之前避免发错 key 得 401
+                or compat_key
                 or values.get("FITNESS_VISION_API_KEY")
                 or values.get("OPENCODE_GO_API_KEY")
-                or compat_key
                 or ""
             ).strip(),
             model=(
                 values.get("AIRESEARCH_FORMULA_OCR_MODEL")
-                or values.get("FITNESS_VISION_MODEL")
                 or compat_model
+                or values.get("FITNESS_VISION_MODEL")
                 or ""
             ).strip(),
             timeout_seconds=timeout_seconds,

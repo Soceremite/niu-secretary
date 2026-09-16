@@ -2236,22 +2236,36 @@ class OpenAICompatibleBlogProvider(BlogProvider):
         api_style: str | None = None,
         proxy_url: str | None = None,
     ) -> "OpenAICompatibleBlogProvider":
-        key_env_names = [
-            "AIRESEARCH_BLOG_API_KEY",
-            api_key_env,
-            "OPENCODE_GO_API_KEY",
-            "OPENAI_API_KEY",
-            "TRANSLATE_API_KEY",
-            "NIU_ASSISTANT_API_KEY",
-        ]
-        api_key = next(
+        # compat（config/models.yaml 的 blog 路由）优先于历史通用变量：后者都指向本地网关，
+        # 若排在前面会压掉 yaml 路由，导致「管理台改了模型但不生效」（2026-09-16 item 2 调整）
+        _compat_base, _compat_key, _compat_model = "", "", ""
+        try:
+            from niu_core.llm_client import compat as _niu_compat
+            _compat_base, _compat_key, _compat_model = _niu_compat.resolve("blog")
+        except Exception:
+            _compat_base, _compat_key, _compat_model = "", "", ""
+
+        # 优先级（2026-09-16 item 2，与 fact/formula_ocr 一致）：
+        #   请求指定的 api_key_env > AIRESEARCH_BLOG_API_KEY > yaml(compat) > 历史通用(网关) key
+        # 历史通用 key 都指向本地网关，若排在 compat 之前会把网关 key 发给 opencode → 401。
+        _explicit_key = next(
             (
                 os.environ.get(env_name, "").strip()
-                for env_name in dict.fromkeys(key_env_names)
+                for env_name in ("AIRESEARCH_BLOG_API_KEY", api_key_env)
                 if env_name and os.environ.get(env_name, "").strip()
             ),
             "",
         )
+        _legacy_key = next(
+            (
+                os.environ.get(env_name, "").strip()
+                for env_name in ("OPENCODE_GO_API_KEY", "OPENAI_API_KEY", "TRANSLATE_API_KEY",
+                                 "NIU_ASSISTANT_API_KEY")
+                if os.environ.get(env_name, "").strip()
+            ),
+            "",
+        )
+        api_key = _explicit_key or _compat_key or _legacy_key
         if not api_key:
             raise BlogValidationError(
                 "a configured blog API key is required for openai-compatible provider"
@@ -2259,12 +2273,14 @@ class OpenAICompatibleBlogProvider(BlogProvider):
         resolved_model = (
             model
             or os.environ.get("AIRESEARCH_BLOG_MODEL")
+            or _compat_model
             or os.environ.get("NIU_ASSISTANT_MODEL")
             or DEFAULT_BLOG_MODEL
         )
         resolved_base_url = (
             base_url
             or os.environ.get("AIRESEARCH_BLOG_BASE_URL")
+            or _compat_base
             or os.environ.get("OPENCODE_GO_BASE_URL")
             or os.environ.get("TRANSLATE_BASE_URL")
             or os.environ.get("OPENAI_BASE_URL")

@@ -53,9 +53,11 @@ class ModelError(Exception):
 def _post_openai(model: str, prompt: str, max_tokens: int,
                  timeout_s: float = 15,
                  disable_thinking: bool = False) -> str:
-    """Unified gateway call via niu_core.llm_client (config/models.yaml).
+    """统一走 niu_core.llm_client → config/models.yaml 的 assistant 路由。
 
-    Falls back to the legacy direct-urllib path when niu_core is unavailable.
+    注意：本函数的 `model` 参数、以及模块级的 BASE / API_KEY / DEFAULT_ASSISTANT_MODEL
+    都是历史遗留（现已不参与路由）：实际服务方由 models.yaml 决定，管理台改完即生效。
+    保留仅为兼容旧调用签名。
     v4: disable_thinking=True → 传 thinking:{type:disabled}
     """
     try:
@@ -187,6 +189,23 @@ def _openai_thinkoff(model_id: str, prompt: str, max_tokens: int, timeout: float
 
 # ====== 模型尝试框架 ======
 
+def _served_model_label(fallback: str) -> str:
+    """日志标签：真实服务方由 config/models.yaml 的 assistant 路由决定（管理台可改）。
+
+    `model_id`（来自 DEFAULT_ASSISTANT_MODEL）只是历史遗留的调用签名参数、不参与路由，
+    直接把它打进日志会误导排查（例如日志写 gpt-5.6-luna、实际是 opencode 的 glm-5.3-flash）。
+    """
+    try:
+        from niu_core.llm_client import compat as _compat
+
+        _base, _key, route_model = _compat.resolve("assistant")
+        if route_model:
+            return f"{route_model}(yaml)"
+    except Exception:
+        pass
+    return fallback
+
+
 def _try_models(models: list, prompt: str, task_name: str) -> Optional[any]:
     """按优先级尝试模型，成功返回结果，失败返回 None"""
     if os.environ.get("NIU_ASSISTANT_DEBUG"):
@@ -211,7 +230,7 @@ def _try_models(models: list, prompt: str, task_name: str) -> Optional[any]:
                 "passed",
                 elapsed_ms,
             )
-            print(f"[assistant] {model_id} {task_name}={result} in {elapsed_ms/1000:.1f}s")
+            print(f"[assistant] {_served_model_label(model_id)} {task_name}={result} in {elapsed_ms/1000:.1f}s")
             return result
         except Exception as e:
             elapsed_ms = int((time.time() - t0) * 1000)

@@ -52,7 +52,8 @@ else
   unset NIU_SECRETARY_ADMIN_SESSION_SECRET
 fi
 
-: "${OPENCODE_GO_BASE_URL:?OPENCODE_GO_BASE_URL is required in $ENV_FILE}"
+# 统一路由已收敛到 config/models.yaml（管理台可改），不再强制要求该历史变量（2026-09-16 item 2）
+: "${OPENCODE_GO_BASE_URL:=}"
 : "${OPENCODE_GO_API_KEY:?OPENCODE_GO_API_KEY is required in $ENV_FILE}"
 
 exec /usr/bin/python3 "$ROOT/server/niu_secretary_api.py"

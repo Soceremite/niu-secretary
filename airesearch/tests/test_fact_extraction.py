@@ -527,9 +527,20 @@ def test_openai_compatible_writes_facts_and_uses_cache(tmp_path: Path, monkeypat
 
 
 def test_openai_compatible_missing_api_key_fails(tmp_path: Path, monkeypatch):
+    """无任何可用 key 时必须明确报错。
+
+    2026-09-16 item 2：凭据默认来自 config/models.yaml 端点声明的 api_key_env，
+    而 compat 还会回落到 config/.env 的 key 文件 —— 所以「全空」不能只靠 delenv，
+    这里直接把 compat 的解析结果断成空 key。
+    """
     db_path = synced_fixture_db(tmp_path)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("OPENCODE_GO_API_KEY", raising=False)
+    # 三条来源都要断：显式路由 env、compat(yaml/.env 文件)、历史通用 key
+    for name in ("AIRESEARCH_FACT_API_KEY", "OPENCODE_GO_API_KEY", "OPENAI_API_KEY"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(
+        "niu_core.llm_client.compat.resolve",
+        lambda logic_model, env=None: ("https://unreachable.invalid/v1", "", "gpt-5.6-luna"),
+    )
 
     with pytest.raises(FactValidationError, match="OPENAI_API_KEY"):
         extract_research_facts(
@@ -542,27 +553,64 @@ def test_openai_compatible_missing_api_key_fails(tmp_path: Path, monkeypatch):
 
 
 def test_openai_compatible_uses_unified_opencode_fallback(tmp_path: Path, monkeypatch):
+    """2026-09-16 item 2：路由与凭据默认来自 config/models.yaml（compat）。
+
+    历史通用变量（OPENCODE_GO_* / OPENAI_*）已降级为兜底，不再压过 yaml；
+    这里断言取到的正是 yaml 的 fact 路由（随管理台改动而变，故动态解析）。
+    """
     db_path = synced_fixture_db(tmp_path)
-    monkeypatch.delenv("AIRESEARCH_FACT_API_KEY", raising=False)
-    monkeypatch.delenv("AIRESEARCH_FACT_BASE_URL", raising=False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
-    monkeypatch.setenv("OPENCODE_GO_API_KEY", "one-secret")
-    monkeypatch.setenv("OPENCODE_GO_BASE_URL", "https://opencode.example/v1")
+    for name in ("AIRESEARCH_FACT_API_KEY", "AIRESEARCH_FACT_BASE_URL", "AIRESEARCH_FACT_MODEL",
+                 "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENCODE_GO_API_KEY", "OPENCODE_GO_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
     client = FakeFactClient({"facts": []})
 
     result = extract_research_facts(
         db_path,
         provider_name="openai-compatible",
         paper_key="1706_03762",
-        model="gpt-5.6-luna",
         client=client,
         refresh_cache=True,
     )
 
+    from niu_core.llm_client import compat
+
+    base, key, _model = compat.resolve("fact")
     assert result.llm_calls == 1
-    assert client.calls[0]["api_key"] == "one-secret"
-    assert client.calls[0]["base_url"] == "https://opencode.example/v1/responses"
+    assert client.calls[0]["api_key"] == key
+    # 风格由 yaml 端点决定（chat_completions / responses 都可能），故只断言落在 yaml 的 base 上
+    assert client.calls[0]["base_url"].startswith(base.rstrip("/"))
+
+
+def test_route_env_beats_yaml_and_generic_env_is_only_fallback(tmp_path: Path, monkeypatch):
+    """锁住 2026-09-16 item 2 的优先级：显式路由 env > yaml(compat) > 历史通用 env。"""
+    db_path = synced_fixture_db(tmp_path)
+    monkeypatch.delenv("AIRESEARCH_FACT_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    # 历史通用变量故意指向错误的地方：不应生效（yaml 优先于它）
+    monkeypatch.setenv("OPENCODE_GO_API_KEY", "generic-should-lose")
+    monkeypatch.setenv("OPENCODE_GO_BASE_URL", "https://generic.example/v1")
+
+    client = FakeFactClient({"facts": []})
+    extract_research_facts(
+        db_path, provider_name="openai-compatible", paper_key="1706_03762",
+        client=client, refresh_cache=True,
+    )
+    from niu_core.llm_client import compat
+
+    _base, yaml_key, _model = compat.resolve("fact")
+    assert client.calls[0]["api_key"] == yaml_key, "yaml 应压过历史通用 key"
+    assert "generic.example" not in client.calls[0]["base_url"], "yaml 应压过历史通用 base"
+
+    # 显式路由 env 仍然最高优先（逃生舱保留）
+    monkeypatch.setenv("AIRESEARCH_FACT_API_KEY", "explicit-wins")
+    monkeypatch.setenv("AIRESEARCH_FACT_BASE_URL", "https://explicit.example/v1")
+    client2 = FakeFactClient({"facts": []})
+    extract_research_facts(
+        db_path, provider_name="openai-compatible", paper_key="1706_03762",
+        client=client2, refresh_cache=True,
+    )
+    assert client2.calls[0]["api_key"] == "explicit-wins"
+    assert client2.calls[0]["base_url"].startswith("https://explicit.example/v1")
 
 
 def test_openai_compatible_invalid_response_does_not_write_partial_facts(tmp_path: Path, monkeypatch):

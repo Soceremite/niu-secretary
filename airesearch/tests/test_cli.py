@@ -2064,8 +2064,14 @@ def test_cli_openai_compatible_dry_run(tmp_path: Path, capsys, monkeypatch):
 def test_cli_openai_compatible_missing_key_returns_2(tmp_path: Path, capsys, monkeypatch):
     db_path = tmp_path / "airesearch.sqlite3"
     paper_db = Path(__file__).parent / "fixtures" / "paperpipe_db"
-    monkeypatch.delenv("AIRESEARCH_FACT_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    # 2026-09-16 item 2：yaml(compat) 也会提供 key，制造「全空」必须把它一起断掉，
+    # 否则这条测试会真的打到上游（曾返回真实 401 "Model gpt5.5 is not supported"）而不是报缺 key。
+    for name in ("AIRESEARCH_FACT_API_KEY", "OPENAI_API_KEY", "OPENCODE_GO_API_KEY"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(
+        "niu_core.llm_client.compat.resolve",
+        lambda logic_model, env=None: ("https://unreachable.invalid/v1", "", "gpt-5.6-luna"),
+    )
     main(["--db", str(db_path), "--paper-db", str(paper_db), "sync-paperpipe"])
     capsys.readouterr()
 

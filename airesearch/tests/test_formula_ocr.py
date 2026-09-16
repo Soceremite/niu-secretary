@@ -13,7 +13,16 @@ from airesearch.formula_ocr import (
 )
 
 
-def test_formula_ocr_config_reuses_existing_vision_environment():
+def test_formula_ocr_config_reuses_existing_vision_environment(monkeypatch):
+    """yaml 没给出 formula_ocr 路由时，回落到塑形馆的视觉环境变量。
+
+    2026-09-16 item 2 后，FITNESS_VISION_* 属于「历史通用兜底」，排在 compat(yaml) 之后，
+    所以这里把 compat 断空来专门验证这条兜底路径。
+    """
+    monkeypatch.setattr(
+        "niu_core.llm_client.compat.resolve",
+        lambda logic_model, env=None: ("", "", ""),
+    )
     config = FormulaOCRConfig.from_env(
         {
             "FITNESS_VISION_API_BASE": "https://vision.example/v1",
@@ -32,17 +41,23 @@ def test_formula_ocr_config_reuses_existing_vision_environment():
 
 
 def test_formula_ocr_config_uses_unified_opencode_credentials():
+    """默认凭据/模型/端点来自 config/models.yaml（compat），而非历史 OPENCODE_GO_* 变量。"""
+    from niu_core.llm_client import compat
+
+    base, key, model = compat.resolve("formula_ocr")
     config = FormulaOCRConfig.from_env(
         {
+            # 历史通用变量故意指向别处：不应再生效（yaml 优先）
             "OPENCODE_GO_BASE_URL": "https://opencode.example/v1",
-            "OPENCODE_GO_API_KEY": "secret",
-            "OPENCODE_GO_PROXY": "http://127.0.0.1:7890",
-            "AIRESEARCH_FORMULA_OCR_MODEL": "gpt-5.6-luna",
+            "OPENCODE_GO_API_KEY": "generic-should-lose",
+            "AIRESEARCH_FORMULA_OCR_PROXY": "http://127.0.0.1:7890",
         }
     )
 
-    assert config.api_base == "https://opencode.example/v1/responses"
-    assert config.api_key == "secret"
+    assert config.api_base.rstrip("/") == base.rstrip("/")
+    assert config.api_key == key
+    assert config.model == model
+    assert "opencode.example" not in config.api_base
     assert config.proxy_url == "http://127.0.0.1:7890"
 
 

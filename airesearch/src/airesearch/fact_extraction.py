@@ -656,9 +656,12 @@ def extract_openai_compatible_facts(
     resolved_base_url = (
         base_url
         or os.environ.get("AIRESEARCH_FACT_BASE_URL")
+        # compat（config/models.yaml 的路由）必须排在历史通用变量之前：
+        # OPENCODE_GO_BASE_URL / OPENAI_BASE_URL 都指向本地网关，若优先会压掉 yaml 路由，
+        # 造成「管理台改了模型但不生效」（2026-09-16 调整）
+        or _compat_base_url
         or responses_url(os.environ.get("OPENCODE_GO_BASE_URL"))
         or os.environ.get("OPENAI_BASE_URL")
-        or _compat_base_url
     )
     init_db(db_path)
     started_at = utc_now()
@@ -677,13 +680,17 @@ def extract_openai_compatible_facts(
             api_key = (
                 os.environ.get(api_key_env)
                 or os.environ.get("AIRESEARCH_FACT_API_KEY")
+                # 同理：compat 提供的是 yaml 端点自己的 api_key_env（如 OPENCODE_SUBSCRIPTION_KEY），
+                # 必须优先于历史通用 key，否则会把网关 key 发给 opencode 导致 401（2026-09-16）
+                or _compat_key
                 or os.environ.get("OPENCODE_GO_API_KEY")
                 or os.environ.get("OPENAI_API_KEY")
             )
             if not api_key:
                 raise FactValidationError(
                     f"{api_key_env} is required for openai-compatible provider "
-                    "(fallbacks: AIRESEARCH_FACT_API_KEY, OPENAI_API_KEY, OPENCODE_GO_API_KEY)"
+                    "(fallbacks: AIRESEARCH_FACT_API_KEY, config/models.yaml 端点的 api_key_env, "
+                    "OPENCODE_GO_API_KEY, OPENAI_API_KEY)"
                 )
             target_papers = load_target_papers(
                 conn, paper_key=paper_key, paper_keys=paper_keys, limit=limit

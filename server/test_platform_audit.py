@@ -2617,6 +2617,13 @@ class PlatformAuditTest(unittest.TestCase):
         self.assertIn('send_error_json(400, "invalid_input"', api)
         self.assertIn('send_error_json(500, "action_failed"', api)
 
+        # item 2（2026-09-16）：统一路由以 config/models.yaml 为唯一源，
+        # 因此写 yaml 后必须失效进程内路由缓存，否则「管理台改了但要走重启才生效」
+        compat_src = Path("niu_core/llm_client/compat.py").read_text(encoding="utf-8")
+        self.assertIn("def reload()", compat_src)
+        admin = Path("server/llm_admin.py").read_text(encoding="utf-8")
+        self.assertIn("_compat.reload()", admin)
+
 
 if __name__ == "__main__":
     unittest.main()

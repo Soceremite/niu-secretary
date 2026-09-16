@@ -100,8 +100,11 @@ def test_blog_provider_can_use_unified_opencode_fallback(monkeypatch):
 
     provider = OpenAICompatibleBlogProvider.from_env()
 
-    assert provider.api_key == "one-secret"
-    assert provider.base_url == "https://opencode.example/v1"
+    from niu_core.llm_client import compat
+
+    _base, _key, _model = compat.resolve("blog")
+    assert provider.api_key == _key, "yaml(compat) 应压过历史通用 OPENCODE_GO_* key"
+    assert provider.base_url.rstrip("/") == _base.rstrip("/"), "yaml(compat) 应压过历史通用 base"
     assert isinstance(provider.transport, OpenAIResponsesBlogTransport)
     assert provider.transport.proxy_url == "http://127.0.0.1:7890"
 
@@ -2912,8 +2915,11 @@ def test_blog_provider_default_model_matches_configured_deepseek_model(monkeypat
     provider = OpenAICompatibleBlogProvider.from_env()
 
     assert provider.model == "deepseek-v4-pro"
-    assert provider.api_key == "test-key"
-    assert provider.base_url == "https://api.deepseek.com"
+    from niu_core.llm_client import compat
+
+    _base, _key, _model = compat.resolve("blog")
+    assert provider.api_key == _key, "yaml(compat) 应压过历史通用 TRANSLATE_* key"
+    assert provider.base_url.rstrip("/") == str(_base).rstrip("/")
 
 
 def test_blog_provider_defaults_from_unified_gateway_config(monkeypatch):
@@ -3241,6 +3247,11 @@ def test_blog_provider_uses_requested_key_env_before_openai_translate_and_assist
 
 def test_blog_provider_env_precedence_and_assistant_fallback(monkeypatch):
     clear_blog_provider_env(monkeypatch)
+    # 2026-09-16 item 2：yaml(compat) 是默认源，验证「助手环境兜底」需先把 compat 断空
+    monkeypatch.setattr(
+        "niu_core.llm_client.compat.resolve",
+        lambda logic_model, env=None: ("", "", ""),
+    )
     monkeypatch.setenv("NIU_ASSISTANT_API_KEY", "assistant-key")
     monkeypatch.setenv("NIU_ASSISTANT_MODEL", "assistant-model")
     monkeypatch.setenv("NIU_ASSISTANT_API_BASE", "https://assistant.example/v1/responses")

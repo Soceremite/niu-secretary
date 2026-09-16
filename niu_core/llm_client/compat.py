@@ -36,6 +36,15 @@ def reset_for_tests() -> None:
     _LOAD_FAILED = False
 
 
+def reload() -> None:
+    """丢弃缓存的 NiuLLM，使下一次 resolve() 重新读 config/models.yaml。
+
+    管理台/脚本改完 models.yaml 后必须调用：服务进程内缓存着旧路由表，
+    否则表现为「管理台改了模型但要重启服务才生效」（2026-09-16 item 2）。
+    """
+    reset_for_tests()
+
+
 def resolve(logic_model: str, env: Mapping[str, str] | None = None) -> tuple[str, str, str]:
     """Return (base_url, api_key, model) for a logic model, or raise LLMError.
 

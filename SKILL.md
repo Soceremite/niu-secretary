@@ -335,7 +335,18 @@ sudo deploy/rollback-airesearch.sh latest
 | 闲趣集 cron（11:00 更新 / 11:30 部署） | content + vision | 同上模式 |
 | 研知库（fact/blog/formula_ocr/embeddings） | 各自逻辑名 | **fact/blog → opencode_go/deepseek-v4.1-flash；formula_ocr → 同款（视觉）；embed → dashscope**（2026-09-16 切换） |
 
-**⚠️ 研知库的路由由两层决定，改 yaml 不够（2026-09-16 踩过）**：代码里 **env > config/models.yaml**（`tests/conftest.py` 有注记 + 3 个测试锁住该语义），而 `airesearch/.env` 里带着 `AIRESEARCH_FACT_MODEL/BASE_URL`、`AIRESEARCH_BLOG_*`、`AIRESEARCH_FORMULA_OCR_MODEL` 等显式变量 → **只改 yaml 完全不生效**（实测：网关计数照涨、formula_ocr 仍显示旧模型）。改研知库路由必须**同时**改：① `config/models.yaml` ② `airesearch/.env` 的对应显式变量（base 用 `https://opencode.ai/zen/go/v1`，key 用 `OPENCODE_SUBSCRIPTION_KEY` 的值）。想在管理台改一处就生效，需要先做「清掉散落变量」那步（会动 3 个优先级测试）。
+**✅ 研知库路由以 `config/models.yaml` 为唯一源（2026-09-16 item 2 完成）**：管理台「AI 渠道」页改完**即时生效**（`_write_config` 会调 `compat.reload()` 失效进程内缓存）。优先级顺序（由高到低）为：
+
+```
+显式调用参数 → 路由专属 env（AIRESEARCH_FACT_* / AIRESEARCH_BLOG_* / AIRESEARCH_FORMULA_OCR_*）
+             → config/models.yaml（compat，含 NIU_LLM_<NAME>_* 单次覆盖）
+             → 历史通用 env（OPENCODE_GO_* / OPENAI_* / TRANSLATE_* / NIU_ASSISTANT_* / FITNESS_VISION_*）
+             → 硬编码默认值
+```
+
+关键：`airesearch/.env` 里曾有一族**显式变量压在 yaml 之上**（`AIRESEARCH_FACT_MODEL/BASE_URL`、`AIRESEARCH_DEEPSEEK_BLOG_MODEL/BASE_URL`、`AIRESEARCH_LUNA_BLOG_*`、`AIRESEARCH_BLOG_API_STYLE` 等），已全部注释（备份在 `~/niu-env-backups/`）；代码侧也把 compat 提到了历史通用变量之前。**新增路由/模型只在 `config/models.yaml`（或管理台）改一处即可。**
+
+**⚠️ 动 `airesearch/.env` 的铁律（2026-09-16 血案）**：服务的启动脚本是 `set -euo pipefail`，`.env` 里若有**引用已被注释变量的行**（例如 `export OPENCODE_GO_API_KEY="$AIRESEARCH_FACT_API_KEY"`）会在 `unbound variable` 下直接退出 → 服务崩溃重启循环（本次实测重启计数冲到 12）、站点全挂。所以：① 注释任何变量前先 `grep -n '\$那变量' .env` 查引用；② 改完**必须先 `bash -u` 干跑**（`bash -u -c 'set -euo pipefail; set -a; source config/.env; source airesearch/.env; set +a; : "${OPENCODE_GO_API_KEY:?}"'`）；③ 再 `systemctl restart` 并用 `systemctl is-active` + `journalctl | grep -c "unbound variable"` 确认。
 
 **规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
 

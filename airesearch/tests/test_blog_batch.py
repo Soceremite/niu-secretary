@@ -2265,6 +2265,12 @@ def test_cli_requires_matching_backup_and_winner_before_generation(
     generation_calls: list[str] = []
     monkeypatch.setenv("NIU_ASSISTANT_API_BASE", "https://provider.example/v1")
     monkeypatch.setenv("NIU_ASSISTANT_API_KEY", "deepseek-test-key")
+    # 2026-09-16 item 2：运行时路由默认来自 config/models.yaml，要让运行时配置与
+    # A/B 胜者臂（provider.example/v1 + deepseek-v4-pro）一致，必须用显式路由 env
+    # （AIRESEARCH_BLOG_* 仍高于 yaml；NIU_ASSISTANT_* 已降级为兜底）
+    monkeypatch.setenv("AIRESEARCH_BLOG_BASE_URL", "https://provider.example/v1")
+    monkeypatch.setenv("AIRESEARCH_BLOG_API_KEY", "deepseek-test-key")
+    monkeypatch.setenv("AIRESEARCH_BLOG_MODEL", "deepseek-v4-pro")
     monkeypatch.setenv("AIRESEARCH_FORMULA_OCR_MODEL", "gpt-5.6-luna")
     monkeypatch.setenv(
         "AIRESEARCH_FORMULA_OCR_API_BASE",

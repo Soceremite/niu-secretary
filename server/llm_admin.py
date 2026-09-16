@@ -62,6 +62,13 @@ def _write_config(data: dict) -> None:
     tmp = _MODELS_YAML.with_suffix(".yaml.tmp")
     tmp.write_text(yaml.safe_dump(data, allow_unicode=True, sort_keys=False), encoding="utf-8")
     tmp.replace(_MODELS_YAML)
+    # 让服务进程内的路由表立刻跟随本次写入：compat 缓存着 NiuLLM（旧路由），
+    # 不失效的话管理台改完仍走老模型，必须重启服务才生效（2026-09-16 item 2）
+    try:
+        from niu_core.llm_client import compat as _compat
+        _compat.reload()
+    except Exception:
+        pass
 
 
 def _is_safe_endpoint_reference(endpoint: str, data: dict) -> tuple[bool, str]:
