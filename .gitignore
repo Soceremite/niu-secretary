@@ -53,3 +53,25 @@ news-daily/dist/candidates.json
 news-daily/dist/qq_digest.txt
 leisure/dist/qq_digest.txt
 airesearch/.env.backup-*
+
+# 隐私/凭据加固（2026-09-16）：commit 前另有 scripts/scan-secrets.py 钩子双保险，这里挡文件本身
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+id_ed25519*
+credentials*
+*credential*.json
+.netrc
+.npmrc
+rclone.conf
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.envrc
+.env.*
+# 例外：示例文件要能提交
+!**/*.env.example
+!**/*.example

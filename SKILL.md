@@ -370,6 +370,23 @@ python3 -m niu_core.llm_client report --days 1
 - 校验不过就**不产出也不上传**（坏备份不许静默通过）
 - 实测：本地 13.4s；恢复演练解压 2.3s、`integrity=ok`、**38 张表计数与线上库全部一致**
 - 密码由用户执行 `rclone config password niu pass` 注入（不进仓库、不进对话）；⚠️ `/data/disk` 挂载点根目录不可写，产物必须放 `niu-secretary/` 里面
+- **远端已实测打通（2026-09-16）**：`niu:webdav/`（库名 `webdav`，seafile vendor）→ 首次上传 94.8MB，大小校验一致 + **回读远端算 sha256 与本地一致** ✓
+
+**泄露凭据的清理（`scripts/scrub-secret-trace.py`，2026-09-16 实战沉淀）**：密码/token 一旦进了对话，会同时落在 6 处，少抹一处都还能搜出来 ——
+`state.db` 的 `messages`（content / tool_calls / **reasoning** / reasoning_content）、`state.db-wal`、**两套全文检索影子索引** `messages_fts` / `messages_fts_trigram`、`logs/agent.log`、`.hermes_history`、`.bash_history`。
+- 文本文件必须**同 inode 原地截断重写**（`sed -i` 会换 inode → 正在追加写的进程写进已删的 inode，日志黑洞）
+- 影子索引必须 `insert into messages_fts(messages_fts) values('rebuild')`（只改 messages 表，索引里仍能 `match` 到）
+- 最后 `pragma wal_checkpoint(truncate)` + `VACUUM`，否则旧字节留在 WAL 与空闲页
+- 备份快照本身含原文 ✗，确认无残留后要删掉
+- ⚠️ **本机清干净 ≠ 安全**：凭据已经随提示词发给了模型服务方，那部分收不回来 → **该轮换密码就轮换**
+
+**提交前防泄漏（`scripts/scan-secrets.py` + pre-commit 钩子，2026-09-16）**：三道防线，任一中招即拦下 ——
+- A **文件名**：`.env` / `*.key` / `*.pem` / `id_rsa*` / `credentials*` / `*.sqlite3` / `rclone.conf`（`.gitignore` 同步加固，示例文件用 `!**/*.example` 放行）
+- B **内容形态**：私钥块、`sk-` / `sk-ant-` / `ghp_` / `xox*` / `AKIA` / `AIza` / JWT / Bearer / rclone obscure / 校园账号标识
+- C **真实密钥值**：从 `config/.env`、`airesearch/.env`、`/etc/niu-secretary-api.env` 读**当前线上真值**反查内容 —— 零假阳性，最硬的一道
+- 用法：`--staged`（钩子用）/ `--tree` / `--history`（遍历所有 git 对象）/ **`--install-hook`**；放行就在行尾写 `secrets-scan:ignore` 并注明原因；输出只报「文件:行 类型 脱敏样例(len)」，**绝不回显完整值**
+- 实测：工作区 549 文件 + 历史 1725 blob → **0 命中**；造一个假 `sk-` 密钥提交 → **被拦下、提交未产生**
+- 注意：只扫 <512KB 的 blob；⚠️ **别再用 `git -c core.hooksPath=/dev/null` 提交**（那等于绕过这道闸门，仓库本来也没有别的钩子）
 
 **规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
 
