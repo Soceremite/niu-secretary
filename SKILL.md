@@ -363,6 +363,14 @@ python3 -m niu_core.llm_client report --days 1
 
 **papi（paperpipe）的 LLM 配置**：`airesearch/activate.sh` 的 `_airesearch_litellm_models()` 已改为**从 config/models.yaml 生成**（blog 路由做 summary/tldr/tags，embed 路由做向量）。此前它依赖 `AIRESEARCH_LLM_BASE_URL/_API_KEY`，而这两个变量在 `.env` 里从来没有值 → 生成的 litellm 配置是空的，papi 的摘要能力长期不可用且完全绕开管理台。注意 litellm 必须显式带 OpenCode 两个头（UA + `x-opencode-session`），否则 400 MissingSessionID —— 已在配置里内置。**限制已解决（2026-09-16 晚）**：papi 经 litellm 直连，原本不进调用记录 —— 现在通过 `airesearch/papi_hooks/sitecustomize.py` 在解释器启动时把 `airesearch/tools/papi_litellm_log.py` 的回调挂到 `litellm.success_callback/failure_callback`，其调用会以 `caller=papi(litellm)`、`logic_model=blog` 出现在「API 用量」页。只在看起来是 papi/paperpipe 调用时生效（或用 `NIU_LITELLM_HOOK=1/force` 强制），避免给该 shell 里其它 python 命令加 litellm 启动开销。
 
+**研知库数据库备份（2026-09-16 上线，650MB 库此前无任何副本）**：`scripts/backup-airesearch-db.sh` + ubuntu crontab **每日 03:20**（不依赖 hermes 网关）。
+- 本地 `/data/disk/niu-secretary/backups/airesearch/`：650M → zstd **95M**，留 30 份，带 `.sha256` 旁证
+- 远端 WebDAV（USTC Seafile `https://pan.ustc.edu.cn/seafdav/`）：rclone 远端 `niu:` → `webdav/airesearch/`，**每周日**自动上传、远端留 56 天
+- 链路：SQLite 在线备份 API → `integrity_check` + 表计数 → zstd → 本地裁剪 → rclone 上传 + 大小校验（`--verify-remote` 回读算哈希）
+- 校验不过就**不产出也不上传**（坏备份不许静默通过）
+- 实测：本地 13.4s；恢复演练解压 2.3s、`integrity=ok`、**38 张表计数与线上库全部一致**
+- 密码由用户执行 `rclone config password niu pass` 注入（不进仓库、不进对话）；⚠️ `/data/disk` 挂载点根目录不可写，产物必须放 `niu-secretary/` 里面
+
 **规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
 
 ---
