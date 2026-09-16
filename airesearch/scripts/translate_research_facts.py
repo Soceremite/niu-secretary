@@ -8,6 +8,16 @@ from pathlib import Path
 from urllib import request
 from urllib.error import HTTPError
 
+try:  # 调用记账（2026-09-16）：本脚本是自建 HTTP，需自带埋点
+    from niu_core.llm_client import call_log as _call_log
+except Exception:  # pragma: no cover
+    class _NullCallLog:
+        @staticmethod
+        def tracked(*_args, **_kwargs):
+            return lambda func: func
+
+    _call_log = _NullCallLog()
+
 from airesearch.db import connect, init_db
 from airesearch.research_digest import utc_now
 
@@ -19,6 +29,23 @@ SYSTEM_PROMPT = (
     "Return strict JSON with keys statement and evidence_quote."
 )
 
+
+
+
+def _llm_headers(base_url: str, api_key: str) -> dict:
+    """OpenCode relay 硬要求（2026-09-16）：正常 UA + x-opencode-session。
+
+    缺失时表现为 Cloudflare 403（error code 1010）或 400 MissingSessionID。
+    对其它服务商这两个头无副作用。
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+        "User-Agent": "NiuSecretary-LLM/1.0 (AIResearch)",
+    }
+    if "opencode.ai" in (base_url or ""):
+        headers["x-opencode-session"] = "niu-airesearch-translate"
+    return headers
 
 def _normalize_base_url(base_url: str) -> str:
     normalized = base_url.rstrip("/")
@@ -46,6 +73,8 @@ def _extract_json_object(text: str) -> dict[str, str]:
     }
 
 
+@_call_log.tracked("translate", model_param="model",
+                       prompt_param="statement", endpoint_param="base_url")
 def translate_fact(*, base_url: str, api_key: str, model: str, statement: str, evidence_quote: str) -> dict[str, str]:
     payload = {
         "model": model,
@@ -64,10 +93,7 @@ def translate_fact(*, base_url: str, api_key: str, model: str, statement: str, e
     req = request.Request(
         _normalize_base_url(base_url) + "/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-        },
+        headers=_llm_headers(base_url, api_key),
         method="POST",
     )
     try:

@@ -359,6 +359,8 @@ python3 -m niu_core.llm_client report --days 1
 
 字段：`ts / caller / logic_model / attempt / is_fallback / endpoint / model / style / status / error_* / latency_ms / prompt_chars / reply_chars / input_tokens / output_tokens`。`status` 有 `ok / error / skipped_no_key / skipped_cooldown` —— **"备选被用上了" 和 "端点缺 key 被跳过" 都能一眼看到**，这正是 2026-09-16 那类「悄悄落回网关/模型没换」问题的探针。`NIU_LLM_LOG=0` 可关，`NIU_LLM_LOG_DB` 可改落点；自建 HTTP 的调用方用 `call_log.tracked("route", endpoint_param=...)` 装饰器埋点（fact 客户端、blog 两种 transport 已接）。
 
+**翻译链路（2026-09-16 更正：不是死配置）**：`translate` 路由由两个**手工脚本** `airesearch/scripts/translate_assets.py`、`translate_research_facts.py` 使用（产出站点中文翻译，库里已有 326 条）。它们的 `--base-url/--model` 默认优先 `compat.resolve("translate")`，但 `.env` 的 `TRANSLATE_BASE_URL/TRANSLATE_API_KEY` 曾压过它 → 已注释。**坑**：两者都是 urllib 自建请求，必须带 OpenCode 两个头（正常 UA + `x-opencode-session`），否则 Cloudflare 403 `error code: 1010`；已加 `_llm_headers()` 并接上 `call_log` 埋点。
+
 **papi（paperpipe）的 LLM 配置**：`airesearch/activate.sh` 的 `_airesearch_litellm_models()` 已改为**从 config/models.yaml 生成**（blog 路由做 summary/tldr/tags，embed 路由做向量）。此前它依赖 `AIRESEARCH_LLM_BASE_URL/_API_KEY`，而这两个变量在 `.env` 里从来没有值 → 生成的 litellm 配置是空的，papi 的摘要能力长期不可用且完全绕开管理台。注意 litellm 必须显式带 OpenCode 两个头（UA + `x-opencode-session`），否则 400 MissingSessionID —— 已在配置里内置。**限制**：papi 经 litellm 直连，不经过 `niu_core`，所以它的调用**不会**出现在调用记录里（后续若要覆盖，需让它改走统一层或加 litellm 回调）。
 
 **规范**：新代码禁止直接硬编码 base_url/key/model；一律 `from niu_core.llm_client import NiuLLM` + 逻辑模型名。详见 [niu_core/llm_client/README.md](niu_core/llm_client/README.md)。
