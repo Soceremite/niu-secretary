@@ -133,6 +133,18 @@ def llm_routes_list_handler(payload: dict, context: dict) -> dict:
     return _routes_payload(data)
 
 
+@register_handler("llm.usage.report")
+def llm_usage_report_handler(payload: dict, context: dict) -> dict:
+    """统一层调用记录汇总（只读）——谁在用什么模型、失败率、备选率、token 用量。"""
+    from niu_core.llm_client import call_log
+
+    days = int(payload.get("days") or 7)
+    limit = int(payload.get("limit") or 20)
+    if days not in (1, 7, 30, 90):
+        days = 7
+    return {"ok": True, "action": "llm.usage.report", **call_log.summary(days=days, limit=limit)}
+
+
 def _live_probe(endpoint_name: str, base_url: str, api_key: str, timeout: float = 10.0) -> dict:
     """Try GET {base_url}/models; return status + model ids."""
     url = f"{base_url.rstrip('/')}/models"

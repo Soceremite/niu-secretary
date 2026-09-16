@@ -348,7 +348,8 @@ export const adminMenu = [
     title: 'AI 渠道',
     path: '/admin/llm/',
     items: [
-      { title: '模型路由 & 服务商', path: '/admin/llm/' }
+      { title: '模型路由 & 服务商', path: '/admin/llm/' },
+      { title: 'API 用量', path: '/admin/llm/usage' }
     ]
   }
 ]

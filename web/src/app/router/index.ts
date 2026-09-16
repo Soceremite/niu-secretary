@@ -12,6 +12,7 @@ const AdminResourcePage = () => import('@/modules/admin/AdminResourcePage.vue')
 const AdminAIResearchPage = () => import('@/modules/admin/AdminAIResearchPage.vue')
 const AdminAIResearchBlogsPage = () => import('@/modules/admin/AdminAIResearchBlogsPage.vue')
 const AdminLLMPage = () => import('@/modules/admin/AdminLLMPage.vue')
+const AdminLLMUsagePage = () => import('@/modules/admin/AdminLLMUsagePage.vue')
 
 const router = createRouter({
   history: createWebHistory('/niu-secretary/'),
@@ -50,7 +51,8 @@ const router = createRouter({
         { path: 'airesearch/publish', component: AdminAIResearchPage, props: { view: 'publish' } },
         { path: 'airesearch/jobs', component: AdminAIResearchPage, props: { view: 'tasks' } },
         { path: 'airesearch/tasks', component: AdminAIResearchPage, props: { view: 'tasks' } },
-        { path: 'llm/', name: 'admin-llm', component: AdminLLMPage }
+        { path: 'llm/', name: 'admin-llm', component: AdminLLMPage },
+        { path: 'llm/usage', name: 'admin-llm-usage', component: AdminLLMUsagePage }
       ]
     },
     { path: '/:pathMatch(.*)*', redirect: '/' }

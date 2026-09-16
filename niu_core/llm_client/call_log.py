@@ -297,6 +297,84 @@ def recent(limit: int = 20) -> list[dict[str, Any]]:
         return []
 
 
+def summary(days: int = 7, limit: int = 20) -> dict[str, Any]:
+    """结构化用量汇总（管理台页面用）。失败返回空结构，绝不抛。"""
+    days = int(days)
+    limit = int(limit)
+    empty: dict[str, Any] = {
+        "days": days, "total": 0, "ok": 0, "failed": 0, "skipped": 0, "fallbacks": 0,
+        "avgLatencyMs": 0, "inputTokens": 0, "outputTokens": 0,
+        "routes": [], "callers": [], "recentFailures": [],
+    }
+    try:
+        conn = _connect()
+        try:
+            conn.row_factory = sqlite3.Row
+            since = f"-{days} days"
+            head = conn.execute(
+                "select count(*) total,"
+                " sum(case when status = 'ok' then 1 else 0 end) ok,"
+                " sum(case when status = 'error' then 1 else 0 end) failed,"
+                " sum(case when status like 'skipped%' then 1 else 0 end) skipped,"
+                " sum(case when is_fallback = 1 then 1 else 0 end) fallbacks,"
+                " cast(avg(case when status = 'ok' then latency_ms end) as int) avg_ms,"
+                " sum(coalesce(input_tokens, 0)) in_tok,"
+                " sum(coalesce(output_tokens, 0)) out_tok"
+                " from llm_calls where ts >= datetime('now', ?)",
+                (since,),
+            ).fetchone()
+            routes = [
+                dict(r) for r in conn.execute(
+                    "select logic_model, endpoint, model, count(*) calls,"
+                    " sum(case when status = 'error' then 1 else 0 end) failed,"
+                    " sum(case when status like 'skipped%' then 1 else 0 end) skipped,"
+                    " sum(case when is_fallback = 1 then 1 else 0 end) fallbacks,"
+                    " cast(avg(case when status = 'ok' then latency_ms end) as int) avg_ms,"
+                    " sum(coalesce(input_tokens, 0)) in_tok,"
+                    " sum(coalesce(output_tokens, 0)) out_tok,"
+                    " max(ts) last_ts"
+                    " from llm_calls where ts >= datetime('now', ?)"
+                    " group by logic_model, endpoint, model order by calls desc limit ?",
+                    (since, limit),
+                ).fetchall()
+            ]
+            callers = [
+                dict(r) for r in conn.execute(
+                    "select caller, count(*) calls,"
+                    " sum(case when status = 'error' then 1 else 0 end) failed"
+                    " from llm_calls where ts >= datetime('now', ?)"
+                    " group by caller order by calls desc limit ?",
+                    (since, limit),
+                ).fetchall()
+            ]
+            failures = [
+                dict(r) for r in conn.execute(
+                    "select ts, caller, logic_model, endpoint, model, status, error_type, error_msg"
+                    " from llm_calls where status != 'ok' and ts >= datetime('now', ?)"
+                    " order by id desc limit ?",
+                    (since, min(limit, 50)),
+                ).fetchall()
+            ]
+            return {
+                "days": days,
+                "total": head["total"] or 0,
+                "ok": head["ok"] or 0,
+                "failed": head["failed"] or 0,
+                "skipped": head["skipped"] or 0,
+                "fallbacks": head["fallbacks"] or 0,
+                "avgLatencyMs": head["avg_ms"] or 0,
+                "inputTokens": head["in_tok"] or 0,
+                "outputTokens": head["out_tok"] or 0,
+                "routes": routes,
+                "callers": callers,
+                "recentFailures": failures,
+            }
+        finally:
+            conn.close()
+    except Exception:
+        return empty
+
+
 def report(days: int = 7, limit: int = 20) -> str:
     """终端友好的用量/失败率汇总。"""
     try:

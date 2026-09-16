@@ -355,6 +355,8 @@ python3 -m niu_core.llm_client report --days 7      # 按路由/端点/模型 + 
 python3 -m niu_core.llm_client report --days 1
 ```
 
+**管理台页面**：`/niu-secretary/admin/llm/usage`（导航「AI 渠道 → API 用量」）—— 统计卡（调用次数/失败率/走了备选/端点被跳过/平均耗时/tokens）+ 按路由模型表 + 按调用方表 + 最近失败明细，支持 24h/7d/30d/90d 切换，每 60 秒自动刷新。后端读 `llm.usage.report`（只读能力），数据来自 `call_log.summary()`。
+
 字段：`ts / caller / logic_model / attempt / is_fallback / endpoint / model / style / status / error_* / latency_ms / prompt_chars / reply_chars / input_tokens / output_tokens`。`status` 有 `ok / error / skipped_no_key / skipped_cooldown` —— **"备选被用上了" 和 "端点缺 key 被跳过" 都能一眼看到**，这正是 2026-09-16 那类「悄悄落回网关/模型没换」问题的探针。`NIU_LLM_LOG=0` 可关，`NIU_LLM_LOG_DB` 可改落点；自建 HTTP 的调用方用 `call_log.tracked("route", endpoint_param=...)` 装饰器埋点（fact 客户端、blog 两种 transport 已接）。
 
 **papi（paperpipe）的 LLM 配置**：`airesearch/activate.sh` 的 `_airesearch_litellm_models()` 已改为**从 config/models.yaml 生成**（blog 路由做 summary/tldr/tags，embed 路由做向量）。此前它依赖 `AIRESEARCH_LLM_BASE_URL/_API_KEY`，而这两个变量在 `.env` 里从来没有值 → 生成的 litellm 配置是空的，papi 的摘要能力长期不可用且完全绕开管理台。注意 litellm 必须显式带 OpenCode 两个头（UA + `x-opencode-session`），否则 400 MissingSessionID —— 已在配置里内置。**限制**：papi 经 litellm 直连，不经过 `niu_core`，所以它的调用**不会**出现在调用记录里（后续若要覆盖，需让它改走统一层或加 litellm 回调）。

@@ -1553,6 +1553,21 @@ CAPABILITIES = [
         "inputSchema": {"type": "object", "required": [], "properties": {}},
     },
     {
+        "name": "llm.usage.report",
+        "title": "LLM 调用记录",
+        "module": "platform",
+        "description": "统一层调用记录汇总：按路由/模型的调用量、失败率、备选率、平均耗时与 token，以及最近失败明细。只读。",
+        "confirmByDefault": False,
+        "inputSchema": {
+            "type": "object",
+            "required": [],
+            "properties": {
+                "days": {"type": "integer", "enum": [1, 7, 30, 90], "description": "统计窗口天数"},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+            },
+        },
+    },
+    {
         "name": "llm.endpoint.test",
         "title": "测试渠道连通+拉模型列表",
         "module": "platform",
