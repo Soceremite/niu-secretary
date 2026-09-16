@@ -8,7 +8,7 @@
 import re, json, subprocess, os, sys
 from pathlib import Path
 
-DIST = Path("/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist")
+DIST = Path(__file__).resolve().parents[1] / "dist"
 IMG_DIR = DIST / "assets" / "images"
 RESULTS_FILE = Path("/tmp/img_crawl_results.txt")
 REVIEWED_FILE = Path("/tmp/img_reviewed_results.txt")
@@ -152,6 +152,12 @@ for detail_id, data in sorted(id_data.items()):
 
     print(f"[{i}/{len(id_data)}] 🔍 审核: {detail_id}")
     print(f"    📰 {context['title'][:60]}...")
+    if not data["full_path"].exists():
+        # 爬图清单可能是上一轮遗留（pipelines 乱序/单步重跑时会出现），文件已不在盘上
+        print(f"    ❌ 图片文件未生成(crawl缺失)，无可审核素材: {data['img_path']}")
+        reviewed[detail_id] = "FAIL"
+        print()
+        continue
     print(f"    🖼️ {data['img_path']} ({data['full_path'].stat().st_size // 1024}KB)")
 
     passed, reason = review_image(data["full_path"], context)

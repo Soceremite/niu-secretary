@@ -201,11 +201,11 @@ def main() -> int:
 📚 小说
 1. 书名 — 一句话理由
 
-规则:不出现分数、字段名、JSON、路径;每类最多3条精选;口吻亲和自然。
+规则:不出现分数、字段名、JSON、路径;每类最多3条精选;口吻亲和自然;音乐的歌手必须取自数据里的 artist 字段,数据里该字段确实为空时才整段省略「歌手」,严禁写「歌手暂缺」这类占位词。
 
 今日推荐数据:
  movies: {[(m['title'], m.get('reason','')[:30]) for m in movies_out]}
- music: {[(m['title'], m.get('reason','')[:30]) for m in music_out]}
+ music: {[(m['title'], m.get('artist') or '', m.get('reason','')[:30]) for m in music_out]}
  novels: {[(n['title'], n.get('reason','')[:30]) for n in novels_out]}
  podcasts: {[(p.get('title',''), p.get('reason','')[:30]) for p in podcasts_out]}
 """

@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 
-DIST = Path("/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist")
+DIST = Path(__file__).resolve().parents[1] / "dist"
 REVIEWED_JSON = DIST / "image_review.json"
 REVIEWED_FILE = Path("/tmp/img_reviewed_results.txt")
 CRAWL_FILE = Path("/tmp/img_crawl_results.txt")

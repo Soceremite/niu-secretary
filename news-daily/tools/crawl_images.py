@@ -15,7 +15,7 @@ from extract_news_json import build_news_json
 from image_rules import extract_image_candidates
 
 
-DIST = Path("/home/ubuntu/.openclaw/workspace/niu-secretary/news-daily/dist")
+DIST = Path(__file__).resolve().parents[1] / "dist"
 IMG_DIR = DIST / "assets" / "images"
 RESULT_FILE = Path("/tmp/img_crawl_results.txt")
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"

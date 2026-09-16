@@ -50,6 +50,47 @@ EVENT_GROUP_RULES = (
     ("hormuz-us-iran", ("霍尔木兹",)),
 )
 
+GENERIC_EVENT_STOP_TERMS = {
+    "ai",
+    "人工",
+    "智能",
+    "科技",
+    "公司",
+    "行业",
+    "市场",
+    "发布",
+    "推出",
+    "计划",
+    "表示",
+    "报道",
+    "相关",
+    "需求",
+    "增长",
+    "中国",
+    "全球",
+    "模型",
+    "开源",
+    "参数",
+    "推理",
+}
+
+ENTITY_ALIASES = {
+    "nvidia": "英伟达",
+    "英伟达": "英伟达",
+    "openai": "openai",
+    "anthropic": "anthropic",
+    "claude": "claude",
+    "oracle": "甲骨文",
+    "甲骨文": "甲骨文",
+    "google": "google",
+    "deepmind": "deepmind",
+    "gemini": "gemini",
+    "kimi": "kimi",
+    "qwen": "qwen",
+    "通义": "qwen",
+    "deepseek": "deepseek",
+}
+
 
 class PageTitleParser(HTMLParser):
     def __init__(self) -> None:
@@ -111,6 +152,71 @@ def event_group_key(item: dict) -> str | None:
         if all(term in text for term in required_terms):
             return key
     return None
+
+
+def _section_value(item: dict) -> str:
+    value = str(item.get("section") or item.get("sectionName") or item.get("id") or "").lower()
+    for section in ("domestic", "international", "finance", "tech", "ai"):
+        if section in value:
+            return section
+    return value
+
+
+def _canonical_event_terms(item: dict) -> set[str]:
+    text = " ".join(str(item.get(key) or "") for key in ("title", "summary"))
+    lowered = text.lower()
+    terms: set[str] = set()
+
+    for raw, canonical in ENTITY_ALIASES.items():
+        if raw.lower() in lowered:
+            terms.add(canonical)
+
+    for token in re.findall(r"[a-z][a-z0-9.+-]{1,}", lowered):
+        if token not in GENERIC_EVENT_STOP_TERMS and len(token) >= 2:
+            terms.add(ENTITY_ALIASES.get(token, token))
+
+    for number in re.findall(r"\d+(?:\.\d+)?\s*(?:b|亿|万亿|tb|gb|%)?", lowered):
+        compact = re.sub(r"\s+", "", number)
+        if compact:
+            terms.add(compact)
+
+    for chunk in re.findall(r"[\u4e00-\u9fff]{2,}", text):
+        if len(chunk) <= 4 and chunk not in GENERIC_EVENT_STOP_TERMS:
+            terms.add(ENTITY_ALIASES.get(chunk, chunk))
+        for size in (2, 3, 4):
+            if len(chunk) < size:
+                continue
+            for index in range(len(chunk) - size + 1):
+                gram = chunk[index : index + size]
+                if gram not in GENERIC_EVENT_STOP_TERMS:
+                    terms.add(ENTITY_ALIASES.get(gram, gram))
+    return terms
+
+
+def _same_event(left: dict, right: dict) -> bool:
+    if _section_value(left) == _section_value(right):
+        return False
+    left_terms = _canonical_event_terms(left)
+    right_terms = _canonical_event_terms(right)
+    if not left_terms or not right_terms:
+        return False
+    overlap = left_terms & right_terms
+    if len(overlap) < 3:
+        return False
+    union = left_terms | right_terms
+    entity_overlap = overlap & set(ENTITY_ALIASES.values())
+    jaccard = len(overlap) / max(1, len(union))
+    return bool(entity_overlap and len(overlap) >= 3) or (len(overlap) >= 5 and jaccard >= 0.18)
+
+
+def cross_section_duplicate_pairs(items: list[dict]) -> list[tuple[dict, dict, set[str]]]:
+    pairs: list[tuple[dict, dict, set[str]]] = []
+    for left_index, left in enumerate(items):
+        for right in items[left_index + 1 :]:
+            if not _same_event(left, right):
+                continue
+            pairs.append((left, right, _canonical_event_terms(left) & _canonical_event_terms(right)))
+    return pairs
 
 
 def fetch_page_title(url: str, timeout: int = 12) -> tuple[int | str, str]:
@@ -177,6 +283,13 @@ def collect_source_issues(
     status_by_url = status_by_url or {}
     counts = Counter(item.get("sourceUrl", "") for item in items if item.get("sourceUrl"))
     event_counts = Counter(key for item in items if (key := event_group_key(item)))
+    duplicate_ids: dict[str, list[str]] = {}
+    for left, right, terms in cross_section_duplicate_pairs(items):
+        left_id = str(left.get("id") or "<missing-id>")
+        right_id = str(right.get("id") or "<missing-id>")
+        terms_text = ",".join(sorted(terms)[:6])
+        duplicate_ids.setdefault(left_id, []).append(f"{right_id} ({terms_text})")
+        duplicate_ids.setdefault(right_id, []).append(f"{left_id} ({terms_text})")
 
     for item in items:
         ident = item.get("id") or "<missing-id>"
@@ -208,6 +321,11 @@ def collect_source_issues(
         if group_key and event_counts[group_key] > max_event_reuse:
             issues.append(
                 f"{ident}: event group {group_key} appears {event_counts[group_key]} times; reduce cross-section repetition"
+            )
+
+        if ident in duplicate_ids:
+            issues.append(
+                f"{ident}: cross-section similar event with {', '.join(duplicate_ids[ident])}; keep it in only one section"
             )
 
     return issues

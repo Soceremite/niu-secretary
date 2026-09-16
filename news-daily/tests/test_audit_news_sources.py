@@ -3,6 +3,7 @@ import subprocess
 from audit_news_sources import (
     _fetch_page_title_with_curl,
     collect_source_issues,
+    cross_section_duplicate_pairs,
     event_group_key,
     is_generic_source_url,
     is_high_risk_item,
@@ -78,3 +79,51 @@ def test_detects_cross_section_event_repetition():
 
     assert event_group_key(items[0]) == "rocket-recovery"
     assert any("event group rocket-recovery appears 3 times" in issue for issue in issues)
+
+
+def test_detects_generic_cross_section_ai_tech_duplicate():
+    items = [
+        {
+            "id": "detail-tech-1",
+            "section": "tech",
+            "title": "英伟达推出30B开源AI模型Nemotron 3.5 Lightning",
+            "summary": "NVIDIA 发布 300 亿参数开源模型，主打高效推理。",
+            "sourceUrl": "https://example.com/nvidia-nemotron-tech.html",
+        },
+        {
+            "id": "detail-ai-1",
+            "section": "ai",
+            "title": "NVIDIA发布Nemotron 3.5 Lightning开源模型",
+            "summary": "英伟达新模型面向 AI 推理场景，参数规模约 30B。",
+            "sourceUrl": "https://example.org/nemotron-ai.html",
+        },
+    ]
+
+    pairs = cross_section_duplicate_pairs(items)
+    issues = collect_source_issues(items, source_titles={item["sourceUrl"]: item["title"] for item in items})
+
+    assert pairs
+    assert pairs[0][0]["id"] == "detail-tech-1"
+    assert pairs[0][1]["id"] == "detail-ai-1"
+    assert any("cross-section similar event" in issue for issue in issues)
+
+
+def test_allows_distinct_ai_adjacent_cross_section_stories():
+    items = [
+        {
+            "id": "detail-finance-1",
+            "section": "finance",
+            "title": "工业富联上半年净利润大增，AI服务器需求强劲",
+            "summary": "AI服务器订单推动业绩增长。",
+            "sourceUrl": "https://example.com/foxconn-ai-server.html",
+        },
+        {
+            "id": "detail-ai-1",
+            "section": "ai",
+            "title": "OpenAI高管宣布离职创业，奥尔特曼发文感谢",
+            "summary": "OpenAI 商业运营高管离职创业。",
+            "sourceUrl": "https://example.org/openai-exec.html",
+        },
+    ]
+
+    assert cross_section_duplicate_pairs(items) == []
