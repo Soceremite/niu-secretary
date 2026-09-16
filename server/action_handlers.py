@@ -16,6 +16,8 @@ from server.actions import register_handler, ActionError
 from server import store
 from server.capabilities import CAPABILITIES
 
+_AIRESEARCH_ADMIN_RUNTIME_INITIALIZED: set[str] = set()
+
 
 def _is_read_only(context: dict) -> bool:
     return bool(
@@ -2955,8 +2957,8 @@ def _airesearch_admin_module():
     return admin_server
 
 
-def _airesearch_admin_config():
-    admin_server = _airesearch_admin_module()
+def _build_airesearch_admin_config(admin_server=None):
+    admin_server = admin_server or _airesearch_admin_module()
     return admin_server.AdminConfig(
         base_path="/niu-secretary/airesearch/admin/",
         db_path=_airesearch_db_path(),
@@ -2988,6 +2990,21 @@ def _airesearch_admin_config():
         ),
         layout_formula_ocr_min_confidence=float(os.environ.get("AIRESEARCH_FORMULA_OCR_MIN_CONFIDENCE", "0.7")),
     )
+
+
+def _ensure_airesearch_admin_runtime():
+    admin_server = _airesearch_admin_module()
+    config = _build_airesearch_admin_config(admin_server)
+    runtime_key = str(config.db_path.resolve())
+    if runtime_key not in _AIRESEARCH_ADMIN_RUNTIME_INITIALIZED:
+        admin_server._mark_interrupted_jobs(config.db_path)
+        admin_server._ensure_worker(config)
+        _AIRESEARCH_ADMIN_RUNTIME_INITIALIZED.add(runtime_key)
+    return admin_server, config
+
+
+def _airesearch_admin_config():
+    return _ensure_airesearch_admin_runtime()[1]
 
 
 def _airesearch_admin_call(operation: str, callback, success_message: str) -> dict:
@@ -3275,7 +3292,7 @@ def airesearch_paper_search(payload: dict, context: dict) -> dict:
 
 @register_handler("airesearch.admin.state")
 def airesearch_admin_state(payload: dict, context: dict) -> dict:
-    admin_server = _airesearch_admin_module()
+    admin_server, _config = _ensure_airesearch_admin_runtime()
     result = admin_server.list_state(_airesearch_db_path())
     return {
         "ok": True,

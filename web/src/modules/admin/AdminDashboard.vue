@@ -75,13 +75,17 @@ const flatMenu = computed(() => adminMenu.flatMap((group) => group.items.map((it
   ...item,
   group: group.title
 }))))
-const defaultOpeneds = computed(() => adminMenu.map((group) => group.path))
-
 const normalizePath = (path: string) => path.length > 1 ? path.replace(/\/+$/, '') : path
 const normalizedPath = computed(() => normalizePath(route.path))
 const canonicalPath = computed(() => normalizedPath.value === '/admin/airesearch/jobs'
   ? '/admin/airesearch/tasks'
   : normalizedPath.value)
+const defaultOpeneds = computed(() => {
+  const activeGroup = adminMenu.find((group) => {
+    return group.items.some((item) => normalizePath(item.path) === canonicalPath.value)
+  })
+  return activeGroup && activeGroup.items.length > 1 ? [activeGroup.path] : []
+})
 const currentMenu = computed(() => flatMenu.value.find((item) => {
   return normalizePath(item.path) === canonicalPath.value
 }) || { title: '运营总览', group: '总览', path: '/admin/' })

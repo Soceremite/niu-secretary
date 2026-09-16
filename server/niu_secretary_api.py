@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import sys
 import time
+import traceback
 from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -131,6 +132,13 @@ class NiuSecretaryApiHandler(BaseHTTPRequestHandler):
                 return self.send_json(200, execute_action(action_name, action_input, context))
             except ActionError as exc:
                 return self.send_json(exc.status, exc.to_payload())
+            except ValueError as exc:
+                # handler 参数校验失败：回 400 可读 JSON。以前非 ActionError 会直接裸 500，
+                # 前端拿不到 message，用户看到的就是「点保存没反应」（2026-09-16 修）。
+                return self.send_error_json(400, "invalid_input", str(exc))
+            except Exception as exc:  # noqa: BLE001 - 兜底，保证任何异常都有可读响应
+                traceback.print_exc(file=sys.stderr)
+                return self.send_error_json(500, "action_failed", f"{type(exc).__name__}: {exc}")
 
     def handle_admin_login(self, payload: dict):
         username = str(payload.get("username") or "").strip()

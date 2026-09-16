@@ -21,8 +21,11 @@ for path in index.html assets; do
   fi
 done
 
-# No deletion flag: legacy static module directories stay available as direct-file rollback paths.
-rsync -av "$WEB_DIST"/ "$DEPLOY_ROOT"/
+# Keep legacy module directories on disk, but make the Vite entry and hashed
+# assets match this build exactly. Stale chunks can break dynamic imports.
+rsync -av "$WEB_DIST/index.html" "$DEPLOY_ROOT/index.html"
+mkdir -p "$DEPLOY_ROOT/assets"
+rsync -av --delete "$WEB_DIST/assets"/ "$DEPLOY_ROOT/assets"/
 
 cat > "$DEPLOY_ROOT/vue-deploy-manifest.json" <<EOF
 {"snapshot":"$SNAPSHOT_DIR","web_dist":"$WEB_DIST","deploy_root":"$DEPLOY_ROOT","deployed_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}

@@ -2592,6 +2592,31 @@ class PlatformAuditTest(unittest.TestCase):
         self.assertTrue(any(run["runType"] == "platform.run-daily" and run["source"] == "cron" for run in runs))
         self.assertTrue(os.path.exists(os.path.join("exports", "niu-secretary", "platform.json")))
 
+    def test_llm_admin_endpoint_edit_maps_row_fields_and_probe_uses_status_contract(self):
+        """管理台 AI 渠道页两个已修 bug 的回归守卫（2026-09-16）。
+
+        ① 端点列表项字段是 name / baseUrl / api_key_env / timeout，表单字段是
+           endpoint / baseUrl / apiKeyEnv / timeout_s。editEndpoint 若直接 {...row} 铺开，
+           表单里的 endpoint 就是 undefined → llm.endpoint.upsert 的 _safe_name("") 抛
+           ValueError → 前端只看到 HTTP 500（用户反馈「点保存没反应」）。
+        ② llm.endpoint.test 返回的是 status 字符串（reachable / auth_or_url_error /
+           unreachable / missing_key），没有布尔字段 reachable。模板读 probeResult.reachable
+           恒为 undefined，于是无论结果如何都显示「不可达」，与同屏的 HTTP 200 自相矛盾。
+        """
+        from pathlib import Path
+
+        page = Path("web/src/modules/admin/AdminLLMPage.vue").read_text(encoding="utf-8")
+        self.assertIn("endpoint: row.name || ''", page)
+        self.assertIn("apiKeyEnv: row.api_key_env", page)
+        self.assertNotIn("{ ...row,", page)
+        self.assertIn("probeResult.value?.status === 'reachable'", page)
+        self.assertNotIn("probeResult?.reachable", page)
+
+        api = Path("server/niu_secretary_api.py").read_text(encoding="utf-8")
+        # handler 抛出非 ActionError 时也必须回可读 JSON，不能再裸 500
+        self.assertIn('send_error_json(400, "invalid_input"', api)
+        self.assertIn('send_error_json(500, "action_failed"', api)
+
 
 if __name__ == "__main__":
     unittest.main()

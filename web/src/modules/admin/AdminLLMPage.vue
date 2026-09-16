@@ -198,11 +198,10 @@
     <el-dialog v-model="proberVisible" :title="proberTitle" width="560px" class="llm-dialog">
       <template v-if="proberMode === 'test'">
         <div class="probe-summary">
-          <el-tag :type="probeResult?.ok && probeResult?.reachable ? 'success' : 'danger'" effect="dark">
-            {{ probeResult?.reachable ? '可达' : '不可达' }}
-          </el-tag>
+          <el-tag :type="probeOk ? 'success' : 'danger'" effect="dark">{{ probeLabel }}</el-tag>
           <span>{{ probeResult?.latencyMs }}ms · {{ probeResult?.modelCount }} 个模型 · HTTP {{ probeResult?.http || '-' }}</span>
         </div>
+        <div v-if="probeDetail" class="probe-reply">{{ probeDetail }}</div>
         <el-input v-model="modelFilter" placeholder="过滤模型名…" size="small" clearable class="model-filter" />
         <div class="model-list-box">
           <div v-for="m in filteredTestModels" :key="m" class="model-item">{{ m }}</div>
@@ -251,6 +250,23 @@ const filteredTestModels = computed(() => {
   const list = probeResult.value?.models || []
   return q ? list.filter((m: string) => m.toLowerCase().includes(q)) : list
 })
+
+// 后端 llm.endpoint.test 返回的是 status 字符串（reachable / auth_or_url_error / unreachable /
+// missing_key），并不存在布尔字段 reachable —— 模板曾读 probeResult.reachable（恒 undefined），
+// 于是不管实际结果如何都显示「不可达」，与同屏的 HTTP 200 自相矛盾（2026-09-16 修）
+const probeOk = computed(() => probeResult.value?.status === 'reachable')
+const probeLabel = computed(() => {
+  const r = probeResult.value
+  if (!r) return '未测试'
+  switch (r.status) {
+    case 'reachable': return '可达'
+    case 'auth_or_url_error': return `认证/地址错误（HTTP ${r.http ?? '?'}）`
+    case 'unreachable': return '网络不可达'
+    case 'missing_key': return '缺少 API key'
+    default: return r.error === 'missing_key' ? '缺少 API key' : (r.error || r.status || '失败')
+  }
+})
+const probeDetail = computed(() => probeResult.value?.message || probeResult.value?.detail || '')
 
 const proberTitle = computed(() =>
   proberMode.value === 'test'
@@ -464,7 +480,17 @@ async function runTestEndpoint(row: any) {
 }
 
 function editEndpoint(row: any) {
-  endpointForm.value = { ...row, apiKey: '', isNew: false }
+  // 列表项字段（name / baseUrl / api_key_env / timeout）与表单字段（endpoint / apiKeyEnv / timeout_s）
+  // 不同名，必须显式映射：直接 {...row} 会让表单的 endpoint 为空 → 后端 _safe_name("") 抛错 → HTTP 500
+  endpointForm.value = {
+    endpoint: row.name || '',
+    baseUrl: row.baseUrl || 'https://',
+    apiKeyEnv: row.api_key_env || '',
+    apiKey: '',
+    style: row.style || 'chat_completions',
+    timeout_s: row.timeout ?? 120,
+    isNew: false,
+  }
   endpointFormVisible.value = true
 }
 
@@ -500,7 +526,9 @@ async function saveEndpoint() {
   try {
     await executeAdminAction(auth.token, 'llm.endpoint.upsert', endpointForm.value)
     endpointFormVisible.value = false
-    ElMessage.success('服务商已保存')
+    // 保存的 key 写进 config/.env，但运行中的服务进程 env 已固定 → 路由调用要重启才用得上
+    const keyHint = endpointForm.value.apiKey ? '（新 key 需重启 niu-secretary-api 才对路由调用生效）' : ''
+    ElMessage.success(`服务商已保存${keyHint}`)
     await refresh()
   } catch (exc: any) {
     ElMessage.error(exc?.message || '保存失败')

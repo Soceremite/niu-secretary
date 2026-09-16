@@ -225,12 +225,15 @@ def llm_endpoint_upsert_handler(payload: dict, context: dict) -> dict:
     if payload.get("apiKey"):
         _patch_env_file(env_var, payload["apiKey"])
 
-    endpoints[name] = {
+    # 合并写回：整体覆盖会连带抹掉 allowed_models（模型白名单）等未在表单里的键（2026-09-16 修）
+    merged = dict(endpoints.get(name) or {})
+    merged.update({
         "base_url": base_url,
         "api_key_env": env_var,
         "style": payload.get("style") or "chat_completions",
         "timeout_s": float(payload.get("timeout_s") or 120),
-    }
+    })
+    endpoints[name] = merged
     _write_config(data)
     return {"ok": True, "action": "llm.endpoint.upsert", "endpoint": name, "baseUrl": base_url,
             "apiKeyEnv": env_var}
