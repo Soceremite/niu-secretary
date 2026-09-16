@@ -22,14 +22,17 @@ endpoints:
     timeout_s: 120.0
 logic_models:
   content:
-    endpoint: deepseek
+    # 2026-09-16：主选从 deepseek 官方端点换到 opencode 订阅内同款模型。
+    # 官方端点缺 DEEPSEEK_API_KEY，每次调用都要先在本地失败一次再落备选（延迟代价≈0，
+    # 但路由表与实际服务方不符）；订阅内已有 deepseek-v4-pro，行为等价。
+    endpoint: opencode_go
     model: deepseek-v4-pro
     max_retries: 3
     fallback:
-    - endpoint: opencode_go
-      model: deepseek-v4-pro
     - endpoint: sub2api
       model: gpt-5.6-luna
+    - endpoint: deepseek
+      model: deepseek-v4-pro
   vision:
     endpoint: opencode_go
     model: deepseek-v4.1-flash
