@@ -188,13 +188,20 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.install_hook:
-        hook = REPO / ".git" / "hooks" / "pre-commit"
-        hook.parent.mkdir(parents=True, exist_ok=True)
-        hook.write_text("#!/usr/bin/env bash\n"
-                        "# 由 scripts/scan-secrets.py --install-hook 安装\n"
-                        "exec python3 \"$(git rev-parse --show-toplevel)/scripts/scan-secrets.py\" --staged\n")
-        hook.chmod(0o755)
-        print(f"✅ 已安装 pre-commit 钩子: {hook}")
+        hooks = REPO / ".git" / "hooks"
+        hooks.mkdir(parents=True, exist_ok=True)
+        tpl = ("#!/usr/bin/env bash\n"
+               "# 由 scripts/scan-secrets.py --install-hook 安装\n"
+               "exec python3 \"$(git rev-parse --show-toplevel)/scripts/scan-secrets.py\" {mode}\n")
+        # pre-commit 扫暂存区；pre-push 扫全部历史（推送后更难收回）
+        for name, mode in (("pre-commit", "--staged"), ("pre-push", "--history")):
+            hp = hooks / name
+            if hp.exists() and "scan-secrets" not in hp.read_text(errors="ignore"):
+                print(f"⚠️ {hp} 已存在且不是本工具安装的，跳过（请手动合并）")
+                continue
+            hp.write_text(tpl.format(mode=mode))
+            hp.chmod(0o755)
+            print(f"✅ 已安装钩子: {hp}   ({mode})")
         return 0
 
     allow = list(PATH_ALLOW) + list(args.allow)
