@@ -36,4 +36,14 @@ if [[ -n "$VERIFY_URL" ]]; then
   fi
 fi
 
+# Retain only the newest N pre-deploy snapshots (default 1) so disk usage stays bounded.
+SNAPSHOT_KEEP="${SNAPSHOT_KEEP:-1}"
+if [[ "$SNAPSHOT_KEEP" =~ ^[0-9]+$ ]] && (( SNAPSHOT_KEEP >= 1 )); then
+  mapfile -t _prune_snaps < <(find "$SNAPSHOT_ROOT" -mindepth 1 -maxdepth 1 -type d | sort)
+  _prune_count=$(( ${#_prune_snaps[@]} - SNAPSHOT_KEEP ))
+  for (( _i=0; _i<_prune_count; _i++ )); do
+    rm -rf -- "${_prune_snaps[_i]}" || echo "snapshot_prune_failed=${_prune_snaps[_i]}" >&2
+  done
+fi
+
 echo "static_site_deployed deploy_root=$DEPLOY_ROOT snapshot=$SNAPSHOT_DIR"
