@@ -184,6 +184,7 @@ sudo systemctl restart niu-secretary-api.service niu-fitness-api.service
 - 源码 `web/src/`（页面在 `web/src/modules/admin/`；「AI 渠道」页 = `AdminLLMPage.vue`）
 - 构建：`cd web && npm run build`（产物 `web/dist/`）
 - 部署：`bash deploy/deploy-vue-web.sh` —— 先快照到 `/var/www/html/.niu-secretary-vue-snapshots/<UTC 戳>/`，再 `rsync --delete` 到 `/var/www/html/niu-secretary/{index.html,assets/}`（**必须 --delete**：旧 hashed chunk 留着会撞动态 import）
+- 快照只保留最新 1 份（2026-10-08 起）：部署脚本末尾按 `SNAPSHOT_KEEP`（默认 1，env 可覆盖）回收旧快照，此前只增不删曾积 20 个 / 169M
 - ⚠️ 快照目录必须归 `ubuntu`：属主是 root 时脚本会在第 16 行 `mkdir` 直接 exit 1（2026-09-16 修，已 `chown ubuntu:ubuntu`）
 - ⚠️ 端点列表项与表单字段**不同名**，编辑保存必须显式映射：`name → endpoint`、`api_key_env → apiKeyEnv`、`timeout → timeout_s`。直接 `{...row}` 会让表单 `endpoint` 为空 → 保存静默失败（用户反馈「点保存没反应」）。回归测试：`server/test_platform_audit.py::test_llm_admin_endpoint_edit_maps_row_fields_and_probe_uses_status_contract`
 - ⚠️ `llm.endpoint.test` 返回的是 **status 字符串**（`reachable` / `auth_or_url_error` / `unreachable` / `missing_key`）+ `http` 状态码，**没有布尔 `reachable` 字段**。前端曾读 `probeResult.reachable`（恒 undefined）→ 无论真实结果都显示「不可达」，与同屏的 HTTP 200 自相矛盾（2026-09-16 修，现按 status 显示「可达 / 认证地址错误 / 网络不可达 / 缺少 API key」并在下方显示 detail）
@@ -252,7 +253,7 @@ AIResearch 是牛秘书当前最重的子系统。根项目文档只记录入口
 - SQLite 是 MVP 账本，记录论文、候选、来源、provenance、facts、reports、run history。
 - 报告必须基于可追溯 evidence，不把 `summary.md` 当作完整 literature review。
 - 生成性内容必须区分事实、证据和假设；假设要明确标注。
-- 外部静态站点部署前必须有快照，回滚使用 `deploy/rollback-airesearch.sh latest` 或指定快照名。
+- 外部静态站点部署前必须有快照，回滚使用 `deploy/rollback-airesearch.sh latest` 或指定快照名；快照**只保留最新 1 份**（`SNAPSHOT_KEEP` 默认 1，可用 env 覆盖），避免只增不删撑爆磁盘。
 
 ### 常用命令
 

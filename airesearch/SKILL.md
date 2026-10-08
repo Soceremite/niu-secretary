@@ -345,6 +345,8 @@ curl -s http://127.0.0.1/niu-secretary/airesearch/papers/colavla.html | grep 'pa
 
 产物与部署：`exports/site-current/` → `sudo rsync -av exports/site-current/ /var/www/html/niu-secretary/airesearch/`（**必须包含 `paper-assets/`、不加 `--delete`**，并把权限归一为目录 755 / 文件 644，否则 nginx 403）。
 
+- **部署回滚快照会自动回收（2026-10-08）**：`deploy/deploy-airesearch.sh` 部署前把当前部署根全量快照到 `SNAPSHOT_ROOT`（默认 `/var/www/html/niu-secretary/.airesearch-deploy-snapshots/`），原先只增不删、曾积 39 个 / 9.2G 撑爆根分区；现已在脚本末尾加 `SNAPSHOT_KEEP` 保留策略（**默认 1**，可用同名 env 覆盖），按目录名字典序只留最新 N 份。该 `.sh` 由 `static_publish.py::write_static_deploy_scripts` **生成**，改它必须同步改生成器，否则下次被覆盖。快照目录归 root（部署走 `sudo`），手动清理要 `sudo rm -rf`；`rm` 报 permission denied 时内容其实已删、只剩空壳。
+
 - 首页「最近上新」区块 + 每篇 `NEW` 标 + 双日期标签（arXiv 首发日 / 入库日）+ 时段筛选（近 7 天 / 30 天 / 全部）
 - 实现：`research_digest.py`（算 updated_at / 热度）+ `research_site.py`（渲染）；`api/papers.json` 每篇必须带日期字段
 - 验收口径：312 篇 **100% 带日期**，HTTP 200/200/200/200 + 一个预期 404，首页控件存在于 DOM

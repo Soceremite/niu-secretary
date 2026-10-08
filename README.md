@@ -646,7 +646,7 @@ curl --noproxy '*' -s http://127.0.0.1/niu-secretary/api/health
 - AI 生成的 action 必须先让用户确认，再写入数据库。
 - 服务端执行 action 前会做字段清洗、范围限制和动作白名单校验。
 - AIResearch 不提交真实 `.env`、API Key、SQLite 数据库、论文数据、生成站点、图片产物、日志或 manifest；这些内容必须在本地生成或从独立备份恢复。
-- 外部静态站点部署前先生成快照；需要回滚时使用 `rollback-airesearch.sh latest` 或指定快照名。
+- 外部静态站点部署前先生成快照；需要回滚时使用 `rollback-airesearch.sh latest` 或指定快照名。回滚快照只保留最新 1 份（`SNAPSHOT_KEEP` 默认 1，可用 env 覆盖）。
 
 ## Git 版本
 

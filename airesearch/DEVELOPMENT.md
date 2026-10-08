@@ -380,7 +380,7 @@ This section records the code and behavior that already exists. Keep it current 
 - `publish-diff.json` records added, removed, changed, and unchanged site files versus the previous publish, ignoring generated publish manifests.
 - `serve-report-site` serves the published directory over local HTTP for preview.
 - `write-static-host-config` writes a niu-secretary nginx `location` snippet and manifest under `deploy/` by default. It does not copy files into `/var/www`, modify system nginx files, or reload services.
-- `write-static-deploy-scripts` writes `deploy-airesearch.sh`, `rollback-airesearch.sh`, and `static-deploy-scripts.json`. The deploy script snapshots the current external deploy root before rsync; the rollback script restores the latest or named snapshot.
+- `write-static-deploy-scripts` writes `deploy-airesearch.sh`, `rollback-airesearch.sh`, and `static-deploy-scripts.json`. The deploy script snapshots the current external deploy root before rsync, prunes older snapshots keeping the newest `SNAPSHOT_KEEP` (default 1), and the rollback script restores the latest or named snapshot.
 
 ### Stage 5A Launch Refresh Automation
 
@@ -919,7 +919,7 @@ Generated files are local workflow artifacts. Keep the `*-current` names as the 
 | `exports/site-current/publish.json` | `publish-static-site` | Publish manifest with source bundle, output path, entrypoint, generated time, file count, and file list. |
 | `deploy/airesearch.nginx.conf` | `write-static-host-config` | nginx `location` snippet for hosting the published site under `/niu-secretary/airesearch/`. |
 | `deploy/static-host.json` | `write-static-host-config` | Static-host config manifest with base path, deploy root, deploy command, and site paths. |
-| `deploy/deploy-airesearch.sh` | `write-static-deploy-scripts` | External deploy script that snapshots the current deploy root and rsyncs the published site. |
+| `deploy/deploy-airesearch.sh` | `write-static-deploy-scripts` | External deploy script that snapshots the current deploy root, rsyncs the published site, then prunes snapshots keeping the newest `SNAPSHOT_KEEP` (default 1). |
 | `deploy/rollback-airesearch.sh` | `write-static-deploy-scripts` | External rollback script that restores the latest or named pre-deploy snapshot. |
 | `deploy/static-deploy-scripts.json` | `write-static-deploy-scripts` | Manifest for generated deploy and rollback scripts. |
 | `backups/airesearch-<label>.sqlite3` | `backup-db` | SQLite-safe backup before large refresh runs. |
